@@ -53,19 +53,19 @@ python models/experiments/run_quality_table2.py --mock --n 500
 ```bash
 # MDM model (LLaDA-8B as FlowFill substitute)
 python models/experiments/run_quality_table2.py \
-  --mdm --model GSAI-LLM/LLaDA-8B-Instruct --k-steps 8 --n 10000
+  --mdm --model GSAI-ML/LLaDA-8B-Instruct --k-steps 8 --n 10000
 
 # MDM latency (Table 3 FlowFill column)
 python models/experiments/run_latency_table3.py \
-  --mdm --model GSAI-LLM/LLaDA-8B-Instruct --k-steps 8 --n 10000
+  --mdm --model GSAI-ML/LLaDA-8B-Instruct --k-steps 8 --n 10000
 
 # MDM throughput (Table 4 FlowFill column)
 python models/experiments/run_throughput_table4.py \
-  --mdm --model GSAI-LLM/LLaDA-8B-Instruct --k-steps 8
+  --mdm --model GSAI-ML/LLaDA-8B-Instruct --k-steps 8
 
 # Ablations (Table 5 — needs MDM denoising loop implemented)
 python models/experiments/run_ablation_table5.py \
-  --model GSAI-LLM/LLaDA-8B-Instruct --k-steps 8
+  --model GSAI-ML/LLaDA-8B-Instruct --k-steps 8
 ```
 
 **MDM wrapper:** `models/baselines/mdm_wrapper.py` — `MDMModel` class with:

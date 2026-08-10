@@ -10,13 +10,13 @@ The key difference from AR:
   - MDM denoises all K mask tokens in parallel (K steps, K << 128)
 
 Open MDM substitutes for FlowFill-MDM (weights not released):
-  - LLaDA-8B (https://huggingface.co/GSAI-LLM/LLaDA-8B-Instruct)
+  - LLaDA-8B (https://huggingface.co/GSAI-ML/LLaDA-8B-Instruct)
   - Dream (https://huggingface.co/Dream-org/Dream-7B-Instruct)
 
 Usage (GPU required):
     from models.baselines.mdm_wrapper import MDMModel
 
-    model = MDMModel("GSAI-LLM/LLaDA-8B-Instruct", k_steps=8)
+    model = MDMModel("GSAI-ML/LLaDA-8B-Instruct", k_steps=8)
     result = model.extract(log_lines, source="bgl")
 
     # With Semi-AR blocks (Table 5 ablation)
@@ -120,7 +120,7 @@ class MDMModel:
       3. After K steps, parse the fully-unmasked output as JSON → Record.
 
     Args:
-        model_name: HuggingFace model ID (e.g. "GSAI-LLM/LLaDA-8B-Instruct")
+        model_name: HuggingFace model ID (e.g. "GSAI-ML/LLaDA-8B-Instruct")
         k_steps: number of denoising steps (default 8, paper's knee)
         device: "cuda" or "cpu"
         dtype: "auto", "float16", "bfloat16", "float32"
@@ -129,7 +129,7 @@ class MDMModel:
 
     def __init__(
         self,
-        model_name: str = "GSAI-LLM/LLaDA-8B-Instruct",
+        model_name: str = "GSAI-ML/LLaDA-8B-Instruct",
         k_steps: int = DEFAULT_K_STEPS,
         device: str = "cuda",
         dtype: str = "auto",
@@ -426,7 +426,7 @@ class MockMDMModel:
 #
 # 1. LLaDA-8B (primary MDM substitute)
 #    - Repo: https://github.com/ML-GSAI/LLaDA
-#    - HF: https://huggingface.co/GSAI-LLM/LLaDA-8B-Instruct
+#    - HF: https://huggingface.co/GSAI-ML/LLaDA-8B-Instruct
 #    - Loading: AutoModelForCausalLM + trust_remote_code=True
 #    - Inference: NOT model.generate(). LLaDA uses a custom denoising loop:
 #        - Input has [MASK] tokens at generation positions

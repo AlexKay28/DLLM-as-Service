@@ -150,5 +150,5 @@ pip install transformers accelerate torch
 python models/experiments/run_quality_table2.py --model Qwen/Qwen2.5-1.5B-Instruct --n 10000
 
 # MDM (needs denoising loop implementation first)
-python models/experiments/run_quality_table2.py --mdm --model GSAI-LLM/LLaDA-8B-Instruct --k-steps 8
+python models/experiments/run_quality_table2.py --mdm --model GSAI-ML/LLaDA-8B-Instruct --k-steps 8
 ```

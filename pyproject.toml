@@ -1,0 +1,59 @@
+[project]
+name = "dllm-as-service"
+version = "0.1.0"
+description = "Validating FlowFill paper claims: masked-diffusion LMs as a bounded-latency monitoring engine for streaming logs"
+readme = "README.md"
+requires-python = ">=3.10"
+
+dependencies = [
+    "huggingface_hub>=1.0",
+    "tqdm>=4.60",
+    "matplotlib>=3.5",
+]
+
+[project.optional-dependencies]
+# CPU-only baseline experiments (rule-based, Drain, per-field analysis)
+baselines = [
+    "logparser3>=0.1.0",
+]
+
+# GPU experiments: AR model inference (Qwen2.5-1.5B/7B)
+gpu-ar = [
+    "torch>=2.0",
+    "transformers>=4.40",
+    "accelerate>=0.20",
+    "sentencepiece>=0.1.99",
+]
+
+# GPU experiments: MDM/DLLM inference (LLaDA-8B, Dream)
+gpu-mdm = [
+    "torch>=2.0",
+    "transformers>=4.40",
+    "accelerate>=0.20",
+    "sentencepiece>=0.1.99",
+]
+
+# All GPU dependencies (AR + MDM)
+gpu = [
+    "dllm-as-service[gpu-ar]",
+    "dllm-as-service[gpu-mdm]",
+]
+
+# Grammar-constrained decoding (XGrammar) for AR+grammar baseline
+grammar = [
+    "xgrammar>=0.1",
+]
+
+[tool.uv]
+# Pre-download models to local cache (not installed as packages)
+# Models are fetched via huggingface_hub.snapshot_download
+
+[dependency-groups]
+dev = []
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["metrics", "models", "datasets"]
