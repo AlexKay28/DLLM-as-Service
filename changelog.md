@@ -86,3 +86,69 @@ the "structural match, semantic gap" pattern with real BGL data.
 
 **Caveat:** semantic F1 for classical baselines is inflated by self-generated
 gold labels (teacher distillation not released). AR substitutes need GPU.
+
+## 2026-08-11 — Issues #3/#4/#5/#6: GPU Experiment Infrastructure (prep)
+
+Built the AR + MDM model wrappers and experiment runners for all 4 GPU-dependent
+issues. All code is CPU-verified via `--mock` dry-runs; tomorrow's GPU work is
+just "load model + run."
+
+### AR infrastructure (substitutes for paper's AR-1.5B / AR-7B)
+
+- **`models/baselines/ar_model.py`** — prompt builder for 12-field extraction
+  (system prompt, few-shot examples, JSON output parser handling markdown fences
+  and partial JSON).
+- **`models/baselines/ar_wrapper.py`** — `ARModel` wraps HuggingFace models
+  (Qwen2.5-1.5B/7B), generates via chat template, parses JSON → Record, times
+  each event. Supports batch mode (m>1) for throughput experiments. Includes
+  `MockARModel` for GPU-less dry-runs (simulates paper's 168ms p50).
+- **`models/experiments/run_quality_table2.py`** (#3) — computes Field-F1,
+  Schema-validity, Consistency, Anomaly-F1. Writes `results/quality_table2.json`
+  + `.md` with comparison to paper Table 2.
+
+### MDM infrastructure (substitute for paper's FlowFill-MDM)
+
+- **`models/baselines/mdm_wrapper.py`** — `MDMModel` for masked-diffusion
+  inference (LLaDA-8B / Dream as open substitutes). Interface:
+  - `extract()` — K-step parallel denoising
+  - `extract_with_blocks()` — Semi-AR B=1/2/4 (Table 5 ablation)
+  - `extract_with_k()` — K-sweep (K=8 knee)
+  
+  Includes `MockMDMModel` simulating paper's 23ms p50 @ K=8 with linear
+  K-scaling. **BLOCKER:** `load()` and `_denoise()` raise
+  `NotImplementedError` — need LLaDA's custom denoising loop (integration
+  notes in file).
+
+### GPU experiment runners (all support `--mdm` flag)
+
+- **`models/experiments/run_latency_table3.py`** (#4) — streaming-mode (m=1)
+  latency + energy. `PowerMonitor` class polls `nvidia-smi` in background
+  thread; measures idle baseline, computes net J/event.
+- **`models/experiments/run_throughput_table4.py`** (#5) — batch sweep
+  [1..128] under 250ms p99 SLA. Finds max-batch @SLA, computes events/s
+  + tokens/s.
+- **`models/experiments/run_ablation_table5.py`** (#6) — Semi-AR block
+  ablation (B=1/2/4) + K-sweep ({2,4,6,8,10,12,16,24}). Includes K-knee plot.
+
+### Verified
+
+All 24 Python files compile. All 6 runners verified with `--mock` dry-runs:
+- AR mock: p50~168ms (matches paper's AR-1.5B)
+- MDM mock: p50~23ms at K=8 (matches paper's FlowFill)
+- MDM K-sweep: linear scaling (K=4→12ms, K=8→23ms, K=16→47ms)
+
+### Documentation
+
+- **`AGENTS.md`** — quick-start guide for tomorrow's GPU runs with exact
+  commands for AR and MDM experiments.
+
+**Tomorrow's GPU work:**
+```bash
+pip install transformers accelerate torch
+
+# AR (ready to run)
+python models/experiments/run_quality_table2.py --model Qwen/Qwen2.5-1.5B-Instruct --n 10000
+
+# MDM (needs denoising loop implementation first)
+python models/experiments/run_quality_table2.py --mdm --model GSAI-LLM/LLaDA-8B-Instruct --k-steps 8
+```
