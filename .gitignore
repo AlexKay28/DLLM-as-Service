@@ -8,3 +8,11 @@ __pycache__/
 venv/
 env/
 opencode-settings
+
+# Datasets — raw logs, Drain-parsed output, and splits are not committed.
+datasets/raw/
+datasets/parsed/
+datasets/splits/
+*.log
+*.log_part
+*.part

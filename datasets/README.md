@@ -77,26 +77,53 @@ All four corpora come from **LOGHUB** and the **USENIX CFDR HPC4** collection. T
 - **Original paper:** Oliner & Stearley (DSN'07) — same as BGL/Thunderbird
 - **Note:** Spirit is part of the USENIX CFDR HPC4 collection. It is NOT in the Zenodo LOGHUB archive.
 
-### Download All at Once
+### Download with `datasets/download.py`
+
+The repo ships a download script (pure stdlib, resumable, size-verified):
+
+```bash
+# All four corpora -> datasets/raw/
+python datasets/download.py --extract
+
+# Just the smaller corpora (HDFS 1.5 GiB + BGL 708 MiB)
+python datasets/download.py --only hdfs bgl --extract
+
+# Verify already-downloaded archives match the expected sizes
+python datasets/download.py --verify
+
+# Also fetch the 2k LOGHUB samples for smoke tests
+python datasets/download.py --samples --only hdfs bgl thunderbird
+```
+
+Each corpus is downloaded to `datasets/raw/<ARCHIVE>` (e.g. `HDFS_v1.zip`)
+and, with `--extract`, unpacked into `datasets/raw/<corpus>/`. Spirit is a
+single-file gzip (`Spirit.gz` -> `datasets/raw/spirit/Spirit.log`). The
+script resumes interrupted downloads via HTTP Range requests and keeps a
+`.part` file on size mismatch so a retry continues where it left off.
+
+### Manual download (alternative)
+
+If you prefer to fetch by hand:
 
 ```bash
 mkdir -p datasets/raw
-cd datasets/raw
+wget https://zenodo.org/records/8196385/files/HDFS_v1.zip?download=1       -O datasets/raw/HDFS_v1.zip
+wget https://zenodo.org/records/8196385/files/BGL.zip?download=1           -O datasets/raw/BGL.zip
+wget https://zenodo.org/records/8196385/files/Thunderbird.tar.gz?download=1 -O datasets/raw/Thunderbird.tar.gz
+wget http://0b4af6cdc2f0c5998459-c0245c5c937c5dedcca3f1764ecc9b2f.r43.cf2.rackcdn.com/hpc4/spirit2.gz -O datasets/raw/Spirit.gz
 
-# LOGHUB (Zenodo)
-wget https://zenodo.org/records/8196385/files/HDFS_v1.zip?download=1 -O HDFS.zip
-wget https://zenodo.org/records/8196385/files/BGL.zip?download=1 -O BGL.zip
-wget https://zenodo.org/records/8196385/files/Thunderbird.tar.gz?download=1 -O Thunderbird.tar.gz
-
-# USENIX CFDR
-wget http://0b4af6cdc2f0c5998459-c0245c5c937c5dedcca3f1764ecc9b2f.r43.cf2.rackcdn.com/hpc4/spirit2.gz -O Spirit.gz
-
-# Extract
-unzip HDFS.zip -d HDFS/
-unzip BGL.zip -d BGL/
-tar xzf Thunderbird.tar.gz -C Thunderbird/
-gunzip Spirit.gz
+unzip    datasets/raw/HDFS_v1.zip      -d datasets/raw/hdfs/
+unzip    datasets/raw/BGL.zip          -d datasets/raw/bgl/
+tar xzf  datasets/raw/Thunderbird.tar.gz -C datasets/raw/thunderbird/
+gunzip   datasets/raw/Spirit.gz        # -> datasets/raw/Spirit (rename to spirit/Spirit.log)
 ```
+
+### Thunderbird / Spirit are large
+
+Thunderbird is ~29.6 GiB and Spirit ~864 MiB compressed. For initial
+development use `--only hdfs bgl` (≈2.2 GiB total); the pipeline is identical
+across corpora. Both archives support resume, so a partial download can be
+continued by re-running the same command.
 
 ---
 
@@ -118,6 +145,91 @@ git clone https://github.com/logpai/loghub.git
 These samples also include pre-parsed structured CSVs from Drain:
 - `*_2k.log_structured.csv` — parsed log with EventId, EventTemplate, ParameterList
 - `*_2k.log_templates.csv` — extracted event templates
+
+---
+
+## Preparing the Splits with `datasets/prepare.py`
+
+After downloading + extracting the raw logs, build the temporal train/test
+splits and the 12-field schema records:
+
+```bash
+# Default: 600k lines/corpus, last 200k = test, parsed with Drain
+python datasets/prepare.py
+
+# Subset + custom sample sizes
+python datasets/prepare.py --only hdfs bgl --sample-size 600000 --test-size 200000
+
+# Quick smoke test on the 2k samples (no Drain install required)
+python datasets/prepare.py --smoke
+
+# Use a regex fallback parser if logparser3 is not installed
+python datasets/prepare.py          # auto-falls back; install logparser3 for full Drain
+```
+
+What `prepare.py` does, per corpus:
+
+1. **Locate** the raw `.log` file under `datasets/raw/<corpus>/`.
+2. **Reservoir-sample** `--sample-size` lines (default 600k) uniformly over
+   the file. Memory is bounded to the sample size (works on 211M-line
+   Thunderbird without loading it all).
+3. **Temporal split**: the last `--test-size` lines of the sample (default
+   200k) become the test set; the rest are train (matches the paper's
+   "hold out most recent 200k per corpus" strategy).
+4. **Parse with Drain** (via `logparser3`) for structural fields
+   (`message_template`, `component`, `severity`, `host`,
+   `timestamp_norm`, `error_code`, `affected_entity`, `metric_value`).
+   If `logparser3` is not installed, falls back to a regex-based template
+   detector so the pipeline still runs end-to-end.
+5. **Native anomaly labels**: BGL/Thunderbird/Spirit carry alert tags in
+   the first column ("- " = normal, anything else = anomaly); HDFS uses
+   severity-based heuristics in the absence of block-level labels. These
+   populate `is_anomaly` + `anomaly_score`.
+6. **Emit** 12-field schema records as JSONL:
+
+```
+datasets/splits/
+  train/<corpus>.jsonl      # 400k records/corpus
+  test/<corpus>.jsonl       # 200k records/corpus
+  manifest.json             # per-corpus counts + anomaly rates
+datasets/parsed/<corpus>/   # Drain structured + templates CSVs
+```
+
+### Semantic field labels (placeholder)
+
+The three semantic fields — `event_type`, `affected_entity`,
+`remediation_hint` — are **not** recoverable from Drain or native labels.
+The paper uses an unreleased teacher-distillation pipeline for these.
+`prepare.py` emits placeholder values (`event_type` = first 30 chars of
+the template, `remediation_hint` = `"none"`); replace them with
+teacher-distilled labels when a teacher LLM is wired in (see issue #6).
+
+### Manifest format
+
+`datasets/splits/manifest.json` records what was produced:
+
+```json
+{
+  "corpora": [
+    {
+      "corpus": "hdfs",
+      "raw_path": "datasets/raw/hdfs/HDFS.log",
+      "raw_lines": 11175629,
+      "sample_size": 600000,
+      "train_lines": 400000,
+      "test_lines": 200000,
+      "train_anomaly_pct": 2.87,
+      "test_anomaly_pct": 2.93,
+      "drain_available": true,
+      "semantic_labels": "placeholder (teacher distillation not released)"
+    },
+    ...
+  ],
+  "schema": ["timestamp_norm", "host", "component", ...],
+  "sample_size": 600000,
+  "test_size": 200000
+}
+```
 
 ---
 
@@ -200,23 +312,40 @@ The paper reformulates all four corpora as a **12-field schema-filling task**:
 
 ```
 datasets/
-├── README.md            # This file
-├── raw/                 # Raw downloaded logs (not committed to git)
-│   ├── HDFS/
-│   ├── BGL/
-│   ├── Thunderbird/
-│   └── Spirit/
-├── parsed/              # Drain-parsed output (not committed to git)
-│   ├── HDFS/
-│   ├── BGL/
-│   ├── Thunderbird/
-│   └── Spirit/
-└── splits/              # Temporal train/test splits (not committed to git)
-    ├── train/
-    └── test/
+  README.md               # This file
+  download.py             # Fetch + extract raw corpora
+  prepare.py              # Sample -> temporal split -> Drain -> 12-field JSONL
+  raw/                    # Raw downloaded logs (gitignored)
+    HDFS_v1.zip
+    BGL.zip
+    Thunderbird.tar.gz
+    Spirit.gz
+    hdfs/                 # Extracted
+    bgl/
+    thunderbird/
+    spirit/
+  parsed/                 # Drain-parsed output (gitignored)
+    hdfs/
+    bgl/
+    thunderbird/
+    spirit/
+  splits/                 # Temporal train/test splits (gitignored)
+    train/
+      hdfs.jsonl
+      bgl.jsonl
+      thunderbird.jsonl
+      spirit.jsonl
+    test/
+      hdfs.jsonl
+      bgl.jsonl
+      thunderbird.jsonl
+      spirit.jsonl
+    manifest.json
 ```
 
-> **Note:** Raw logs, parsed output, and splits should NOT be committed to git. Add them to `.gitignore`.
+> **Note:** `raw/`, `parsed/`, and `splits/` are gitignored — only the
+> scripts and this README are committed. Run `download.py` then
+> `prepare.py` to materialize the data.
 
 ---
 
