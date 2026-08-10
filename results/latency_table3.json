@@ -1,0 +1,48 @@
+{
+  "source": "bgl",
+  "n_events": 500,
+  "models": [
+    {
+      "model": "Qwen2.5-1.5B-Instruct",
+      "n_events": 500,
+      "steps": 128,
+      "p50_ms": 169.41,
+      "p99_ms": 237.49,
+      "p999_ms": 267.91,
+      "j_per_event": 0.0,
+      "avg_tokens_per_event": 128.0,
+      "total_time_s": 0.02,
+      "idle_power_w": 0
+    }
+  ],
+  "paper_table3": {
+    "AR-1.5B": {
+      "steps": 128,
+      "p50": 168,
+      "p99": 240,
+      "p999": 340,
+      "j": 3.9
+    },
+    "AR-1.5B + grammar": {
+      "steps": 128,
+      "p50": 205,
+      "p99": 292,
+      "p999": 410,
+      "j": 4.8
+    },
+    "FlowFill-MDM (K=8)": {
+      "steps": 8,
+      "p50": 23,
+      "p99": 31,
+      "p999": 36,
+      "j": 0.7
+    },
+    "AR-7B": {
+      "steps": 128,
+      "p50": 690,
+      "p99": 910,
+      "p999": 1240,
+      "j": 22.5
+    }
+  }
+}
