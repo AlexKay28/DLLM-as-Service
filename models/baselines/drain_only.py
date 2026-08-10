@@ -37,7 +37,7 @@ class DrainResult:
 
 LOG_FORMATS = {
     "hdfs": "<Date> <Time> <Pid> <Level> <Component>: <Content>",
-    "bgl": "<Label> <Timestamp> <Date> <Time> <Node> <Component> <Level> <Content>",
+    "bgl": "<Label> <Timestamp> <Date> <Node> <Time> <NodeRepeat> <RAS> <Component> <Level> <Content>",
     "thunderbird": "<Label> <Timestamp> <Date> <Time> <Node> <Component> <Level> <Content>",
     "spirit": "<Label> <Timestamp> <Date> <Time> <Node> <Component> <Level> <Content>",
 }
@@ -176,6 +176,7 @@ def _extract_fallback(log_lines: list[str], source: str = "hdfs") -> DrainResult
         rec = Record(fields={})
 
         parts = line_stripped.split(None, 7)
+        label = "-"
 
         if source == "hdfs" and len(parts) >= 5:
             rec.set("timestamp_norm", f"{parts[0]} {parts[1]}")
@@ -183,7 +184,20 @@ def _extract_fallback(log_lines: list[str], source: str = "hdfs") -> DrainResult
             rec.set("severity", SEVERITY_MAP.get(parts[3].lower(), parts[3].upper()) if len(parts) > 3 else "INFO")
             rec.set("component", parts[4].rstrip(":") if len(parts) > 4 else "")
             content = parts[7] if len(parts) > 7 else ""
-        elif source in ("bgl", "thunderbird", "spirit") and len(parts) >= 7:
+        elif source == "bgl":
+            # BGL full log: <Label> <Timestamp> <Date> <Node> <Time>
+            #   <NodeRepeat> <RAS> <Component> <Level> <Content>
+            bgl_parts = line_stripped.split(None, 9)
+            if len(bgl_parts) >= 9:
+                label = bgl_parts[0]
+                rec.set("timestamp_norm", bgl_parts[1])
+                rec.set("host", bgl_parts[3])
+                rec.set("component", bgl_parts[7])
+                rec.set("severity", SEVERITY_MAP.get(bgl_parts[8].lower(), bgl_parts[8].upper()))
+                content = bgl_parts[9] if len(bgl_parts) > 9 else ""
+            else:
+                content = line_stripped
+        elif source in ("thunderbird", "spirit") and len(parts) >= 7:
             label = parts[0]
             rec.set("timestamp_norm", parts[1])
             rec.set("host", parts[4])
@@ -224,7 +238,7 @@ def _extract_fallback(log_lines: list[str], source: str = "hdfs") -> DrainResult
             rec.set("metric_value", metric_match.group(1))
 
         severity = rec.get("severity", "INFO")
-        is_anom = severity in ("ERROR", "FATAL", "CRITICAL") or (source in ("bgl", "thunderbird", "spirit") and parts and parts[0] != "-")
+        is_anom = severity in ("ERROR", "FATAL", "CRITICAL") or label != "-"
         rec.set("is_anomaly", "true" if is_anom else "false")
         rec.set("anomaly_score", "1.0" if is_anom else "0.0")
         rec.set("event_type", template[:30])

@@ -55,9 +55,13 @@ DEFAULT_PARSED_DIR = REPO_ROOT / "datasets" / "parsed"
 CORPORA = ["hdfs", "bgl", "thunderbird", "spirit"]
 
 # Log formats — same as models/baselines/drain_only.py.
+# BGL full log has 9 leading fields before content (verified against BGL.log):
+#   <Label> <Timestamp> <Date> <Node> <Time> <NodeRepeat> <RAS> <Component> <Level> <Content>
+# HDFS uses syslog-style "<Date> <Time> <Pid> <Level> <Component>: <Content>".
+# Thunderbird/Spirit full logs follow the 7-field LOGHUB format.
 LOG_FORMATS = {
     "hdfs":        "<Date> <Time> <Pid> <Level> <Component>: <Content>",
-    "bgl":         "<Label> <Timestamp> <Date> <Time> <Node> <Component> <Level> <Content>",
+    "bgl":         "<Label> <Timestamp> <Date> <Node> <Time> <NodeRepeat> <RAS> <Component> <Level> <Content>",
     "thunderbird": "<Label> <Timestamp> <Date> <Time> <Node> <Component> <Level> <Content>",
     "spirit":      "<Label> <Timestamp> <Date> <Time> <Node> <Component> <Level> <Content>",
 }
@@ -233,22 +237,36 @@ def _fallback_parse(corpus: str, log_lines: list[str]) -> list[dict]:
     """
     out = []
     for line in log_lines:
-        parts = line.split(None, 7)
         row: dict = {"Label": "-", "Content": line}
-        if corpus == "hdfs" and len(parts) >= 5:
-            row["Date"] = parts[0]
-            row["Time"] = parts[1] if len(parts) > 1 else ""
-            row["Level"] = parts[3] if len(parts) > 3 else "INFO"
-            row["Component"] = parts[4].rstrip(":") if len(parts) > 4 else ""
-            row["Content"] = parts[7] if len(parts) > 7 else ""
+        if corpus == "hdfs":
+            parts = line.split(None, 7)
+            if len(parts) >= 5:
+                row["Date"] = parts[0]
+                row["Time"] = parts[1] if len(parts) > 1 else ""
+                row["Level"] = parts[3] if len(parts) > 3 else "INFO"
+                row["Component"] = parts[4].rstrip(":") if len(parts) > 4 else ""
+                row["Content"] = parts[7] if len(parts) > 7 else ""
             row["Node"] = ""
-        elif corpus in ("bgl", "thunderbird", "spirit") and len(parts) >= 7:
-            row["Label"] = parts[0]
-            row["Timestamp"] = parts[1]
-            row["Node"] = parts[4]
-            row["Component"] = parts[5]
-            row["Level"] = parts[6]
-            row["Content"] = parts[7] if len(parts) > 7 else ""
+        elif corpus == "bgl":
+            # BGL full log: <Label> <Timestamp> <Date> <Node> <Time>
+            #   <NodeRepeat> <RAS> <Component> <Level> <Content>
+            parts = line.split(None, 9)
+            if len(parts) >= 9:
+                row["Label"] = parts[0]
+                row["Timestamp"] = parts[1]
+                row["Node"] = parts[3]
+                row["Component"] = parts[7]
+                row["Level"] = parts[8]
+                row["Content"] = parts[9] if len(parts) > 9 else ""
+        elif corpus in ("thunderbird", "spirit"):
+            parts = line.split(None, 7)
+            if len(parts) >= 7:
+                row["Label"] = parts[0]
+                row["Timestamp"] = parts[1]
+                row["Node"] = parts[4]
+                row["Component"] = parts[5]
+                row["Level"] = parts[6]
+                row["Content"] = parts[7] if len(parts) > 7 else ""
         else:
             row["Content"] = line
         # Build a coarse template by replacing variable tokens with <*>.
@@ -417,6 +435,15 @@ def prepare_corpus(corpus: str, raw_dir: Path, out_dir: Path,
     _write_jsonl(test_records, test_path)
     print(f"  wrote {train_path} ({len(train_records):,})")
     print(f"  wrote {test_path}  ({len(test_records):,})")
+
+    # Save raw test lines so the experiment runner can feed them to
+    # extractors (rule_based/drain) and compare predictions to gold records.
+    raw_test_path = out_dir / "test" / f"{corpus}.raw"
+    raw_test_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(raw_test_path, "w", encoding="utf-8") as f:
+        for line in test_lines:
+            f.write(line + "\n")
+    print(f"  wrote {raw_test_path} ({len(test_lines):,})")
 
     return {
         "corpus": corpus,
