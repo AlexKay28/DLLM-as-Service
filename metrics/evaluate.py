@@ -13,9 +13,13 @@ import json
 import sys
 from pathlib import Path
 
-from schema import Record, FIELD_NAMES
-from quality_metrics import field_f1, schema_validity, consistency, anomaly_f1
-from latency_metrics import latency_percentiles, throughput_at_sla, energy_per_event
+_REPO_ROOT = Path(__file__).resolve().parent.parent
+if str(_REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(_REPO_ROOT))
+
+from metrics.schema import Record, FIELD_NAMES
+from metrics.quality_metrics import field_f1, schema_validity, consistency, anomaly_f1
+from metrics.latency_metrics import latency_percentiles, throughput_at_sla, energy_per_event
 
 
 def load_records(path: str) -> list[Record]:

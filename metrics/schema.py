@@ -57,8 +57,8 @@ class Record:
     """A single structured log record."""
     fields: dict[str, Any] = field(default_factory=dict)
 
-    def get(self, name: str) -> Optional[Any]:
-        return self.fields.get(name)
+    def get(self, name: str, default: Any = None) -> Any:
+        return self.fields.get(name, default)
 
     def set(self, name: str, value: Any) -> None:
         self.fields[name] = value

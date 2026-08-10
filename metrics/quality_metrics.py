@@ -6,7 +6,7 @@ Implements the metrics defined in the FlowFill paper (§5, Table 2).
 
 from typing import Optional
 
-from schema import FIELD_NAMES, FIELD_BY_NAME, Record, FieldType
+from metrics.schema import FIELD_NAMES, FIELD_BY_NAME, Record, FieldType
 
 
 def _tokenize(value: Optional[str]) -> list[str]:
