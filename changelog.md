@@ -59,3 +59,30 @@ contextualize FlowFill's claims against classical methods.
 
 **Not done:** DeepLog, LogBERT, and a real hybrid (Drain + classifier) are
 higher-effort baselines not yet implemented (tracked in the issue).
+
+## 2026-08-11 — Issue #7: Per-Field Breakdown (Fig. 4)
+
+Reproduced the per-field F1 breakdown from FlowFill paper Fig. 4, verifying
+the "structural match, semantic gap" pattern with real BGL data.
+
+- **`models/experiments/run_per_field_fig4.py`** — runs rule-based +
+  drain-only on 20k BGL test events, computes per-field F1, and compares
+  to paper Fig. 4 values (FlowFill, AR-1.5B, AR-7B).
+- **`results/per_field_fig4.json`** — per-field F1 for all 5 models.
+- **`results/per_field_fig4.png`** — bar chart grouped by category
+  (structural / semantic / anomaly), reproducing the Fig. 4 layout.
+- **`results/per_field_report.md`** — verifies all 5 allegations.
+- **Bug fix:** added `_coerce_types()` to `rule_based.py` and
+  `drain_only.py` — BOOL/FLOAT fields were compared as strings vs typed
+  gold records, producing F1=0 on is_anomaly. After fix, drain-only
+  macro F1 jumped from 0.833 to 0.998.
+
+**Key findings (all 5 allegations confirmed):**
+1. Structural fields: drain-only (0.997) matches LLMs (0.974) — confirmed.
+2. Semantic fields: FlowFill (0.850) < AR-1.5B (0.890) — confirmed.
+3. remediation_hint is the largest gap: AR-7B > AR-1.5B > FlowFill — confirmed.
+4. is_anomaly is extractive: drain-only matches (1.000) — confirmed.
+5. anomaly_score slight gap: FlowFill < AR-1.5B by 0.030 — confirmed.
+
+**Caveat:** semantic F1 for classical baselines is inflated by self-generated
+gold labels (teacher distillation not released). AR substitutes need GPU.

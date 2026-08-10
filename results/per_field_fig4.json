@@ -1,0 +1,137 @@
+{
+  "source": "BGL (LOGHUB), 20k test events",
+  "note": "Classical baselines (rule-based, drain-only) are reproduced on real BGL data. FlowFill/AR values are from the paper's Fig. 4 (not reproduced \u2014 model weights unavailable). Gold labels for semantic fields are placeholders (teacher distillation not released), so semantic F1 for classical baselines is an artifact of self-comparison, not a real semantic capability.",
+  "fields": [
+    "timestamp_norm",
+    "host",
+    "severity",
+    "component",
+    "message_template",
+    "error_code",
+    "metric_value",
+    "event_type",
+    "affected_entity",
+    "remediation_hint",
+    "is_anomaly",
+    "anomaly_score"
+  ],
+  "categories": {
+    "structural": [
+      "timestamp_norm",
+      "host",
+      "component",
+      "severity",
+      "message_template",
+      "error_code",
+      "metric_value"
+    ],
+    "semantic": [
+      "event_type",
+      "affected_entity",
+      "remediation_hint"
+    ],
+    "anomaly": [
+      "is_anomaly",
+      "anomaly_score"
+    ]
+  },
+  "per_field_f1": {
+    "rule-based": {
+      "timestamp_norm": 0.0,
+      "host": 0.0089,
+      "severity": 0.9949,
+      "component": 0.9777,
+      "message_template": 0.0073,
+      "error_code": 0.9932,
+      "metric_value": 0.0,
+      "event_type": 0.0,
+      "affected_entity": 0.3691,
+      "remediation_hint": 1.0,
+      "is_anomaly": 0.9999,
+      "anomaly_score": 0.9999
+    },
+    "drain-only": {
+      "timestamp_norm": 1.0,
+      "host": 1.0,
+      "severity": 0.9949,
+      "component": 1.0,
+      "message_template": 0.9859,
+      "error_code": 1.0,
+      "metric_value": 1.0,
+      "event_type": 0.9928,
+      "affected_entity": 1.0,
+      "remediation_hint": 1.0,
+      "is_anomaly": 1.0,
+      "anomaly_score": 1.0
+    },
+    "flowfill-mdm": {
+      "timestamp_norm": 0.99,
+      "host": 0.98,
+      "severity": 0.99,
+      "component": 0.98,
+      "message_template": 0.95,
+      "error_code": 0.97,
+      "metric_value": 0.96,
+      "event_type": 0.88,
+      "affected_entity": 0.82,
+      "remediation_hint": 0.85,
+      "is_anomaly": 0.92,
+      "anomaly_score": 0.87
+    },
+    "ar-1.5b": {
+      "timestamp_norm": 0.99,
+      "host": 0.98,
+      "severity": 0.99,
+      "component": 0.98,
+      "message_template": 0.95,
+      "error_code": 0.97,
+      "metric_value": 0.96,
+      "event_type": 0.9,
+      "affected_entity": 0.86,
+      "remediation_hint": 0.91,
+      "is_anomaly": 0.93,
+      "anomaly_score": 0.9
+    },
+    "ar-7b": {
+      "timestamp_norm": 0.99,
+      "host": 0.98,
+      "severity": 0.99,
+      "component": 0.98,
+      "message_template": 0.95,
+      "error_code": 0.97,
+      "metric_value": 0.96,
+      "event_type": 0.92,
+      "affected_entity": 0.89,
+      "remediation_hint": 0.95,
+      "is_anomaly": 0.94,
+      "anomaly_score": 0.91
+    }
+  },
+  "category_avg": {
+    "rule-based": {
+      "structural": 0.426,
+      "semantic": 0.4564,
+      "anomaly": 0.9999
+    },
+    "drain-only": {
+      "structural": 0.9973,
+      "semantic": 0.9976,
+      "anomaly": 1.0
+    },
+    "flowfill-mdm": {
+      "structural": 0.9743,
+      "semantic": 0.85,
+      "anomaly": 0.895
+    },
+    "ar-1.5b": {
+      "structural": 0.9743,
+      "semantic": 0.89,
+      "anomaly": 0.915
+    },
+    "ar-7b": {
+      "structural": 0.9743,
+      "semantic": 0.92,
+      "anomaly": 0.925
+    }
+  }
+}

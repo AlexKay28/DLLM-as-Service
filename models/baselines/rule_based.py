@@ -20,7 +20,31 @@ import sys
 if str(_REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT))
 
-from metrics.schema import Record, FIELD_NAMES, FieldType
+from metrics.schema import Record, FIELD_NAMES, FIELD_BY_NAME, FieldType
+
+
+def _coerce_types(rec: Record) -> Record:
+    """Coerce string values to the schema's declared types so predictions
+    match gold records (which are coerced in prepare.py). Without this,
+    BOOL fields like is_anomaly compare 'True' vs 'true' -> F1=0."""
+    for name in FIELD_NAMES:
+        sf = FIELD_BY_NAME[name]
+        v = rec.get(name)
+        if v is None or v == "":
+            if sf.type == FieldType.FLOAT:
+                rec.set(name, 0.0)
+            elif sf.type == FieldType.BOOL:
+                rec.set(name, False)
+            continue
+        if sf.type == FieldType.FLOAT:
+            try:
+                rec.set(name, float(v))
+            except (TypeError, ValueError):
+                rec.set(name, 0.0)
+        elif sf.type == FieldType.BOOL:
+            if isinstance(v, str):
+                rec.set(name, v.lower() in ("true", "1", "yes"))
+    return rec
 
 
 SEVERITY_MAP = {
@@ -180,7 +204,7 @@ def extract(log_lines: list[str], source: str = "hdfs") -> RuleBasedResult:
             if not rec.has(field_name):
                 rec.set(field_name, "")
 
-        records.append(rec)
+        records.append(_coerce_types(rec))
         t1 = time.perf_counter()
         latencies.append((t1 - t0) * 1000)
 

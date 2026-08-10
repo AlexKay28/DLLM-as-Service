@@ -17,7 +17,30 @@ _REPO_ROOT = Path(__file__).resolve().parent.parent.parent
 if str(_REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT))
 
-from metrics.schema import Record, FIELD_NAMES
+from metrics.schema import Record, FIELD_NAMES, FIELD_BY_NAME, FieldType
+
+
+def _coerce_types(rec: Record) -> Record:
+    """Coerce string values to the schema's declared types so predictions
+    match gold records (which are coerced in prepare.py)."""
+    for name in FIELD_NAMES:
+        sf = FIELD_BY_NAME[name]
+        v = rec.get(name)
+        if v is None or v == "":
+            if sf.type == FieldType.FLOAT:
+                rec.set(name, 0.0)
+            elif sf.type == FieldType.BOOL:
+                rec.set(name, False)
+            continue
+        if sf.type == FieldType.FLOAT:
+            try:
+                rec.set(name, float(v))
+            except (TypeError, ValueError):
+                rec.set(name, 0.0)
+        elif sf.type == FieldType.BOOL:
+            if isinstance(v, str):
+                rec.set(name, v.lower() in ("true", "1", "yes"))
+    return rec
 
 DRAIN_AVAILABLE = False
 try:
@@ -148,7 +171,7 @@ def extract(log_lines: list[str], source: str = "hdfs",
                     if not rec.has(field_name):
                         rec.set(field_name, "")
 
-                records.append(rec)
+                records.append(_coerce_types(rec))
 
     per_event_latency = parse_time / len(log_lines) if log_lines else 0
     latencies = [per_event_latency] * len(records)
@@ -248,7 +271,7 @@ def _extract_fallback(log_lines: list[str], source: str = "hdfs") -> DrainResult
             if not rec.has(field_name):
                 rec.set(field_name, "")
 
-        records.append(rec)
+        records.append(_coerce_types(rec))
         latencies.append((time.perf_counter() - t0) * 1000)
 
     return DrainResult(
