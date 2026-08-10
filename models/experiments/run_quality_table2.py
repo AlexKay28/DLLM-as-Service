@@ -271,6 +271,10 @@ def main():
     parser.add_argument("--max-new-tokens", type=int, default=256)
     parser.add_argument("--grammar", action="store_true",
                         help="Use grammar-constrained decoding (XGrammar)")
+    parser.add_argument("--mdm", action="store_true",
+                        help="Use MDM model instead of AR (for FlowFill substitute)")
+    parser.add_argument("--k-steps", type=int, default=8,
+                        help="MDM denoising steps (default 8)")
     args = parser.parse_args()
 
     RESULTS_DIR.mkdir(parents=True, exist_ok=True)
@@ -289,9 +293,17 @@ def main():
         if args.grammar:
             short_name += " + grammar"
 
-        if args.mock:
+        if args.mock and args.mdm:
+            from models.baselines.mdm_wrapper import MockMDMModel
+            model = MockMDMModel(model_name=short_name, k_steps=args.k_steps)
+        elif args.mock:
             from models.baselines.ar_wrapper import MockARModel
             model = MockARModel(model_name=short_name)
+        elif args.mdm:
+            from models.baselines.mdm_wrapper import MDMModel
+            model = MDMModel(model_name=model_id, k_steps=args.k_steps,
+                           device=args.device, dtype=args.dtype,
+                           max_new_tokens=args.max_new_tokens)
         else:
             from models.baselines.ar_wrapper import ARModel
             model = ARModel(

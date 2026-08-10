@@ -191,6 +191,10 @@ def main():
     parser.add_argument("--device", default="cuda")
     parser.add_argument("--dtype", default="auto")
     parser.add_argument("--sla-ms", type=float, default=SLA_P99_MS)
+    parser.add_argument("--mdm", action="store_true",
+                        help="Use MDM model instead of AR (for FlowFill substitute)")
+    parser.add_argument("--k-steps", type=int, default=8,
+                        help="MDM denoising steps (default 8)")
     args = parser.parse_args()
 
     RESULTS_DIR.mkdir(parents=True, exist_ok=True)
@@ -202,13 +206,22 @@ def main():
     all_results = []
     for model_id in args.model:
         short_name = model_id.split("/")[-1]
+        if args.mdm:
+            short_name += f" (K={args.k_steps})"
         print(f"\n{'='*60}")
         print(f"Model: {short_name}")
         print(f"{'='*60}")
 
-        if args.mock:
+        if args.mock and args.mdm:
+            from models.baselines.mdm_wrapper import MockMDMModel
+            model = MockMDMModel(model_name=short_name, k_steps=args.k_steps)
+        elif args.mock:
             from models.baselines.ar_wrapper import MockARModel
             model = MockARModel(model_name=short_name)
+        elif args.mdm:
+            from models.baselines.mdm_wrapper import MDMModel
+            model = MDMModel(model_name=model_id, k_steps=args.k_steps,
+                           device=args.device, dtype=args.dtype)
         else:
             from models.baselines.ar_wrapper import ARModel
             model = ARModel(model_name=model_id, device=args.device,

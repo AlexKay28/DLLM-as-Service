@@ -43,10 +43,40 @@ python models/experiments/run_quality_table2.py --mock --n 500
 
 | Issue | Script | Additional prep needed |
 |-------|--------|----------------------|
-| #3 quality | `run_quality_table2.py` ✅ | None — just run |
-| #4 latency | (not yet built) | Build `run_latency_table3.py` using `ar_wrapper.py` — m=1 streaming, 10k events, p50/p99/p99.9 + J/event |
-| #5 throughput | (not yet built) | Build `run_throughput_table4.py` — batch sweep [1..128], find max-batch @ 250ms p99 |
-| #6 ablations | (not yet built) | K-sweep for MDM; needs FlowFill/LLaDA weights — most blocked |
+| #3 quality | `run_quality_table2.py` ✅ | None — just run (AR or MDM via `--mdm`) |
+| #4 latency | `run_latency_table3.py` ✅ | None — just run (AR or MDM via `--mdm`) |
+| #5 throughput | `run_throughput_table4.py` ✅ | None — just run (AR or MDM via `--mdm`) |
+| #6 ablations | `run_ablation_table5.py` ✅ | MDM denoising loop needs implementation in `mdm_wrapper.py` |
+
+### MDM (FlowFill substitute) — needs GPU + weights
+
+```bash
+# MDM model (LLaDA-8B as FlowFill substitute)
+python models/experiments/run_quality_table2.py \
+  --mdm --model GSAI-LLM/LLaDA-8B-Instruct --k-steps 8 --n 10000
+
+# MDM latency (Table 3 FlowFill column)
+python models/experiments/run_latency_table3.py \
+  --mdm --model GSAI-LLM/LLaDA-8B-Instruct --k-steps 8 --n 10000
+
+# MDM throughput (Table 4 FlowFill column)
+python models/experiments/run_throughput_table4.py \
+  --mdm --model GSAI-LLM/LLaDA-8B-Instruct --k-steps 8
+
+# Ablations (Table 5 — needs MDM denoising loop implemented)
+python models/experiments/run_ablation_table5.py \
+  --model GSAI-LLM/LLaDA-8B-Instruct --k-steps 8
+```
+
+**MDM wrapper:** `models/baselines/mdm_wrapper.py` — `MDMModel` class with:
+- `extract()` — K-step parallel denoising
+- `extract_with_blocks()` — Semi-AR B=1/2/4 (Table 5)
+- `extract_with_k()` — K-sweep (K=8 knee)
+- `MockMDMModel` for dry-runs (simulates paper's 23ms p50 @ K=8)
+
+**BLOCKER:** `MDMModel.load()` and `_denoise()` raise `NotImplementedError`.
+Need to implement LLaDA's denoising loop (see `mdm_wrapper.py` integration notes).
+`MockMDMModel` works for pipeline testing.
 
 ### Energy measurement
 

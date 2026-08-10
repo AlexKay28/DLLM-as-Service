@@ -300,7 +300,11 @@ def main():
     parser.add_argument("--ablation", default="all",
                         choices=["all", "blocks", "k-sweep"])
     parser.add_argument("--mock", action="store_true",
-                        help="Use MockARModel (will not produce real MDM results)")
+                        help="Use MockMDMModel (will not produce real MDM results)")
+    parser.add_argument("--device", default="cuda")
+    parser.add_argument("--dtype", default="auto")
+    parser.add_argument("--k-steps", type=int, default=8,
+                        help="Default K steps for block ablation (default 8)")
     args = parser.parse_args()
 
     RESULTS_DIR.mkdir(parents=True, exist_ok=True)
@@ -310,20 +314,16 @@ def main():
     gold_records = load_records(str(SPLIT_DIR / f"{args.source}.jsonl"), n=args.n)
     print(f"  {len(log_lines):,} log lines, {len(gold_records):,} gold records")
 
-    # Load model
-    # NOTE: MDM wrapper not yet implemented. This is the blocker.
+    # Load MDM model
     if args.mock:
-        from models.baselines.ar_wrapper import MockARModel
-        model = MockARModel(model_name=args.model)
-        print("WARNING: Using MockARModel — results are NOT valid MDM ablation data.")
+        from models.baselines.mdm_wrapper import MockMDMModel
+        model = MockMDMModel(model_name=args.model, k_steps=args.k_steps)
+        print("WARNING: Using MockMDMModel — results are NOT valid MDM ablation data.")
     else:
-        print("ERROR: MDM model wrapper not yet implemented.")
-        print("To run ablations, implement an MDM wrapper that exposes:")
-        print("  - extract_with_blocks(log_lines, source, blocks=B)")
-        print("  - extract_with_k(log_lines, source, k_steps=K)")
-        print("Using --mock to produce placeholder output...")
-        from models.baselines.ar_wrapper import MockARModel
-        model = MockARModel(model_name=args.model)
+        from models.baselines.mdm_wrapper import MDMModel
+        model = MDMModel(model_name=args.model, k_steps=args.k_steps,
+                        device=args.device, dtype=args.dtype)
+        print(f"Loaded MDM: {args.model} (K={args.k_steps})")
 
     block_results = []
     k_results = []

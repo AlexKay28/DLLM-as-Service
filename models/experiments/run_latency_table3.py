@@ -235,6 +235,10 @@ def main():
     parser.add_argument("--dtype", default="auto")
     parser.add_argument("--gpu-id", type=int, default=0, help="GPU device ID for power")
     parser.add_argument("--no-energy", action="store_true", help="Skip energy measurement")
+    parser.add_argument("--mdm", action="store_true",
+                        help="Use MDM model instead of AR (for FlowFill substitute)")
+    parser.add_argument("--k-steps", type=int, default=8,
+                        help="MDM denoising steps (default 8)")
     args = parser.parse_args()
 
     RESULTS_DIR.mkdir(parents=True, exist_ok=True)
@@ -246,13 +250,25 @@ def main():
     all_results = []
     for model_id in args.model:
         short_name = model_id.split("/")[-1]
-        if args.mock:
+        if args.mock and args.mdm:
+            from models.baselines.mdm_wrapper import MockMDMModel
+            model = MockMDMModel(model_name=short_name, k_steps=args.k_steps)
+        elif args.mock:
             from models.baselines.ar_wrapper import MockARModel
             model = MockARModel(model_name=short_name)
+        elif args.mdm:
+            from models.baselines.mdm_wrapper import MDMModel
+            model = MDMModel(model_name=model_id, k_steps=args.k_steps,
+                           device=args.device, dtype=args.dtype)
         else:
             from models.baselines.ar_wrapper import ARModel
             model = ARModel(model_name=model_id, device=args.device,
                            dtype=args.dtype, max_new_tokens=256, batch_size=1)
+
+        # Update steps label for MDM (K steps, not 128 tokens)
+        if args.mdm or (args.mock and args.mdm):
+            short_name += f" (K={args.k_steps})"
+
         metrics = run_model(model, log_lines, args.source, short_name,
                            device=args.gpu_id, measure_energy=not args.no_energy)
         all_results.append(metrics)

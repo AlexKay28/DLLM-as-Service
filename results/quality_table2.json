@@ -22,9 +22,9 @@
       "schema_valid_pct": 98.8,
       "consistency_pct": 99.4,
       "anomaly_f1": 1.0,
-      "p50_ms": 169.41,
-      "p99_ms": 237.49,
-      "p999_ms": 267.91,
+      "p50_ms": 23.09,
+      "p99_ms": 27.26,
+      "p999_ms": 29.13,
       "n_events": 500,
       "total_time_s": 0.02,
       "avg_tokens_per_event": 128.0
