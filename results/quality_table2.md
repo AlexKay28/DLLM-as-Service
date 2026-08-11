@@ -1,6 +1,6 @@
 # Quality Claims Validation — Issue #3: Table 2
 
-**Data:** BGL (LOGHUB) — 500 test events
+**Data:** BGL (LOGHUB) — 2,000 test events
 **Date:** 2026-08-11
 
 ---
@@ -9,7 +9,8 @@
 
 | Model | Field-F1 | Schema-Valid | Consistency | Anomaly-F1 | p50 (ms) | p99 (ms) |
 |-------|---------|-------------|-------------|-----------|---------|---------|
-| Qwen2.5-1.5B-Instruct (ours) | 0.647 | 98.4% | 99.6% | 0.951 | 3361 | 6796 |
+| Qwen2.5-1.5B-Instruct (ours) | 0.779 | 99.3% | 99.9% | 0.978 | 1842 | 3053 |
+| Qwen2.5-7B-Instruct (ours) | 0.839 | 99.0% | 99.5% | 0.977 | 2122 | 5480 |
 | | | | | | | |
 | AR-1.5B (paper) | 0.913 | 96.1% | 98.9% | 0.871 | 168 | 240 |
 | AR-1.5B + grammar (paper) | 0.916 | 100.0% | 99.0% | 0.874 | 205 | 292 |
@@ -19,22 +20,27 @@
 ## Allegation Verification
 
 ### 1. FlowFill trails AR-1.5B by 0.006 Field-F1
-- Our AR-1.5B substitute: 0.647
+- Our AR-1.5B substitute: 0.779
 - Paper AR-1.5B: 0.913
-- Gap: -0.266
+- Gap: -0.134
 
 ### 2. Grammar constraints buy validity, not quality
 - Paper: AR-1.5B validity 96.1% → +grammar 100.0%, F1 0.913 → 0.916
 - To verify: run with --grammar flag (needs XGrammar)
 
 ### 3. FlowFill loses ~1.1pp consistency vs AR
-- Our AR substitute consistency: 99.6%
+- Our AR substitute consistency: 99.9%
 - Paper AR-1.5B: 98.9%
 - Paper FlowFill: 97.8%
 
+### 4. AR-7B is the Field-F1 ceiling but lower validity
+- Our AR-7B F1: 0.839, validity: 99.0%
+- Paper AR-7B F1: 0.945, validity: 97.4%
+
 ### 5. Anomaly-F1 ordering: AR-7B > AR-1.5B > FlowFill
 - Paper: AR-7B (0.912) > AR-1.5B (0.871) > FlowFill (0.865)
-- Our AR-1.5B substitute: 0.951
+- Our AR-1.5B substitute: 0.978
+- Our AR-7B substitute: 0.977
 
 ## Caveats
 

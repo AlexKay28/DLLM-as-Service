@@ -1,0 +1,106 @@
+{
+  "source": "bgl",
+  "n_events": 2000,
+  "models": [
+    {
+      "model": "Qwen2.5-1.5B-Instruct",
+      "field_f1": 0.7793,
+      "per_field_f1": {
+        "f1_timestamp_norm": 0.997,
+        "f1_host": 0.202,
+        "f1_component": 0.9765,
+        "f1_severity": 0.9825,
+        "f1_event_type": 0.3408,
+        "f1_message_template": 0.6734,
+        "f1_error_code": 0.9865,
+        "f1_affected_entity": 0.999,
+        "f1_metric_value": 0.2155,
+        "f1_is_anomaly": 0.991,
+        "f1_anomaly_score": 0.991,
+        "f1_remediation_hint": 0.997
+      },
+      "schema_valid_pct": 99.3,
+      "consistency_pct": 99.9,
+      "anomaly_f1": 0.9775,
+      "p50_ms": 1841.63,
+      "p99_ms": 3053.42,
+      "p999_ms": 4162.47,
+      "n_events": 2000,
+      "total_time_s": 3890.21,
+      "avg_tokens_per_event": 127.5
+    },
+    {
+      "model": "Qwen2.5-7B-Instruct",
+      "field_f1": 0.8392,
+      "per_field_f1": {
+        "f1_timestamp_norm": 0.999,
+        "f1_host": 0.9795,
+        "f1_component": 0.999,
+        "f1_severity": 0.9895,
+        "f1_event_type": 0.2619,
+        "f1_message_template": 0.67,
+        "f1_error_code": 0.9785,
+        "f1_affected_entity": 0.9765,
+        "f1_metric_value": 0.2405,
+        "f1_is_anomaly": 0.991,
+        "f1_anomaly_score": 0.988,
+        "f1_remediation_hint": 0.9965
+      },
+      "schema_valid_pct": 98.95,
+      "consistency_pct": 99.55,
+      "anomaly_f1": 0.9774,
+      "p50_ms": 2122.02,
+      "p99_ms": 5479.66,
+      "p999_ms": 7808.04,
+      "n_events": 2000,
+      "total_time_s": 5680.99,
+      "avg_tokens_per_event": 131.3
+    }
+  ],
+  "paper_table2": {
+    "AR-1.5B": {
+      "field_f1": 0.913,
+      "schema_valid_pct": 96.1,
+      "consistency_pct": 98.9,
+      "anomaly_f1": 0.871,
+      "p50_ms": 168,
+      "p99_ms": 240,
+      "p999_ms": 340,
+      "j_per_event": 3.9,
+      "steps": 128
+    },
+    "AR-1.5B + grammar": {
+      "field_f1": 0.916,
+      "schema_valid_pct": 100.0,
+      "consistency_pct": 99.0,
+      "anomaly_f1": 0.874,
+      "p50_ms": 205,
+      "p99_ms": 292,
+      "p999_ms": 410,
+      "j_per_event": 4.8,
+      "steps": 128
+    },
+    "FlowFill-MDM (K=8)": {
+      "field_f1": 0.907,
+      "schema_valid_pct": 99.4,
+      "consistency_pct": 97.8,
+      "anomaly_f1": 0.865,
+      "p50_ms": 23,
+      "p99_ms": 31,
+      "p999_ms": 36,
+      "j_per_event": 0.7,
+      "steps": 8
+    },
+    "AR-7B": {
+      "field_f1": 0.945,
+      "schema_valid_pct": 97.4,
+      "consistency_pct": 99.4,
+      "anomaly_f1": 0.912,
+      "p50_ms": 690,
+      "p99_ms": 910,
+      "p999_ms": 1240,
+      "j_per_event": 22.5,
+      "steps": 128
+    }
+  }
+}
