@@ -152,3 +152,45 @@ python models/experiments/run_quality_table2.py --model Qwen/Qwen2.5-1.5B-Instru
 # MDM (needs denoising loop implementation first)
 python models/experiments/run_quality_table2.py --mdm --model GSAI-ML/LLaDA-8B-Instruct --k-steps 8
 ```
+
+## 2026-08-11 — GPU Experiments Begin (Issue #3: first real AR run)
+
+First real GPU inference on H100 PCIe. Verified environment: torch 2.5.1+cu121,
+CUDA 12.2, bf16, transformers 5.14.1, accelerate 1.14.0, xgrammar 0.1.33.
+Models pre-cached: Qwen2.5-1.5B (3.3G), Qwen2.5-7B (15G), LLaDA-8B (15G).
+
+### AR-1.5B quality run (n=500, BGL)
+
+- **`results/quality_table2.json`** — Qwen2.5-1.5B-Instruct on 500 BGL events.
+- **`results/quality_table2.md`** — comparison to paper Table 2.
+- **`logs/quality_ar15_n500.log`** — full run log with tqdm progress.
+
+**Results:**
+| Metric | Our AR-1.5B | Paper AR-1.5B | Gap |
+|--------|------------|---------------|-----|
+| Field-F1 | 0.647 | 0.913 | -0.266 |
+| Schema-valid | 98.4% | 96.1% | +2.3pp |
+| Consistency | 99.6% | 98.9% | +0.7pp |
+| Anomaly-F1 | 0.951 | 0.871 | +0.080 |
+
+**Key finding — format divergence explains the Field-F1 gap:**
+The 0.266 F1 gap is not a model quality issue — it's a **format normalization
+mismatch**. Per-field breakdown shows:
+- Structural fields the model formats correctly: timestamp (0.99), component
+  (0.96), severity (0.98), error_code (0.96), is_anomaly (0.98).
+- Fields with format divergence: `event_type` (0.0008!) — model outputs
+  `data_storage_interrupt` (underscores) vs gold `data storage interrupt`
+  (spaces). Token-level F1 sees these as non-overlapping tokens.
+- `host` (0.43) — model is correct but field naming/placement varies.
+- `affected_entity` (0.058) — model puts the host node here; gold leaves empty.
+
+The paper's AR-1.5B was fine-tuned on the exact gold format. Our zero-shot
+Qwen2.5-1.5B substitute has no such alignment. **Implication**: the raw F1
+number is not directly comparable to the paper — but the *relative* AR-vs-MDM
+comparison (once MDM runs) is still valid since both substitutes face the same
+gold format.
+
+**Latency caveat**: our naive `model.generate()` yields ~3.4s p50 vs paper's
+168ms (20x slower) — paper uses vLLM+PagedAttention+FlashAttention-2. For
+quality validation (#3), latency doesn't affect F1. For latency validation
+(#4), we need vLLM or a documented caveat.
