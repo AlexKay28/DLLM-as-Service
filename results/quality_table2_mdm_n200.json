@@ -1,0 +1,79 @@
+{
+  "source": "bgl",
+  "n_events": 200,
+  "models": [
+    {
+      "model": "LLaDA-8B-Instruct",
+      "field_f1": 0.7736,
+      "per_field_f1": {
+        "f1_timestamp_norm": 0.975,
+        "f1_host": 0.935,
+        "f1_component": 0.96,
+        "f1_severity": 0.97,
+        "f1_event_type": 0.496,
+        "f1_message_template": 0.5625,
+        "f1_error_code": 0.69,
+        "f1_affected_entity": 0.675,
+        "f1_metric_value": 0.25,
+        "f1_is_anomaly": 0.93,
+        "f1_anomaly_score": 0.955,
+        "f1_remediation_hint": 0.885
+      },
+      "schema_valid_pct": 97.0,
+      "consistency_pct": 72.5,
+      "anomaly_f1": 0.8205,
+      "p50_ms": 1260.34,
+      "p99_ms": 1494.93,
+      "p999_ms": 1630.26,
+      "n_events": 200,
+      "total_time_s": 325.97,
+      "avg_tokens_per_event": 160.0
+    }
+  ],
+  "paper_table2": {
+    "AR-1.5B": {
+      "field_f1": 0.913,
+      "schema_valid_pct": 96.1,
+      "consistency_pct": 98.9,
+      "anomaly_f1": 0.871,
+      "p50_ms": 168,
+      "p99_ms": 240,
+      "p999_ms": 340,
+      "j_per_event": 3.9,
+      "steps": 128
+    },
+    "AR-1.5B + grammar": {
+      "field_f1": 0.916,
+      "schema_valid_pct": 100.0,
+      "consistency_pct": 99.0,
+      "anomaly_f1": 0.874,
+      "p50_ms": 205,
+      "p99_ms": 292,
+      "p999_ms": 410,
+      "j_per_event": 4.8,
+      "steps": 128
+    },
+    "FlowFill-MDM (K=8)": {
+      "field_f1": 0.907,
+      "schema_valid_pct": 99.4,
+      "consistency_pct": 97.8,
+      "anomaly_f1": 0.865,
+      "p50_ms": 23,
+      "p99_ms": 31,
+      "p999_ms": 36,
+      "j_per_event": 0.7,
+      "steps": 8
+    },
+    "AR-7B": {
+      "field_f1": 0.945,
+      "schema_valid_pct": 97.4,
+      "consistency_pct": 99.4,
+      "anomaly_f1": 0.912,
+      "p50_ms": 690,
+      "p99_ms": 910,
+      "p999_ms": 1240,
+      "j_per_event": 22.5,
+      "steps": 128
+    }
+  }
+}
