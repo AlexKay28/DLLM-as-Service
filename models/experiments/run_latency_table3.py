@@ -239,6 +239,8 @@ def main():
                         help="Use MDM model instead of AR (for FlowFill substitute)")
     parser.add_argument("--k-steps", type=int, default=8,
                         help="MDM denoising steps (default 8)")
+    parser.add_argument("--max-new-tokens", type=int, default=160,
+                        help="Max output tokens (MDM mask-block size / AR generation cap)")
     args = parser.parse_args()
 
     RESULTS_DIR.mkdir(parents=True, exist_ok=True)
@@ -259,11 +261,13 @@ def main():
         elif args.mdm:
             from models.baselines.mdm_wrapper import MDMModel
             model = MDMModel(model_name=model_id, k_steps=args.k_steps,
-                           device=args.device, dtype=args.dtype)
+                           device=args.device, dtype=args.dtype,
+                           max_new_tokens=args.max_new_tokens)
         else:
             from models.baselines.ar_wrapper import ARModel
             model = ARModel(model_name=model_id, device=args.device,
-                           dtype=args.dtype, max_new_tokens=256, batch_size=1)
+                           dtype=args.dtype, max_new_tokens=args.max_new_tokens,
+                           batch_size=1)
 
         # Update steps label for MDM (K steps, not 128 tokens)
         if args.mdm or (args.mock and args.mdm):

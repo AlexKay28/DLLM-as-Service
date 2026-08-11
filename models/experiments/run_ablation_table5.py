@@ -293,10 +293,10 @@ def write_report(block_results, k_results, path):
 def main():
     parser = argparse.ArgumentParser(description=__doc__,
                                      formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument("--model", default="LLaDA-8B",
+    parser.add_argument("--model", default="GSAI-ML/LLaDA-8B-Instruct",
                         help="MDM model (FlowFill or LLaDA substitute)")
     parser.add_argument("--source", default="bgl")
-    parser.add_argument("--n", type=int, default=5000)
+    parser.add_argument("--n", type=int, default=100)
     parser.add_argument("--ablation", default="all",
                         choices=["all", "blocks", "k-sweep"])
     parser.add_argument("--mock", action="store_true",
@@ -305,6 +305,8 @@ def main():
     parser.add_argument("--dtype", default="auto")
     parser.add_argument("--k-steps", type=int, default=8,
                         help="Default K steps for block ablation (default 8)")
+    parser.add_argument("--max-new-tokens", type=int, default=160,
+                        help="Max output tokens (MDM mask-block size)")
     args = parser.parse_args()
 
     RESULTS_DIR.mkdir(parents=True, exist_ok=True)
@@ -322,7 +324,9 @@ def main():
     else:
         from models.baselines.mdm_wrapper import MDMModel
         model = MDMModel(model_name=args.model, k_steps=args.k_steps,
-                        device=args.device, dtype=args.dtype)
+                        device=args.device, dtype=args.dtype,
+                        max_new_tokens=args.max_new_tokens)
+        model.load()
         print(f"Loaded MDM: {args.model} (K={args.k_steps})")
 
     block_results = []
