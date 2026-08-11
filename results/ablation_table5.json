@@ -1,81 +1,56 @@
 {
   "source": "bgl",
-  "n_events": 200,
-  "model": "LLaDA-8B",
-  "block_ablation": [
-    {
-      "B": 1,
-      "field_f1": 0.9983,
-      "consistency_pct": 99.0,
-      "p50_ms": 23.31,
-      "n_events": 200,
-      "speedup_vs_ar": 7.2
-    },
-    {
-      "B": 2,
-      "field_f1": 0.9983,
-      "consistency_pct": 99.0,
-      "p50_ms": 24.83,
-      "n_events": 200,
-      "speedup_vs_ar": 6.8
-    },
-    {
-      "B": 4,
-      "field_f1": 0.9983,
-      "consistency_pct": 99.0,
-      "p50_ms": 27.87,
-      "n_events": 200,
-      "speedup_vs_ar": 6.0
-    }
-  ],
+  "n_events": 30,
+  "model": "GSAI-ML/LLaDA-8B-Instruct",
+  "block_ablation": [],
   "k_sweep": [
     {
       "K": 2,
-      "field_f1": 0.9983,
-      "p50_ms": 5.83,
-      "n_events": 200
+      "field_f1": 0.35,
+      "p50_ms": 319.44,
+      "n_events": 30
     },
     {
       "K": 4,
-      "field_f1": 0.9983,
-      "p50_ms": 11.65,
-      "n_events": 200
+      "field_f1": 0.5226,
+      "p50_ms": 629.59,
+      "n_events": 30
     },
     {
       "K": 6,
-      "field_f1": 0.9983,
-      "p50_ms": 17.48,
-      "n_events": 200
+      "field_f1": 0.7215,
+      "p50_ms": 947.87,
+      "n_events": 30
     },
     {
       "K": 8,
-      "field_f1": 0.9983,
-      "p50_ms": 23.31,
-      "n_events": 200
+      "field_f1": 0.7621,
+      "p50_ms": 1264.74,
+      "n_events": 30
     },
     {
       "K": 10,
-      "field_f1": 0.9983,
-      "p50_ms": 29.14,
-      "n_events": 200
+      "field_f1": 0.7663,
+      "p50_ms": 1577.64,
+      "n_events": 30
     },
     {
       "K": 12,
-      "field_f1": 0.9983,
-      "p50_ms": 34.96,
-      "n_events": 200
+      "field_f1": 0.7814,
+      "p50_ms": 1891.91,
+      "n_events": 30
     },
     {
       "K": 16,
-      "field_f1": 0.9983,
-      "p50_ms": 46.62,
-      "n_events": 200
+      "field_f1": 0.7773,
+      "p50_ms": 2518.78,
+      "n_events": 30
     },
     {
       "K": 24,
-      "field_f1": 0.9983,
-      "p50_ms": 69.93,
-      "n_events": 200
+      "field_f1": 0.79,
+      "p50_ms": 3770.6,
+      "n_events": 30
     }
   ],
   "paper_table5": {
