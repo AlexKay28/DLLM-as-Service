@@ -2,57 +2,33 @@
   "source": "bgl",
   "n_events": 30,
   "model": "GSAI-ML/LLaDA-8B-Instruct",
-  "block_ablation": [],
-  "k_sweep": [
+  "block_ablation": [
     {
-      "K": 2,
-      "field_f1": 0.35,
-      "p50_ms": 319.44,
-      "n_events": 30
-    },
-    {
-      "K": 4,
-      "field_f1": 0.5226,
-      "p50_ms": 629.59,
-      "n_events": 30
-    },
-    {
-      "K": 6,
-      "field_f1": 0.7215,
-      "p50_ms": 947.87,
-      "n_events": 30
-    },
-    {
-      "K": 8,
+      "B": 1,
       "field_f1": 0.7621,
-      "p50_ms": 1264.74,
-      "n_events": 30
+      "consistency_pct": 70.0,
+      "p50_ms": 1261.37,
+      "n_events": 30,
+      "speedup_vs_ar": 0.1
     },
     {
-      "K": 10,
-      "field_f1": 0.7663,
-      "p50_ms": 1577.64,
-      "n_events": 30
+      "B": 2,
+      "field_f1": 0.5298,
+      "consistency_pct": 96.67,
+      "p50_ms": 1262.86,
+      "n_events": 30,
+      "speedup_vs_ar": 0.1
     },
     {
-      "K": 12,
-      "field_f1": 0.7814,
-      "p50_ms": 1891.91,
-      "n_events": 30
-    },
-    {
-      "K": 16,
-      "field_f1": 0.7773,
-      "p50_ms": 2518.78,
-      "n_events": 30
-    },
-    {
-      "K": 24,
-      "field_f1": 0.79,
-      "p50_ms": 3770.6,
-      "n_events": 30
+      "B": 4,
+      "field_f1": 0.5107,
+      "consistency_pct": 80.0,
+      "p50_ms": 1261.47,
+      "n_events": 30,
+      "speedup_vs_ar": 0.1
     }
   ],
+  "k_sweep": [],
   "paper_table5": {
     "B=1 (pure parallel)": {
       "field_f1": 0.907,
