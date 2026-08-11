@@ -296,6 +296,41 @@ K-sweep below shows the *shape* of Proposition 1 holds regardless.
   even though our absolute per-step cost (no custom kernels/KV cache) is
   ~50x the paper's.
 
+### Block ablation (issue #6, Claim A) — first real result, with a caveat
+
+`results/ablation_table5.json`, n=30 BGL events, K=8 total steps:
+
+| B | Field-F1 | Consistency | p50 (ms) |
+|---|---|---|---|
+| 1 | 0.762 | 70.0% | 1261 |
+| 2 | 0.530 | 96.7% | 1263 |
+| 4 | 0.511 | 80.0% | 1262 |
+
+**Directionally confirms one paper claim, contradicts another:**
+- Consistency **does improve with B=2** (70.0% → 96.7%, even bigger jump
+  than the paper's 97.8%→98.6%) — the semi-AR mechanism's core claim (more
+  sequential structure → fewer cross-field contradictions) holds.
+- But **Field-F1 drops sharply** with B>1 (0.762 → 0.530 → 0.511), the
+  opposite of the paper's claim that quality *also* improves with B.
+- **Latency does not scale with B** (~1260ms flat) — the paper's model
+  gets slower with B because more *sequential* forward passes are needed;
+  ours doesn't show this because of the implementation caveat below.
+
+**Root cause (methodological, not a code bug)**: our block splitting
+divides the mask-block by raw **token position** (first N tokens = block
+1, etc.), because at generation time we don't know which token ranges
+will end up corresponding to which JSON field — LLaDA-Instruct generates
+free-form JSON, it wasn't fine-tuned on a fixed-position 12-slot template.
+The paper's FlowFill-MDM, in contrast, is trained so `S`'s slot positions
+are known a priori (§2, the whole point of the L/T/S framework) — its
+block split is a clean field-boundary split. With `K/B` steps per block
+(B=4 → only 2 steps/block) and a garbled first block poisoning context
+for later blocks, our result is expected to look worse than a true
+field-aligned implementation. **This is itself a finding**: semi-AR
+blocks are a schema-template mechanism, not a general MDM trick — it
+requires the model to actually know the slot boundaries, which an
+un-tuned open substitute prompted with free-form JSON does not have.
+
 ### GPU experiment runner fixes
 
 - Added `--max-new-tokens` CLI flag to `run_latency_table3.py`,
