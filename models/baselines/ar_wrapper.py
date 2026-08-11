@@ -137,7 +137,7 @@ class ARModel:
 
         print(f"Loading {self.model_name} (device={self.device}, dtype={self.dtype})...")
         self.tokenizer = AutoTokenizer.from_pretrained(
-            self.model_name, trust_remote_code=True)
+            self.model_name, trust_remote_code=True, local_files_only=True)
         if self.tokenizer.pad_token is None:
             self.tokenizer.pad_token = self.tokenizer.eos_token
 
@@ -146,6 +146,7 @@ class ARModel:
             torch_dtype=torch_dtype,
             device_map=self.device if self.device != "cpu" else None,
             trust_remote_code=True,
+            local_files_only=True,
         )
         if self.device == "cpu":
             self.model = self.model.to("cpu")

@@ -146,80 +146,112 @@ class MDMModel:
         self._is_loaded = False
 
     def load(self):
-        """Load the MDM model and tokenizer.
+        """Load the MDM model and tokenizer (LLaDA-8B-Instruct)."""
+        from transformers import AutoTokenizer, AutoModelForCausalLM
+        import torch
 
-        TODO (GPU): The exact loading API depends on which MDM we use.
-        LLaDA and Dream have different interfaces — both need transformers
-        support or custom loaders. See integration notes below.
-        """
-        # --- LLaDA integration (primary substitute) ---
-        # LLaDA-8B uses a custom inference loop (not standard HF generate).
-        # See: https://github.com/ML-GSAI/LLaDA
-        #
-        # from transformers import AutoTokenizer, AutoModelForCausalLM
-        # import torch
-        # self.tokenizer = AutoTokenizer.from_pretrained(self.model_name, trust_remote_code=True)
-        # self.model = AutoModelForCausalLM.from_pretrained(
-        #     self.model_name, torch_dtype=torch.bfloat16,
-        #     device_map=self.device, trust_remote_code=True)
-        # self.model.eval()
-        # self._is_loaded = True
-        #
-        # LLaDA's denoising is done via model.forward() + iterative unmasking,
-        # NOT model.generate(). The key method is:
-        #   logits = model(input_ids)  # [B, T, V]
-        # Then sample tokens at mask positions, repeat K times.
-        #
-        # --- Dream integration (alternative substitute) ---
-        # Dream-7B has a similar masked-diffusion interface.
-        # See: https://github.com/bytedance/Dream
-        #
-        # --- FlowFill-MDM (the actual paper model) ---
-        # Weights not released. If they become available, load here.
+        dtype_map = {
+            "auto": "auto",
+            "float16": torch.float16,
+            "bfloat16": torch.bfloat16,
+            "float32": torch.float32,
+        }
+        torch_dtype = dtype_map.get(self.dtype, "auto")
 
-        raise NotImplementedError(
-            "MDM model loading not yet implemented. "
-            "See load() docstring for LLaDA/Dream integration notes. "
-            "Use MockMDMModel for testing.")
+        print(f"Loading {self.model_name} (device={self.device}, dtype={self.dtype})...")
+        self.tokenizer = AutoTokenizer.from_pretrained(
+            self.model_name, trust_remote_code=True, local_files_only=True)
+
+        self.model = AutoModelForCausalLM.from_pretrained(
+            self.model_name,
+            torch_dtype=torch_dtype,
+            device_map=self.device if self.device != "cpu" else None,
+            trust_remote_code=True,
+            local_files_only=True,
+        )
+        if self.device == "cpu":
+            self.model = self.model.to("cpu")
+        self.model.eval()
+
+        # LLaDA mask token: <|mdm_mask|> = token id 126336
+        self.mask_token_id = 126336
+        self._is_loaded = True
+        print(f"  loaded. {self.model.num_parameters():,} params, "
+              f"mask_token_id={self.mask_token_id}")
 
     def _denoise(self, input_ids, k_steps: int, blocks: int = 1):
         """Run K-step parallel denoising on masked input.
 
-        This is the core MDM inference loop. In each step:
-          1. Forward pass: get logits at all masked positions.
-          2. Sample tokens at a subset of mask positions.
-          3. Unmask those positions (replace [MASK] with sampled tokens).
-          4. Repeat until K steps done or all positions unmasked.
+        Confidence-based unmasking (paper §2.2):
+          - Each step, forward pass → get logits at all masked positions
+          - Pick the highest-confidence tokens (by max logit), unmask them
+          - Number unmasked per step = max(1, remaining_masks // steps_left)
+          - Easy fields (host, severity) resolve early; hard ones use budget
 
         Semi-AR blocks (Table 5):
-          - B=1: all positions denoised in parallel (pure diffusion)
-          - B=2: first half denoised, then second half (2 sequential passes)
-          - B=4: 4 sequential quarters
-          Each block does K/B steps of parallel denoising internally.
-
-        TODO (GPU): implement using the specific MDM's forward() + mask API.
+          - B=1: all positions denoised in parallel
+          - B>1: split mask positions into B contiguous chunks, denoise sequentially
+          - Each block does K/B parallel denoising steps internally
         """
-        # Pseudocode:
-        # mask_positions = (input_ids == self.tokenizer.mask_token_id)
-        # if blocks > 1:
-        #     # Split mask positions into B contiguous blocks
-        #     block_chunks = split_blocks(mask_positions, blocks)
-        #     for chunk in block_chunks:
-        #         for step in range(k_steps // blocks):
-        #             logits = self.model(input_ids)
-        #             # Sample at chunk positions only
-        #             sampled = sample(logits, chunk)
-        #             input_ids[chunk] = sampled
-        # else:
-        #     for step in range(k_steps):
-        #         logits = self.model(input_ids)
-        #         n_to_unmask = max(1, mask_positions.sum() // (k_steps - step))
-        #         sampled = sample(logits, n_to_unmask)
-        #         input_ids[unmask_positions] = sampled
-        #
-        # return input_ids
+        import torch
+        import torch.nn.functional as F
 
-        raise NotImplementedError("MDM denoising loop not yet implemented.")
+        device = input_ids.device
+        mask_id = self.mask_token_id
+
+        # Find all masked positions
+        mask_positions = (input_ids[0] == mask_id).nonzero(as_tuple=True)[0]
+
+        if len(mask_positions) == 0:
+            return input_ids  # nothing to denoise
+
+        # Split into blocks if B > 1
+        if blocks > 1:
+            block_chunks = torch.tensor_split(mask_positions, blocks)
+        else:
+            block_chunks = [mask_positions]
+
+        steps_per_block = max(1, k_steps // blocks) if blocks > 1 else k_steps
+
+        for chunk in block_chunks:
+            if len(chunk) == 0:
+                continue
+
+            remaining = list(chunk.tolist())
+            steps = steps_per_block if blocks > 1 else k_steps
+
+            for step in range(steps):
+                if not remaining:
+                    break
+
+                with torch.no_grad():
+                    logits = self.model(input_ids).logits  # [1, T, V]
+
+                # Get logits at remaining masked positions
+                pos_tensor = torch.tensor(remaining, device=device)
+                masked_logits = logits[0, pos_tensor, :]  # [n_masked, V]
+
+                # Confidence = max logit at each position
+                confidences, predicted_ids = masked_logits.max(dim=-1)  # [n_masked]
+
+                # Number to unmask this step
+                steps_left = steps - step
+                n_to_unmask = max(1, len(remaining) // steps_left)
+
+                # Pick top-n most confident positions
+                top_conf, top_idx = confidences.topk(min(n_to_unmask, len(remaining)))
+
+                # Unmask those positions
+                unmask_positions = pos_tensor[top_idx]
+                unmask_tokens = predicted_ids[top_idx]
+
+                input_ids[0, unmask_positions] = unmask_tokens
+
+                # Remove unmasked positions from remaining list
+                unmasked_set = set(unmask_positions.tolist())
+                remaining = [p for p in remaining if p not in unmasked_set]
+
+        return input_ids
 
     def _generate_single(self, log_line: str, source: str,
                          k_steps: int = None, blocks: int = 1
@@ -228,37 +260,50 @@ class MDMModel:
 
         Returns (output_text, input_tokens, output_tokens).
         """
+        import torch
+
         k = k_steps or self.k_steps
 
-        # Build prompt — same format as AR, but the model will fill in masks
+        # Build prompt — same instruction as AR, but we append a masked JSON template
+        # that the MDM will denoise in K steps.
         messages = build_chat_messages(log_line, source=source, few_shot=True)
-        text = self.tokenizer.apply_chat_template(
+
+        # Use chat template for the instruction part
+        prompt_text = self.tokenizer.apply_chat_template(
             messages, tokenize=False, add_generation_prompt=True)
 
-        # Append masked output template (the 12-field JSON with [MASK] tokens)
-        # The model denoises this template in K steps.
+        # Append masked output template — JSON skeleton with mask tokens for values
         masked_output = self._build_masked_output()
-        full_input = text + masked_output
+        full_input = prompt_text + masked_output
 
-        input_ids = self.tokenizer(full_input, return_tensors="pt").to(self.model.device)
-        input_len = input_ids["input_ids"].shape[1]
+        # Tokenize
+        inputs = self.tokenizer(full_input, return_tensors="pt",
+                                 truncation=True, max_length=2048)
+        input_ids = inputs["input_ids"].to(self.model.device)
+        input_len = input_ids.shape[1]
 
         # Run denoising
-        output_ids = self._denoise(input_ids["input_ids"], k_steps=k, blocks=blocks)
+        output_ids = self._denoise(input_ids, k_steps=k, blocks=blocks)
 
+        # Decode only the generated part (after the prompt)
         output_text = self.tokenizer.decode(output_ids[0][input_len:],
                                             skip_special_tokens=True)
-        return output_text, input_len, len(output_ids[0][input_len:])
+        n_output = int((output_ids[0][input_len:] != self.mask_token_id).sum())
+        return output_text, input_len, n_output
 
     def _build_masked_output(self) -> str:
         """Build the masked JSON template that the MDM will denoise.
 
-        The template is a JSON skeleton with [MASK] tokens for each field value.
-        The model's job is to fill in the masks.
+        The template is a JSON skeleton with <|mdm_mask|> tokens for each
+        field value. The model's job is to fill in the masks in K steps.
         """
+        # Use the actual mask token string so the tokenizer encodes it as 126336
+        mask = "<|mdm_mask|>"
         fields_json = {}
         for name in FIELD_NAMES:
-            fields_json[name] = "[MASK]"
+            # Use multiple mask tokens per field to give the model room
+            # (paper's schema is ~128 tokens; ~10 tokens per field)
+            fields_json[name] = " ".join([mask] * 8)
         return "\n" + json.dumps(fields_json, indent=2)
 
     def extract(self, log_lines: list[str], source: str = "hdfs",

@@ -40,8 +40,9 @@ Rules:
 - message_template should replace variable tokens (IPs, numbers, IDs) with <*>
 - is_anomaly: true for ERROR/FATAL/CRITICAL severity or explicit alert labels.
 - anomaly_score: 1.0 for anomalies, 0.0 for normal, 0.5 for warnings.
-- event_type: a short semantic category (e.g. "cache_parity_error", "io_timeout").
-- remediation_hint: "none" if no specific action needed.""".format(schema=SCHEMA_DESCRIPTION)
+- event_type: use plain words with spaces, NOT underscores (e.g. "data storage interrupt", NOT "data_storage_interrupt").
+- affected_entity: only fill if a distinct non-host resource is mentioned (block id, task id); use "" if none.
+- remediation_hint: "none" if no specific action is needed.""".format(schema=SCHEMA_DESCRIPTION)
 
 
 FEW_SHOT_EXAMPLES = [
@@ -52,11 +53,11 @@ FEW_SHOT_EXAMPLES = [
             "host": "",
             "component": "DataNode",
             "severity": "INFO",
-            "event_type": "packet_responder_terminate",
+            "event_type": "packet responder terminate",
             "message_template": "PacketResponder <*> for block <*> terminating",
-            "error_code": "blk_38865049064139660",
+            "error_code": "",
             "affected_entity": "blk_38865049064139660",
-            "metric_value": 1.0,
+            "metric_value": 0.0,
             "is_anomaly": False,
             "anomaly_score": 0.0,
             "remediation_hint": "none"
@@ -69,14 +70,14 @@ FEW_SHOT_EXAMPLES = [
             "host": "R13-M0-N7-C:J04-U01",
             "component": "KERNEL",
             "severity": "FATAL",
-            "event_type": "data_storage_interrupt",
+            "event_type": "data storage interrupt",
             "message_template": "data storage interrupt",
             "error_code": "",
-            "affected_entity": "R13-M0-N7-C:J04-U01",
+            "affected_entity": "",
             "metric_value": 0.0,
             "is_anomaly": True,
             "anomaly_score": 1.0,
-            "remediation_hint": "Check storage subsystem and RAID status"
+            "remediation_hint": "none"
         }
     },
 ]
