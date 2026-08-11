@@ -175,9 +175,51 @@ def parse_json_output(raw_output: str) -> dict:
     start = text.find("{")
     end = text.rfind("}")
     if start != -1 and end != -1 and end > start:
+        block = text[start:end + 1]
         try:
-            return json.loads(text[start:end + 1])
+            return json.loads(block)
         except json.JSONDecodeError:
             pass
 
+        # Regex fallback: recover well-formed "key": value pairs even if the
+        # overall document is malformed (missing colon on one line, stray
+        # comment, unbalanced quote, etc.) — common MDM denoising artifacts
+        # where most fields decode correctly but one is garbled.
+        recovered = _extract_key_value_pairs(block)
+        if recovered:
+            return recovered
+
     return {}
+
+
+import re as _re
+
+_KV_PATTERN = _re.compile(
+    r'"(?P<key>[a-zA-Z_][a-zA-Z0-9_]*)"\s*:\s*'
+    r'(?:"(?P<str_val>(?:[^"\\]|\\.)*)"'
+    r'|(?P<bool_val>true|false)'
+    r'|(?P<num_val>-?\d+\.?\d*))'
+)
+
+
+def _extract_key_value_pairs(text: str) -> dict:
+    """Recover "key": value pairs via regex from a malformed JSON blob.
+
+    Only matches syntactically well-formed individual pairs (quoted key,
+    colon, quoted string / bool / number value) — does not guess or repair
+    broken pairs. Used as a last-resort fallback when a document has one
+    or two garbled fields but the rest are recoverable.
+    """
+    result = {}
+    for m in _KV_PATTERN.finditer(text):
+        key = m.group("key")
+        if m.group("str_val") is not None:
+            result[key] = m.group("str_val")
+        elif m.group("bool_val") is not None:
+            result[key] = m.group("bool_val") == "true"
+        elif m.group("num_val") is not None:
+            try:
+                result[key] = float(m.group("num_val"))
+            except ValueError:
+                pass
+    return result
