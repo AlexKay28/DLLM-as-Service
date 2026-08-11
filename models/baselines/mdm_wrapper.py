@@ -146,8 +146,25 @@ class MDMModel:
         self._is_loaded = False
 
     def load(self):
-        """Load the MDM model and tokenizer (LLaDA-8B-Instruct)."""
+        """Load the MDM model and tokenizer (LLaDA-8B-Instruct).
+
+        LLaDA's custom `modeling_llada.py` targets an older transformers
+        internal API (~4.4x) and is incompatible with transformers>=5.x in
+        two spots:
+          1. `LLaDAModelLM` doesn't call `post_init()`, so it's missing the
+             `all_tied_weights_keys` attribute that newer transformers'
+             `get_total_byte_count()` expects during `from_pretrained()`.
+          2. Its `tie_weights()` override has signature `(self)`, but newer
+             transformers calls it with `missing_keys=`/`recompute_mapping=`
+             kwargs.
+        We monkey-patch both call sites narrowly (no behavior change for
+        other models) to make loading work without modifying the cached
+        model file or pinning an old transformers version (which would
+        break the AR wrapper's torch.compile / newer-API usage).
+        """
         from transformers import AutoTokenizer, AutoModelForCausalLM
+        import transformers.modeling_utils as _mu
+        from transformers.dynamic_module_utils import get_class_from_dynamic_module
         import torch
 
         dtype_map = {
@@ -158,9 +175,37 @@ class MDMModel:
         }
         torch_dtype = dtype_map.get(self.dtype, "auto")
 
+        # --- Patch 1: get_total_byte_count tolerates missing all_tied_weights_keys ---
+        if not getattr(_mu, "_llada_patch_gtbc_applied", False):
+            _orig_gtbc = _mu.get_total_byte_count
+
+            def _patched_gtbc(model, accelerator_device_map, hf_quantizer=None):
+                if not hasattr(model, "all_tied_weights_keys"):
+                    model.all_tied_weights_keys = {}
+                return _orig_gtbc(model, accelerator_device_map, hf_quantizer)
+
+            _mu.get_total_byte_count = _patched_gtbc
+            _mu._llada_patch_gtbc_applied = True
+
         print(f"Loading {self.model_name} (device={self.device}, dtype={self.dtype})...")
         self.tokenizer = AutoTokenizer.from_pretrained(
             self.model_name, trust_remote_code=True, local_files_only=True)
+
+        # --- Patch 2: LLaDAModelLM.tie_weights() accept-and-ignore new kwargs ---
+        try:
+            LLaDAModelLM = get_class_from_dynamic_module(
+                "modeling_llada.LLaDAModelLM", self.model_name,
+                local_files_only=True)
+            if not getattr(LLaDAModelLM, "_tie_weights_patched", False):
+                _orig_tie = LLaDAModelLM.tie_weights
+
+                def _patched_tie(self_model, *args, **kwargs):
+                    return _orig_tie(self_model)
+
+                LLaDAModelLM.tie_weights = _patched_tie
+                LLaDAModelLM._tie_weights_patched = True
+        except Exception as e:
+            print(f"  warning: could not patch LLaDAModelLM.tie_weights: {e}")
 
         self.model = AutoModelForCausalLM.from_pretrained(
             self.model_name,
@@ -225,14 +270,15 @@ class MDMModel:
                     break
 
                 with torch.no_grad():
-                    logits = self.model(input_ids).logits  # [1, T, V]
+                    logits = self.model(input_ids, use_cache=False).logits  # [1, T, V]
 
                 # Get logits at remaining masked positions
                 pos_tensor = torch.tensor(remaining, device=device)
                 masked_logits = logits[0, pos_tensor, :]  # [n_masked, V]
+                masked_probs = F.softmax(masked_logits.float(), dim=-1)
 
-                # Confidence = max logit at each position
-                confidences, predicted_ids = masked_logits.max(dim=-1)  # [n_masked]
+                # Confidence = max softmax probability at each position
+                confidences, predicted_ids = masked_probs.max(dim=-1)  # [n_masked]
 
                 # Number to unmask this step
                 steps_left = steps - step
@@ -262,49 +308,37 @@ class MDMModel:
         """
         import torch
 
+        import torch
+
         k = k_steps or self.k_steps
 
-        # Build prompt — same instruction as AR, but we append a masked JSON template
-        # that the MDM will denoise in K steps.
+        # Build the instruction prompt (few-shot examples + query), same
+        # content as the AR wrapper, so both substitutes see identical
+        # context/instructions.
         messages = build_chat_messages(log_line, source=source, few_shot=True)
-
-        # Use chat template for the instruction part
         prompt_text = self.tokenizer.apply_chat_template(
             messages, tokenize=False, add_generation_prompt=True)
 
-        # Append masked output template — JSON skeleton with mask tokens for values
-        masked_output = self._build_masked_output()
-        full_input = prompt_text + masked_output
+        prompt_ids = self.tokenizer(
+            prompt_text, return_tensors="pt", truncation=True,
+            max_length=2048 - self.max_new_tokens)["input_ids"]
+        prompt_len = prompt_ids.shape[1]
 
-        # Tokenize
-        inputs = self.tokenizer(full_input, return_tensors="pt",
-                                 truncation=True, max_length=2048)
-        input_ids = inputs["input_ids"].to(self.model.device)
-        input_len = input_ids.shape[1]
+        # Append a contiguous block of mask tokens (the completion to denoise).
+        # Concatenating token IDs directly avoids any ambiguity in how the
+        # tokenizer would re-tokenize a literal "<|mdm_mask|>" string.
+        n_gen = self.max_new_tokens
+        mask_block = torch.full((1, n_gen), self.mask_token_id, dtype=prompt_ids.dtype)
+        input_ids = torch.cat([prompt_ids, mask_block], dim=1).to(self.model.device)
 
-        # Run denoising
+        # Run denoising (mutates input_ids in place, filling masked positions)
         output_ids = self._denoise(input_ids, k_steps=k, blocks=blocks)
 
-        # Decode only the generated part (after the prompt)
-        output_text = self.tokenizer.decode(output_ids[0][input_len:],
-                                            skip_special_tokens=True)
-        n_output = int((output_ids[0][input_len:] != self.mask_token_id).sum())
-        return output_text, input_len, n_output
-
-    def _build_masked_output(self) -> str:
-        """Build the masked JSON template that the MDM will denoise.
-
-        The template is a JSON skeleton with <|mdm_mask|> tokens for each
-        field value. The model's job is to fill in the masks in K steps.
-        """
-        # Use the actual mask token string so the tokenizer encodes it as 126336
-        mask = "<|mdm_mask|>"
-        fields_json = {}
-        for name in FIELD_NAMES:
-            # Use multiple mask tokens per field to give the model room
-            # (paper's schema is ~128 tokens; ~10 tokens per field)
-            fields_json[name] = " ".join([mask] * 8)
-        return "\n" + json.dumps(fields_json, indent=2)
+        # Decode only the part after the prompt (the denoised completion)
+        gen_ids = output_ids[0][prompt_len:]
+        output_text = self.tokenizer.decode(gen_ids, skip_special_tokens=True)
+        n_output = int((gen_ids != self.mask_token_id).sum())
+        return output_text, prompt_len, n_output
 
     def extract(self, log_lines: list[str], source: str = "hdfs",
                 show_progress: bool = True,
