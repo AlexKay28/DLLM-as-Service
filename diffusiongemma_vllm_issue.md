@@ -104,11 +104,117 @@ serves Qwen2.5 on the H100 at full speed. It has no DiffusionGemma.
 papered over, a latency benchmark taken on faked CUDA libraries is not a
 result.
 
-## 5. Acceptance criteria
+## 5. Resolution plan
+
+Ordered so that each step is cheap and its result decides the next one. Steps
+0-2 need no GPU.
+
+### Step 0 — reclaim disk (30 min, do first)
+
+A torch-2.11 venv needs ~10 GB and only ~4 GB is free. The FP8 checkpoint is
+**not** the thing to delete — it was verified intact on 2026-08-12 (§6) and it
+is the *better* target to serve than the BF16 copy. Reclaim instead from:
+
+```bash
+uv cache prune                 # ~41GB in ~/.cache/uv/archive-v0; venvs keep
+                               # their hardlinks, so this is safe
+du -sh ~/.cache/huggingface/hub/*   # re-check before touching any weights
+```
+
+Stop when ≥20 GB is free. Do **not** delete any checkpoint: with no egress,
+nothing here can be re-downloaded.
+
+### Step 1 — get the four CUDA-13 libraries (blocking, no code)
+
+Exactly one of these has to happen. All four libraries are needed together;
+there is no partial win.
+
+| Route | Ask | Effort |
+|---|---|---|
+| **1a (preferred)** | Register `nvidia-cudnn`, `nvidia-nccl`, `nvidia-cufile`, `nvidia-cusparselt` on the internal PyPI mirror | mirror-team ticket |
+| 1b | Sideload `.whl`/`.deb` from a machine with egress (§4, versions listed) | manual copy |
+| 1c | Allow egress to `developer.download.nvidia.com` or `files.pythonhosted.org` | network ticket |
+
+Verify the moment it lands, before installing anything else:
+
+```bash
+uv pip install --python .venv-dg/bin/python \
+  nvidia-cudnn nvidia-nccl nvidia-cufile nvidia-cusparselt
+```
+
+### Step 2 — install vLLM ≥0.24.0 and prove torch imports
+
+```bash
+uv venv .venv-dg --python 3.10
+uv pip install --python .venv-dg/bin/python \
+    --override overrides.txt vllm==0.25.1      # overrides = the optional
+                                               # kernel extras, see §3
+cp .venv-dllm/lib/python3.10/site-packages/openai_harmony.py \
+   .venv-dg/lib/python3.10/site-packages/       # the stub, still required
+.venv-dg/bin/python -c "import torch; print(torch.cuda.is_available())"
+.venv-dg/bin/python -c "from vllm import LLM; print('ok')"
+```
+
+`torch.cuda.is_available() == True` is the gate. If it still fails, re-run
+`objdump -p .../libtorch_cuda.so | grep NEEDED` and check what is *now* missing
+— the list in §2 was taken from torch 2.11.0 specifically.
+
+### Step 3 — load the model, smallest useful test first
+
+Serve the **FP8** checkpoint (26 GB, verified intact) rather than BF16 (49 GB):
+it halves load time and leaves headroom on the 80 GB card.
+
+```bash
+.venv-dg/bin/python -c "
+from vllm import LLM, SamplingParams
+llm = LLM(model='RedHatAI/diffusiongemma-26B-A4B-it-FP8-dynamic',
+          trust_remote_code=True, gpu_memory_utilization=0.85)
+print(llm.generate(['hello'], SamplingParams(max_tokens=16))[0].outputs[0].text)
+"
+```
+
+Expect friction here, not at the wheel level: the checkpoint is a *diffusers*
+pipeline (`DiffusionGemmaPipeline` + `BlockRefinementScheduler`) and it is
+multimodal (it carries a vision tower). vLLM may want the inner model directory
+rather than the pipeline root. Timebox to a day; if vLLM cannot consume this
+layout, that is itself the finding and the issue closes with it recorded.
+
+### Step 4 — quality gate before any performance number
+
+Run the 12-field BGL extraction on ≥10 lines. If DiffusionGemma cannot produce
+valid JSON for the task, **stop and close the issue** — latency figures from a
+model that cannot do the job answer nothing. Reuse
+`build_chat_messages()` / `parse_json_output()` from `models/baselines/ar_model.py`.
+
+### Step 5 — the actual experiment
+
+Add a DiffusionGemma path to `models/experiments/run_vllm_serving.py` (data
+loading, metrics, SLA sweep and report generation are already shared with the AR
+runs) and run Table 3, Table 4 and the `diffusion_steps` sweep against the
+size-matched AR-3B baseline that already exists.
+
+## 6. FP8 checkpoint: verified intact (2026-08-12)
+
+The 2026-08-11 note calling `RedHatAI/diffusiongemma-26B-A4B-it-FP8-dynamic`
+"corrupted" **does not hold up**. Checked:
+
+- safetensors header parses; 24,232 tensors, exactly matching
+  `model.safetensors.index.json`
+- byte-exact size agreement: header (3,199,128 B) + data (27,197,665,496 B) + 8
+  = 27,200,864,632 B = the file on disk
+- dtype mix is what FP8-dynamic should be: 12,507 BF16 + 11,725 F8_E4M3
+- sampled 18 tensors across embeddings, MoE experts, scales and the vision
+  tower — all finite, all fully non-zero
+
+The original session most likely hit the *loading* problem (no `generate()` on a
+block-diffusion pipeline under plain transformers) and recorded it as a bad
+checkpoint. Treat FP8 as the primary serving target.
+
+## 7. Acceptance criteria
 
 - [ ] vLLM ≥0.24.0 imports and initializes on the H100
-- [ ] DiffusionGemma-26B loads (bf16, 49 GB, fits in 80 GB; the FP8 copy was
-      reported corrupt on 2026-08-11 — re-verify before trusting it)
+- [ ] DiffusionGemma-26B loads — prefer the FP8 checkpoint (26 GB, verified
+      intact, §6); BF16 (49 GB) is the fallback
 - [ ] Quality sanity check: valid 12-field JSON on ≥10 BGL lines. If it cannot
       do the task, record that and close — performance numbers from a model
       that cannot do the task are meaningless
@@ -122,12 +228,10 @@ result.
 needs only a DiffusionGemma code path — the data loading, prompt building,
 metrics, SLA sweep and report generation are shared.
 
-## 6. Watch out
+## 8. Watch out
 
-- **Disk is at 98%** (4 GB free of 196 GB). A torch-2.11 venv needs ~10 GB. The
-  reportedly-corrupt FP8 checkpoint is 26 GB and is the obvious thing to
-  reclaim — but with no egress it cannot be re-downloaded, so verify before
-  deleting.
+- **Disk is at 98%** (4 GB free of 196 GB) — see Step 0. Reclaim from the uv
+  cache, not from checkpoints: nothing here can be re-downloaded.
 - Keep the comparison **active-parameter matched**: DiffusionGemma-26B-A4B is
   MoE with ~4B active, so Qwen2.5-3B is the fair AR row, not the 7B.
 - DiffusionGemma uses **block diffusion** (semi-AR blocks natively), not
@@ -135,7 +239,7 @@ metrics, SLA sweep and report generation are shared.
   LLaDA-based. Any comparison to the paper's 23 ms is across a different
   algorithm and a different model family — label it as such.
 
-## 7. Related
+## 9. Related
 
 - `results/diffusiongemma_perf.md` — the blocker analysis in full
 - `results/vllm_serving.md` — the AR half, plus the two AR bugs it uncovered
