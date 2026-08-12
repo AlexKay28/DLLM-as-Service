@@ -198,6 +198,10 @@ size-matched AR-3B baseline that already exists.
 The 2026-08-11 note calling `RedHatAI/diffusiongemma-26B-A4B-it-FP8-dynamic`
 "corrupted" **does not hold up**. Checked:
 
+- **sha256 of the 27.2 GB blob matches its content-addressed name exactly**
+  (`66d5620ab9a54a2be9442277dcbc169abe7bdd99d2e63a42c14a3985657e7b17`) — the
+  file is byte-for-byte what the Hub served. This alone settles it; the rest is
+  corroboration.
 - safetensors header parses; 24,232 tensors, exactly matching
   `model.safetensors.index.json`
 - byte-exact size agreement: header (3,199,128 B) + data (27,197,665,496 B) + 8
