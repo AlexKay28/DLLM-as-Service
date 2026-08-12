@@ -354,3 +354,117 @@ un-tuned open substitute prompted with free-form JSON does not have.
 **Still running in background**: AR-1.5B + AR-7B quality run (n=2000,
 `logs/quality_ar_n2000.log`) with the fixed prompt — will supersede the
 n=500 format-divergence result above once complete.
+
+## 2026-08-12 — Issue #12: AR baselines under real serving + two AR bugs found
+
+Issue #12 was deferred because DiffusionGemma-26B needed a CUDA 12.3+ driver.
+That blocker is gone (driver **580.65.06 / CUDA 13.0**, was 535 / 12.2), but a
+different one replaced it, and chasing the fallback turned up two defects that
+had biased every AR-vs-MDM comparison in this repo.
+
+### DiffusionGemma is still not runnable here (different reason)
+
+`DiffusionGemmaForBlockDiffusion` first appears in **vLLM 0.24.0** (checked the
+`models/registry.py` of every wheel from 0.19.1 up: 0.19.1/0.21.0/0.22.1/0.23.0
+lack it, 0.24.0/0.25.1/0.26.0 have it). Every version that has it pins
+`torch==2.11.0`, a CUDA-13 build — and the internal mirror carries no CUDA-13
+`cudnn`, `nccl`, `cufile` or `cusparselt`, all four of which are `DT_NEEDED` in
+`libtorch_cuda.so`. pypi.org and download.pytorch.org are unreachable from this
+host. No dependency-override trick gets around a hard `DT_NEEDED`. Full analysis
+and the three things that would unblock it: `results/diffusiongemma_perf.md`.
+
+**vLLM 0.19.1 does work** on the cu12.8 stack (torch 2.10.0+cu128), stripping
+only optional kernel extras (flashinfer, cutlass-dsl, quack-kernels,
+cudnn-frontend, cuda-pathfinder, pynvvideocodec). One stub was needed:
+`openai_harmony` is imported unconditionally by `vllm/entrypoints/chat_utils.py`,
+which is on the offline `LLM` import path though nothing there uses it.
+
+### Bug 1: the AR baseline was served as a strawman
+
+Every AR number in this repo came from a naive HF `model.generate()` loop. The
+paper serves its AR baselines with PagedAttention + FlashAttention-2 and credits
+them with a frozen-T conditioning cache, specifically so diffusion cannot win on
+serving infrastructure. Ours had none of that.
+
+`models/experiments/run_vllm_serving.py` re-measures the AR side under vLLM —
+real continuous batching for Table 4, not the sequential loop the previous draft
+used. On identical weights, prompts and events (n=2000 BGL):
+
+| Serving | AR-1.5B p50 | p99 | p99.9 |
+|---|---|---|---|
+| HF transformers | 1842 ms | 3053 ms | 4163 ms |
+| **vLLM** | **413 ms** | **686 ms** | **806 ms** |
+
+Throughput under real batching peaks at **204.9 ev/s** (1.5B), 145.2 (3B), 85.1
+(7B) at batch 512 — against 0.70 ev/s for naive LLaDA serving and the paper's
+4350 ev/s claim. Prefix caching (the frozen-T cache) is worth only 1.03x on p50
+here: the preamble prefill is small next to ~138 decode steps.
+
+### Bug 2: the AR baseline was decoded with a hostile default
+
+vLLM and HF disagreed on Field-F1 for the *same model and prompts* under greedy
+decoding — 0.844 vs 0.779. The gap sat entirely in `host` (0.20 vs 0.83) and
+`message_template` (0.69 vs 0.87).
+
+Cause: Qwen2.5 ships `repetition_penalty` in `generation_config.json` (**1.1**
+at 1.5B, 1.05 at 3B/7B) and HF `generate()` applies it even under
+`do_sample=False`. `ARModel` never set the parameter, so the checkpoint's own
+default silently took effect. For extraction this is exactly backwards —
+correct output *copies spans out of the input*, which is what the penalty
+suppresses. It emptied `host` on **80/100** events. vLLM defaults to 1.0, hence
+the disagreement.
+
+Same code path, same 100 events, only the penalty changed:
+
+| | penalty 1.1 | penalty 1.0 | vLLM |
+|---|---|---|---|
+| host F1 | 0.200 | 0.800 | 0.830 |
+| macro Field-F1 | 0.778 | 0.849 | 0.853 |
+| empty `host` | 80/100 | 20/100 | 17/100 |
+
+With it neutralised the two stacks agree to 0.004 (bf16 kernel drift). Fixed in
+`ar_wrapper.py`: `repetition_penalty` is now an explicit constructor argument
+defaulting to 1.0. **LLaDA/MDM was never affected** — no penalty in its config,
+hand-written denoising loop — so the handicap was one-sided.
+
+### What this costs us
+
+Both defects flattered MDM, and two headline findings are withdrawn
+(`VALIDATION_REPORT.md` carries a correction block):
+
+- **"AR-vs-MDM near-parity (0.779 vs 0.779)" — refuted.** Corrected AR-1.5B
+  scores 0.844 against MDM's 0.779, a 0.065 gap, an order of magnitude wider
+  than the paper's claimed 0.006.
+- **"AR-7B is the Field-F1 ceiling" — not supported.** That ranking came from
+  the penalty being stronger at 1.5B (1.1) than 7B (1.05). Corrected:
+  1.5B 0.844, 3B 0.826, 7B 0.842 — non-monotonic, all within ~0.02.
+- **"MDM is 1.33x faster than AR" — reversed.** Properly served, AR-1.5B is
+  3.4x *faster* than LLaDA-8B.
+
+Unaffected, because they are internal to MDM rather than comparisons against
+AR: content-independent O(K) latency (R²=1.0000), the K=8 knee, the
+structural-vs-semantic decomposition, and MDM's consistency weak spot. MDM also
+keeps the tightest tail ratio in the table (1.19x vs AR's 1.95-2.02x), so
+Proposition 1 stands.
+
+This does **not** show AR beats MDM architecturally — LLaDA is still on naive
+HF serving, since vLLM has no MDM we can install. It shows our first pass
+compared diffusion against a doubly-handicapped AR baseline.
+
+### Withdrawn
+
+`results/diffusiongemma_perf.json` reported 0.42 ms p50 and 322k ev/s for an 8B
+model. Its runner silently fell back to *synthetic* log lines (it looked for BGL
+at `datasets/bgl/test_200k.jsonl`, a path this repo does not use) and measured
+"throughput" with a sequential `for` loop over `extract()`. The JSON is deleted
+and `run_diffusiongemma_perf.py` is disabled with the diagnosis in its
+docstring.
+
+### Files
+
+- `models/experiments/run_vllm_serving.py` — vLLM latency/throughput/quality runner
+- `models/experiments/run_vllm_all.sh` — the full sweep (1.5B/3B/7B + no-prefix-cache)
+- `models/experiments/make_vllm_report.py` — builds `results/vllm_serving.md`
+- `models/experiments/diag_hf_vs_vllm.py` — the HF-vs-vLLM record-level diff
+- `results/vllm_serving.md` + `vllm_serving_{1.5b,3b,7b,1.5b_noprefix}.json`
+- `results/diffusiongemma_perf.md` — rewritten as a blocker analysis

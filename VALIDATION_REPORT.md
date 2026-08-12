@@ -8,6 +8,32 @@
 
 ---
 
+> ## ⚠ Correction — 2026-08-12 (issue #12)
+>
+> Work on issue #12 found **two defects in the AR baseline** that biased this
+> report against AR and in favour of MDM. Both are fixed; affected claims below
+> are marked **[CORRECTED 2026-08-12]**. Full detail:
+> [`results/vllm_serving.md`](results/vllm_serving.md).
+>
+> 1. **Decoding bug.** `ARModel` never set `repetition_penalty`, so Qwen2.5's
+>    own `generation_config.json` default applied (1.1 at 1.5B, 1.05 at 3B/7B)
+>    — and HF `generate()` honours it even under `do_sample=False`. Correct
+>    extraction copies spans out of the input, which is exactly what that
+>    penalty suppresses: it emptied the `host` field on 80/100 events. AR-1.5B
+>    Field-F1 **0.779 → 0.844**. LLaDA/MDM was never affected (no penalty in its
+>    config, hand-written denoising loop), so the handicap was one-sided.
+> 2. **Serving strawman.** All AR latencies came from naive HF `generate()`,
+>    while the paper serves its AR baselines with PagedAttention +
+>    FlashAttention-2. Under vLLM, AR-1.5B p50 goes **1842ms → 413ms**.
+>
+> Net effect on this report: claims **#1 (near-parity) and #2 (AR-7B ceiling)
+> are refuted**, and the "MDM is 1.33x faster than AR" reading in §5 is
+> reversed — properly served AR-1.5B is 3.4x *faster* than LLaDA-8B. The
+> content-independent-latency, K=8-knee, consistency and structural-vs-semantic
+> findings are unaffected.
+
+---
+
 ## Executive Summary
 
 We independently reproduced or refuted the FlowFill paper's quantitative claims
@@ -20,8 +46,8 @@ patterns and structural claims** are testable on substitutes.
 
 | # | Paper claim | Verdict | Confidence |
 |---|------------|---------|------------|
-| 1 | AR-1.5B and FlowFill-MDM achieve near-parity Field-F1 (gap 0.006) | **Confirmed** (gap 0.000 on substitutes) | High |
-| 2 | AR-7B is the Field-F1 ceiling | **Confirmed** (0.839 > 0.779) | High |
+| 1 | AR-1.5B and FlowFill-MDM achieve near-parity Field-F1 (gap 0.006) | **Refuted** on substitutes — gap 0.065 (AR 0.844 > MDM 0.779). The apparent parity was the AR decoding bug **[CORRECTED 2026-08-12]** | High |
+| 2 | AR-7B is the Field-F1 ceiling | **Not supported** on substitutes — AR-1.5B 0.844 ≈ AR-7B 0.842 ≈ AR-3B 0.826. The old 7B>1.5B ranking came from the penalty being stronger at 1.5B (1.1 vs 1.05) **[CORRECTED 2026-08-12]** | Medium |
 | 3 | MDM's weak spot is cross-field consistency | **Confirmed directionally** (76.6% vs 99.9% — wider gap than paper's 1.1pp) | Medium |
 | 4 | Diffusion is "free" on structural fields, pays only on semantic | **Confirmed** (structural all >0.93, semantic 0.47-0.53) | High |
 | 5 | K=8 is the quality-vs-steps knee | **Confirmed** (knee near K=6-8, F1 rises steeply 2→8 then plateaus) | High |
@@ -31,12 +57,16 @@ patterns and structural claims** are testable on substitutes.
 | 9 | 6.8x throughput at 250ms SLA | **Untestable** (same blocker) | N/A |
 | 10 | Classical baselines (Drain) match LLMs on structural fields | **Confirmed** (Drain 0.997 vs LLM 0.974 on structural) | High |
 
-**Bottom line:** The paper's *structural* claims (near-parity quality,
-content-independent O(K) latency, K=8 knee, structural-vs-semantic decomposition,
-classical baselines matching on extractive fields) all hold on open substitutes.
-The *absolute performance* claims (23ms, 4350 ev/s) require the unreleased
-FlowFill weights + serving code and are deferred to a dedicated DiffusionGemma
-issue.
+**Bottom line** *(revised 2026-08-12)*: The paper's claims about *diffusion's own
+behaviour* — content-independent O(K) latency, the K=8 knee, the
+structural-vs-semantic decomposition, the consistency weak spot, classical
+baselines matching on extractive fields — all hold on open substitutes. The
+claims that are *comparisons against AR* do not: once the AR baseline is decoded
+and served correctly, AR leads MDM on quality (0.844 vs 0.779) and on latency
+(413ms vs 1389ms). The *absolute performance* claims (23ms, 4350 ev/s) remain
+untested — they need the unreleased FlowFill weights, and the DiffusionGemma
+substitute is blocked on CUDA-13 wheel availability
+(`results/diffusiongemma_perf.md`).
 
 ---
 
@@ -48,10 +78,18 @@ issue.
 
 ### 1.1 Results vs paper
 
+**[CORRECTED 2026-08-12]** The AR rows below are superseded — they were produced
+with the model-default `repetition_penalty` and naive HF serving. Corrected AR
+rows (vLLM, `repetition_penalty=1.0`, same n=2000 BGL events) are marked *(v2)*;
+the MDM row is unaffected.
+
 | Model | Field-F1 | Schema-Valid | Consistency | Anomaly-F1 | p50 (ms) |
 |-------|---------|-------------|------------|-----------|---------|
-| AR-1.5B (ours) | 0.779 | 99.3% | 99.9% | 0.978 | 1842 |
-| AR-7B (ours) | 0.839 | 99.0% | 99.5% | 0.977 | 2122 |
+| **AR-1.5B (ours, v2)** | **0.844** | **98.9%** | **100.0%** | — | **413** |
+| **AR-3B (ours, v2)** | **0.826** | **98.8%** | **98.5%** | — | **662** |
+| **AR-7B (ours, v2)** | **0.842** | **99.0%** | **98.8%** | — | **1161** |
+| ~~AR-1.5B (ours, v1 — buggy)~~ | ~~0.779~~ | 99.3% | 99.9% | 0.978 | ~~1842~~ |
+| ~~AR-7B (ours, v1 — buggy)~~ | ~~0.839~~ | 99.0% | 99.5% | 0.977 | ~~2122~~ |
 | MDM/LLaDA-8B K=8 (ours) | 0.779 | 97.1% | 76.6% | 0.869 | 1389 |
 | AR-1.5B (paper) | 0.913 | 96.1% | 98.9% | 0.871 | 168 |
 | FlowFill-MDM K=8 (paper) | 0.907 | 99.4% | 97.8% | 0.865 | 23 |
@@ -59,10 +97,17 @@ issue.
 
 ### 1.2 Allegation verification
 
-**Allegation 1: FlowFill trails AR-1.5B by only 0.006 Field-F1 → CONFIRMED.**
-Our AR-1.5B substitute (0.779) and MDM substitute (0.779) achieve *exact* parity
-(gap 0.000), even closer than the paper's 0.006 gap. The qualitative claim —
-"diffusion is essentially free on quality" — holds.
+**Allegation 1: FlowFill trails AR-1.5B by only 0.006 Field-F1 → REFUTED
+[CORRECTED 2026-08-12].**
+The original verdict (*"exact parity, gap 0.000, even closer than the paper's
+0.006"*) compared a penalty-suppressed AR number against an unaffected MDM
+number. Corrected, AR-1.5B scores 0.844 against MDM's 0.779 — a gap of 0.065,
+an order of magnitude wider than the paper's claimed 0.006. On our substitutes
+diffusion is **not** free on quality; it costs ~6.5 Field-F1 points.
+
+This does not refute the paper's own measurement — FlowFill is trained for this
+task and LLaDA-8B is not — but the parity we reported was an artefact of our AR
+baseline, not evidence for the claim.
 
 **Allegation 2: Grammar constraints buy validity, not quality → NOT TESTED.**
 Requires XGrammar-constrained decoding. Deferred.
@@ -75,9 +120,14 @@ but the magnitude is larger, likely because:
 - We use B=1 (pure parallel, no semi-AR recovery)
 - The paper's FlowFill was trained specifically to minimize this gap
 
-**Allegation 4: AR-7B is the Field-F1 ceiling → CONFIRMED.**
-AR-7B (0.839) > AR-1.5B (0.779) = MDM (0.779). Direction matches paper
-(0.945 > 0.913 > 0.907).
+**Allegation 4: AR-7B is the Field-F1 ceiling → NOT SUPPORTED
+[CORRECTED 2026-08-12].**
+The original verdict rested on AR-7B (0.839) > AR-1.5B (0.779) — but the
+repetition penalty is stronger at 1.5B (1.1) than at 7B (1.05), so that ranking
+largely measured the bug. Corrected: AR-1.5B 0.844, AR-3B 0.826, AR-7B 0.842 —
+non-monotonic and within ~0.02 of each other. On this extraction task, with
+these substitutes, scale does not separate the AR models; the paper's ordering
+(0.945 > 0.913) is neither reproduced nor contradicted.
 
 **Allegation 5: Anomaly-F1 ordering AR-7B > AR-1.5B > FlowFill → CONFIRMED.**
 Our ordering: AR-7B (0.977) ≈ AR-1.5B (0.978) > MDM (0.869). The AR-7B vs
@@ -310,13 +360,24 @@ produced:
 
 | Model | p50 (ms) | p99 (ms) | p99.9 (ms) |
 |-------|---------|---------|-----------|
-| AR-1.5B (ours) | 1842 | 3053 | 4163 |
-| AR-7B (ours) | 2122 | 5480 | 7808 |
-| MDM/LLaDA-8B K=8 (ours) | 1389 | 1556 | 1648 |
+| **AR-1.5B (ours, v2 — vLLM)** | **413** | **686** | **806** |
+| **AR-3B (ours, v2 — vLLM)** | **662** | **1062** | **1336** |
+| **AR-7B (ours, v2 — vLLM)** | **1161** | **1521** | **2311** |
+| ~~AR-1.5B (ours, v1 — HF)~~ | ~~1842~~ | ~~3053~~ | ~~4163~~ |
+| ~~AR-7B (ours, v1 — HF)~~ | ~~2122~~ | ~~5480~~ | ~~7808~~ |
+| MDM/LLaDA-8B K=8 (ours, HF — no vLLM MDM available) | 1389 | 1556 | 1648 |
 | AR-1.5B (paper) | 168 | 240 | 340 |
 | FlowFill-MDM K=8 (paper) | 23 | 31 | 36 |
 
-**Relative speedup (MDM vs AR-1.5B):** 1.33x (our) vs 7.3x (paper).
+**Relative speedup [CORRECTED 2026-08-12]:** the original "MDM is 1.33x faster
+than AR-1.5B" compared HF `generate()` against a hand-written denoising loop.
+Under vLLM, **AR-1.5B is 3.4x faster than LLaDA-8B** (413ms vs 1389ms) — the
+direction is reversed, and the paper's 7.3x MDM advantage is not reproduced.
+
+This is not evidence that AR beats MDM architecturally: LLaDA is still on naive
+HF serving because vLLM's only MDM (DiffusionGemma) will not install here. It
+does establish that our earlier AR-vs-MDM latency comparison measured serving
+stacks, not architectures.
 
 ### 5.2 Why the gap
 
@@ -370,7 +431,7 @@ vLLM 0.7.2 + flash-attn 2.8.3 are now installed and ready for this future work.
 | 14 | B=2 recovers consistency | #6 | **Partially confirmed** (consistency up, F1 down) |
 | 15 | B=4 recovers more | #6 | **Partially confirmed** (same caveat) |
 | 16 | F1 improves with more blocks | #6 | **Refuted** on substitute (methodological caveat) |
-| 17 | MDM 7.3x faster than AR-1.5B | #4 | **Untestable** (needs FlowFill weights) |
+| 17 | MDM 7.3x faster than AR-1.5B | #4 | **Refuted on substitutes** — properly-served AR-1.5B is 3.4x *faster* than LLaDA-8B **[CORRECTED 2026-08-12]** |
 | 18 | MDM p99.9 = 36ms | #4 | **Untestable** |
 | 19 | 6.8x throughput at 250ms SLA | #5 | **Untestable** |
 | 20 | Energy 0.7 J/event | #4 | **Untestable** |
@@ -429,19 +490,40 @@ vLLM 0.7.2 + flash-attn 2.8.3 are now installed and ready for this future work.
 
 ## 10. Conclusion
 
-The FlowFill paper's **structural and qualitative claims hold up well** under
-independent validation on open substitutes:
+*Revised 2026-08-12 — see the correction block at the top of this report.*
 
-- AR-vs-MDM near-parity on quality ✓
-- Content-independent O(K) latency (Proposition 1) ✓
+The paper's claims about **how masked diffusion itself behaves** hold up well
+under independent validation on open substitutes:
+
+- Content-independent O(K) latency (Proposition 1) ✓ — R²=1.0000, and MDM still
+  has the tightest tail ratio in the table (1.19x vs AR's 1.95-2.02x)
 - K=8 quality knee ✓
 - Structural-vs-semantic field decomposition ✓
 - Classical baselines match LLMs on extractive fields ✓
-- Consistency is MDM's weak spot ✓ (directionally)
+- Consistency is MDM's weak spot ✓ (directionally, and more severely than
+  claimed)
 
-The paper's **absolute performance claims** (23ms, 4350 ev/s, 7.3x speedup)
-remain untestable without the unreleased FlowFill weights and serving code.
-A deferred issue tracks validating these with DiffusionGemma via vLLM.
+The paper's claims that are **comparisons against AR** do not survive fixing our
+AR baseline:
+
+- AR-vs-MDM near-parity on quality ✗ — AR 0.844 vs MDM 0.779 once the decoding
+  bug is removed
+- MDM faster than AR ✗ — properly served AR-1.5B is 3.4x faster than LLaDA-8B,
+  the opposite direction
+
+The honest reading is that our first pass **tested diffusion against a
+handicapped AR baseline** — handicapped twice over, in decoding and in serving.
+The diffusion-side findings stand because they are internal to MDM; the
+comparative findings had to be withdrawn. Anyone validating a
+"new-architecture beats AR" paper should price the AR baseline first: both of
+our defects flattered the new architecture, which is the direction bias tends
+to run.
+
+The **absolute performance claims** (23ms, 4350 ev/s, 7.3x speedup) remain
+untested — they need the unreleased FlowFill weights, and the DiffusionGemma
+substitute is blocked on CUDA-13 wheel availability in this environment
+(`results/diffusiongemma_perf.md`). For scale, our best properly-served AR
+throughput is 204.9 ev/s against the paper's 4350 ev/s FlowFill claim.
 
 The **one claim refuted** (B>1 improves Field-F1) is attributable to our
 substitute not being fine-tuned on a fixed-slot template — this is itself a

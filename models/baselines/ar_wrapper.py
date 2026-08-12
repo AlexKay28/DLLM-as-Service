@@ -100,6 +100,14 @@ class ARModel:
         max_new_tokens: max tokens to generate per event (default 256)
         grammar_constrained: if True, use XGrammar for JSON-constrained decoding
         batch_size: batch size for inference (default 1 = streaming mode m=1)
+        repetition_penalty: must stay 1.0 (neutral) for this task. Qwen2.5's
+            `generation_config.json` ships 1.1 (1.5B) / 1.05 (3B, 7B), and HF
+            `generate()` applies it even under `do_sample=False` — so leaving it
+            unset silently penalises exactly what extraction requires: copying
+            spans out of the input. Measured on 100 BGL events, the model's own
+            default emptied the `host` field on 80/100 events (F1 0.20 vs 0.83)
+            and cost 0.075 macro Field-F1. vLLM defaults it to 1.0, which is
+            why the two stacks disagreed until this was made explicit.
     """
 
     def __init__(
@@ -110,6 +118,7 @@ class ARModel:
         max_new_tokens: int = 256,
         grammar_constrained: bool = False,
         batch_size: int = 1,
+        repetition_penalty: float = 1.0,
     ):
         self.model_name = model_name
         self.device = device
@@ -117,6 +126,7 @@ class ARModel:
         self.max_new_tokens = max_new_tokens
         self.grammar_constrained = grammar_constrained
         self.batch_size = batch_size
+        self.repetition_penalty = repetition_penalty
 
         self.model = None
         self.tokenizer = None
@@ -170,6 +180,7 @@ class ARModel:
                 max_new_tokens=self.max_new_tokens,
                 do_sample=False,
                 temperature=1.0,
+                repetition_penalty=self.repetition_penalty,
                 pad_token_id=self.tokenizer.pad_token_id,
             )
 
@@ -202,6 +213,7 @@ class ARModel:
                 max_new_tokens=self.max_new_tokens,
                 do_sample=False,
                 temperature=1.0,
+                repetition_penalty=self.repetition_penalty,
                 pad_token_id=self.tokenizer.pad_token_id,
             )
 

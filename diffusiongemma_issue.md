@@ -2,7 +2,11 @@
 
 **Type:** Performance validation experiment (deferred from GPU session 2026-08-11)
 **Depends on:** #4 (latency), #5 (throughput), #3 (quality — LLaDA results as baseline)
-**Status:** Issue created; experiment not yet run
+**Status:** BLOCKED (updated 2026-08-12) — the CUDA-driver blocker below is
+resolved (driver 580.65.06 / CUDA 13.0), but DiffusionGemma needs vLLM >= 0.24.0,
+which pins torch 2.11 / CUDA 13, and this host's mirror has no CUDA-13
+cudnn/nccl/cufile/cusparselt. The AR half of this issue is done under vLLM 0.19.1.
+See `results/diffusiongemma_perf.md` and `results/vllm_serving.md`.
 
 ---
 
