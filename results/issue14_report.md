@@ -62,6 +62,27 @@ This asymmetry is forced by the engine bug, not a choice.
   tokens — which is exactly why DG won the #13 m=1 comparison.
 - Chart: `results/issue14_length_scaling.png`; data: `results/p2_*.json`.
 
+## P1+P2 joint grid (λ × L, uniform axes)
+
+Uniform grid — L ∈ {64,128,256,512} × λ ∈ {1,2,4,8,16} on both models
+(DG serialized as above) — turns P1/P2 into one picture: **two orthogonal
+walls**. DG lag is flat in L but walls in λ; AR lag is flat in λ but walls
+in L. **DG's win region is λ ≲ 2 AND L ≥ 128** (5.3x faster at λ=1, L=512;
+tie at L=64). Chart: `results/joint_rate_lag.png` / `.html`; data:
+`results/rate_lag_{dg,ar3b}_L*.json`.
+
+## Upstream status of the DG crash (checked 2026-08-13)
+
+vllm-project/vllm#50699 is the exact failure class; maintainer-analysis:
+"self-conditioning/residual misalignment strikes only when canvases in
+**mixed phases** are batched together" — end +1 offset, 256 vs 257; the
+current crash fix (#51994) *"trades the crash for serialization"*; **no
+parallel/diverse-denoising batching is planned** pending the MRV2 runner
+rewrite (#52015). Consequence: serialized serving is DG's
+production-relevant mode for the foreseeable future; our `--max-num-seqs 1`
+numbers are the honest ones. Our repro posted as
+vllm-project/vllm#50699#issuecomment-5282345519.
+
 ## The defensible claim
 
 On A100 + vLLM 0.25.1: **a served dLLM is strictly preferable when the
