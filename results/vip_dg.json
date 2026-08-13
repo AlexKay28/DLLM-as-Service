@@ -1,0 +1,122 @@
+{
+  "experiment": "issue14_rate_lag_curve",
+  "model": "google/diffusiongemma-26B-A4B-it",
+  "arrivals": "poisson, open-loop; lag = finish - arrive (client-side)",
+  "duration_s": 200.0,
+  "max_events_per_rate": 400,
+  "drain_timeout_s": 45.0,
+  "seed": 0,
+  "min_tokens": 0,
+  "max_new_tokens": 256,
+  "timestamp": "2026-08-13T18:58:04Z",
+  "rates": [
+    {
+      "offered_rate_ev_s": 0.5,
+      "sent": 88,
+      "completed": 95,
+      "errors": 0,
+      "error_samples": [],
+      "abandoned_at_drain": 0,
+      "completion_ratio": 1.0795,
+      "lag_ms": {
+        "p50_ms": 390.99585032090545,
+        "p90_ms": 529.529423918575,
+        "p99_ms": 1147.2443784587085,
+        "p99_9_ms": 1147.2443784587085
+      },
+      "ttft_ms": {
+        "p50_ms": 390.58028534054756,
+        "p90_ms": 529.1720652021468,
+        "p99_ms": 1146.9261250458658,
+        "p99_9_ms": 1146.9261250458658
+      },
+      "mean_out_tokens": null,
+      "vip_n": 7,
+      "vip_lag_ms": {
+        "p50_ms": 405.1792100071907,
+        "p90_ms": 483.4202607162297,
+        "p99_ms": 483.4202607162297,
+        "p99_9_ms": 483.4202607162297
+      },
+      "background_lag_ms": {
+        "p50_ms": 390.57173440232873,
+        "p90_ms": 580.7087328284979,
+        "p99_ms": 1147.2443784587085,
+        "p99_9_ms": 1147.2443784587085
+      },
+      "bg_cancelled_by_vip": 0
+    },
+    {
+      "offered_rate_ev_s": 1.0,
+      "sent": 191,
+      "completed": 198,
+      "errors": 0,
+      "error_samples": [],
+      "abandoned_at_drain": 0,
+      "completion_ratio": 1.0366,
+      "lag_ms": {
+        "p50_ms": 425.2081708982587,
+        "p90_ms": 890.5690349638462,
+        "p99_ms": 1400.6101391278207,
+        "p99_9_ms": 1506.205738056451
+      },
+      "ttft_ms": {
+        "p50_ms": 424.8905857093632,
+        "p90_ms": 890.1695609092712,
+        "p99_ms": 1400.2471128478646,
+        "p99_9_ms": 1505.714317318052
+      },
+      "mean_out_tokens": null,
+      "vip_n": 7,
+      "vip_lag_ms": {
+        "p50_ms": 395.81887796521187,
+        "p90_ms": 487.5521301291883,
+        "p99_ms": 487.5521301291883,
+        "p99_9_ms": 487.5521301291883
+      },
+      "background_lag_ms": {
+        "p50_ms": 425.2081708982587,
+        "p90_ms": 890.5690349638462,
+        "p99_ms": 1400.6101391278207,
+        "p99_9_ms": 1506.205738056451
+      },
+      "bg_cancelled_by_vip": 0
+    },
+    {
+      "offered_rate_ev_s": 1.5,
+      "sent": 293,
+      "completed": 300,
+      "errors": 0,
+      "error_samples": [],
+      "abandoned_at_drain": 0,
+      "completion_ratio": 1.0239,
+      "lag_ms": {
+        "p50_ms": 519.9378812685609,
+        "p90_ms": 1310.3992440737784,
+        "p99_ms": 3436.9410648941994,
+        "p99_9_ms": 3773.5984288156033
+      },
+      "ttft_ms": {
+        "p50_ms": 519.607646856457,
+        "p90_ms": 1310.039077885449,
+        "p99_ms": 3436.467317864299,
+        "p99_9_ms": 3773.111960850656
+      },
+      "mean_out_tokens": null,
+      "vip_n": 7,
+      "vip_lag_ms": {
+        "p50_ms": 432.23512498661876,
+        "p90_ms": 770.209573674947,
+        "p99_ms": 770.209573674947,
+        "p99_9_ms": 770.209573674947
+      },
+      "background_lag_ms": {
+        "p50_ms": 519.9378812685609,
+        "p90_ms": 1310.3992440737784,
+        "p99_ms": 3436.9410648941994,
+        "p99_9_ms": 3773.5984288156033
+      },
+      "bg_cancelled_by_vip": 0
+    }
+  ]
+}

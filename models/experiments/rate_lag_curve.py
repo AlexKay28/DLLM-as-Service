@@ -107,9 +107,19 @@ def kill_server(proc, log):
 
 async def run_window(port, model, prompts, rate, seed, duration_s,
                      max_events, drain_timeout, max_tokens, min_tokens,
-                     pbar_label):
+                     pbar_label, vip_every_s=0.0, vip_policy="abort"):
     """One offered rate: Poisson sends for min(duration_s, max_events/rate),
-    then wait for completions up to drain_timeout."""
+    then wait for completions up to drain_timeout.
+
+    With vip_every_s > 0, a latency-critical "VIP" request is injected every
+    vip_every_s seconds:
+      vip_policy=abort    — all in-flight background requests are cancelled
+                            first (server aborts on disconnect), the VIP runs
+                            immediately, cancelled work is resubmitted after.
+      vip_policy=priority — VIP carries priority=-1 (needs the server started
+                            with --scheduling-policy priority); the engine
+                            preempts low-priority running sequences itself.
+    """
     import httpx
 
     rng = random.Random(seed)
@@ -124,48 +134,77 @@ async def run_window(port, model, prompts, rate, seed, duration_s,
     rng.shuffle(order)
 
     records = []
+    running: dict[int, asyncio.Task] = {}
+    spawned: set = set()
+    state = {"vip_abort": False}
+    _counter = [len(schedule)]
 
-    async def one(client, i, offset):
-        await asyncio.sleep(offset)
-        t0 = time.perf_counter()
-        prompt = prompts[order[i % len(order)]]
-        payload = {
-            "model": model,
-            "messages": build_chat_messages(prompt, source="bgl"),
-            "max_tokens": max_tokens,
-            "min_tokens": min_tokens,
-            "temperature": 0.0,
-            "stream": True,
-        }
-        rec = {"arrive": t0, "ttft": None, "finish": None, "ok": False,
-               "out_tokens": None}
+    def spawn(coro):
+        t = asyncio.create_task(coro)
+        spawned.add(t)
+        t.add_done_callback(spawned.discard)
+        return t
+
+    async def send_one(client, i, prompt, kind, priority=None):
+        rec = {"arrive": time.perf_counter(), "ttft": None, "finish": None,
+               "ok": False, "out_tokens": None, "kind": kind}
         try:
-            async with client.stream(
-                    "POST", f"http://127.0.0.1:{port}/v1/chat/completions",
-                    json=payload) as resp:
-                if resp.status_code != 200:
-                    rec["error"] = f"http {resp.status_code}"
-                    await resp.aread()
-                else:
-                    async for line in resp.aiter_lines():
-                        if not line.startswith("data:"):
-                            continue
-                        if rec["ttft"] is None and '"content"' in line:
-                            rec["ttft"] = time.perf_counter()
-                        if '"usage"' in line and '"completion_tokens"' in line:
-                            try:
-                                usage = json.loads(line[5:])["usage"]
-                                rec["out_tokens"] = usage["completion_tokens"]
-                            except Exception:
-                                pass
-            rec["finish"] = time.perf_counter()
-            rec["ok"] = True
+            payload = {
+                "model": model,
+                "messages": build_chat_messages(prompt, source="bgl"),
+                "max_tokens": max_tokens,
+                "min_tokens": min_tokens,
+                "temperature": 0.0,
+                "stream": True,
+            }
+            if priority is not None:
+                payload["priority"] = priority
+            running[i] = asyncio.current_task()
+            try:
+                async with client.stream(
+                        "POST",
+                        f"http://127.0.0.1:{port}/v1/chat/completions",
+                        json=payload) as resp:
+                    if resp.status_code != 200:
+                        rec["error"] = f"http {resp.status_code}"
+                        await resp.aread()
+                    else:
+                        async for line in resp.aiter_lines():
+                            if not line.startswith("data:"):
+                                continue
+                            if rec["ttft"] is None and '"content"' in line:
+                                rec["ttft"] = time.perf_counter()
+                            if '"usage"' in line and '"completion_tokens"' in line:
+                                try:
+                                    usage = json.loads(line[5:])["usage"]
+                                    rec["out_tokens"] = usage["completion_tokens"]
+                                except Exception:
+                                    pass
+                rec["finish"] = time.perf_counter()
+                rec["ok"] = True
+            finally:
+                running.pop(i, None)
         except asyncio.CancelledError:
             rec["finish"] = time.perf_counter()
+            rec["error"] = ("cancelled_by_vip"
+                            if kind == "bg" and state["vip_abort"]
+                            else "cancelled")
         except Exception as e:
             rec["finish"] = time.perf_counter()
             rec["error"] = str(e)[:200]
         records.append(rec)
+        return rec
+
+    async def bg_one(client, i, offset):
+        await asyncio.sleep(offset)
+        prompt = prompts[order[i % len(order)]]
+        rec = await send_one(client, i, prompt, kind="bg")
+        if rec.get("error") == "cancelled_by_vip":
+            # resubmit the aborted background work after the VIP has run
+            await asyncio.sleep(0.05)
+            j = _counter[0]
+            _counter[0] += 1
+            spawn(send_one(client, j, prompt, kind="bg_retry"))
         if len(records) % 25 == 0:
             done = [r for r in records if r["ok"]]
             if done:
@@ -173,18 +212,44 @@ async def run_window(port, model, prompts, rate, seed, duration_s,
                 print(f"      {pbar_label}: {len(records)}/{n_to_send} done, "
                       f"lag p50={lags[len(lags)//2]*1000:.0f}ms", flush=True)
 
+    async def vip_one(client, i, offset):
+        await asyncio.sleep(offset)
+        arrived = time.perf_counter()
+        n_aborted = 0
+        if vip_policy == "abort":
+            victims = list(running.items())
+            n_aborted = len(victims)
+            if victims:
+                state["vip_abort"] = True
+                for _, t_ in victims:
+                    t_.cancel()
+                await asyncio.gather(*(t_ for _, t_ in victims),
+                                     return_exceptions=True)
+                state["vip_abort"] = False
+        prompt = prompts[i % len(prompts)]
+        rec = await send_one(client, 100000 + i, prompt, kind="vip",
+                             priority=-1 if vip_policy == "priority" else None)
+        rec["aborted_on_arrival"] = n_aborted
+
     limits = httpx.Limits(max_connections=2048, max_keepalive_connections=2048)
     timeout = httpx.Timeout(None, connect=30.0)
     async with httpx.AsyncClient(limits=limits, timeout=timeout) as client:
-        tasks = [asyncio.create_task(one(client, i, off))
-                 for i, off in enumerate(schedule)]
-        send_end = schedule[-1] if schedule else 0
-        await asyncio.sleep(send_end)
-        done, pending = await asyncio.wait(tasks, timeout=drain_timeout)
-        for t_ in pending:
-            t_.cancel()
-        if pending:
-            await asyncio.gather(*pending, return_exceptions=True)
+        for i, off in enumerate(schedule):
+            spawn(bg_one(client, i, off))
+        if vip_every_s > 0:
+            span = schedule[-1] if schedule else 0.0
+            n_vip = int(span // vip_every_s)
+            for k in range(n_vip):
+                spawn(vip_one(client, k, (k + 1) * vip_every_s))
+        span = schedule[-1] if schedule else 0.0
+        await asyncio.sleep(span + (vip_every_s if vip_every_s > 0 else 0))
+        live = [t for t in spawned if not t.done()]
+        if live:
+            done, pending = await asyncio.wait(live, timeout=drain_timeout)
+            for t_ in pending:
+                t_.cancel()
+            if pending:
+                await asyncio.gather(*pending, return_exceptions=True)
 
     n_abandoned = sum(1 for r in records if r["finish"] is None
                       or (not r["ok"] and "error" not in r))
@@ -204,6 +269,10 @@ def summarize(records, n_sent, n_abandoned, rate):
     lags = [(r["finish"] - r["arrive"]) * 1000 for r in ok]
     ttfts = [(r["ttft"] - r["arrive"]) * 1000 for r in ok if r["ttft"]]
     out_tok = [r["out_tokens"] for r in ok if r["out_tokens"]]
+    vip_ok = [r for r in ok if r.get("kind") == "vip"]
+    bg_ok = [r for r in ok if r.get("kind") in (None, "bg", "bg_retry")]
+    vip_lags = [(r["finish"] - r["arrive"]) * 1000 for r in vip_ok]
+    bg_lags = [(r["finish"] - r["arrive"]) * 1000 for r in bg_ok]
     return {
         "offered_rate_ev_s": rate,
         "sent": n_sent,
@@ -215,6 +284,11 @@ def summarize(records, n_sent, n_abandoned, rate):
         "lag_ms": latency_percentiles(lags),
         "ttft_ms": latency_percentiles(ttfts),
         "mean_out_tokens": (sum(out_tok) / len(out_tok)) if out_tok else None,
+        "vip_n": len(vip_ok),
+        "vip_lag_ms": latency_percentiles(vip_lags) if vip_lags else None,
+        "background_lag_ms": latency_percentiles(bg_lags) if bg_lags else None,
+        "bg_cancelled_by_vip": sum(
+            1 for r in records if r.get("error") == "cancelled_by_vip"),
     }
 
 
@@ -237,6 +311,15 @@ async def amain():
                          "gives paired windows")
     ap.add_argument("--min-tokens", type=int, default=0)
     ap.add_argument("--max-new-tokens", type=int, default=256)
+    ap.add_argument("--vip-every-s", type=float, default=0.0,
+                    help="inject a latency-critical VIP request every N "
+                         "seconds; its lag is reported separately")
+    ap.add_argument("--vip-policy", choices=["abort", "priority"],
+                    default="abort",
+                    help="abort: cancel in-flight background on VIP arrival "
+                         "(no engine support needed); priority: VIP carries "
+                         "priority=-1, needs server --scheduling-policy "
+                         "priority (engine preempts)")
     ap.add_argument("--port", type=int, default=8123)
     ap.add_argument("--gpu-memory-utilization", type=float, default=0.85)
     ap.add_argument("--max-model-len", type=int, default=4096)
@@ -276,7 +359,8 @@ async def amain():
                 args.port, args.model, prompts, rate, args.seed,
                 args.duration_s, args.max_events, args.drain_timeout,
                 args.max_new_tokens, args.min_tokens,
-                pbar_label=f"λ={rate}")
+                pbar_label=f"λ={rate}",
+                vip_every_s=args.vip_every_s, vip_policy=args.vip_policy)
             row = summarize(recs, n_sent, n_aband, rate)
             results["rates"].append(row)
             lag = row["lag_ms"]

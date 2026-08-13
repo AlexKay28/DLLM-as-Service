@@ -1,0 +1,45 @@
+{
+  "experiment": "issue14_rate_lag_curve",
+  "model": "Qwen/Qwen2.5-3B-Instruct",
+  "arrivals": "poisson, open-loop; lag = finish - arrive (client-side)",
+  "duration_s": 90.0,
+  "max_events_per_rate": 300,
+  "drain_timeout_s": 45.0,
+  "seed": 0,
+  "min_tokens": 0,
+  "max_new_tokens": 256,
+  "timestamp": "2026-08-13T18:46:48Z",
+  "rates": [
+    {
+      "offered_rate_ev_s": 16.0,
+      "sent": 300,
+      "completed": 300,
+      "errors": 0,
+      "error_samples": [],
+      "abandoned_at_drain": 0,
+      "completion_ratio": 1.0,
+      "lag_ms": {
+        "p50_ms": 949.3024437688291,
+        "p90_ms": 1135.7049131765962,
+        "p99_ms": 1587.161485105753,
+        "p99_9_ms": 1775.7965242490172
+      },
+      "ttft_ms": {
+        "p50_ms": 35.156370140612125,
+        "p90_ms": 42.11156675592065,
+        "p99_ms": 50.051267724484205,
+        "p99_9_ms": 56.7321702837944
+      },
+      "mean_out_tokens": null,
+      "vip_n": 0,
+      "vip_lag_ms": null,
+      "background_lag_ms": {
+        "p50_ms": 949.3024437688291,
+        "p90_ms": 1135.7049131765962,
+        "p99_ms": 1587.161485105753,
+        "p99_9_ms": 1775.7965242490172
+      },
+      "bg_cancelled_by_vip": 0
+    }
+  ]
+}

@@ -1,0 +1,50 @@
+{
+  "experiment": "issue14_rate_lag_curve",
+  "model": "google/diffusiongemma-26B-A4B-it",
+  "arrivals": "poisson, open-loop; lag = finish - arrive (client-side)",
+  "duration_s": 90.0,
+  "max_events_per_rate": 90,
+  "drain_timeout_s": 45.0,
+  "seed": 0,
+  "min_tokens": 0,
+  "max_new_tokens": 256,
+  "timestamp": "2026-08-13T18:52:35Z",
+  "rates": [
+    {
+      "offered_rate_ev_s": 1.0,
+      "sent": 81,
+      "completed": 85,
+      "errors": 0,
+      "error_samples": [],
+      "abandoned_at_drain": 0,
+      "completion_ratio": 1.0494,
+      "lag_ms": {
+        "p50_ms": 405.4906629025936,
+        "p90_ms": 673.4307673759758,
+        "p99_ms": 1381.1326790601015,
+        "p99_9_ms": 1381.1326790601015
+      },
+      "ttft_ms": {
+        "p50_ms": 405.0463787280023,
+        "p90_ms": 673.1710652820766,
+        "p99_ms": 1380.7884929701686,
+        "p99_9_ms": 1380.7884929701686
+      },
+      "mean_out_tokens": null,
+      "vip_n": 4,
+      "vip_lag_ms": {
+        "p50_ms": 394.66004492715,
+        "p90_ms": 729.6671979129314,
+        "p99_ms": 729.6671979129314,
+        "p99_9_ms": 729.6671979129314
+      },
+      "background_lag_ms": {
+        "p50_ms": 430.9400380589068,
+        "p90_ms": 666.2128157913685,
+        "p99_ms": 1381.1326790601015,
+        "p99_9_ms": 1381.1326790601015
+      },
+      "bg_cancelled_by_vip": 0
+    }
+  ]
+}
