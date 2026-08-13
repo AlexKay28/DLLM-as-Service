@@ -255,6 +255,11 @@ def main():
     ap.add_argument("--n", type=int, default=500,
                     help="events for the streaming latency/quality pass")
     ap.add_argument("--max-new-tokens", type=int, default=256)
+    ap.add_argument("--min-tokens", type=int, default=0,
+                    help="force every request to generate at least this many "
+                         "tokens (decode-mechanics scaling experiments; "
+                         "changes task semantics — do not use for quality "
+                         "measurements)")
     ap.add_argument("--sla-ms", type=float, nargs="+",
                     default=[250.0, 500.0, 1000.0, 2000.0],
                     help="p99 SLA thresholds; 250ms is the paper's Table 4 SLA")
@@ -291,6 +296,7 @@ def main():
         "n_events": len(log_lines),
         "sla_grid_ms": args.sla_ms,
         "max_new_tokens": args.max_new_tokens,
+        "min_tokens": args.min_tokens,
         "prefix_caching": not args.no_prefix_caching,
         "serving": "vLLM (PagedAttention + continuous batching)",
         "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ"),
@@ -315,7 +321,8 @@ def main():
                 "max_denoising_steps": args.denoising_steps}
         llm = LLM(**llm_kwargs)
         sampling_params = SamplingParams(
-            max_tokens=args.max_new_tokens, temperature=0.0)
+            max_tokens=args.max_new_tokens, min_tokens=args.min_tokens,
+            temperature=0.0)
 
         prompts = build_prompts(llm, log_lines, args.source)
         entry = {"model": model_name}
