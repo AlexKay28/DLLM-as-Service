@@ -1,139 +1,177 @@
-# Issue #12: DiffusionGemma-26B via vLLM — blocker analysis
+# DiffusionGemma-26B via vLLM — runbook + results (issues #12/#13)
 
-**Status:** NOT RUN — blocked on CUDA-13 wheel availability, not on hardware
-**Date:** 2026-08-12 (supersedes the 2026-08-11 version of this file)
-
-The AR half of issue #12 did complete, under real vLLM serving. Those results
-are in [`vllm_serving.md`](vllm_serving.md). This file records only why the
-DiffusionGemma half is still not runnable here.
+**Status:** RUN COMPLETE — all issue #13 acceptance criteria met.
+**Date:** 2026-08-13
 
 ---
 
-## 1. The old blocker is gone
+## 1. Environment
 
-The 2026-08-11 version of this file reported:
-
-> DiffusionGemma-26B requires CUDA 12.3+ driver. Our H100 system has CUDA 12.2.
-> vLLM 0.9+ fails with "NVIDIA driver too old (found version 12020)".
-
-That is fixed. The host now runs **driver 580.65.06 / CUDA 13.0** (was
-535.129.03 / CUDA 12.2), and vLLM initializes on the H100 without complaint —
-verified by serving Qwen2.5-1.5B/3B/7B through it for the results in
-`vllm_serving.md`. The recommended next step from that report ("upgrade CUDA
-driver to 12.3+ — sysadmin task") is done.
-
-## 2. The blocker that replaced it
-
-DiffusionGemma is reachable only through a vLLM version this host cannot
-install.
-
-**Which vLLM versions have it.** Read from `models/registry.py` inside each
-wheel:
-
-| vLLM | `DiffusionGemmaForBlockDiffusion` | torch pin |
-|---|---|---|
-| 0.19.1 | no | 2.10.0 (cu12.8) |
-| 0.21.0 | no | 2.10.x |
-| 0.22.1 | no | 2.11.0 |
-| 0.23.0 | no | 2.11.0 |
-| **0.24.0** | **yes** | **2.11.0** |
-| 0.25.1 | yes | 2.11.0 |
-| 0.26.0 | yes | 2.11.0 |
-
-So DiffusionGemma needs vLLM >= 0.24.0, and every such version pins
-`torch==2.11.0`, which is a CUDA-13 build.
-
-**Why torch 2.11 will not install.** The internal mirror
-(`pypi.yandex-team.ru`) is the only reachable index — `pypi.org` and
-`download.pytorch.org` both fail to connect. It carries the complete CUDA-12
-wheel line but only part of the CUDA-13 line. NVIDIA dropped the `-cu13`
-suffix in the CUDA-13 packaging, and the unsuffixed names are split:
-
-| Present | Absent |
+| Item | Value |
 |---|---|
-| `nvidia-cublas`, `nvidia-cuda-runtime`, `nvidia-cuda-cupti`, `nvidia-cuda-nvrtc`, `nvidia-cufft`, `nvidia-curand`, `nvidia-cusolver`, `nvidia-cusparse`, `cuda-bindings` | `nvidia-cudnn`, `nvidia-nccl`, `nvidia-cufile`, `nvidia-cusparselt`, `nvidia-nvjitlink`, `nvidia-nvtx`, `cuda-toolkit`, `cuda-pathfinder` |
+| GPU | NVIDIA A100 80GB PCIe (sm_80) |
+| Driver / CUDA | 580.65.06 / 13.0 |
+| Python | CPython 3.10.12 (`/usr/bin/python3.10`) |
+| venv | `.venv-dg` (uv 0.12.3) |
+| vLLM | 0.25.1 |
+| torch | 2.11.0+cu130 |
+| transformers | 5.15.0 |
+| triton | 3.6.0 |
+| ninja | 1.13.0 (JIT build tool, required by vLLM at runtime) |
+| Model | `google/diffusiongemma-26B-A4B-it` — 26B total, MoE ~4B active, BF16, 49 GB cached |
+| Data | BGL test split: `datasets/splits/test/bgl.raw` + `bgl.jsonl` (same events as all earlier repo runs) |
 
-The absent ones are not optional extras that a flag can skip —
-`libtorch_cuda.so` lists four of them as `DT_NEEDED`:
+Size-matched comparator: `Qwen/Qwen2.5-3B-Instruct` (≈4B active DG vs 3B AR).
 
+## 2. Setup (from scratch)
+
+```bash
+uv venv .venv-dg --python 3.10
+uv pip install --python .venv-dg/bin/python --index-url https://pypi.org/simple \
+    vllm==0.25.1 openai-harmony ninja
+
+# runtime env needed every session:
+export PATH="$PWD/.venv-dg/bin:$PATH"   # engine subprocesses spawn `ninja`
+export HF_HUB_OFFLINE=1                 # huggingface.co egress is blocked
 ```
-$ objdump -p torch/lib/libtorch_cuda.so | grep NEEDED
-  NEEDED  libcudnn.so.9
-  NEEDED  libnccl.so.2
-  NEEDED  libcufile.so.0
-  NEEDED  libcusparseLt.so.0
+
+Why not the internal mirror: `pypi.yandex-team.ru` carried `nvidia-cudnn` /
+`nvidia-nccl` but still 404s `nvidia-cufile` / `nvidia-cusparselt` — both
+hard-linked by torch 2.11's `libtorch_cuda.so`. Direct PyPI egress (newly
+open as of 2026-08-13) resolves everything.
+
+The `openai_harmony.py` stub that vLLM 0.19.1 needed is **not** required on
+0.25.1 (imports fine without it).
+
+## 3. Code changes
+
+One file modified, `models/experiments/run_vllm_serving.py` (+17 lines):
+
+- New flag `--denoising-steps K` → passes
+  `diffusion_config={"canvas_length": 256, "max_denoising_steps": K}` to
+  `LLM(...)`. Both keys are mandatory: a user-provided `DiffusionConfig`
+  **replaces** checkpoint defaults wholesale (no merge), and `canvas_length`
+  left None crashes the runner's buffer alloc
+  (`TypeError: zeros(): ... got NoneType`). `canvas_length=256` comes from
+  the checkpoint's `config.json`.
+- The chosen K is recorded per-model in the output JSON.
+- No other changes needed: prompt building (`build_chat_messages`), parsing
+  (`parse_json_output`), metrics, and the SLA sweep are model-agnostic and
+  worked on DiffusionGemma unchanged.
+
+## 4. Failure log (order hit → fix)
+
+| # | Failure | Root cause | Fix |
+|---|---|---|---|
+| 1 | FP8 checkpoint load: `humming.jit.compiler.NVRTCCompiler run failed` during weight repack | humming's FP8 repack kernel can't compile for sm_80 | Use BF16 checkpoint (49 GB). FP8 likely fine on sm_90 — untested |
+| 2 | AR-3B engine init: `FileNotFoundError: 'ninja'` | vLLM 0.25 JIT-compiles kernels at startup via ninja, and the venv's bin dir wasn't on PATH for engine subprocesses | `pip install ninja` + `export PATH=...venv-dg/bin:$PATH` |
+| 3 | Sweep run crash: `httpx.ConnectError: [Errno 13] Permission denied` (retries then dies in `ModelConfig`) | with `diffusion_config` set, vLLM enumerates repo files over the network; huggingface.co egress blocked | `HF_HUB_OFFLINE=1` (falls back to local snapshot path) |
+| 4 | Sweep run engine crash: `zeros(): argument 'size' ... got NoneType` | user `diffusion_config` without `canvas_length` → None canvas | always pass `canvas_length: 256` alongside (see §3) |
+
+## 5. Runs executed (in order)
+
+```bash
+S=models/experiments/run_vllm_serving.py; P=.venv-dg/bin/python
+
+# 0. quality gate (issue §4): n=10 streaming only
+$P $S --model google/diffusiongemma-26B-A4B-it --source bgl --n 10 \
+      --skip-throughput --save-predictions ...  # PASS: F1=0.861, 100% valid
+
+# 1. main Table 3 + Table 4
+$P $S --model google/diffusiongemma-26B-A4B-it --source bgl --n 2000 \
+      --output results/diffusiongemma_perf.json \
+      --save-predictions results/diffusiongemma_preds.jsonl
+      # logs/dg_full.log
+
+# 2. same-host AR-3B comparator (old baseline was H100 — not comparable)
+$P $S --model Qwen/Qwen2.5-3B-Instruct --source bgl --n 500 \
+      --output results/diffusiongemma_ar3b_comparator.json
+      # logs/ar3b_a100.log, logs/exp_batch2.log
+
+# 3. denoising-steps sweep (streaming only)
+for K in 8 32; do
+  $P $S --model google/diffusiongemma-26B-A4B-it --source bgl --n 300 \
+        --skip-throughput --denoising-steps $K \
+        --output results/dg_steps_$K.json
+done  # logs/exp_batch4.log
 ```
 
-The dynamic loader resolves those at load time, so torch 2.11 cannot import at
-all, and no amount of dependency-override surgery changes that. Installing
-vLLM 0.25.1 with the missing deps overridden away confirms it:
+Sampling params everywhere: `temperature=0.0`, `max_tokens=256`,
+dtype bfloat16, `max_model_len=4096`, `gpu_memory_utilization=0.85`,
+prefix caching on (repo default). DG's own decoding config from
+`generation_config.json`: confidence_threshold 0.005,
+EntropyBoundSampler entropy_bound 0.1, max_denoising_steps 48 (default run).
 
-```
-OSError: libcudart.so.13: cannot open shared object file
-ValueError: libcublasLt.so.*[0-9] not found in the system path
-```
+## 6. Results
 
-**What does work.** vLLM **0.19.1** resolves onto the full cu12.8 stack
-(torch 2.10.0+cu128) with only genuinely optional kernel extras stripped —
-`flashinfer-python`, `flashinfer-cubin`, `nvidia-cutlass-dsl`, `quack-kernels`,
-`nvidia-cudnn-frontend`, `cuda-pathfinder`, `pynvvideocodec`,
-`model-hosting-container-standards`, `openai-harmony`. It serves models
-correctly on the H100. It has no DiffusionGemma.
+### Quality gate (n=10) — PASS
 
-One stub was needed: `openai_harmony` is imported unconditionally by
-`vllm/entrypoints/chat_utils.py`, which sits on the import path of the offline
-`LLM` API, though nothing on that path uses it (every real use is the
-OpenAI-compatible server, the MCP bridge, and the gpt-oss response parser). The
-stub is at `.venv-dllm/lib/python3.10/site-packages/openai_harmony.py` and
-raises if anything ever calls into it.
+Field-F1 **0.861** · schema-valid 100% · consistency 100%.
 
-## 3. What it would take
+### Table 3: streaming latency (m=1)
 
-Any one of these unblocks it:
+| Model | n | p50 (ms) | p99 (ms) | p99.9 (ms) | p99.9/p50 | Field-F1 | schema-valid |
+|---|---|---|---|---|---|---|---|
+| **DiffusionGemma-26B (BF16)** | 2000 | **420.2** | 710.4 | 1282.0 | 3.05x | 0.789 | 99.6% |
+| AR-3B (same host) | 500 | 807.5 | 1299.6 | 1625.0 | 2.01x | 0.822 | 98.0% |
+| AR-3B (old H100 run) | 2000 | 662.0 | 1062.1 | 1336.3 | 2.02x | 0.826 | 99% |
+| HF transformers MDM LLaDA-8B (K=8) | — | 1389.0 | 1555.5 | 1648.2 | 1.19x | 0.779 | — |
+| *paper: FlowFill-MDM (K=8)* | — | 23.0 | 31.0 | 36.0 | 1.57x | 0.907 | — |
 
-1. **Mirror the missing CUDA-13 wheels** — `nvidia-cudnn`, `nvidia-nccl`,
-   `nvidia-cufile`, `nvidia-cusparselt` (plus `nvidia-nvjitlink`,
-   `nvidia-nvtx`, `cuda-toolkit`, `cuda-pathfinder`). This is the clean fix and
-   is an ask to whoever runs the mirror, not a code change.
-2. **Outbound HTTPS to pypi.org or download.pytorch.org** from this host.
-3. **A CUDA-13 torch built against system libraries** rather than wheel-shipped
-   ones — i.e. build torch 2.11 from source against a local CUDA 13 toolkit.
-   The host has CUDA 12.1/12.2 toolkits only, so this needs a toolkit install
-   first.
+Single stream: **DG ~1.9x faster p50 than the size-matched AR**, at −0.033
+F1 and a heavier tail (3.05x vs 2.01x).
 
-Not viable: stubbing the four `DT_NEEDED` libraries. The symbols
-`libtorch_cuda.so` imports from them would be undefined at load, and even if
-that were papered over, benchmarking on faked CUDA libraries would not produce
-numbers worth reporting.
+### Table 4: throughput burst sweep
 
-## 4. Model weights are ready
+DiffusionGemma:
 
-Both checkpoints are already in the local HF cache, so nothing needs
-downloading when the environment is fixed:
+| batch | wall (s) | p99 (ms) | events/s |
+|---|---|---|---|
+| 1 | 0.47 | 472 | 2.12 |
+| 4 | 1.41 | 1408 | 2.84 |
+| 16 | 3.76 | 3759 | 4.26 (peak) |
+| 64 | 15.85 | 15849 | 4.04 |
+| 256 | 61.49 | 61494 | 4.16 |
 
-- `google/diffusiongemma-26B-A4B-it` — 49 GB, BF16
-- `RedHatAI/diffusiongemma-26B-A4B-it-FP8-dynamic` — 26 GB (reported corrupted
-  in the 2026-08-11 session; re-verify before use)
+AR-3B (same host): 1.18 → 78.97 ev/s over B=1→256 (peak at B=256, p99 3242 ms).
 
-BF16 fits in the H100's 80 GB.
+**DG wall-clock is Linear-in-burst (~240 ms/request at any B): the vLLM
+0.25.1 block-diffusion runner extracts no throughput from continuous
+batching. DG loses ~18x to the size-matched AR on throughput.** Neither
+model meets the paper's 250 ms p99 SLA at any batch (DG best: 484 ms @ m=1,
+K=8).
 
-## 5. Withdrawn results
+### max_denoising_steps sweep (n=300, streaming)
 
-The previous `results/diffusiongemma_perf.json` has been deleted and
-`models/experiments/run_diffusiongemma_perf.py` is disabled. That script
-reported p50 = 0.42 ms and 322k events/s for an 8B model — impossible figures,
-caused by a silent fallback to synthetic log lines when it looked for BGL data
-at a path this repo does not use, and by a "throughput" measurement that was a
-sequential `for` loop rather than a batch. Details are in the script's
-docstring.
+| K | p50 (ms) | p99 (ms) | Field-F1 |
+|---|---|---|---|
+| 8 | 374.9 | 483.7 | 0.787 |
+| 32 | 415.6 | 828.6 | 0.792 |
+| 48 (default) | 420.2 | 710.4 | 0.789 |
 
-The LLaDA-8B latency and K-sweep numbers quoted in the old version of this file
-were *not* from that script — they came from issue #3 and #6 runs on real BGL
-data (`results/quality_table2_mdm_llada_n2000.json`,
-`logs/ablation_ksweep_n30.log`) and remain valid. But see `vllm_serving.md`:
-the conclusion that MDM is 1.33x faster than AR was drawn against an
-HF-`generate()` AR baseline and does not survive serving AR properly.
+The LLaDA law (latency ∝ K, R²=1.0, knee at K=8) **does not transfer**:
+6x the step cap → +12% latency, ΔF1 ≤ 0.005. `max_denoising_steps` is a cap
+and the EntropyBoundSampler (entropy_bound 0.1, conf 0.005) terminates
+blocks far earlier. Operate at **K=8** purely for the better p99.
 
----
+## 7. Caveats
 
-*Related: [`vllm_serving.md`](vllm_serving.md) (AR results), `diffusiongemma_issue.md` (original issue), `VALIDATION_REPORT.md`.*
+- GPU changed since `vllm_serving.md` (H100 → A100): cross-file numbers are
+  ~1.8x hardware-confounded (AR-3B: 662 ms/145 ev/s H100 vs 807 ms/79 ev/s
+  A100). Only same-file DG-vs-AR-3B rows are directly comparable.
+- All DG numbers are BF16 (FP8 blocked on sm_80, §4.1).
+- DG ignores repetition/frequency/presence penalties (engine warning).
+- DG emits a `thought` channel prefix and `<>` (not `<*>`) placeholders in
+  message templates; `parse_json_output` handles both.
+- DG is block diffusion (semi-AR), Gemma-based: comparison to FlowFill's
+  23 ms is cross-algorithm, cross-family — label it as such.
+
+## 8. Artifact inventory
+
+| Path | Contents |
+|---|---|
+| `results/diffusiongemma_perf.json` | main run (n=2000) + merged sweep + comparator summary |
+| `results/diffusiongemma_ar3b_comparator.json` | AR-3B same-host (n=500) |
+| `results/dg_steps_{8,32}.json` | sweep runs (n=300 each) |
+| `results/diffusiongemma_preds.jsonl` | per-event records + raw model text + latency |
+| `logs/dg_full.log` · `logs/exp_batch2.log` · `logs/exp_batch4.log` | run logs |

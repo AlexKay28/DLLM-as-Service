@@ -1,0 +1,189 @@
+{
+  "experiment": "issue12_vllm_serving",
+  "source": "bgl",
+  "n_events": 2000,
+  "sla_grid_ms": [
+    250.0,
+    500.0,
+    1000.0,
+    2000.0
+  ],
+  "max_new_tokens": 256,
+  "prefix_caching": true,
+  "serving": "vLLM (PagedAttention + continuous batching)",
+  "timestamp": "2026-08-13T13:38:52Z",
+  "models": {
+    "google/diffusiongemma-26B-A4B-it": {
+      "model": "google/diffusiongemma-26B-A4B-it",
+      "streaming_table3": {
+        "latency": {
+          "p50_ms": 420.1706130988896,
+          "p90_ms": 513.3320731110871,
+          "p99_ms": 710.4212809354067,
+          "p99_9_ms": 1281.963226851076,
+          "mean_ms": 408.90537500102073,
+          "min_ms": 245.5116673372686,
+          "max_ms": 1333.641639444977,
+          "n_samples": 2000
+        },
+        "quality": {
+          "field_f1": 0.789,
+          "per_field_f1": {
+            "f1_timestamp_norm": 0.827,
+            "f1_host": 0.993,
+            "f1_component": 0.9905,
+            "f1_severity": 0.99,
+            "f1_event_type": 0.3121,
+            "f1_message_template": 0.6573,
+            "f1_error_code": 0.9485,
+            "f1_affected_entity": 0.516,
+            "f1_metric_value": 0.3675,
+            "f1_is_anomaly": 0.9875,
+            "f1_anomaly_score": 0.9875,
+            "f1_remediation_hint": 0.8915
+          },
+          "schema_valid_pct": 99.6,
+          "consistency_pct": 98.6,
+          "anomaly_f1": 0.9685
+        },
+        "mean_output_tokens": 170.974,
+        "tail_ratio_p999_over_p50": 3.0510539930343925
+      },
+      "throughput_table4": {
+        "sweep": [
+          {
+            "batch_size": 1,
+            "wall_s": 0.47204895690083504,
+            "p99_ms": 472.04895690083504,
+            "events_per_s": 2.1184243400628326,
+            "tokens_per_s": 343.18474309017887,
+            "latency_source": "burst_wall_clock"
+          },
+          {
+            "batch_size": 2,
+            "wall_s": 0.5287528913468122,
+            "p99_ms": 528.7528913468122,
+            "events_per_s": 3.7824852265217928,
+            "tokens_per_s": 614.6538493097913,
+            "latency_source": "burst_wall_clock"
+          },
+          {
+            "batch_size": 4,
+            "wall_s": 1.4080105847679079,
+            "p99_ms": 1408.0105847679079,
+            "events_per_s": 2.8408877342774717,
+            "tokens_per_s": 544.7402230477053,
+            "latency_source": "burst_wall_clock"
+          },
+          {
+            "batch_size": 8,
+            "wall_s": 2.123199660796672,
+            "p99_ms": 2123.199660796672,
+            "events_per_s": 3.767898115148634,
+            "tokens_per_s": 654.2013102426816,
+            "latency_source": "burst_wall_clock"
+          },
+          {
+            "batch_size": 16,
+            "wall_s": 3.7589404210448265,
+            "p99_ms": 3758.9404210448265,
+            "events_per_s": 4.256518648293095,
+            "tokens_per_s": 718.0214894839413,
+            "latency_source": "burst_wall_clock"
+          },
+          {
+            "batch_size": 32,
+            "wall_s": 7.770249852910638,
+            "p99_ms": 7770.249852910638,
+            "events_per_s": 4.118271690840572,
+            "tokens_per_s": 708.8575147859335,
+            "latency_source": "burst_wall_clock"
+          },
+          {
+            "batch_size": 64,
+            "wall_s": 15.848620723932981,
+            "p99_ms": 15848.620723932981,
+            "events_per_s": 4.038206296611899,
+            "tokens_per_s": 692.1737980286333,
+            "latency_source": "burst_wall_clock"
+          },
+          {
+            "batch_size": 128,
+            "wall_s": 30.877977364696562,
+            "p99_ms": 30877.977364696562,
+            "events_per_s": 4.145349239952002,
+            "tokens_per_s": 714.4574186139149,
+            "latency_source": "burst_wall_clock"
+          },
+          {
+            "batch_size": 256,
+            "wall_s": 61.494125567842275,
+            "p99_ms": 61494.125567842275,
+            "events_per_s": 4.162999272468273,
+            "tokens_per_s": 713.580355762423,
+            "latency_source": "burst_wall_clock"
+          }
+        ],
+        "at_sla": {
+          "250": {
+            "max_batch": null,
+            "events_per_s": null,
+            "tokens_per_s": null
+          },
+          "500": {
+            "max_batch": 1,
+            "events_per_s": 2.1184243400628326,
+            "tokens_per_s": 343.18474309017887
+          },
+          "1000": {
+            "max_batch": 2,
+            "events_per_s": 3.7824852265217928,
+            "tokens_per_s": 614.6538493097913
+          },
+          "2000": {
+            "max_batch": 2,
+            "events_per_s": 3.7824852265217928,
+            "tokens_per_s": 614.6538493097913
+          }
+        },
+        "peak_events_per_s": 4.256518648293095,
+        "peak_events_per_s_batch": 16,
+        "peak_tokens_per_s": 718.0214894839413
+      }
+    }
+  },
+  "denoising_steps_sweep": {
+    "8": {
+      "n": 300,
+      "p50_ms": 374.907067976892,
+      "p99_ms": 483.6657028645277,
+      "field_f1": 0.7871,
+      "schema_valid_pct": 99.33
+    },
+    "32": {
+      "n": 300,
+      "p50_ms": 415.5961940996349,
+      "p99_ms": 828.5576561465859,
+      "field_f1": 0.7916,
+      "schema_valid_pct": 99.33
+    },
+    "48_default": {
+      "n": 2000,
+      "p50_ms": 420.1706130988896,
+      "p99_ms": 710.4212809354067,
+      "field_f1": 0.789,
+      "schema_valid_pct": 99.6
+    }
+  },
+  "comparator_ar3b_same_host": {
+    "file": "results/diffusiongemma_ar3b_comparator.json",
+    "n": 500,
+    "p50_ms": 807.4923120439053,
+    "p99_ms": 1299.5778331533074,
+    "p99_9_ms": 1625.04413863644,
+    "field_f1": 0.8215,
+    "peak_events_per_s": 78.9692111133288
+  },
+  "gpu": "NVIDIA A100 80GB PCIe",
+  "vllm": "0.25.1"
+}

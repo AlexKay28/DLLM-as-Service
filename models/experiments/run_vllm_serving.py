@@ -268,6 +268,11 @@ def main():
     ap.add_argument("--gpu-memory-utilization", type=float, default=0.85)
     ap.add_argument("--max-model-len", type=int, default=4096)
     ap.add_argument("--dtype", default="bfloat16")
+    ap.add_argument("--denoising-steps", type=int, default=None,
+                    help="dLLM only: max_denoising_steps for the diffusion "
+                         "canvas (DiffusionGemma default is 48, from its "
+                         "generation_config.json). Sweep K to trace the "
+                         "latency-in-K curve.")
     ap.add_argument("--output", default="results/vllm_serving.json")
     ap.add_argument("--save-predictions",
                     help="JSONL path for per-event predictions (one model only)")
@@ -294,18 +299,28 @@ def main():
 
     for model_name in args.model:
         print(f"\n=== {model_name} ===", flush=True)
-        llm = LLM(
+        llm_kwargs = dict(
             model=model_name,
             dtype=args.dtype,
             gpu_memory_utilization=args.gpu_memory_utilization,
             max_model_len=args.max_model_len,
             enable_prefix_caching=not args.no_prefix_caching,
         )
+        if args.denoising_steps is not None:
+            # A user-provided DiffusionConfig is used as-is (no merge with the
+            # checkpoint's config.json), so canvas_length must be restated or
+            # it defaults to None and crashes the runner's buffer alloc.
+            llm_kwargs["diffusion_config"] = {
+                "canvas_length": 256,
+                "max_denoising_steps": args.denoising_steps}
+        llm = LLM(**llm_kwargs)
         sampling_params = SamplingParams(
             max_tokens=args.max_new_tokens, temperature=0.0)
 
         prompts = build_prompts(llm, log_lines, args.source)
         entry = {"model": model_name}
+        if args.denoising_steps is not None:
+            entry["max_denoising_steps"] = args.denoising_steps
 
         entry["streaming_table3"] = run_streaming(
             llm, sampling_params, prompts, gold_records,
