@@ -1,0 +1,59 @@
+{
+  "ar_fit": {
+    "intercept_ms": 7.27,
+    "slope_ms_per_token": 6.29,
+    "resid_sigma_ms": 2.53
+  },
+  "dg_fit": {
+    "base_ms": 418.24,
+    "step_per_canvas_ms": 113.43
+  },
+  "ratio_T_AR_over_T_DG": {
+    "32": 0.5,
+    "64": 0.98,
+    "128": 1.94,
+    "256": 3.87,
+    "512": 6.07,
+    "1024": 8.5,
+    "2048": 10.63
+  },
+  "P_D2_check": {
+    "1024": {
+      "predicted_ms": 719.0,
+      "measured_ms": 779.1433492675424,
+      "within_15pct": true
+    },
+    "2048": {
+      "predicted_ms": 1120.0,
+      "measured_ms": 1250.6662388332188,
+      "within_15pct": true
+    }
+  },
+  "P_D3_check": {
+    "slope": 6.29,
+    "expected": 6.28,
+    "linear_holds": true
+  },
+  "batching_multipliers": {
+    "dg_L128": {
+      "batch1_ev_s": 2.451,
+      "peak_ev_s": 4.11,
+      "multiplier": 1.7
+    },
+    "dg_L512": {
+      "batch1_ev_s": 1.872,
+      "peak_ev_s": 2.82,
+      "multiplier": 1.5
+    },
+    "ar3b_L128": {
+      "batch1_ev_s": 1.23,
+      "peak_ev_s": 94.9,
+      "multiplier": 77.1
+    },
+    "ar3b_L512": {
+      "batch1_ev_s": 0.31,
+      "peak_ev_s": 26.68,
+      "multiplier": 86.0
+    }
+  }
+}

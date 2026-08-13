@@ -1,0 +1,55 @@
+{
+  "experiment": "issue12_vllm_serving",
+  "source": "bgl",
+  "n_events": 300,
+  "sla_grid_ms": [
+    250.0,
+    500.0,
+    1000.0,
+    2000.0
+  ],
+  "max_new_tokens": 1024,
+  "min_tokens": 1024,
+  "prefix_caching": true,
+  "serving": "vLLM (PagedAttention + continuous batching)",
+  "timestamp": "2026-08-13T19:59:44Z",
+  "models": {
+    "Qwen/Qwen2.5-3B-Instruct": {
+      "model": "Qwen/Qwen2.5-3B-Instruct",
+      "streaming_table3": {
+        "latency": {
+          "p50_ms": 6443.307140376419,
+          "p90_ms": 6446.137559134513,
+          "p99_ms": 6455.2453476935625,
+          "p99_9_ms": 6490.272399038076,
+          "mean_ms": 6443.731472124346,
+          "min_ms": 6439.22513211146,
+          "max_ms": 6490.272399038076,
+          "n_samples": 300
+        },
+        "quality": {
+          "field_f1": 0.4947,
+          "per_field_f1": {
+            "f1_timestamp_norm": 0.4767,
+            "f1_host": 0.55,
+            "f1_component": 0.71,
+            "f1_severity": 0.36,
+            "f1_event_type": 0.1107,
+            "f1_message_template": 0.2055,
+            "f1_error_code": 0.9,
+            "f1_affected_entity": 0.6267,
+            "f1_metric_value": 0.2233,
+            "f1_is_anomaly": 0.55,
+            "f1_anomaly_score": 0.3933,
+            "f1_remediation_hint": 0.83
+          },
+          "schema_valid_pct": 99.67,
+          "consistency_pct": 99.0,
+          "anomaly_f1": 0.3602
+        },
+        "mean_output_tokens": 1024.0,
+        "tail_ratio_p999_over_p50": 1.0072889989004798
+      }
+    }
+  }
+}

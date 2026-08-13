@@ -1,0 +1,55 @@
+{
+  "experiment": "issue12_vllm_serving",
+  "source": "bgl",
+  "n_events": 300,
+  "sla_grid_ms": [
+    250.0,
+    500.0,
+    1000.0,
+    2000.0
+  ],
+  "max_new_tokens": 2048,
+  "min_tokens": 2048,
+  "prefix_caching": true,
+  "serving": "vLLM (PagedAttention + continuous batching)",
+  "timestamp": "2026-08-13T19:51:48Z",
+  "models": {
+    "google/diffusiongemma-26B-A4B-it": {
+      "model": "google/diffusiongemma-26B-A4B-it",
+      "streaming_table3": {
+        "latency": {
+          "p50_ms": 1250.6662388332188,
+          "p90_ms": 1472.9423178359866,
+          "p99_ms": 5360.640922561288,
+          "p99_9_ms": 5823.278083931655,
+          "mean_ms": 1404.4549712523196,
+          "min_ms": 1058.9460479095578,
+          "max_ms": 5823.278083931655,
+          "n_samples": 300
+        },
+        "quality": {
+          "field_f1": 0.7902,
+          "per_field_f1": {
+            "f1_timestamp_norm": 0.8333,
+            "f1_host": 1.0,
+            "f1_component": 0.9867,
+            "f1_severity": 0.9933,
+            "f1_event_type": 0.3308,
+            "f1_message_template": 0.6513,
+            "f1_error_code": 0.9333,
+            "f1_affected_entity": 0.5167,
+            "f1_metric_value": 0.37,
+            "f1_is_anomaly": 0.99,
+            "f1_anomaly_score": 0.99,
+            "f1_remediation_hint": 0.8867
+          },
+          "schema_valid_pct": 100.0,
+          "consistency_pct": 98.0,
+          "anomaly_f1": 0.9771
+        },
+        "mean_output_tokens": 2048.0,
+        "tail_ratio_p999_over_p50": 4.656140785701829
+      }
+    }
+  }
+}

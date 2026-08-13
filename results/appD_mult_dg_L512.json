@@ -1,0 +1,116 @@
+{
+  "experiment": "issue12_vllm_serving",
+  "source": "bgl",
+  "n_events": 300,
+  "sla_grid_ms": [
+    250.0,
+    500.0,
+    1000.0,
+    2000.0
+  ],
+  "max_new_tokens": 512,
+  "min_tokens": 512,
+  "prefix_caching": true,
+  "serving": "vLLM (PagedAttention + continuous batching)",
+  "timestamp": "2026-08-13T21:56:16Z",
+  "models": {
+    "google/diffusiongemma-26B-A4B-it": {
+      "model": "google/diffusiongemma-26B-A4B-it",
+      "streaming_table3": {
+        "latency": {
+          "p50_ms": 524.139691144228,
+          "p90_ms": 635.4641770012677,
+          "p99_ms": 965.1429518125951,
+          "p99_9_ms": 1428.2348831184208,
+          "mean_ms": 532.8863971789057,
+          "min_ms": 363.7596433982253,
+          "max_ms": 1428.2348831184208,
+          "n_samples": 300
+        },
+        "quality": {
+          "field_f1": 0.7945,
+          "per_field_f1": {
+            "f1_timestamp_norm": 0.8367,
+            "f1_host": 1.0,
+            "f1_component": 0.99,
+            "f1_severity": 0.9933,
+            "f1_event_type": 0.3338,
+            "f1_message_template": 0.6503,
+            "f1_error_code": 0.9467,
+            "f1_affected_entity": 0.5333,
+            "f1_metric_value": 0.3733,
+            "f1_is_anomaly": 0.9933,
+            "f1_anomaly_score": 0.99,
+            "f1_remediation_hint": 0.8933
+          },
+          "schema_valid_pct": 100.0,
+          "consistency_pct": 98.33,
+          "anomaly_f1": 0.9846
+        },
+        "mean_output_tokens": 512.0,
+        "tail_ratio_p999_over_p50": 2.7249126659354865
+      },
+      "throughput_table4": {
+        "sweep": [
+          {
+            "batch_size": 1,
+            "wall_s": 0.5342086590826511,
+            "p99_ms": 534.2086590826511,
+            "events_per_s": 1.871927725239817,
+            "tokens_per_s": 958.4269953227863,
+            "latency_source": "burst_wall_clock"
+          },
+          {
+            "batch_size": 2,
+            "wall_s": 0.845967860892415,
+            "p99_ms": 845.967860892415,
+            "events_per_s": 2.3641560069317427,
+            "tokens_per_s": 1210.4478755490522,
+            "latency_source": "burst_wall_clock"
+          },
+          {
+            "batch_size": 4,
+            "wall_s": 1.7465514540672302,
+            "p99_ms": 1746.5514540672302,
+            "events_per_s": 2.290227402510884,
+            "tokens_per_s": 1172.5964300855726,
+            "latency_source": "burst_wall_clock"
+          },
+          {
+            "batch_size": 8,
+            "wall_s": 2.8330923672765493,
+            "p99_ms": 2833.0923672765493,
+            "events_per_s": 2.823769564453134,
+            "tokens_per_s": 1445.7700170000046,
+            "latency_source": "burst_wall_clock"
+          }
+        ],
+        "at_sla": {
+          "250": {
+            "max_batch": null,
+            "events_per_s": null,
+            "tokens_per_s": null
+          },
+          "500": {
+            "max_batch": null,
+            "events_per_s": null,
+            "tokens_per_s": null
+          },
+          "1000": {
+            "max_batch": 2,
+            "events_per_s": 2.3641560069317427,
+            "tokens_per_s": 1210.4478755490522
+          },
+          "2000": {
+            "max_batch": 2,
+            "events_per_s": 2.3641560069317427,
+            "tokens_per_s": 1210.4478755490522
+          }
+        },
+        "peak_events_per_s": 2.823769564453134,
+        "peak_events_per_s_batch": 8,
+        "peak_tokens_per_s": 1445.7700170000046
+      }
+    }
+  }
+}
