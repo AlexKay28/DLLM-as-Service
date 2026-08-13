@@ -4,7 +4,9 @@
 
 ## The chart
 
-**Attach image `results/vip_lag.png` here** (drag it into the comment box). Interactive version: `results/vip_lag.html` on branch `issue-12-vllm-serving`.
+![VIP lag vs background load](https://github.com/AlexKay28/DLLM-as-Service/releases/download/exp-issue14/vip_lag.png)
+
+Interactive version: `results/vip_lag.html` on branch `issue-12-vllm-serving`.
 
 ## The numbers (A100, vLLM 0.25.1, BGL extraction, Poisson background + VIP every 25 s)
 
