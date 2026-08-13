@@ -1,0 +1,124 @@
+{
+  "experiment": "issue14_rate_lag_curve",
+  "model": "Qwen/Qwen2.5-3B-Instruct",
+  "arrivals": "poisson, open-loop; lag = finish - arrive (client-side)",
+  "duration_s": 90.0,
+  "max_events_per_rate": 120,
+  "drain_timeout_s": 35.0,
+  "seed": 0,
+  "min_tokens": 128,
+  "max_new_tokens": 128,
+  "timestamp": "2026-08-13T17:56:33Z",
+  "rates": [
+    {
+      "offered_rate_ev_s": 1.0,
+      "sent": 81,
+      "completed": 81,
+      "errors": 0,
+      "error_samples": [],
+      "abandoned_at_drain": 0,
+      "completion_ratio": 1.0,
+      "lag_ms": {
+        "p50_ms": 814.0489771030843,
+        "p90_ms": 821.6293468140066,
+        "p99_ms": 858.2142791710794,
+        "p99_9_ms": 858.2142791710794
+      },
+      "ttft_ms": {
+        "p50_ms": 23.55732722207904,
+        "p90_ms": 28.879732824862003,
+        "p99_ms": 58.83266311138868,
+        "p99_9_ms": 58.83266311138868
+      },
+      "mean_out_tokens": null
+    },
+    {
+      "offered_rate_ev_s": 2.0,
+      "sent": 120,
+      "completed": 120,
+      "errors": 0,
+      "error_samples": [],
+      "abandoned_at_drain": 0,
+      "completion_ratio": 1.0,
+      "lag_ms": {
+        "p50_ms": 803.6388773471117,
+        "p90_ms": 819.3059265613556,
+        "p99_ms": 822.3284669220448,
+        "p99_9_ms": 823.1606790795922
+      },
+      "ttft_ms": {
+        "p50_ms": 25.340909138321877,
+        "p90_ms": 28.58166303485632,
+        "p99_ms": 31.11125063151121,
+        "p99_9_ms": 32.1576870046556
+      },
+      "mean_out_tokens": null
+    },
+    {
+      "offered_rate_ev_s": 4.0,
+      "sent": 120,
+      "completed": 120,
+      "errors": 0,
+      "error_samples": [],
+      "abandoned_at_drain": 0,
+      "completion_ratio": 1.0,
+      "lag_ms": {
+        "p50_ms": 801.3794999569654,
+        "p90_ms": 809.4256278127432,
+        "p99_ms": 816.2155216559768,
+        "p99_9_ms": 820.1628113165498
+      },
+      "ttft_ms": {
+        "p50_ms": 25.798676069825888,
+        "p90_ms": 28.468210715800524,
+        "p99_ms": 30.131713021546602,
+        "p99_9_ms": 31.687048263847828
+      },
+      "mean_out_tokens": null
+    },
+    {
+      "offered_rate_ev_s": 8.0,
+      "sent": 120,
+      "completed": 120,
+      "errors": 0,
+      "error_samples": [],
+      "abandoned_at_drain": 0,
+      "completion_ratio": 1.0,
+      "lag_ms": {
+        "p50_ms": 813.4459629654884,
+        "p90_ms": 830.4126015864313,
+        "p99_ms": 848.987178876996,
+        "p99_9_ms": 852.5694143027067
+      },
+      "ttft_ms": {
+        "p50_ms": 26.34263224899769,
+        "p90_ms": 29.16474686935544,
+        "p99_ms": 31.594141852110624,
+        "p99_9_ms": 33.031749073415995
+      },
+      "mean_out_tokens": null
+    },
+    {
+      "offered_rate_ev_s": 16.0,
+      "sent": 120,
+      "completed": 120,
+      "errors": 0,
+      "error_samples": [],
+      "abandoned_at_drain": 0,
+      "completion_ratio": 1.0,
+      "lag_ms": {
+        "p50_ms": 865.6371291726828,
+        "p90_ms": 881.3784611411393,
+        "p99_ms": 885.4477610439062,
+        "p99_9_ms": 888.2734170183539
+      },
+      "ttft_ms": {
+        "p50_ms": 28.04555930197239,
+        "p90_ms": 32.63166593387723,
+        "p99_ms": 35.46166094020009,
+        "p99_9_ms": 36.29270987585187
+      },
+      "mean_out_tokens": null
+    }
+  ]
+}

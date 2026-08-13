@@ -106,7 +106,8 @@ def kill_server(proc, log):
 
 
 async def run_window(port, model, prompts, rate, seed, duration_s,
-                     max_events, drain_timeout, pbar_label):
+                     max_events, drain_timeout, max_tokens, min_tokens,
+                     pbar_label):
     """One offered rate: Poisson sends for min(duration_s, max_events/rate),
     then wait for completions up to drain_timeout."""
     import httpx
@@ -131,7 +132,8 @@ async def run_window(port, model, prompts, rate, seed, duration_s,
         payload = {
             "model": model,
             "messages": build_chat_messages(prompt, source="bgl"),
-            "max_tokens": 256,
+            "max_tokens": max_tokens,
+            "min_tokens": min_tokens,
             "temperature": 0.0,
             "stream": True,
         }
@@ -233,6 +235,8 @@ async def amain():
     ap.add_argument("--seed", type=int, default=0,
                     help="arrival-process seed; identical across models "
                          "gives paired windows")
+    ap.add_argument("--min-tokens", type=int, default=0)
+    ap.add_argument("--max-new-tokens", type=int, default=256)
     ap.add_argument("--port", type=int, default=8123)
     ap.add_argument("--gpu-memory-utilization", type=float, default=0.85)
     ap.add_argument("--max-model-len", type=int, default=4096)
@@ -257,6 +261,8 @@ async def amain():
         "max_events_per_rate": args.max_events,
         "drain_timeout_s": args.drain_timeout,
         "seed": args.seed,
+        "min_tokens": args.min_tokens,
+        "max_new_tokens": args.max_new_tokens,
         "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ"),
         "rates": [],
     }
@@ -269,6 +275,7 @@ async def amain():
             recs, n_sent, n_aband = await run_window(
                 args.port, args.model, prompts, rate, args.seed,
                 args.duration_s, args.max_events, args.drain_timeout,
+                args.max_new_tokens, args.min_tokens,
                 pbar_label=f"λ={rate}")
             row = summarize(recs, n_sent, n_aband, rate)
             results["rates"].append(row)
