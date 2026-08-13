@@ -1,0 +1,159 @@
+{
+  "P_C1_latency": {
+    "dg": [
+      {
+        "level": 12,
+        "n_fields": 12,
+        "p50_ms": 417.0274310745299,
+        "mean_tokens": 176.455
+      },
+      {
+        "level": 25,
+        "n_fields": 25,
+        "p50_ms": 589.2610480077565,
+        "mean_tokens": 308.655
+      },
+      {
+        "level": 50,
+        "n_fields": 50,
+        "p50_ms": 1036.6395940072834,
+        "mean_tokens": 732.04
+      },
+      {
+        "level": 100,
+        "n_fields": 100,
+        "p50_ms": 2142.1640808694065,
+        "mean_tokens": 1406.43
+      }
+    ],
+    "ar": [
+      {
+        "level": 12,
+        "n_fields": 12,
+        "p50_ms": 737.5630703754723,
+        "mean_tokens": 122.855
+      },
+      {
+        "level": 25,
+        "n_fields": 25,
+        "p50_ms": 1440.2110832743347,
+        "mean_tokens": 230.71
+      },
+      {
+        "level": 50,
+        "n_fields": 50,
+        "p50_ms": 3121.8412797898054,
+        "mean_tokens": 476.275
+      },
+      {
+        "level": 100,
+        "n_fields": 100,
+        "p50_ms": 6239.069161936641,
+        "mean_tokens": 950.695
+      }
+    ],
+    "ratio_AR_over_DG": [
+      1.77,
+      2.44,
+      3.01,
+      2.91
+    ]
+  },
+  "P_C2_consistency": {
+    "dg": [
+      {
+        "level": 12,
+        "n_fields": 12,
+        "consistency_pct": 91.0
+      },
+      {
+        "level": 25,
+        "n_fields": 25,
+        "consistency_pct": 92.5
+      },
+      {
+        "level": 50,
+        "n_fields": 50,
+        "consistency_pct": 87.0
+      },
+      {
+        "level": 100,
+        "n_fields": 100,
+        "consistency_pct": 87.5
+      }
+    ],
+    "ar": [
+      {
+        "level": 12,
+        "n_fields": 12,
+        "consistency_pct": 97.0
+      },
+      {
+        "level": 25,
+        "n_fields": 25,
+        "consistency_pct": 94.0
+      },
+      {
+        "level": 50,
+        "n_fields": 50,
+        "consistency_pct": 96.5
+      },
+      {
+        "level": 100,
+        "n_fields": 100,
+        "consistency_pct": 96.5
+      }
+    ],
+    "dg_monotonic_decrease": false,
+    "dg_degradation_faster": true,
+    "kill_condition_triggered": false
+  },
+  "P_C3_validity": {
+    "dg": [
+      {
+        "level": 12,
+        "validity": 97.0,
+        "consistency": 91.0
+      },
+      {
+        "level": 25,
+        "validity": 98.0,
+        "consistency": 92.5
+      },
+      {
+        "level": 50,
+        "validity": 97.5,
+        "consistency": 87.0
+      },
+      {
+        "level": 100,
+        "validity": 99.0,
+        "consistency": 87.5
+      }
+    ],
+    "ar": [
+      {
+        "level": 12,
+        "validity": 98.5,
+        "consistency": 97.0
+      },
+      {
+        "level": 25,
+        "validity": 99.0,
+        "consistency": 94.0
+      },
+      {
+        "level": 50,
+        "validity": 99.0,
+        "consistency": 96.5
+      },
+      {
+        "level": 100,
+        "validity": 99.0,
+        "consistency": 96.5
+      }
+    ],
+    "dg_stays_above_95": true,
+    "decoupled": false
+  }
+}

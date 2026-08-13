@@ -1,0 +1,95 @@
+{
+  "experiment": "issue19_wide_schema",
+  "model": "Qwen/Qwen2.5-3B-Instruct",
+  "source": "bgl",
+  "n_events": 200,
+  "levels": [
+    12,
+    25,
+    50,
+    100
+  ],
+  "timestamp": "2026-08-14T01:07:58Z",
+  "per_level": {
+    "12": {
+      "level": 12,
+      "n_fields": 12,
+      "latency": {
+        "p50_ms": 737.5630703754723,
+        "p90_ms": 920.6609171815217,
+        "p99_ms": 1279.6720191836357,
+        "p99_9_ms": 1523.1843497604132,
+        "mean_ms": 780.8738965145312,
+        "n_samples": 200
+      },
+      "quality": {
+        "field_f1": 0.8249,
+        "schema_valid_pct": 98.5,
+        "consistency_pct": 97.0,
+        "n_fields": 12
+      },
+      "mean_output_tokens": 122.855,
+      "tail_ratio": 2.06515810096756
+    },
+    "25": {
+      "level": 25,
+      "n_fields": 25,
+      "latency": {
+        "p50_ms": 1440.2110832743347,
+        "p90_ms": 1636.8652358651161,
+        "p99_ms": 1837.2628930956125,
+        "p99_9_ms": 1849.0490070544183,
+        "mean_ms": 1457.3962142597884,
+        "n_samples": 200
+      },
+      "quality": {
+        "field_f1": 0.8339,
+        "schema_valid_pct": 99.0,
+        "consistency_pct": 94.0,
+        "n_fields": 25
+      },
+      "mean_output_tokens": 230.71,
+      "tail_ratio": 1.2838736130613482
+    },
+    "50": {
+      "level": 50,
+      "n_fields": 50,
+      "latency": {
+        "p50_ms": 3121.8412797898054,
+        "p90_ms": 3259.479620028287,
+        "p99_ms": 3410.716911777854,
+        "p99_9_ms": 3494.0815712325275,
+        "mean_ms": 2998.5870861192234,
+        "n_samples": 200
+      },
+      "quality": {
+        "field_f1": 0.835,
+        "schema_valid_pct": 99.0,
+        "consistency_pct": 96.5,
+        "n_fields": 50
+      },
+      "mean_output_tokens": 476.275,
+      "tail_ratio": 1.1192374173064255
+    },
+    "100": {
+      "level": 100,
+      "n_fields": 100,
+      "latency": {
+        "p50_ms": 6239.069161936641,
+        "p90_ms": 6782.992315012962,
+        "p99_ms": 7312.41850880906,
+        "p99_9_ms": 8456.602056976408,
+        "mean_ms": 5985.90176433092,
+        "n_samples": 200
+      },
+      "quality": {
+        "field_f1": 0.8475,
+        "schema_valid_pct": 99.0,
+        "consistency_pct": 96.5,
+        "n_fields": 100
+      },
+      "mean_output_tokens": 950.695,
+      "tail_ratio": 1.355426881395787
+    }
+  }
+}

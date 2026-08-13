@@ -215,16 +215,18 @@ Rules:
 
 def build_wide_chat_messages(log_line: str, source: str, level: int,
                              few_shot: bool = True) -> list[dict]:
+    """Build chat messages. Few-shot examples are always the original 12-field
+    examples (not widened) — they show JSON format without ballooning the
+    prompt token count. The full schema for the target level is in the system
+    prompt."""
     from models.baselines.ar_model import FEW_SHOT_EXAMPLES
     system = build_wide_system_prompt(level)
     user = ""
     if few_shot:
-        user += "Examples:\n"
+        user += "Examples (12-field format shown; output all fields from the schema above):\n"
         for ex in FEW_SHOT_EXAMPLES:
-            wide = derive_fields(ex["output"], ex["input"], level)
-            wide = {k: wide[k] for k in field_names_for_level(level)}
             user += f'  Input: "{ex["input"]}"\n'
-            user += f"  Output: {json.dumps(wide)}\n"
+            user += f"  Output: {json.dumps(ex['output'])}\n"
         user += "\n"
     user += f"Source: {source}\n"
     user += f'Input: "{log_line}"\n'

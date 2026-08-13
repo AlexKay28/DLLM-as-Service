@@ -166,12 +166,16 @@ def main():
 
     for level in args.levels:
         print(f"\n=== schema level L{level} ===", flush=True)
+        level_max_tokens = min(args.max_new_tokens, level * 20)
+        level_params = SamplingParams(
+            max_tokens=level_max_tokens, temperature=0.0)
         prompts = []
         for line in raw_lines:
-            msgs = build_wide_chat_messages(line, args.source, level)
+            msgs = build_wide_chat_messages(
+                line, args.source, level, few_shot=True)
             prompts.append(tokenizer.apply_chat_template(
                 msgs, tokenize=False, add_generation_prompt=True))
-        entry = run_level(llm, sampling_params, prompts, gold_12,
+        entry = run_level(llm, level_params, prompts, gold_12,
                           raw_lines, level)
         results["per_level"][str(level)] = entry
         q = entry["quality"]
