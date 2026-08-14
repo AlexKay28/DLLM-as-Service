@@ -62,20 +62,26 @@ def load_records(path, n=None):
     return records
 
 
-def record_completeness(records):
+def record_completeness(parsed_dicts):
+    """% of records whose parsed JSON output contains all 12 field keys.
+
+    Operates on the raw parsed dict BEFORE default-filling, so truncation
+    (missing keys) shows up, while legitimately-empty defaults ("" / 0.0 /
+    False) still count as present. Regex-recovered pairs also count, since
+    they were emitted by the model.
+    """
     n_complete = sum(
-        1 for rec in records
-        if all(rec.has(f) for f in FIELD_NAMES)
+        1 for d in parsed_dicts if set(FIELD_NAMES) <= set(d.keys())
     )
-    return n_complete / len(records) * 100 if records else 0
+    return n_complete / len(parsed_dicts) * 100 if parsed_dicts else 0
 
 
-def field_completeness(records):
+def field_completeness(parsed_dicts):
+    """Average % of the 12 field keys present in the parsed output."""
     total = sum(
-        sum(1 for f in FIELD_NAMES if rec.has(f))
-        for rec in records
+        len(set(d.keys()) & set(FIELD_NAMES)) for d in parsed_dicts
     )
-    return total / len(records) / len(FIELD_NAMES) * 100 if records else 0
+    return total / len(parsed_dicts) / len(FIELD_NAMES) * 100 if parsed_dicts else 0
 
 
 def run_ar_vllm(model_name, log_lines, gold_records, deadlines, source, n):
@@ -97,20 +103,22 @@ def run_ar_vllm(model_name, log_lines, gold_records, deadlines, source, n):
         sp = SamplingParams(max_tokens=max_tok, temperature=0.0, repetition_penalty=1.0)
         print(f"\n  D={D}ms (max_tokens={max_tok})...", flush=True)
 
-        records, lats = [], []
+        records, lats, parsed = [], [], []
         for i, prompt in enumerate(prompts):
             t0 = time.perf_counter()
             outs = llm.generate([prompt], sp, use_tqdm=False)
             lats.append((time.perf_counter() - t0) * 1000)
             text = outs[0].outputs[0].text
-            rec = _dict_to_record(parse_json_output(text))
+            data = parse_json_output(text)
+            parsed.append(data)
+            rec = _dict_to_record(data)
             records.append(rec)
             if (i + 1) % 100 == 0:
                 print(f"    {i+1}/{len(prompts)}", flush=True)
 
         f1_res = field_f1(records, gold_records)
-        rc = record_completeness(records)
-        fc = field_completeness(records)
+        rc = record_completeness(parsed)
+        fc = field_completeness(parsed)
         lat = latency_percentiles(lats)
         cell = {
             "deadline_ms": D, "max_tokens": max_tok,
@@ -134,13 +142,15 @@ def run_mdm_hf(log_lines, gold_records, deadlines, source, k_steps, n):
     model.load()
 
     print(f"\n  DM (K={k_steps}, one canvas, ~418ms)...", flush=True)
-    records, lats = [], []
+    records, lats, parsed = [], [], []
     for i, line in enumerate(log_lines):
         t0 = time.perf_counter()
         result = model._generate_single(line, source)
         elapsed = (time.perf_counter() - t0) * 1000
         output_text = result[0]
-        rec = _dict_to_record(parse_json_output(output_text))
+        data = parse_json_output(output_text)
+        parsed.append(data)
+        rec = _dict_to_record(data)
         records.append(rec)
         lats.append(elapsed)
         if (i + 1) % 25 == 0:
@@ -148,8 +158,8 @@ def run_mdm_hf(log_lines, gold_records, deadlines, source, k_steps, n):
                   flush=True)
 
     f1_res = field_f1(records, gold_records)
-    rc = record_completeness(records)
-    fc = field_completeness(records)
+    rc = record_completeness(parsed)
+    fc = field_completeness(parsed)
     lat = latency_percentiles(lats)
     cell = {
         "deadline_ms": "none (one canvas)",
