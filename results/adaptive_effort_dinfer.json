@@ -1,0 +1,41 @@
+{
+  "experiment": "issue24_adaptive_effort",
+  "model_type": "dinfer",
+  "model": "LLaDA-8B-Instruct",
+  "threshold": 0.9,
+  "k_steps": null,
+  "n_per_bin": 100,
+  "per_bin": {
+    "routine": {
+      "n": 100,
+      "field_f1": 0.8731,
+      "schema_valid_pct": 98.0,
+      "consistency_pct": 71.0,
+      "anomaly_f1": 0.8621,
+      "p50_ms": 10822.96,
+      "p99_ms": 14645.36,
+      "mean_ms": 9249.49
+    },
+    "medium": {
+      "n": 100,
+      "field_f1": 0.8434,
+      "schema_valid_pct": 99.0,
+      "consistency_pct": 92.0,
+      "anomaly_f1": 0.9706,
+      "p50_ms": 10994.98,
+      "p99_ms": 14815.21,
+      "mean_ms": 8692.92
+    },
+    "novel": {
+      "n": 100,
+      "field_f1": 0.8856,
+      "schema_valid_pct": 100.0,
+      "consistency_pct": 100.0,
+      "anomaly_f1": 1.0,
+      "p50_ms": 11008.69,
+      "p99_ms": 13433.21,
+      "mean_ms": 8868.25
+    }
+  },
+  "timestamp": "2026-08-14T13:09:21Z"
+}
