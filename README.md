@@ -51,3 +51,13 @@ Label pipeline (not a benchmark, but part of the setup): **Drain** template pars
 | PagedAttention + FlashAttention-2 serving | Standard efficient serving | Keeps the AR baselines strong (no strawman) |
 
 Want this as a one-page `meta.md`, a slide, or an appendix table baked into the paper's LaTeX?
+
+---
+
+## Where DM beats AR — application survey
+
+See [`DM_APPLICATIONS.md`](DM_APPLICATIONS.md) for the measured, defensible
+workloads where masked-diffusion LMs beat autoregressive LMs (and where they
+don't). Grounded in issues #14–#22; converging answer: **cost-invariance to
+output size in deployments that cannot batch.** Full validation in
+[`VALIDATION_REPORT.md`](VALIDATION_REPORT.md).
