@@ -1,0 +1,106 @@
+{
+  "experiment": "issue27_perturbation_robustness",
+  "model_type": "dm_hf",
+  "model": "Qwen/Qwen2.5-3B-Instruct",
+  "n": 100,
+  "categories": {
+    "clean": {
+      "field_f1": 0.739,
+      "schema_valid_pct": 96.0,
+      "consistency_pct": 74.0,
+      "p50_ms": 1061.78,
+      "mean_ms": 1062.77
+    },
+    "whitespace_i1.0": {
+      "field_f1": 0.6585,
+      "schema_valid_pct": 85.0,
+      "consistency_pct": 68.0,
+      "p50_ms": 1075.51,
+      "mean_ms": 1077.08,
+      "f1_drop": 0.0805,
+      "latency_ratio": 1.013
+    },
+    "field_reorder_i1.0": {
+      "field_f1": 0.6146,
+      "schema_valid_pct": 84.0,
+      "consistency_pct": 56.0,
+      "p50_ms": 1076.29,
+      "mean_ms": 1076.17,
+      "f1_drop": 0.1244,
+      "latency_ratio": 1.014
+    },
+    "separator_change_i1.0": {
+      "field_f1": 0.6459,
+      "schema_valid_pct": 84.0,
+      "consistency_pct": 72.0,
+      "p50_ms": 1078.86,
+      "mean_ms": 1080.65,
+      "f1_drop": 0.0931,
+      "latency_ratio": 1.016
+    },
+    "abbreviation_i1.0": {
+      "field_f1": 0.7341,
+      "schema_valid_pct": 92.0,
+      "consistency_pct": 78.0,
+      "p50_ms": 1077.26,
+      "mean_ms": 1076.62,
+      "f1_drop": 0.0049,
+      "latency_ratio": 1.015
+    },
+    "timestamp_format_i1.0": {
+      "field_f1": 0.6347,
+      "schema_valid_pct": 80.0,
+      "consistency_pct": 70.0,
+      "p50_ms": 1078.82,
+      "mean_ms": 1079.74,
+      "f1_drop": 0.1043,
+      "latency_ratio": 1.016
+    },
+    "missing_field_i1.0": {
+      "field_f1": 0.6724,
+      "schema_valid_pct": 82.0,
+      "consistency_pct": 70.0,
+      "p50_ms": 1074.04,
+      "mean_ms": 1061.11,
+      "f1_drop": 0.0666,
+      "latency_ratio": 1.012
+    },
+    "case_variation_i1.0": {
+      "field_f1": 0.6075,
+      "schema_valid_pct": 89.0,
+      "consistency_pct": 70.0,
+      "p50_ms": 1077.86,
+      "mean_ms": 1078.2,
+      "f1_drop": 0.1315,
+      "latency_ratio": 1.015
+    },
+    "wrapping_noise_i1.0": {
+      "field_f1": 0.6982,
+      "schema_valid_pct": 92.0,
+      "consistency_pct": 72.0,
+      "p50_ms": 1078.15,
+      "mean_ms": 1078.42,
+      "f1_drop": 0.0408,
+      "latency_ratio": 1.015
+    },
+    "synonym_substitution_i1.0": {
+      "field_f1": 0.7136,
+      "schema_valid_pct": 73.0,
+      "consistency_pct": 76.0,
+      "p50_ms": 1076.71,
+      "mean_ms": 1076.92,
+      "f1_drop": 0.0254,
+      "latency_ratio": 1.014
+    },
+    "encoding_noise_i1.0": {
+      "field_f1": 0.7043,
+      "schema_valid_pct": 92.0,
+      "consistency_pct": 72.0,
+      "p50_ms": 1077.09,
+      "mean_ms": 1077.26,
+      "f1_drop": 0.0347,
+      "latency_ratio": 1.014
+    }
+  },
+  "timestamp": "2026-08-14T16:45:12Z"
+}

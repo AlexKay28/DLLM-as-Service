@@ -1,0 +1,196 @@
+{
+  "experiment": "issue27_perturbation_robustness",
+  "model_type": "ar3b",
+  "model": "Qwen/Qwen2.5-3B-Instruct",
+  "n": 200,
+  "categories": {
+    "clean": {
+      "field_f1": 0.8268,
+      "schema_valid_pct": 99.5,
+      "consistency_pct": 98.0,
+      "p50_ms": 807.44,
+      "mean_ms": 840.32
+    },
+    "whitespace_i0.3": {
+      "field_f1": 0.8255,
+      "schema_valid_pct": 99.5,
+      "consistency_pct": 97.5,
+      "p50_ms": 806.93,
+      "mean_ms": 836.99,
+      "f1_drop": 0.0013,
+      "latency_ratio": 0.999
+    },
+    "whitespace_i1.0": {
+      "field_f1": 0.8272,
+      "schema_valid_pct": 99.0,
+      "consistency_pct": 95.5,
+      "p50_ms": 807.02,
+      "mean_ms": 842.15,
+      "f1_drop": -0.0004,
+      "latency_ratio": 0.999
+    },
+    "field_reorder_i0.3": {
+      "field_f1": 0.8063,
+      "schema_valid_pct": 99.5,
+      "consistency_pct": 93.5,
+      "p50_ms": 806.43,
+      "mean_ms": 831.92,
+      "f1_drop": 0.0205,
+      "latency_ratio": 0.999
+    },
+    "field_reorder_i1.0": {
+      "field_f1": 0.7817,
+      "schema_valid_pct": 99.5,
+      "consistency_pct": 88.0,
+      "p50_ms": 801.11,
+      "mean_ms": 830.82,
+      "f1_drop": 0.0451,
+      "latency_ratio": 0.992
+    },
+    "separator_change_i0.3": {
+      "field_f1": 0.8181,
+      "schema_valid_pct": 99.0,
+      "consistency_pct": 96.0,
+      "p50_ms": 806.83,
+      "mean_ms": 828.93,
+      "f1_drop": 0.0087,
+      "latency_ratio": 0.999
+    },
+    "separator_change_i1.0": {
+      "field_f1": 0.8154,
+      "schema_valid_pct": 99.0,
+      "consistency_pct": 96.0,
+      "p50_ms": 751.15,
+      "mean_ms": 798.71,
+      "f1_drop": 0.0114,
+      "latency_ratio": 0.93
+    },
+    "abbreviation_i0.3": {
+      "field_f1": 0.8276,
+      "schema_valid_pct": 100.0,
+      "consistency_pct": 97.5,
+      "p50_ms": 806.95,
+      "mean_ms": 838.08,
+      "f1_drop": -0.0008,
+      "latency_ratio": 0.999
+    },
+    "abbreviation_i1.0": {
+      "field_f1": 0.8285,
+      "schema_valid_pct": 100.0,
+      "consistency_pct": 97.5,
+      "p50_ms": 807.72,
+      "mean_ms": 839.65,
+      "f1_drop": -0.0017,
+      "latency_ratio": 1.0
+    },
+    "timestamp_format_i0.3": {
+      "field_f1": 0.7994,
+      "schema_valid_pct": 99.5,
+      "consistency_pct": 97.5,
+      "p50_ms": 819.49,
+      "mean_ms": 858.94,
+      "f1_drop": 0.0274,
+      "latency_ratio": 1.015
+    },
+    "timestamp_format_i1.0": {
+      "field_f1": 0.7464,
+      "schema_valid_pct": 99.5,
+      "consistency_pct": 97.5,
+      "p50_ms": 894.89,
+      "mean_ms": 893.59,
+      "f1_drop": 0.0804,
+      "latency_ratio": 1.108
+    },
+    "missing_field_i0.3": {
+      "field_f1": 0.8215,
+      "schema_valid_pct": 99.5,
+      "consistency_pct": 97.5,
+      "p50_ms": 807.71,
+      "mean_ms": 843.33,
+      "f1_drop": 0.0053,
+      "latency_ratio": 1.0
+    },
+    "missing_field_i1.0": {
+      "field_f1": 0.809,
+      "schema_valid_pct": 99.0,
+      "consistency_pct": 97.0,
+      "p50_ms": 813.75,
+      "mean_ms": 852.14,
+      "f1_drop": 0.0178,
+      "latency_ratio": 1.008
+    },
+    "case_variation_i0.3": {
+      "field_f1": 0.7911,
+      "schema_valid_pct": 99.5,
+      "consistency_pct": 95.5,
+      "p50_ms": 812.2,
+      "mean_ms": 844.44,
+      "f1_drop": 0.0357,
+      "latency_ratio": 1.006
+    },
+    "case_variation_i1.0": {
+      "field_f1": 0.7142,
+      "schema_valid_pct": 98.0,
+      "consistency_pct": 91.0,
+      "p50_ms": 812.57,
+      "mean_ms": 869.26,
+      "f1_drop": 0.1126,
+      "latency_ratio": 1.006
+    },
+    "wrapping_noise_i0.3": {
+      "field_f1": 0.8262,
+      "schema_valid_pct": 99.5,
+      "consistency_pct": 97.5,
+      "p50_ms": 806.93,
+      "mean_ms": 831.13,
+      "f1_drop": 0.0006,
+      "latency_ratio": 0.999
+    },
+    "wrapping_noise_i1.0": {
+      "field_f1": 0.8168,
+      "schema_valid_pct": 99.0,
+      "consistency_pct": 95.0,
+      "p50_ms": 812.93,
+      "mean_ms": 823.22,
+      "f1_drop": 0.01,
+      "latency_ratio": 1.007
+    },
+    "synonym_substitution_i0.3": {
+      "field_f1": 0.8226,
+      "schema_valid_pct": 97.0,
+      "consistency_pct": 97.5,
+      "p50_ms": 806.7,
+      "mean_ms": 835.81,
+      "f1_drop": 0.0042,
+      "latency_ratio": 0.999
+    },
+    "synonym_substitution_i1.0": {
+      "field_f1": 0.8067,
+      "schema_valid_pct": 87.5,
+      "consistency_pct": 99.0,
+      "p50_ms": 807.14,
+      "mean_ms": 835.2,
+      "f1_drop": 0.0201,
+      "latency_ratio": 1.0
+    },
+    "encoding_noise_i0.3": {
+      "field_f1": 0.8228,
+      "schema_valid_pct": 99.5,
+      "consistency_pct": 97.0,
+      "p50_ms": 807.0,
+      "mean_ms": 839.25,
+      "f1_drop": 0.004,
+      "latency_ratio": 0.999
+    },
+    "encoding_noise_i1.0": {
+      "field_f1": 0.8208,
+      "schema_valid_pct": 99.5,
+      "consistency_pct": 96.5,
+      "p50_ms": 807.08,
+      "mean_ms": 843.53,
+      "f1_drop": 0.006,
+      "latency_ratio": 1.0
+    }
+  },
+  "timestamp": "2026-08-14T16:19:05Z"
+}

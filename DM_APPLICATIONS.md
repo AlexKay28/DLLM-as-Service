@@ -267,8 +267,6 @@ in its issue.
 | **#25** | [Bounded-deadline completion](https://github.com/AlexKay28/DLLM-as-Service/issues/25) — DM completes, AR truncates | Content-independent latency O(K) (#17, R²=1.0) | vLLM AR runner (`max_tokens`), HF MDMModel | completeness metric, deadline sweep runner | ~1 h |
 | **#27** | [Perturbation / drift robustness](https://github.com/AlexKay28/DLLM-as-Service/issues/27) — DM corrects input noise | Joint denoising (#19) + length-robustness (#17 L=512) | #8 perturbation suite, vLLM/dInfer runners | perturbation port, robustness runner, per-category analysis | ~1.5 h |
 
-### Priority
-
 - **#26 (imputation)** is the most differentiated — it uses DM's defining
   mechanism (selective masking) directly, and AR has no architectural answer.
 - **#23 (adaptive-effort)** is the most surprising — it would deliver the
@@ -281,6 +279,114 @@ in its issue.
   the bound."
 - **#27 (perturbation)** tests whether the length-robustness of #17
   generalizes to input noise — a real-world drift property.
+
+---
+
+## 9. Emergent research questions (filed after results)
+
+The five untested DM advantages (#26, #23, #24, #25, #27) produced five
+surprises that each warrant a new issue:
+
+### 9.1 DM perturbation sensitivity exceeds AR (Issue #27 finding — hypothesis refuted)
+
+**Result:** At i=1.0, DM F1 drops exceed AR drops in all 10 categories:
+
+| Perturbation | DM drop | AR drop | DM/AR ratio |
+|---|---|---|---|
+| FIELD_REORDER | 0.124 | 0.045 | 2.8× |
+| SEPARATOR_CHANGE | 0.093 | 0.011 | 8.2× |
+| TIMESTAMP_FORMAT | 0.104 | 0.080 | 1.3× |
+| MISSING_FIELD | 0.067 | 0.018 | 3.7× |
+| CASE_VARIATION | 0.132 | 0.113 | 1.2× |
+| WHITESPACE | 0.081 | 0.000 | inf (AR flat) |
+| ABBREVIATION | 0.005 | 0.000 | inf (AR flat) |
+| WRAPPING_NOISE | 0.041 | 0.010 | 4.1× |
+| SYNONYM_SUBSTITUTION | 0.025 | 0.020 | 1.3× |
+| ENCODING_NOISE | 0.035 | 0.006 | 5.8× |
+
+**DM worse in 10/10 categories.** The hypothesis is removed as a DM advantage.
+
+**Predicted:** DM (bidirectional conditioning) would be more robust to
+input noise. **Observed:** AR (left-to-right) is strictly more robust.
+The hypothesis is removed as a DM advantage.
+
+**New question:** what mechanism protects AR? Is it the left-to-right
+conditioning (noise propagates but doesn't back-propagate), or the
+matching of AR's training loss (teacher-forcing) to perturbed inputs?
+Is DM's sensitivity intrinsic (bidirectional propagation of errors)
+or an artifact of LLaDA-8B's weaker pretraining? A size-matched DM
+(DiffusionGemma-26B) would disambiguate.
+
+### 9.2 DM F1 improves on novel events while AR degrades (Issue #23 finding)
+
+**Result:** DM F1 increases from routine (0.873) to novel (0.886);
+AR F1 decreases (0.855 → 0.788) over the same difficulty gradient.
+
+**New question:** is this a genuine robustness property (DM handles
+rarity better) or an artifact of the binning method (template frequency
+as a proxy for difficulty)? The binning counts exact template matches;
+some "novel" events might have template siblings in other sources (BGL
+has no sibling sets) or might be closer to each other than to the
+routine distribution. A semantic clustering approach (embed templates,
+cluster by distance) would rule this out.
+
+### 9.3 AR never generates a syntactically complete JSON record (Issue #25 finding)
+
+**Result:** At max_tokens=318 (D=2000), AR generates a Record whose
+record_completeness_pct is 0% at every deadline. The field_completeness_pct
+peaks at 62.7% (8 of 12 fields) at D=1500+.
+
+**Root cause check:** The AR generates JSON wrapped in `Output:```\njson\n...\n````, and parse_json_output reconstructs the JSON. If
+the model emits reasoning text before the JSON (e.g., "Output:\n```\njson\n{..."), the 318 tokens may be consumed by the preamble
+and only ~8 fields survive. A debug run with verbose token counting
+would confirm the token budget breakdown.
+
+### 9.4 Size-matched comparison (cross-cutting)
+
+Every DM advantage we found (flattening latency at K, DM F1 > AR F1
+on novel events, DM improves with refinement, DM completes when AR
+truncates) uses LLaDA-8B vs Qwen2.5-3B — yet LLaDA-8B is 2.7× AR-3B
+in parameter count. The DM wins may vanish (or strengthen) against
+AR-0.5B, or they may disappear against AR-7B. The size-matched
+arm (#12, DiffusionGemma-26B vs Qwen2.5-7B) is the unresolved baseline
+that affects every DM advantage claim.
+
+**New question:** for each DM advantage found in #23-#27, re-run the
+comparable experiment with DiffusionGemma-26B against Qwen2.5-7B.
+Does the DM win hold, strengthen, or reverse?
+
+### 9.5 Imputation mechanism works when paired with critic (Issue #24 vs #26)
+
+**Result separation:** Issue #26 (one-shot imputation, P-F1 REFUTED)
+showed DM cannot impute low-confidence fields directly. Issue #24
+(refinement) showed DM gains +0.023 F1 when imputation targets
+critic-flagged fields — the mechanism works when the task is framed
+as "fix wrong fields given correct ones" rather than "guess missing
+fields given only the log line."
+
+**New question:** is the imputation experiment's failure (P-F1 REFUTED)
+due to the wrong task formulation? In #26, ALL fields were dropped
+and K were imputed. In #24, the critic selects WHICH fields to impute.
+The critic is the differentiator. An ablation where round-2 imputation
+masks only a random (not critic-selected) subset would confirm whether
+the critic selection drives the improvement.
+
+---
+
+## 10. The final DM advantage table (post-results)
+
+| # | Claim | Result | Verdict |
+|---|---|---|---|
+| **#26** | DM imputes missing fields | F1 0.00–0.41 vs AR 0.25–0.74 | REFUTED |
+| **#23** | DM adapts effort to difficulty | 3/4 PASS (DM F1 > AR on novel) | MIXED (quality PASS, latency REFUTED) |
+| **#24** | DM improves with refinement | F1 +0.023 with selective masking | PASS |
+| **#25** | DM completes when AR truncates | Record 100% complete vs AR 0% | PASS |
+| **#27** | DM robust to perturbation | F1 drops exceed AR drops in 5/7 | REFUTED |
+
+The two surviving advantages are #24 (iterative refinement) and #25
+(bounded-deadline). Both are "DM has a mechanism AR lacks" claims, not
+"DM is faster/better" claims. The cost-invariance (flat latency) holds
+in all experiments; the quality winners are split by difficulty bin.
 
 ### Shared infrastructure (the #26 enabler)
 
