@@ -1,0 +1,100 @@
+{
+  "model": "LLaDA-8B-Instruct",
+  "serving": "dInfer 0.1 (cache='', BlockWiseDiffusionLLM, threshold=0.9)",
+  "host": "A100 80GB PCIe, vLLM 0.10.2 stack, torch 2.8.0+cu128",
+  "prompt_len": 632,
+  "few_shot": false,
+  "gen_len": 256,
+  "block_length": 32,
+  "cache": "",
+  "results": [
+    {
+      "batch": 1,
+      "median_time_s": 3.6705,
+      "ev_s": 0.272,
+      "tok_s": 46.9,
+      "multiplier": 1.0,
+      "times_s": [
+        3.7097,
+        3.6312
+      ],
+      "avg_out_tokens": 172.0
+    },
+    {
+      "batch": 2,
+      "median_time_s": 6.8422,
+      "ev_s": 0.292,
+      "tok_s": 50.3,
+      "multiplier": 1.073,
+      "times_s": [
+        6.8366,
+        6.8477
+      ],
+      "avg_out_tokens": 172.0
+    },
+    {
+      "batch": 4,
+      "median_time_s": 12.4152,
+      "ev_s": 0.322,
+      "tok_s": 55.4,
+      "multiplier": 1.183,
+      "times_s": [
+        12.4117,
+        12.4188
+      ],
+      "avg_out_tokens": 172.0
+    },
+    {
+      "batch": 8,
+      "median_time_s": 26.2859,
+      "ev_s": 0.304,
+      "tok_s": 52.3,
+      "multiplier": 1.117,
+      "times_s": [
+        26.2849,
+        26.2869
+      ],
+      "avg_out_tokens": 172.0
+    },
+    {
+      "batch": 16,
+      "median_time_s": 55.2476,
+      "ev_s": 0.29,
+      "tok_s": 49.8,
+      "multiplier": 1.063,
+      "times_s": [
+        55.2382,
+        55.257
+      ],
+      "avg_out_tokens": 172.0
+    },
+    {
+      "batch": 32,
+      "median_time_s": 109.0327,
+      "ev_s": 0.293,
+      "tok_s": 50.5,
+      "multiplier": 1.077,
+      "times_s": [
+        109.0346,
+        109.0308
+      ],
+      "avg_out_tokens": 172.0
+    },
+    {
+      "batch": 64,
+      "median_time_s": 217.7535,
+      "ev_s": 0.294,
+      "tok_s": 50.6,
+      "multiplier": 1.079,
+      "times_s": [
+        217.7819,
+        217.725
+      ],
+      "avg_out_tokens": 172.0
+    }
+  ],
+  "batch1_ev_s": 0.2724452325300568,
+  "peak_ev_s": 0.322,
+  "peak_batch": 4,
+  "batch_multiplier": 1.182
+}

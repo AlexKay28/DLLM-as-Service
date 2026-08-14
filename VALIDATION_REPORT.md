@@ -379,6 +379,13 @@ HF serving because vLLM's only MDM (DiffusionGemma) will not install here. It
 does establish that our earlier AR-vs-MDM latency comparison measured serving
 stacks, not architectures.
 
+> **[UPDATED 2026-08-14, issue #22]** "LLaDA still on naive HF serving" is now
+> **partly false** — LLaDA-8B is served under dInfer (Field-F1 0.872, exceeding
+> the HF 0.779 above), but dInfer's optimized cache errors on our prompt
+> lengths so the latency row is still cache-less (p50 10886 ms). The
+> "MDM faster than AR" claim stays withdrawn. See §8 addendum +
+> `results/llada_dinfer/llada_dinfer_report.md`.
+
 ### 5.2 Why the gap
 
 1. **No KV-cache reuse across denoising steps** — bidirectional attention means
@@ -465,6 +472,29 @@ vLLM 0.7.2 + flash-attn 2.8.3 are now installed and ready for this future work.
 - **Serving:** HF transformers (naive, no vLLM for MDM); vLLM 0.7.2 + flash-attn 2.8.3 installed for future AR experiments
 - **Network:** HF Hub offline (models pre-cached); GitHub push blocked (commits local)
 - **Models cached:** Qwen2.5-1.5B-Instruct (3.3G), Qwen2.5-7B-Instruct (15G), LLaDA-8B-Instruct (15G)
+
+> **[UPDATED 2026-08-14, issue #22]** Two facts above are now stale.
+> (1) **The "no vLLM for MDM" caveat is partially resolved.** LLaDA-8B is now
+> served under [dInfer](https://github.com/inclusionAI/dInfer) (a dLLM-native
+> runtime, separate `.venv-dinfer`: vllm 0.10.2, torch 2.8.0+cu128, dinfer 0.1,
+> transformers 4.57.6). On n=300 BGL it reproduces/exceeds the HF quality
+> (Field-F1 0.872 vs 0.779; consistency 88.3% vs 76.6%) — so the §5.1 "LLaDA
+> still on naive HF serving" caveat no longer applies to the *quality* number.
+> The *latency* caveat is only partly resolved: dInfer's prefix/vicinity KV-cache
+> errors on our prompt lengths (≥632 tok), so the dInfer latency run is
+> `cache=''` (p50 10886 ms, 7.8× *slower* than the HF K=8 number, because the
+> threshold decoder spends more iterations for higher quality). dInfer's
+> optimized serving speed remains unmeasured. The batch multiplier is ~1.18×
+> (flat to B=64) — architectural to diffusion, the control #17 needed.
+> See `results/llada_dinfer/llada_dinfer_report.md`.
+> (2) **The "Network: HF Hub offline; GitHub push blocked" premise is no longer
+> true** (as of this session): pypi.org, files.pythonhosted.org,
+> download.pytorch.org, huggingface.co and github.com all return HTTP 200 from
+> this host. This unblocked the dInfer install (from GitHub source; the
+> `dinfer` package on the internal mirror and public PyPI is a placeholder) and
+> contradicts #13 §3. The current GPU for the #16/#22 experiments is an
+> **A100 80GB PCIe** (CUDA-13 driver 580.65.06), not the H100 listed above
+> (which was an earlier session).
 
 ---
 
