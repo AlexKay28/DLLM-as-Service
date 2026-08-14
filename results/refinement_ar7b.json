@@ -1,0 +1,39 @@
+{
+  "experiment": "issue24_iterative_refinement",
+  "model_type": "ar3b",
+  "model": "Qwen/Qwen2.5-7B-Instruct",
+  "n": 200,
+  "rounds": {
+    "round_1": {
+      "field_f1": 0.8429,
+      "schema_valid_pct": 99.0,
+      "consistency_pct": 97.5,
+      "anomaly_f1": 0.9783,
+      "p50_ms": 1377.76,
+      "p99_ms": 1822.57,
+      "mean_ms": 1414.22,
+      "round": 1
+    },
+    "round_2": {
+      "field_f1": 0.843,
+      "schema_valid_pct": 99.0,
+      "consistency_pct": 97.5,
+      "anomaly_f1": 0.9783,
+      "p50_ms": 1381.52,
+      "p99_ms": 1795.03,
+      "mean_ms": 1412.1,
+      "round": 2
+    },
+    "round_3": {
+      "field_f1": 0.843,
+      "schema_valid_pct": 99.0,
+      "consistency_pct": 97.5,
+      "anomaly_f1": 0.9783,
+      "p50_ms": 1380.84,
+      "p99_ms": 1794.42,
+      "mean_ms": 1411.98,
+      "round": 3
+    }
+  },
+  "timestamp": "2026-08-14T18:10:32Z"
+}
