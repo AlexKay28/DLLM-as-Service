@@ -33,6 +33,7 @@ from metrics.quality_metrics import field_f1, schema_validity, consistency, anom
 from metrics.latency_metrics import latency_percentiles
 from models.baselines.ar_model import build_chat_messages, parse_json_output
 from models.baselines.ar_wrapper import _dict_to_record
+from models.baselines.imputation import build_dm_imputation_prompt_text
 
 SPLIT_DIR = _REPO_ROOT / "datasets" / "splits" / "test"
 
@@ -105,21 +106,30 @@ def run_mdm_hf_round(model, log_lines, source):
 
 
 def run_mdm_hf_refine(model, log_lines, prev_records, wrong_fields_list, source):
-    """Run one DM refinement round — re-extract only events with wrong fields."""
+    """Run one DM refinement round via selective masking (extract_impute)."""
     records, lats = list(prev_records), [0.0] * len(prev_records)
     n_refined = 0
     for i, (line, wrong) in enumerate(zip(log_lines, wrong_fields_list)):
         if not wrong:
             continue
+        correct_fields = [f for f in FIELD_NAMES if f not in wrong]
+        known_fields = {}
+        for f in correct_fields:
+            if prev_records[i].has(f):
+                known_fields[f] = prev_records[i].get(f)
         t0 = time.perf_counter()
-        result = model._generate_single(line, source)
+        impute_result = model.extract_impute(
+            log_lines=[line], known_fields_list=[known_fields],
+            missing_fields_list=[wrong], source=source,
+            show_progress=False, k_steps=model.k_steps,
+        )
         elapsed = (time.perf_counter() - t0) * 1000
-        new_rec = _dict_to_record(parse_json_output(result[0]))
-        records[i] = new_rec
+        records[i] = impute_result.records[0]
         lats[i] = elapsed
         n_refined += 1
-        if n_refined % 50 == 0:
-            print(f"      refined {n_refined} avg={sum(l for l in lats if l > 0)/max(1,n_refined):.0f}ms",
+        if n_refined % 25 == 0:
+            print(f"      refined {n_refined}/{sum(1 for w in wrong_fields_list if w)} "
+                  f"avg={sum(l for l in lats if l > 0)/max(1,n_refined):.0f}ms",
                   flush=True)
     return records, lats, n_refined
 
