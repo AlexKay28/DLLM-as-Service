@@ -27,7 +27,7 @@ _REPO_ROOT = Path(__file__).resolve().parent.parent.parent
 if str(_REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT))
 
-from metrics.schema import Record
+from metrics.schema import Record, FIELD_NAMES
 from metrics.quality_metrics import field_f1, schema_validity, consistency
 from metrics.latency_metrics import latency_percentiles
 from models.baselines.ar_model import build_chat_messages, parse_json_output
@@ -101,13 +101,16 @@ def eval_category(records, gold_records, lats):
     sv = schema_validity(records)
     cons = consistency(records)
     lat = latency_percentiles(lats)
-    return {
+    out = {
         "field_f1": round(f1_res["macro_field_f1"], 4),
         "schema_valid_pct": round(sv, 2),
         "consistency_pct": round(cons, 2),
         "p50_ms": round(lat.get("p50_ms", 0), 2),
         "mean_ms": round(statistics.fmean(lats) if lats else 0, 2),
     }
+    for f in FIELD_NAMES:
+        out[f"f1_{f}"] = round(f1_res.get(f"f1_{f}", 0.0), 4)
+    return out
 
 
 def main():
@@ -119,6 +122,8 @@ def main():
     ap.add_argument("--n", type=int, default=500)
     ap.add_argument("--k-steps", type=int, default=8)
     ap.add_argument("--intensities", nargs="+", type=float, default=INTENSITIES)
+    ap.add_argument("--categories", nargs="+", default=None,
+                    help="Subset of PERTURBATION_TYPES to run (default: all)")
     ap.add_argument("--out", default=None)
     args = ap.parse_args()
 
@@ -149,7 +154,8 @@ def main():
     print(f"    F1={baseline['field_f1']:.3f} p50={baseline['p50_ms']:.0f}ms")
 
     categories = {"clean": baseline}
-    for ptype_name in PERTURBATION_TYPES:
+    ptype_names = args.categories if args.categories else PERTURBATION_TYPES
+    for ptype_name in ptype_names:
         ptype = PerturbationType[ptype_name]
         for intensity in args.intensities:
             key = f"{ptype_name.lower()}_i{intensity:.1f}"
