@@ -63,25 +63,19 @@ def load_records(path, n=None):
 
 
 def record_completeness(records):
-    n_complete = 0
-    for rec in records:
-        data = parse_json_output(json.dumps(rec.fields))
-        if not data:
-            continue
-        has_all = all(rec.has(f) and rec.get(f) is not None
-                       for f in FIELD_NAMES)
-        if has_all:
-            n_complete += 1
+    n_complete = sum(
+        1 for rec in records
+        if all(rec.has(f) for f in FIELD_NAMES)
+    )
     return n_complete / len(records) * 100 if records else 0
 
 
 def field_completeness(records):
-    total_pct = 0
-    for rec in records:
-        present = sum(1 for f in FIELD_NAMES
-                     if rec.has(f) and rec.get(f) is not None)
-        total_pct += present / len(FIELD_NAMES) * 100
-    return total_pct / len(records) if records else 0
+    total = sum(
+        sum(1 for f in FIELD_NAMES if rec.has(f))
+        for rec in records
+    )
+    return total / len(records) / len(FIELD_NAMES) * 100 if records else 0
 
 
 def run_ar_vllm(model_name, log_lines, gold_records, deadlines, source, n):
