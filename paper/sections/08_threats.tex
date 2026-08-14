@@ -1,0 +1,90 @@
+%=============================================================================
+%  08_threats.tex -- Threats to validity
+%
+%  CONVENTION: as in 06_applications.tex.
+%=============================================================================
+\section{Threats to Validity}
+\label{sec:threats}
+
+We list every known threat, including the ones that weaken results we would
+prefer to keep. They are ordered by how much damage they do.
+
+\paragraph{1. The comparison is not size-matched, and this is the most serious
+threat.} Every diffusion measurement uses \modelLLaDA{} or \modelDG{} against
+\modelARthree. The diffusion models are larger --- substantially so by total
+parameter count, and \modelDG{} is a mixture-of-experts model whose active
+parameter count is closer to the AR baseline than its total suggests. This does
+\emph{not} affect \cref{sec:cost-laws,sec:two-walls,sec:mechanism}: a cost law is a
+per-model measurement, and the batching multiplier is a property of each model's
+own scaling, so those results stand as measured regardless of parameter parity.
+It \emph{does} affect \cref{sec:applications} in full. Every application-level
+quality comparison, and every latency ratio interpreted as an architectural
+difference rather than a size difference, is confounded. The size-matched arm
+(\modelDG{} against \modelARseven) is filed as issue~\#34 and is not yet run.
+\open{\#34}
+
+\paragraph{2. The AR cost-law fit is not reconciled across artifacts.} The
+fitted intercept, slope and residual $\sigma$ we report come from the analysis
+JSON; an earlier report generated from the same campaign records a different
+intercept and a residual $\sigma$ nearly an order of magnitude smaller, and an
+internal digest records a third variant with no intercept at all. We use the
+JSON, but the discrepancy is unexplained. It must be resolved by re-fitting from
+the raw per-cell data before submission; the slope --- which carries the
+marginal-cost claim --- agrees across all three, but the intercept and the
+uncertainty estimate do not. \open{fit reconciliation}
+
+\paragraph{3. The two models are served asymmetrically, and we did not choose
+this.} \modelDG{} runs at \texttt{--max-num-seqs 1} while the AR baseline runs
+the engine's default 256-way scheduler. The asymmetry is forced by an engine
+crash that fires as soon as two requests in different denoising phases are
+scheduled together (\cref{sec:two-walls}); serialised serving is therefore
+diffusion's production-relevant mode on this engine today, but it is not a
+choice we made in the experiment's favour or against it, and a fixed engine
+would change the diffusion numbers and not the AR ones.
+
+\paragraph{4. All dInfer latencies are cache-less.} dInfer's prefix and vicinity
+KV-cache paths error on prompts at or above \dinferCachePromptLimit{} tokens,
+which our prompts exceed, so every dInfer latency we report was measured with
+caching disabled. dInfer's optimised speed on this task is therefore unmeasured.
+This is a limitation of that runtime at our prompt length, not a property of
+diffusion, and the \cref{sec:neg-adaptive} latency figures in particular should
+be read as an upper bound rather than a measurement of adaptive decoding.
+
+\paragraph{5. AR's record completeness may be a harness artifact.} As set out in
+\cref{sec:app-deadline}, AR reports \arRecordComplete\% record completeness at
+every deadline including ones it finishes well inside, which is more consistent
+with a parsing or prompt-preamble defect than with truncation. Issue~\#38 is
+open. That result should not be cited as an architectural finding until it
+closes. \open{\#38}
+
+\paragraph{6. A single corpus.} Every number here is BGL. The paper whose
+claims motivated this work averages over four LOGHUB corpora; we do not. Log
+corpora differ substantially in template diversity and line structure, and we
+cannot rule out that some of what we attribute to architecture is a property of
+BGL's format.
+
+\paragraph{7. Poisson arrivals understate log burstiness.} The open-loop driver
+in \cref{sec:two-walls} samples inter-arrival times from an exponential
+distribution. Real log streams are burstier, and a bursty rerun would move both
+saturation knees to lower mean rates. Latency past capacity is measured in
+transient windows with a bounded drain, so the location of the knee is the
+result we defend; the exact tail milliseconds beyond it are not.
+
+\paragraph{8. Semantic gold labels are self-generated.} No teacher model was
+released with the work we are validating, so the gold labels for the three
+semantic fields are placeholders we generated. This caps achievable semantic F1
+for every model equally and does not bias the comparison, but it does mean the
+absolute Field-F1 numbers in this paper are not comparable to numbers produced
+against a different label source.
+
+\paragraph{9. We never ran the model we are comparing against.} FlowFill's
+weights are unreleased. Every comparison to it in this paper is a comparison to
+its published claims, not to a run of it. We have not reproduced its numbers,
+have not failed to reproduce them, and make no statement about whether they are
+attainable --- only about what our own substitutes do under our own harness.
+
+\paragraph{10. Small $n$ in places.} The semi-autoregressive block ablation
+(\cref{sec:neg-semiar}) is $n=30$ and is labelled preliminary throughout. The
+adaptive-effort experiment (\cref{sec:neg-adaptive}) uses 100 events per
+difficulty bin for diffusion against 200 per bin for AR. Neither supports a
+conclusion at the precision at which the numbers are printed.

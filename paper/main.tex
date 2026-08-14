@@ -1,0 +1,72 @@
+%=============================================================================
+%  Two Cost Laws for Served Diffusion Language Models
+%
+%  BUILD:  cd paper && latexmk -pdf main.tex
+%
+%  RULE:   Every numeric value in this document must appear in paper/NUMBERS.md,
+%          which is verified against results/*.json by paper/verify_numbers.py.
+%          Do not introduce a number that is not in NUMBERS.md.
+%
+%  Numbers are defined once as macros in macros.tex and used symbolically here,
+%  so a re-run of an experiment changes one line, not twenty.
+%=============================================================================
+\documentclass[11pt]{article}
+
+\usepackage[margin=1in]{geometry}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{siunitx}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{cleveref}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{multirow}
+\usepackage{url}
+
+\hypersetup{colorlinks=true, linkcolor=blue!50!black, citecolor=blue!50!black,
+            urlcolor=blue!50!black}
+
+\sisetup{detect-weight=true, detect-inline-weight=math}
+
+% Editorial markers -- must be empty before submission.
+\newcommand{\todo}[1]{\textcolor{red}{\textbf{[TODO: #1]}}}
+\newcommand{\open}[1]{\textcolor{orange}{\textbf{[OPEN: #1]}}}
+\newcommand{\needsnum}[1]{\textcolor{magenta}{\textbf{[NEEDS-NUMBER: #1]}}}
+
+\input{macros}
+
+%=============================================================================
+\title{Two Cost Laws for Served Diffusion Language Models:\\
+       Why Bidirectional Attention Cannot Batch}
+
+\author{\todo{authors}}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+\input{sections/00_abstract}
+\end{abstract}
+
+\input{sections/01_introduction}
+\input{sections/02_method_baseline}
+\input{sections/03_cost_laws}
+\input{sections/04_two_walls}
+\input{sections/05_mechanism}
+\input{sections/06_applications}
+\input{sections/07_negative_results}
+\input{sections/08_threats}
+\input{sections/09_related_work}
+\input{sections/10_conclusion}
+
+\bibliographystyle{plain}
+\bibliography{refs}
+
+\appendix
+\input{sections/A1_reproducibility}
+
+\end{document}

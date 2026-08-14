@@ -1,0 +1,298 @@
+%=============================================================================
+%  06_applications.tex -- Tested predictions
+%
+%  CONVENTION USED IN THIS FILE:
+%    * Every MEASURED quantity is a macro from macros.tex. Where macros.tex
+%      does not yet define one, \needsnum{suggestedMacroName} appears in its
+%      place; the value is in paper/NUMBERS.md and must be promoted to a
+%      macro before submission. No measured value is written as a literal.
+%    * Experimental *design* parameters -- sweep points, chain depths, schema
+%      widths, deadline settings, block sizes, sample sizes -- are written as
+%      literals, because they are settings we chose rather than results we
+%      measured.
+%=============================================================================
+\section{Tested Predictions}
+\label{sec:applications}
+
+The two cost laws of \cref{sec:cost-laws} and the batching mechanism of
+\cref{sec:mechanism} are not descriptions of a benchmark; they are claims about
+which \emph{workload shapes} favour which architecture. A cost law that is flat
+in output length predicts an advantage wherever output length is large or
+variable. A batching multiplier of ${\sim}1\times$ predicts that the advantage
+survives only where the competing architecture cannot deploy its own multiplier
+--- that is, where the workload is serial by construction, by regulation, or by
+deployment shape.
+
+This section turns those two statements into five falsifiable predictions and
+measures each one. All five experiments run on Campaign~B hardware
+(\cref{sec:repro}) unless stated otherwise: \modelDG{} served by vLLM at
+\texttt{--max-num-seqs 1}, against \modelARthree{} served by the same engine.
+We report the predictions that failed with the same prominence as those that
+held; three of the five produced at least one refuted sub-claim, and one of the
+refutations (\cref{sec:app-chains}) overturns a claim made in our own earlier
+internal digest.
+
+%-----------------------------------------------------------------------------
+\subsection{Serial investigation chains}
+\label{sec:app-chains}
+
+\paragraph{Prediction.} A multi-hop investigation --- alert, enrichment,
+cross-reference, hypothesis, drill-down --- issues one request per hop, and each
+hop blocks on the previous one. Concurrency is therefore~1 \emph{by
+construction}: not a configuration we chose, but a property of the workload.
+The mechanism of \cref{sec:mechanism} predicts that AR's batching multiplier is
+structurally unavailable here, so the operative comparison is serial-versus-serial,
+which the cost laws say diffusion wins at the natural output length of
+${\sim}\naturalOutput$ tokens. It predicts further that per-hop latency is
+constant in depth, so total latency is linear in depth, and --- because chain
+latency is a \emph{sum} of per-hop latencies --- that diffusion's single-request
+tail penalty should be attenuated by the central limit theorem as depth grows.
+
+\paragraph{Measurement.} We run chains of depth $D \in \{1,3,5,10,20\}$, each
+hop a single \texttt{generate} call that must complete before the next begins.
+
+Per-hop latency is constant in depth for both models: the coefficient of
+variation of the per-hop $p50$ across the five depths is \chainSlopeCVdg\% for
+diffusion and \chainSlopeCVar\% for AR. Total chain latency is therefore linear
+in $D$ for both, and the mean $p50$ ratio is stable at \chainMeanRatio$\times$
+in diffusion's favour across every depth.
+
+The tail behaves as predicted, and this is the result. At $D=1$ the
+$p99.9$ ratio is \chainTailRatioDOne$\times$ --- diffusion's tail penalty almost
+exactly cancels its mean advantage, so a single-hop, tail-sensitive deployment
+sees no benefit at all. By $D=3$ the ratio has already migrated to
+\needsnum{chainTailRatioDThree}$\times$, and it stays in that band
+(\needsnum{chainTailRatioDFive}$\times$ at $D=5$,
+\needsnum{chainTailRatioDTen}$\times$ at $D=10$,
+\chainTailRatioDTwenty$\times$ at $D=20$), converging toward the
+\chainMeanRatio$\times$ mean ratio rather than the single-request tail ratio.
+Sequential composition averages the per-hop distributions, and the tail penalty
+that dominates at $D=1$ washes out. The analytical CLT prediction agrees: with
+per-hop $\sigma = \chainSigmaDG$~ms for diffusion and $\sigma = \chainSigmaAR$~ms
+for AR, the predicted cumulative $p99.9$ at $D=20$ is
+\needsnum{chainCumTailDGdTwenty}~ms versus
+\needsnum{chainCumTailARdTwenty}~ms.
+
+\paragraph{Correction: quality is not stable across depth.} An earlier internal
+digest recorded this experiment's quality prediction as ``quality stable across
+depths.'' Read against the raw per-depth artifact, that is false, and we state
+the correction plainly. \emph{Both} models drop sharply between $D=1$ and $D=3$
+--- diffusion from \needsnum{chainFOneDGdOne} to
+\needsnum{chainFOneDGplateau}, AR from \needsnum{chainFOneARdOne} to
+\needsnum{chainFOneARplateau} --- and only then plateau. The plateau is stable;
+the transition into it is not, and both models settle well below their
+single-hop level. Furthermore, AR is
+approximately \needsnum{chainQualityGap}~F1 \emph{better} than diffusion at every
+depth we measured, including $D=1$.
+
+\paragraph{Verdict.} The chain result is a \emph{latency} result and nothing
+more. The latency prediction --- linearity in depth, and CLT attenuation of the
+tail penalty under composition --- is confirmed. The accompanying quality claim
+is refuted: chained extraction degrades sharply for both architectures, and AR
+holds a consistent quality lead throughout. Any deployment argument built on
+this experiment must be a latency argument.
+
+%-----------------------------------------------------------------------------
+\subsection{Wide-schema normalization}
+\label{sec:app-wide}
+
+\paragraph{Prediction.} Widening the target schema widens the output. The cost
+laws predict that AR's latency grows linearly in the number of fields $F$ while
+diffusion's grows in canvas steps, so the latency ratio should grow with $F$.
+A second, weaker prediction --- that joint denoising of all fields on one canvas
+absorbs the $O(F^2)$ growth in pairwise consistency constraints --- gives a
+falsifiable kill condition: diffusion's cross-field consistency must not fall
+below $80\%$ at $F=50$.
+
+\paragraph{Measurement.} We sweep $F \in \{12, 25, 50, 100\}$.
+
+\begin{table}[t]
+  \centering
+  \small
+  \caption{Wide-schema normalization. The latency ratio grows with schema
+  width, but AR holds higher cross-field consistency at \emph{every} width.
+  Campaign~B; \modelDG{} vs \modelARthree{}.}
+  \label{tab:wide}
+  \begin{tabular}{rccc}
+    \toprule
+    Fields $F$ & latency ratio AR/DG & diffusion consist.\ (\%) & AR consist.\ (\%)\\
+    \midrule
+    12  & \needsnum{wideRatioTwelve}     & \wideConsistTwelve  & \needsnum{wideConsistARTwelve}\\
+    25  & \needsnum{wideRatioTwentyFive} & \needsnum{wideConsistTwentyFive} & \needsnum{wideConsistARTwentyFive}\\
+    50  & \wideRatioFifty                & \wideConsistFifty   & \needsnum{wideConsistARFifty}\\
+    100 & \needsnum{wideRatioHundred}    & \wideConsistHundred & \wideConsistARHundred\\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+The latency prediction holds: the ratio rises to \wideRatioFifty$\times$ at
+$F=50$ and stays there. The kill condition is not triggered --- diffusion's
+consistency plateaus at \wideConsistFifty--\wideConsistHundred\%, well above the
+$80\%$ threshold, and the plateau is non-monotonic (consistency \emph{rises}
+from \wideConsistTwelve\% to \needsnum{wideConsistTwentyFive}\% before falling).
+Schema validity moves in the opposite direction from consistency, rising from
+\needsnum{wideValidDGTwelve}\% at $F=12$ to \needsnum{wideValidDGHundred}\% at
+$F=100$: the two metrics decouple, and validity is not a proxy for coherence.
+
+\paragraph{Two caveats that bound the claim.} First, AR holds
+\wideConsistARHundred\% consistency at $F=100$ against diffusion's
+\wideConsistHundred\%, and AR is ahead at every width in \cref{tab:wide}.
+\textbf{AR wins consistency at every schema width we measured.} The surviving
+diffusion claim is that consistency degrades \emph{gracefully} and stays above
+the kill threshold, not that it is superior. Second, diffusion emits more tokens
+than AR at every width --- \wideTokensDGHundred{} versus \wideTokensARHundred{}
+mean output tokens at $F=100$ --- so part of the measured latency ratio is
+diffusion doing more work per record, and part of the consistency gap may itself
+be a length effect rather than an architectural one.
+
+\paragraph{Verdict.} Latency advantage confirmed and growing with $F$; graceful
+degradation confirmed; superior consistency \emph{refuted}.
+
+%-----------------------------------------------------------------------------
+\subsection{Bounded-deadline completion}
+\label{sec:app-deadline}
+
+\paragraph{Prediction.} If diffusion's latency is content-independent and set by
+the number of denoising steps, then a fixed step budget yields a complete
+canvas --- a whole record or nothing --- whereas AR under a token budget derived
+from its own cost law ($\texttt{max\_tokens} = D / \arSlope$) must stop wherever
+the deadline falls, mid-record. The prediction is about \emph{completeness},
+not quality: diffusion should emit syntactically complete records at deadlines
+where AR emits truncated ones.
+
+\paragraph{Measurement.} We sweep deadlines $D \in \{200, 600, 800, 1000, 1500,
+2000\}$~ms. Diffusion (\modelLLaDA{}, $K=8$, single canvas, Campaign~D)
+reaches \dmRecordComplete\% record completeness and \dmRecordComplete\% field
+completeness at a $p50$ of \needsnum{dmDeadlinePFifty}~ms. AR's field
+completeness rises with the deadline and saturates at \arFieldCompleteMax\%
+--- eight of twelve fields --- while its record completeness is
+\arRecordComplete\% at every deadline tested. AR's quality collapses at the
+tightest deadlines as predicted, from \arDeadlineFOne{} F1 at $D \geq 1500$ down
+to \needsnum{arDeadlineFOneTwoHundred}{} at $D=200$.
+
+\paragraph{Open: this is not yet a clean architectural win.} AR's record
+completeness is \arRecordComplete\% at \emph{every} deadline, including
+$D=2000$, where it is given \needsnum{arDeadlineTokensTwoK} output tokens and
+finishes in \needsnum{arDeadlinePFiftyTwoK}~ms --- comfortably inside its
+budget. A model that finishes early with tokens to spare and still emits no
+parseable complete record is more likely reporting a harness defect than an
+architectural limit. We suspect a fenced-code preamble
+(\verb|Output:```json|) consuming
+part of the token budget before the record begins. This is filed as issue~\#38
+and is unresolved. \open{\#38} Until it closes, the correct statement of this
+result is: \emph{AR's record completeness was \arRecordComplete\% under our
+generate-and-parse harness}, with the caveat attached. It is not evidence that
+AR cannot complete a record under a deadline.
+
+\paragraph{Quality runs the other way.} On the same experiment AR's Field-F1 is
+\arDeadlineFOne{} against diffusion's \dmDeadlineFOne{}. AR produces incomplete
+records of higher per-field quality; diffusion produces complete records of
+lower quality. Whether that trade is worth taking is a property of the consumer
+--- a downstream schema validator cares about completeness, a downstream
+analyst cares about F1 --- and not a property of the architectures.
+
+\paragraph{Verdict.} Completeness prediction passes under our harness but is
+compromised by an open bug; quality prediction refuted.
+
+%-----------------------------------------------------------------------------
+\subsection{Iterative refinement}
+\label{sec:app-refine}
+
+\paragraph{Prediction.} Masked diffusion can re-mask an arbitrary subset of an
+already-generated record and re-denoise only those positions, conditioned on the
+positions it keeps. AR has no equivalent: correcting one field means
+regenerating the record, or prompting the model to copy the good fields back
+verbatim. The prediction is that diffusion improves across refinement rounds
+driven by a critic that flags suspect fields, and that AR does not.
+
+\paragraph{Measurement.} Three rounds; in each round after the first, a critic
+selects fields to re-mask. Diffusion improves monotonically over the three
+rounds for a total gain of \refineGainDM{} F1 (from
+\needsnum{refineDMFirst} through \needsnum{refineDMSecond} to
+\refineDMFinal). AR is flat: \refineGainAR{} F1 across the same three rounds,
+which is within run-to-run noise of no change at all.
+
+\paragraph{The bound on this claim.} Diffusion after three rounds
+(\refineDMFinal) still trails AR after \emph{one} (\refineARFirst). The
+refinement loop costs three model calls and closes less than half of the initial
+gap. The defensible claim is therefore \emph{``diffusion has a refinement
+mechanism that AR lacks,''} which the data supports, and not \emph{``diffusion
+ends up better,''} which it does not. This experiment's paired negative result
+--- the same masking mechanism failing outright at one-shot imputation --- is in
+\cref{sec:neg-critic}, and the contrast between them is more informative than
+either result alone.
+
+\paragraph{Verdict.} Mechanism confirmed; outcome does not overtake AR.
+
+%-----------------------------------------------------------------------------
+\subsection{Priority preemption}
+\label{sec:app-vip}
+
+\paragraph{Prediction.} A latency-critical record --- a FATAL line arriving
+mid-stream --- must be served inside a $1$~s SLA while background work
+continues. The cost law says diffusion's service time is
+$\dgBase$~ms and is independent of the record's content, so if the serving
+engine can preempt, that service time is available on demand.
+
+\paragraph{Measurement.} Both vLLM~0.25.1 preemption paths were verified live:
+per-request \texttt{priority} together with
+\texttt{--scheduling-policy priority}, with the engine observed preempting
+lower-priority running sequences. Diffusion survives \texttt{priority} combined
+with \texttt{--max-num-seqs 1} without triggering the mixed-phase crash
+discussed in \cref{sec:two-walls}. Under background load the preempted
+high-priority request completes at a lag $p50$ of \needsnum{vipLagPFiftyDG}~ms
+and $p99$ of \needsnum{vipLagPNineNineDG}~ms.
+
+\paragraph{Verdict.} Confirmed, with the scope it deserves: this is an
+engineering check that the content-independent service time is reachable
+mid-stream through a standard scheduler, not an independent measurement of an
+architectural property.
+
+%-----------------------------------------------------------------------------
+\subsection{Scoreboard}
+\label{sec:app-scoreboard}
+
+\begin{table}[t]
+  \centering
+  \small
+  \caption{Predictions derived from the cost laws, and what the measurements
+  returned. Refutations and confirmations are listed together and in the order
+  the sub-claims were made.}
+  \label{tab:scoreboard}
+  \begin{tabular}{p{0.44\linewidth}lp{0.30\linewidth}}
+    \toprule
+    Prediction & Verdict & The one number\\
+    \midrule
+    Per-hop chain latency constant in depth
+      & Confirmed & slope CV \chainSlopeCVdg\% (DG)\\
+    Tail penalty washes out under sequential composition
+      & Confirmed & $p99.9$ ratio \chainTailRatioDOne$\times\!\to\!$\chainTailRatioDTwenty$\times$\\
+    Chain quality stable across depth
+      & \textbf{Refuted} & AR ahead by \needsnum{chainQualityGap} F1 at every depth\\
+    Latency ratio grows with schema width
+      & Confirmed & \wideRatioFifty$\times$ at $F=50$\\
+    Consistency kill condition ($<80\%$ at $F=50$)
+      & Not triggered & \wideConsistFifty\%\\
+    Diffusion wins cross-field consistency
+      & \textbf{Refuted} & AR \wideConsistARHundred\% at $F=100$\\
+    Diffusion completes records under a deadline
+      & Passes, \open{\#38} & \dmRecordComplete\% vs \arRecordComplete\%\\
+    Diffusion wins quality under a deadline
+      & \textbf{Refuted} & AR \arDeadlineFOne{} vs DM \dmDeadlineFOne\\
+    Diffusion improves under critic-driven refinement
+      & Confirmed & \refineGainDM{} F1 over three rounds\\
+    Refinement lifts diffusion past AR
+      & \textbf{Refuted} & \refineDMFinal{} vs \refineARFirst{} after one round\\
+    Content-independent service time is preemptible
+      & Confirmed & $\dgBase$~ms base service time\\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\Cref{tab:scoreboard} collects the eleven sub-claims. Six are confirmed, one is
+a kill condition that failed to fire, one passes under an open harness bug, and
+four are refuted. The pattern in the refutations is consistent and worth naming:
+every refuted sub-claim is a \emph{quality} claim, and every confirmed sub-claim
+is a \emph{cost} claim. The cost laws predict cost well. They do not license
+quality claims, and \cref{sec:negative} shows what happens when we tried to
+extend them into quality territory anyway.

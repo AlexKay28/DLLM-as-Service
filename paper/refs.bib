@@ -1,0 +1,279 @@
+%=============================================================================
+%  refs.bib
+%
+%  POLICY FOR THIS FILE
+%    * No DOI, no page range, and no volume/number is recorded unless it was
+%      confirmed against the publisher record. Fields we could not confirm are
+%      OMITTED rather than guessed.
+%    * Any entry whose venue, year, author list or title we are not confident
+%      about is preceded by a "VERIFY:" comment naming exactly what to check.
+%      BibTeX ignores text outside @entries, so these comments sit BEFORE the
+%      entry -- never inside the braces, where '%' is not a comment character.
+%    * Entries are grouped to match the paragraphs of sections/09_related_work.
+%=============================================================================
+
+
+%-----------------------------------------------------------------------------
+%  Masked and discrete diffusion language models
+%-----------------------------------------------------------------------------
+
+% VERIFY: page range / volume, if the target venue style requires them.
+@inproceedings{austin2021d3pm,
+  author    = {Austin, Jacob and Johnson, Daniel D. and Ho, Jonathan and
+               Tarlow, Daniel and van den Berg, Rianne},
+  title     = {Structured Denoising Diffusion Models in Discrete State-Spaces},
+  booktitle = {Advances in Neural Information Processing Systems (NeurIPS)},
+  year      = {2021}
+}
+
+% VERIFY: venue and year. This circulated as an arXiv preprint before
+% publication; confirm which version the camera-ready should cite.
+@inproceedings{lou2024sedd,
+  author    = {Lou, Aaron and Meng, Chenlin and Ermon, Stefano},
+  title     = {Discrete Diffusion Modeling by Estimating the Ratios of the
+               Data Distribution},
+  booktitle = {International Conference on Machine Learning (ICML)},
+  year      = {2024}
+}
+
+% VERIFY: full author list and ordering.
+@inproceedings{sahoo2024mdlm,
+  author    = {Sahoo, Subham Sekhar and Arriola, Marianne and Schiff, Yair and
+               Gokaslan, Aaron and Marroquin, Edgar and Chiu, Justin T. and
+               Rush, Alexander M. and Kuleshov, Volodymyr},
+  title     = {Simple and Effective Masked Diffusion Language Models},
+  booktitle = {Advances in Neural Information Processing Systems (NeurIPS)},
+  year      = {2024}
+}
+
+% VERIFY: arXiv identifier, full author list, and whether a peer-reviewed
+% version now exists. This is the LLaDA-8B-Instruct checkpoint used in
+% Campaigns C and D; the checkpoint identifier, not this citation, is what the
+% reproducibility appendix pins.
+@article{nie2025llada,
+  author  = {Nie, Shen and Zhu, Fengqi and You, Zebin and Zhang, Xiaolu and
+             Ou, Jingyang and Hu, Jun and Zhou, Jun and Lin, Yankai and
+             Wen, Ji-Rong and Li, Chongxuan},
+  title   = {Large Language Diffusion Models},
+  journal = {arXiv preprint},
+  year    = {2025}
+}
+
+% VERIFY: title form, author list, release venue (technical report vs.
+% conference paper) and identifier. Cited for context only; no number in this
+% paper depends on it.
+@misc{ye2025dream,
+  author = {Ye, Jiacheng and Xie, Zhihui and Zheng, Lin and Gao, Jiahui and
+            Wu, Zirui and Jiang, Xin and Li, Zhenguo and Kong, Lingpeng},
+  title  = {Dream 7B: Diffusion Large Language Models},
+  year   = {2025}
+}
+
+% VERIFY: author list and that ICLR 2025 is the correct venue.
+@inproceedings{arriola2025blockdiffusion,
+  author    = {Arriola, Marianne and Gokaslan, Aaron and Chiu, Justin T. and
+               Yang, Zhihan and Qi, Zhixuan and Han, Jiaqi and
+               Sahoo, Subham Sekhar and Kuleshov, Volodymyr},
+  title     = {Block Diffusion: Interpolating Between Autoregressive and
+               Diffusion Language Models},
+  booktitle = {International Conference on Learning Representations (ICLR)},
+  year      = {2025}
+}
+
+% VERIFY: EVERYTHING -- authors, exact model name, release year, and whether a
+% technical report or model card exists to cite at all. This is the
+% DiffusionGemma-26B-A4B-it checkpoint served in Campaign B. Do not submit
+% with this entry in its current state.
+@misc{diffusiongemma,
+  title = {DiffusionGemma},
+  note  = {VERIFY: model card / technical report details unconfirmed}
+}
+
+
+%-----------------------------------------------------------------------------
+%  LLM serving systems
+%-----------------------------------------------------------------------------
+
+% VERIFY: page range, if the style requires it.
+@inproceedings{yu2022orca,
+  author    = {Yu, Gyeong-In and Jeong, Joo Seong and Kim, Geon-Woo and
+               Kim, Soojeong and Chun, Byung-Gon},
+  title     = {Orca: A Distributed Serving System for Transformer-Based
+               Generative Models},
+  booktitle = {USENIX Symposium on Operating Systems Design and Implementation
+               (OSDI)},
+  year      = {2022}
+}
+
+% VERIFY: page range, if the style requires it. This is the vLLM paper; the
+% engine versions this work uses (0.19.1 / 0.25.1 / 0.10.2) post-date it, and
+% are pinned in the reproducibility appendix rather than in this citation.
+@inproceedings{kwon2023vllm,
+  author    = {Kwon, Woosuk and Li, Zhuohan and Zhuang, Siyuan and
+               Sheng, Ying and Zheng, Lianmin and Yu, Cody Hao and
+               Gonzalez, Joseph E. and Zhang, Hao and Stoica, Ion},
+  title     = {Efficient Memory Management for Large Language Model Serving
+               with {PagedAttention}},
+  booktitle = {ACM Symposium on Operating Systems Principles (SOSP)},
+  year      = {2023}
+}
+
+@inproceedings{dao2022flashattention,
+  author    = {Dao, Tri and Fu, Daniel Y. and Ermon, Stefano and
+               Rudra, Atri and R{\'e}, Christopher},
+  title     = {{FlashAttention}: Fast and Memory-Efficient Exact Attention
+               with {IO}-Awareness},
+  booktitle = {Advances in Neural Information Processing Systems (NeurIPS)},
+  year      = {2022}
+}
+
+% VERIFY: EVERYTHING -- authors, exact title, whether a paper accompanies the
+% framework, and the release year. Campaign C uses dInfer 0.1. The KV-cache
+% limitation reported in the threats section should be cited to the project's
+% issue tracker, not to this entry, until confirmed.
+@misc{dinfer,
+  title = {dInfer: An Inference Framework for Diffusion Language Models},
+  note  = {VERIFY: authorship, title and year unconfirmed},
+  year  = {2025}
+}
+
+% VERIFY: issue number, exact title, and current status. Our reproduction of
+% the mixed-phase scheduling crash is posted as a comment on this issue; the
+% identifiers are recorded in the repository's results notes.
+@misc{vllm_diffusion_issue,
+  title        = {Mixed-phase scheduling crash when serving a diffusion model
+                  with more than one running request},
+  howpublished = {Upstream issue tracker, vllm-project/vllm},
+  note         = {VERIFY: issue number and status}
+}
+
+
+%-----------------------------------------------------------------------------
+%  Log parsing and anomaly detection
+%-----------------------------------------------------------------------------
+
+% VERIFY: page range, if the style requires it.
+% NOTE FOR THE BASELINES TABLE: our Drain numbers come from a regex-fallback
+% implementation, not the reference logparser package. This is disclosed in
+% the negative-results section and must stay disclosed.
+@inproceedings{he2017drain,
+  author    = {He, Pinjia and Zhu, Jieming and Zheng, Zibin and Lyu, Michael R.},
+  title     = {Drain: An Online Log Parsing Approach with Fixed Depth Tree},
+  booktitle = {IEEE International Conference on Web Services (ICWS)},
+  year      = {2017}
+}
+
+% VERIFY: this dataset collection exists as an arXiv version and a later
+% peer-reviewed version; confirm which to cite. Confirm separately the correct
+% primary citation for the BGL corpus itself, which predates Loghub and is the
+% only corpus used in this paper.
+@misc{he2020loghub,
+  author = {He, Shilin and Zhu, Jieming and He, Pinjia and Lyu, Michael R.},
+  title  = {Loghub: A Large Collection of System Log Datasets Towards
+            Automated Log Analytics},
+  year   = {2020}
+}
+
+@inproceedings{du2017deeplog,
+  author    = {Du, Min and Li, Feifei and Zheng, Guineng and Srikumar, Vivek},
+  title     = {{DeepLog}: Anomaly Detection and Diagnosis from System Logs
+               through Deep Learning},
+  booktitle = {ACM SIGSAC Conference on Computer and Communications Security
+               (CCS)},
+  year      = {2017}
+}
+
+% VERIFY: venue and year.
+@inproceedings{guo2021logbert,
+  author    = {Guo, Haixuan and Yuan, Shuhan and Wu, Xintao},
+  title     = {{LogBERT}: Log Anomaly Detection via {BERT}},
+  booktitle = {International Joint Conference on Neural Networks (IJCNN)},
+  year      = {2021}
+}
+
+% VERIFY: exact venue track and page range.
+@inproceedings{zhu2019toolsandbenchmarks,
+  author    = {Zhu, Jieming and He, Shilin and Liu, Jinyang and He, Pinjia and
+               Xie, Qi and Zheng, Zibin and Lyu, Michael R.},
+  title     = {Tools and Benchmarks for Automated Log Parsing},
+  booktitle = {IEEE/ACM International Conference on Software Engineering:
+               Software Engineering in Practice (ICSE-SEIP)},
+  year      = {2019}
+}
+
+
+%-----------------------------------------------------------------------------
+%  Baseline strength, empirical rigour, reproducibility
+%  (the framing literature for this paper's methodological contribution)
+%-----------------------------------------------------------------------------
+
+% VERIFY: this appeared both as an ICML 2018 debates-workshop paper and as an
+% ACM Queue article. Confirm which version and year to cite, plus volume and
+% issue if the style requires them.
+@article{lipton2019troubling,
+  author  = {Lipton, Zachary C. and Steinhardt, Jacob},
+  title   = {Troubling Trends in Machine Learning Scholarship},
+  journal = {ACM Queue},
+  year    = {2019}
+}
+
+% VERIFY: page range, if the style requires it.
+@inproceedings{dacrema2019worrying,
+  author    = {Ferrari Dacrema, Maurizio and Cremonesi, Paolo and
+               Jannach, Dietmar},
+  title     = {Are We Really Making Much Progress? A Worrying Analysis of
+               Recent Neural Recommendation Approaches},
+  booktitle = {ACM Conference on Recommender Systems (RecSys)},
+  year      = {2019}
+}
+
+@inproceedings{musgrave2020reality,
+  author    = {Musgrave, Kevin and Belongie, Serge and Lim, Ser-Nam},
+  title     = {A Metric Learning Reality Check},
+  booktitle = {European Conference on Computer Vision (ECCV)},
+  year      = {2020}
+}
+
+% VERIFY: workshop track designation, author list and year.
+@inproceedings{sculley2018winners,
+  author    = {Sculley, D. and Snoek, Jasper and Wiltschko, Alex and
+               Rahimi, Ali},
+  title     = {Winner's Curse? On Pace, Progress, and Empirical Rigor},
+  booktitle = {International Conference on Learning Representations (ICLR),
+               Workshop Track},
+  year      = {2018}
+}
+
+% VERIFY: author list and page range.
+@inproceedings{bouthillier2019unreproducible,
+  author    = {Bouthillier, Xavier and Laurent, C{\'e}sar and Vincent, Pascal},
+  title     = {Unreproducible Research is Reproducible},
+  booktitle = {International Conference on Machine Learning (ICML)},
+  year      = {2019}
+}
+
+
+%-----------------------------------------------------------------------------
+%  Models and claims under test
+%-----------------------------------------------------------------------------
+
+% VERIFY: EVERYTHING -- authors, exact title, venue, year, and the precise
+% wording of the claims quoted in this paper (reported p50 latency, reported
+% throughput, reported speedup over autoregressive serving, and the
+% four-corpus averaging). Weights unreleased; this system was never executed
+% here, and every reference to it is a reference to its published claims.
+@misc{flowfill,
+  title = {FlowFill},
+  note  = {VERIFY: full publication details unconfirmed; weights unreleased
+           and never executed in this work}
+}
+
+% VERIFY: exact report title, year and identifier. Cited for the AR baseline
+% family (Qwen2.5-1.5B / 3B / 7B-Instruct). The repetition-penalty default
+% discussed in the method section is a property of the released
+% generation_config.json shipped with the checkpoints, not of this report.
+@misc{qwen2024qwen25,
+  author = {{Qwen Team}},
+  title  = {Qwen2.5 Technical Report},
+  year   = {2024}
+}

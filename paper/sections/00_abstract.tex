@@ -1,0 +1,36 @@
+% -----------------------------------------------------------------------------
+%  00_abstract.tex
+%  Every numeric value here is a macro from macros.tex (authority: NUMBERS.md).
+% -----------------------------------------------------------------------------
+
+We set out to reproduce a preprint's claim that a masked diffusion language model
+extracts structured records from logs \paperClaimedSpeedup$\times$ faster than a
+quality-matched autoregressive (AR) baseline. The reproduction collapsed, and it
+collapsed on our side of the comparison: our AR baseline carried two independent
+defects, each flattering diffusion. Qwen2.5 ships a repetition penalty in its
+generation configuration that HuggingFace \texttt{generate()} applies even under
+greedy decoding --- and structured extraction copies spans verbatim out of the
+input, precisely what such a penalty suppresses. Separately, our AR latencies
+came from a naive \texttt{generate()} loop while the preprint serves its own AR
+baselines on a paged-attention stack. Neither defect could touch the diffusion
+side. Corrected, the headline reverses: a properly served AR-1.5B is
+\arSpeedupOverMDM$\times$ faster than LLaDA-8B and \parityGap\ Field-F1 better.
+
+We then asked what \emph{is} true, and fitted two cost laws on a shared serving
+stack: AR latency is linear in output length (\arSlope~ms/token), diffusion
+latency stepwise in canvases of \dgCanvas\ tokens (\dgStep~ms per additional
+canvas, \dgMarginal~ms/token at the margin). They are two orthogonal walls ---
+diffusion is flat in length and walls in arrival rate at
+$\lambda \approx \dgKneeLo$--\dgKneeHi~ev/s; AR is flat in rate to
+$\lambda \approx \arKneeLo$--\arKneeHi~ev/s and walls in length --- and both
+follow from one mechanism: bidirectional attention invalidates the KV-cache
+reuse that makes AR batching cheap, leaving diffusion compute-bound at batch~1
+with no headroom for batching to convert (multiplier
+\arMultOneTwoEight$\times$ for AR against \dgMultOneTwoEight$\times$). We
+confirm the cap is architectural, not an engine artifact, by reproducing it
+(\lladaMultDinfer$\times$) on a second, diffusion-native runtime. Diffusion's
+advantage is therefore not latency but invariance to output length in
+\emph{both} cost and quality, realizable only where batching is unavailable. We
+test six regimes the laws predict: four confirm, two fail --- including our own
+prediction of perturbation robustness, refuted in \perturbCategories\ of
+\perturbCategories\ categories.

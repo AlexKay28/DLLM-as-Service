@@ -1,0 +1,127 @@
+% -----------------------------------------------------------------------------
+%  01_introduction.tex
+%  Every numeric value here is a macro from macros.tex (authority: NUMBERS.md).
+% -----------------------------------------------------------------------------
+\section{Introduction}
+\label{sec:intro}
+
+Diffusion language models are routinely advertised as a low-latency route to
+structured generation. The argument is architectural and, on its face, sound: a
+masked diffusion model emits an entire canvas of tokens in a fixed number $K$ of
+denoising steps, so its latency is content-independent and does not grow with
+the length of the record it produces, whereas an autoregressive model pays one
+forward pass per token. Reported speedups over autoregressive baselines are
+correspondingly large. They are also, almost without exception, measured against
+an AR baseline that the same authors built. That is the part of the comparison
+we think deserves attention. Constructing an AR baseline is not a neutral act:
+the decoding configuration, the serving runtime, the prompt budget and the
+output budget are each worth a multiple, and a baseline can be handicapped by
+default settings that nobody chose and nobody reported.
+
+\paragraph{A reproduction that collapsed.}
+This paper began as an attempt to reproduce one such claim. The target
+preprint --- we refer to it as \emph{FlowFill} --- reports a masked diffusion
+model performing log-to-JSON record extraction at \paperClaimedSpeedup$\times$
+the speed of an AR baseline of essentially equal quality (a claimed Field-F1 gap
+of \paperParityGap). Its weights are not released, so its absolute numbers are
+untestable; we substituted open models of the same families
+(\modelLLaDA\ for the diffusion side, \modelARonefive/\modelARthree/\modelARseven\ for
+the AR side) on the BGL corpus with a 12-field extraction schema, and asked
+whether the \emph{direction and magnitude} of its comparative claims reproduced.
+Our first pass appeared to support two of them: quality parity (Field-F1
+\arOneFiveFOneBefore\ for AR-1.5B against \mdmFOne\ for LLaDA-8B) and a
+diffusion latency win. Both were artifacts of our own baseline. Chasing an
+unexplained quality gap between two AR serving stacks that were supposed to be
+running identical greedy decoding exposed a decoding default that suppresses
+copy-from-input --- exactly the operation extraction consists of --- and,
+separately, showed that every AR latency in the repository came from a naive
+HuggingFace \texttt{generate()} loop while the preprint serves its AR baselines
+with paged attention. Neither defect could reach the diffusion side: the
+diffusion model has no such decoding default and ran through a hand-written
+denoising loop. Correcting them reverses the headline. Properly served, AR-1.5B
+is \arSpeedupOverMDM$\times$ \emph{faster} than LLaDA-8B and \parityGap\
+Field-F1 \emph{better}; AR quality is flat across 1.5B/3B/7B, so the apparent
+benefit of AR scale in our first pass was measuring the strength of the penalty,
+not the strength of the model.
+
+\paragraph{Reframing: a measurement paper, not a validation paper.}
+Once the comparative claims were withdrawn, continuing to ask ``is the preprint
+right?'' would have been the least informative thing to do; the honest answer is
+that we cannot test its absolute numbers at all, and its comparative numbers do
+not survive contact with a properly priced AR baseline. The productive question
+is the systems question underneath it: \emph{what is the cost structure of
+serving a diffusion language model, and which workloads does that structure
+favour?} We answer it by measurement. We fit latency as a function of output
+length for both architectures on a single serving stack, and obtain two laws of
+different shape --- one linear, one stepwise --- whose ratio, crossover and
+extrapolation we validate out to $L = 2048$ tokens. We then show that the two
+laws are the two faces of a single mechanism, and that this mechanism, not
+latency, determines where a diffusion model is worth deploying: its advantage is
+invariance to output length in both cost and quality, and it is realizable only
+in regimes where batching is unavailable. Where the workload can batch, the AR
+model converts arrival concurrency into throughput at a multiplier of
+\arMultOneTwoEight$\times$ (at $L{=}128$) while the diffusion model manages
+\dgMultOneTwoEight$\times$, and the comparison is not close.
+
+\paragraph{Contributions.}
+\begin{itemize}
+  \item \textbf{A methodology result.} Two defects in our own AR baseline, each
+    independently sufficient to reverse the paper's headline conclusion, and
+    both running in the same direction --- towards the new architecture. We
+    document the mechanism of each, the size of each effect
+    (Field-F1 \arOneFiveFOneBefore~$\rightarrow$~\arOneFiveFOneAfter;
+    p50 \arOneFivePFiftyHF~ms~$\rightarrow$~\arOneFivePFiftyVLLM~ms), and the
+    checks that catch them.
+  \item \textbf{Two fitted cost laws.} AR latency linear in output length at
+    \arSlope~ms/token; diffusion latency stepwise, \dgBase~ms for the first
+    canvas of \dgCanvas\ tokens plus \dgStep~ms per additional canvas, i.e.\
+    \dgMarginal~ms/token at the margin. The marginal ratio is
+    \asymptoticRatio$\times$, the length crossover is $L \approx
+    \lengthCrossover$ tokens, and the diffusion law extrapolates to $L=2048$
+    within \dgErrTwoK\%. The same invariance holds in \emph{quality}: diffusion
+    Field-F1 is flat at \dgFOneFiveTwelve/\dgFOneKiloOneK/\dgFOneTwoK\ across
+    $L=512/1024/2048$ while AR decays monotonically to \arFOneTwoK.
+  \item \textbf{A mechanism, with a two-runtime control.} Bidirectional
+    attention invalidates KV-cache reuse across decoding steps, so the diffusion
+    model is compute-bound at batch~1 and has no bandwidth-bound headroom for
+    batching to convert into throughput. This single fact accounts for the
+    batching gap, the rate wall and the absence of a latency advantage under
+    load. Because a batching cap measured on one engine is indistinguishable
+    from an engine bug, we reproduce the $\sim$1$\times$ multiplier
+    (\lladaMultDinfer$\times$, flat to batch 64) on a second, diffusion-native
+    runtime and a second model family.
+  \item \textbf{Six tested predictions, reported symmetrically.} The cost laws
+    imply specific regimes where diffusion should win. We test six; four
+    confirm and two are refuted, including a prediction of ours that failed in
+    every category we measured.
+\end{itemize}
+
+\paragraph{Negative results carry equal weight here.}
+We report refutations at the same length and in the same register as
+confirmations, and this is deliberate. A paper whose only role is to correct a
+comparison it could not reproduce has exactly one asset --- that its own claims
+are priced as carefully as the claims it re-examines --- and that asset is spent
+the moment a negative result is buried. Concretely: we predicted that joint
+denoising would make the diffusion model more robust to input perturbation, and
+it was worse in \perturbCategories\ of \perturbCategories\ categories, by up to
+\perturbWorstRatio$\times$ the AR degradation. We predicted one-shot imputation
+of masked fields to be a diffusion-native advantage, and it failed. In the
+truncation regime the diffusion model degrades \emph{catastrophically} where AR
+degrades gracefully (\dgFOneOneTwoEight\ vs \arFOneOneTwoEight\ at $L=128$),
+which is an AR advantage and the mirror image of our headline result. AR holds
+higher cross-field consistency at every schema width we tested. And a classical,
+non-neural log parser reaches Field-F1 \drainFOne\ at \drainEvs~ev/s on the same
+corpus, which bounds what any of this is worth in production. None of these are
+footnotes; three of them have their own subsections.
+
+\paragraph{Roadmap.}
+The next section is the methodological core: the two baseline defects, their
+measured effect, the three claim reversals that follow, and the one claim that
+survives them. We then fit the two cost laws and show that output-length
+invariance holds in quality as well as cost, map the two orthogonal walls in the
+(output length, arrival rate) plane, and give the batching-multiplier
+measurements and the second-runtime control that identify the mechanism. The
+application section tests the regimes the laws predict; the negative-results
+section reports the ones that failed. We close with threats to validity --- of
+which the largest, that our diffusion and AR models are not size-matched, we
+state before a reviewer has to.

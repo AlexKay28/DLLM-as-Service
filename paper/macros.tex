@@ -1,0 +1,390 @@
+%=============================================================================
+%  macros.tex -- every number used in the paper, defined once.
+%
+%  AUTHORITY: paper/NUMBERS.md, which is checked against results/*.json by
+%  paper/verify_numbers.py. If a value changes, change it HERE and in
+%  NUMBERS.md, nowhere else.
+%
+%  Naming: \<campaign><quantity>  e.g. \arOneFiveFOne, \dgSlope
+%  Do NOT hardcode any of these values inline in the section files.
+%=============================================================================
+
+% ---- §2  AR baseline correction (Campaign A: H100, vLLM 0.19.1, n=2000) -----
+\newcommand{\repPenaltySmall}{1.1}              % Qwen2.5-1.5B generation_config
+\newcommand{\repPenaltyLarge}{1.05}             % Qwen2.5-3B / 7B
+\newcommand{\hostEmptied}{80/100}               % events with host field emptied
+\newcommand{\arOneFiveFOneBefore}{0.779}
+\newcommand{\arOneFiveFOneAfter}{0.844}
+\newcommand{\arThreeFOne}{0.826}
+\newcommand{\arSevenFOne}{0.842}
+\newcommand{\arScaleSpread}{0.018}              % max-min across 1.5B/3B/7B
+\newcommand{\mdmFOne}{0.779}                    % LLaDA-8B K=8, HF
+\newcommand{\parityGap}{0.065}                  % 0.844 - 0.779
+\newcommand{\paperParityGap}{0.006}             % FlowFill's claimed gap
+
+\newcommand{\arOneFivePFiftyHF}{1841.6}
+\newcommand{\arOneFivePFiftyVLLM}{413.3}
+\newcommand{\arOneFivePNineNine}{685.5}
+\newcommand{\arOneFivePNineNineNine}{805.8}
+\newcommand{\arThreePFifty}{662.0}
+\newcommand{\arSevenPFifty}{1161.1}
+\newcommand{\arSevenPFiftyHF}{2122.0}
+\newcommand{\mdmPFifty}{1389.0}
+\newcommand{\mdmPNineNineNine}{1648.2}
+\newcommand{\arSpeedupOverMDM}{3.36}            % 1389.0 / 413.3
+\newcommand{\paperClaimedSpeedup}{7.3}          % FlowFill's claim, opposite sign
+
+\newcommand{\mdmTailRatio}{1.19}                % p99.9/p50, LLaDA-8B
+\newcommand{\arTailRatioLo}{1.95}
+\newcommand{\arTailRatioHi}{2.02}
+
+\newcommand{\arOneFivePeakEvs}{204.9}           % batch 512
+\newcommand{\arThreePeakEvs}{145.2}
+
+% ---- §3  Cost laws (Campaign B: A100, vLLM 0.25.1, m=1, n=300/cell) --------
+\newcommand{\arIntercept}{7.27}                 % ms
+\newcommand{\arSlope}{6.29}                     % ms/token
+\newcommand{\arResidSigma}{2.53}                % ms
+\newcommand{\dgBase}{418.24}                    % ms; mean of the four nc=1 cells
+\newcommand{\dgStep}{118.83}                    % ms per additional canvas (REFIT 2026-08-14)
+\newcommand{\dgCanvas}{256}                     % tokens
+\newcommand{\dgMarginal}{0.464}                 % ms/token = 118.83/256
+\newcommand{\asymptoticRatio}{13.6}             % 6.29 / 0.464
+\newcommand{\lengthCrossover}{65}               % tokens
+\newcommand{\naturalOutput}{176}                % tokens, 12-field record, DiffusionGemma
+\newcommand{\naturalOutputAR}{123}              % tokens, same schema, Qwen2.5-3B
+% Per-canvas step is NOT constant -- see NUMBERS.md 2.1. Single-step law is an
+% approximation; these are the per-cell implied steps.
+\newcommand{\dgStepSecondCanvas}{101.1}         % ms, 2nd canvas (L=512)
+\newcommand{\dgStepFourthCanvas}{120.3}         % ms, avg to 4th canvas (L=1024)
+\newcommand{\dgStepEighthCanvas}{118.9}         % ms, avg to 8th canvas (L=2048)
+
+\newcommand{\costLawAR}{T_{\mathrm{AR}}(L) = \arIntercept + \arSlope\,L}
+\newcommand{\costLawDG}{T_{\mathrm{DG}}(L) = \dgBase + \dgStep\,(\lceil L/\dgCanvas \rceil - 1)}
+
+% Extrapolation check (P-D2) -- RECOMPUTED against the corrected fit
+% (step 118.83). The superseded values were 719.0/+8.4% and 1120.0/+11.7%,
+% which came from a step of 100.25 that no published law uses.
+\newcommand{\dgPredKiloOneK}{774.7}
+\newcommand{\dgMeasKiloOneK}{779.1}
+\newcommand{\dgErrKiloOneK}{0.6}                % percent
+\newcommand{\dgPredTwoK}{1250.0}
+\newcommand{\dgMeasTwoK}{1250.7}
+\newcommand{\dgErrTwoK}{0.1}                    % percent
+
+% ---- §3/§6  Quality cost-invariance (the headline result) ------------------
+\newcommand{\dgFOneFiveTwelve}{0.7945}
+\newcommand{\dgFOneKiloOneK}{0.7887}
+\newcommand{\dgFOneTwoK}{0.7902}
+\newcommand{\arFOneFiveTwelve}{0.5991}
+\newcommand{\arFOneKiloOneK}{0.4947}
+\newcommand{\arFOneTwoK}{0.4727}
+\newcommand{\dgFOneTwoFiveSix}{0.7871}
+\newcommand{\arFOneTwoFiveSix}{0.8263}
+\newcommand{\dgFOneOneTwoEight}{0.3287}
+\newcommand{\arFOneOneTwoEight}{0.6544}
+\newcommand{\dgValidOneTwoEight}{3.3}           % percent
+\newcommand{\arValidOneTwoEight}{66.7}          % percent
+% Per-field corruption at L=512 -- AR degrades copy-from-input fields
+\newcommand{\arHostFiveTwelve}{0.6733}
+\newcommand{\dgHostFiveTwelve}{1.0000}
+\newcommand{\arAnomalyFOneFiveTwelve}{0.3553}
+\newcommand{\dgAnomalyFOneFiveTwelve}{0.9846}
+
+% ---- §4  Two walls --------------------------------------------------------
+\newcommand{\dgKneeLo}{2.0}                     % ev/s
+\newcommand{\dgKneeHi}{2.5}                     % ev/s
+\newcommand{\arKneeLo}{64}                      % ev/s
+\newcommand{\arKneeHi}{96}                      % ev/s
+\newcommand{\rateCrossover}{1.8}                % ev/s
+\newcommand{\kneeRatio}{40}                     % AR knee / DG knee, approx
+\newcommand{\mdOneMu}{2.4}                      % M/D/1 prediction from 420ms
+\newcommand{\dgLagOne}{434}                     % ms, p50 at lambda=1
+\newcommand{\arLagOne}{725}                     % ms, p50 at lambda=1
+\newcommand{\winRegionRate}{2}                  % lambda <~ 2 ev/s
+\newcommand{\winRegionLen}{128}                 % L >= 128 tokens
+
+% ---- §5  Batching multipliers (the mechanism) -----------------------------
+\newcommand{\dgMultOneTwoEight}{1.7}
+\newcommand{\dgMultFiveTwelve}{1.5}
+\newcommand{\lladaMultDinfer}{1.18}
+\newcommand{\arMultOneTwoEight}{77.1}
+\newcommand{\arMultFiveTwelve}{86.0}
+\newcommand{\batchGap}{45}                      % 77.1 / 1.7
+% B=1 throughput at L=128, from appD_analysis.json (traceable, matches table)
+\newcommand{\dgBOneEvs}{2.451}
+\newcommand{\arBOneEvs}{1.230}
+\newcommand{\dgBOneLead}{1.99}                  % 2.451 / 1.230
+\newcommand{\dgBatchCap}{8}                     % vLLM crash ceiling
+% Multiplier-table cells
+\newcommand{\dgBOneEvsFiveTwelve}{1.872}
+\newcommand{\dgPeakEvsOneTwoEight}{4.110}
+\newcommand{\dgPeakEvsFiveTwelve}{2.820}
+\newcommand{\arBOneEvsFiveTwelve}{0.310}
+\newcommand{\arPeakEvsOneTwoEight}{94.90}
+\newcommand{\arPeakEvsFiveTwelve}{26.68}
+
+% ---- §6  Applications -----------------------------------------------------
+% Chains
+\newcommand{\chainTailRatioDOne}{1.041}
+\newcommand{\chainTailRatioDTwenty}{1.769}
+\newcommand{\chainMeanRatio}{1.93}
+\newcommand{\chainSlopeCVdg}{1.1}               % percent
+\newcommand{\chainSlopeCVar}{1.2}               % percent
+\newcommand{\chainSigmaDG}{268.2}               % ms
+\newcommand{\chainSigmaAR}{158.7}               % ms
+% Wide schema
+\newcommand{\wideConsistTwelve}{91.0}
+\newcommand{\wideConsistFifty}{87.0}
+\newcommand{\wideConsistHundred}{87.5}
+\newcommand{\wideConsistARHundred}{96.5}
+\newcommand{\wideRatioFifty}{3.01}
+\newcommand{\wideTokensDGHundred}{1406.4}
+\newcommand{\wideTokensARHundred}{950.7}
+% Bounded deadline
+\newcommand{\dmRecordComplete}{100.0}           % percent
+\newcommand{\arRecordComplete}{0.0}             % percent -- see #38
+\newcommand{\arFieldCompleteMax}{62.7}          % percent
+\newcommand{\dmDeadlineFOne}{0.732}
+\newcommand{\arDeadlineFOne}{0.821}
+% Refinement
+\newcommand{\refineGainDM}{+0.023}
+\newcommand{\refineGainAR}{-0.001}
+\newcommand{\refineDMFinal}{0.770}
+\newcommand{\refineARFirst}{0.822}
+
+% ---- §7  Negative results -------------------------------------------------
+\newcommand{\perturbCleanAR}{0.8268}
+\newcommand{\perturbCleanDM}{0.7390}
+\newcommand{\perturbWorstRatio}{8.2}            % separator_change
+\newcommand{\perturbCategories}{10}
+\newcommand{\imputeDMLo}{0.000}
+\newcommand{\imputeDMHi}{0.413}
+\newcommand{\imputeARLo}{0.250}
+\newcommand{\imputeARHi}{0.743}
+\newcommand{\adaptDMNovel}{0.886}
+\newcommand{\adaptARNovel}{0.788}
+\newcommand{\adaptDMPFifty}{10823}              % ms, routine bin
+\newcommand{\adaptARPFifty}{826}                % ms, routine bin
+\newcommand{\semiARConsistBOne}{70.0}
+\newcommand{\semiARConsistBTwo}{96.7}
+\newcommand{\semiARFOneBOne}{0.762}
+\newcommand{\semiARFOneBTwo}{0.530}
+
+% ---- MDM-internal claims that survive -------------------------------------
+\newcommand{\kSweepRsq}{1.0000}
+\newcommand{\kSweepSlope}{157}                  % ms/step, LLaDA-8B
+\newcommand{\kKneeLo}{6}
+\newcommand{\kKneeHi}{8}
+\newcommand{\mdmConsistency}{76.6}              % percent
+\newcommand{\arConsistency}{99.9}               % percent
+
+% ---- Classical baselines --------------------------------------------------
+\newcommand{\drainFOne}{0.833}
+\newcommand{\drainEvs}{50768}
+\newcommand{\drainStructuralLo}{0.997}
+\newcommand{\drainStructuralHi}{1.000}
+\newcommand{\drainAnomalyFOne}{1.000}
+\newcommand{\ruleFOne}{0.446}
+\newcommand{\drainPerturbed}{0.623}
+\newcommand{\rulePerturbed}{0.426}
+\newcommand{\thunderbirdDM}{1.6}                % years
+\newcommand{\thunderbirdDrain}{69}              % minutes
+
+% ---- §8  dInfer control ---------------------------------------------------
+\newcommand{\dinferFOne}{0.872}
+\newcommand{\dinferConsist}{88.3}               % percent
+\newcommand{\dinferPFifty}{10886}               % ms, cache-less
+\newcommand{\dinferConsistGain}{11.7}           % pp over HF LLaDA
+\newcommand{\dinferCachePromptLimit}{632}       % tokens
+
+% ---- Model identifiers ----------------------------------------------------
+\newcommand{\modelDG}{DiffusionGemma-26B-A4B-it}
+\newcommand{\modelLLaDA}{LLaDA-8B-Instruct}
+\newcommand{\modelARthree}{Qwen2.5-3B-Instruct}
+\newcommand{\modelARonefive}{Qwen2.5-1.5B-Instruct}
+\newcommand{\modelARseven}{Qwen2.5-7B-Instruct}
+
+%=============================================================================
+%  ADDITIONS 2026-08-14 -- table cells requested by the section drafts.
+%  All values from NUMBERS.md. Same rule: no literals in section files.
+%=============================================================================
+
+% ---- §3 latency table (NUMBERS.md §2.3) -----------------------------------
+\newcommand{\arPFiftyThirtyTwo}{210.6}
+\newcommand{\arPFiftySixtyFour}{411.5}
+\newcommand{\arPFiftyOneTwoEight}{812.6}
+\newcommand{\arPFiftyTwoFiveSix}{1617.6}
+\newcommand{\arPFiftyFiveTwelve}{3226.4}
+\newcommand{\arPFiftyKiloOneK}{6443.3}
+\newcommand{\arPFiftyTwoK}{12892.7}
+\newcommand{\dgPFiftyThirtyTwo}{416.9}
+\newcommand{\dgPFiftySixtyFour}{418.5}
+\newcommand{\dgPFiftyOneTwoEight}{418.1}
+\newcommand{\dgPFiftyTwoFiveSix}{419.4}
+\newcommand{\dgPFiftyFiveTwelve}{519.3}
+\newcommand{\dgPFiftyKiloOneK}{779.1}
+\newcommand{\dgPFiftyTwoK}{1250.7}
+% MEASURED ratios (not the fitted column -- see NUMBERS.md §2.3)
+\newcommand{\ratioThirtyTwo}{0.51}
+\newcommand{\ratioSixtyFour}{0.98}
+\newcommand{\ratioOneTwoEight}{1.94}
+\newcommand{\ratioTwoFiveSix}{3.86}
+\newcommand{\ratioFiveTwelve}{6.21}
+\newcommand{\ratioKiloOneK}{8.27}
+\newcommand{\ratioTwoK}{10.31}
+
+% ---- §3 quality table (NUMBERS.md §3) -------------------------------------
+\newcommand{\dgFOneThirtyTwo}{0.3167}
+\newcommand{\dgFOneSixtyFour}{0.3167}
+\newcommand{\arFOneThirtyTwo}{0.3167}
+\newcommand{\arFOneSixtyFour}{0.3167}
+\newcommand{\dgValidThirtyTwo}{0.0}
+\newcommand{\dgValidSixtyFour}{0.0}
+\newcommand{\arValidThirtyTwo}{0.0}
+\newcommand{\arValidSixtyFour}{0.0}
+\newcommand{\dgValidTwoFiveSix}{99.3}
+\newcommand{\dgValidFiveTwelve}{100.0}
+\newcommand{\dgValidKiloOneK}{100.0}
+\newcommand{\dgValidTwoK}{100.0}
+\newcommand{\arValidTwoFiveSix}{99.3}
+\newcommand{\arValidFiveTwelve}{99.3}
+\newcommand{\arValidKiloOneK}{99.7}
+\newcommand{\arValidTwoK}{99.3}
+% Per-field at L=512
+\newcommand{\arComponentFiveTwelve}{0.7633}
+\newcommand{\dgComponentFiveTwelve}{0.9900}
+\newcommand{\arSeverityFiveTwelve}{0.6167}
+\newcommand{\dgSeverityFiveTwelve}{0.9933}
+\newcommand{\arTimestampFiveTwelve}{0.6100}
+\newcommand{\dgTimestampFiveTwelve}{0.8367}
+\newcommand{\arIsAnomalyFiveTwelve}{0.6733}
+\newcommand{\dgIsAnomalyFiveTwelve}{0.9933}
+
+% ---- §1.3 Table 1 cells (NUMBERS.md §1.3) ---------------------------------
+\newcommand{\arThreePNineNine}{1062.1}
+\newcommand{\arThreePNineNineNine}{1336.3}
+\newcommand{\arSevenPNineNine}{1521.1}
+\newcommand{\arSevenPNineNineNine}{2310.9}
+\newcommand{\arSevenTailRatio}{1.99}
+\newcommand{\mdmPNineNine}{1555.5}
+\newcommand{\arOneFivePNineNineHF}{3053.4}
+\newcommand{\arOneFivePNineNineNineHF}{4162.5}
+\newcommand{\arOneFiveTailRatioHF}{2.26}
+\newcommand{\arSevenPNineNineHF}{5479.7}
+\newcommand{\arSevenPNineNineNineHF}{7808.0}
+\newcommand{\arSevenTailRatioHF}{3.68}
+\newcommand{\arSevenFOneHF}{0.839}
+% FlowFill CLAIMED values -- never reproduced. Always label as claimed.
+\newcommand{\ffPFifty}{23.0}
+\newcommand{\ffPNineNine}{31.0}
+\newcommand{\ffPNineNineNine}{36.0}
+\newcommand{\ffTailRatio}{1.57}
+\newcommand{\ffFOne}{0.907}
+
+% ---- §4 rate sweep (NUMBERS.md §4.1) --------------------------------------
+\newcommand{\dgPNineNineOne}{1167}
+\newcommand{\arPNineNineOne}{1293}
+\newcommand{\dgLagOneFive}{566}
+\newcommand{\dgPNineNineOneFive}{2703}
+\newcommand{\dgLagTwo}{810}
+\newcommand{\dgPNineNineTwo}{3613}
+\newcommand{\dgLagTwoFive}{4633}
+\newcommand{\dgPNineNineTwoFive}{10574}
+\newcommand{\dgLagFour}{21320}
+\newcommand{\dgPNineNineFour}{46612}
+\newcommand{\arLagFour}{719}
+\newcommand{\arPNineNineFour}{1267}
+\newcommand{\arLagEight}{733}
+\newcommand{\arPNineNineEight}{1284}
+\newcommand{\arLagThirtyTwo}{893}
+\newcommand{\arPNineNineThirtyTwo}{1525}
+\newcommand{\arLagSixtyFour}{1783}
+\newcommand{\arPNineNineSixtyFour}{2980}
+\newcommand{\arLagNinetySix}{2828}
+\newcommand{\arPNineNineNinetySix}{4763}
+\newcommand{\arLagOneTwoEight}{3932}
+\newcommand{\arPNineNineOneTwoEight}{6617}
+\newcommand{\winRegionSpeedup}{5.3}
+
+% ---- §6.1 chains ----------------------------------------------------------
+\newcommand{\chainTailRatioDThree}{1.872}
+\newcommand{\chainTailRatioDFive}{2.070}
+\newcommand{\chainTailRatioDTen}{1.894}
+\newcommand{\chainCumTailDGdTwenty}{12072}
+\newcommand{\chainCumTailARdTwenty}{18935}
+\newcommand{\chainFOneDGdOne}{0.783}
+\newcommand{\chainFOneDGplateau}{0.4565}
+\newcommand{\chainFOneARdOne}{0.8258}
+\newcommand{\chainFOneARplateau}{0.4953}
+\newcommand{\chainQualityGap}{0.04}
+
+% ---- §6.2 wide schema -----------------------------------------------------
+\newcommand{\wideRatioTwelve}{1.77}
+\newcommand{\wideRatioTwentyFive}{2.44}
+\newcommand{\wideRatioHundred}{2.91}
+\newcommand{\wideConsistTwentyFive}{92.5}
+\newcommand{\wideConsistARTwelve}{97.0}
+\newcommand{\wideConsistARTwentyFive}{94.0}
+\newcommand{\wideConsistARFifty}{96.5}
+\newcommand{\wideValidDGTwelve}{97.0}
+\newcommand{\wideValidDGHundred}{99.0}
+
+% ---- §6.3--6.5 deadline, refinement, VIP ----------------------------------
+\newcommand{\dmDeadlinePFifty}{1077}
+\newcommand{\arDeadlineFOneTwoHundred}{0.319}
+\newcommand{\arDeadlineTokensTwoK}{318}
+\newcommand{\arDeadlinePFiftyTwoK}{807}
+\newcommand{\refineDMFirst}{0.747}
+\newcommand{\refineDMSecond}{0.763}
+\newcommand{\vipLagPFiftyDG}{391.0}
+\newcommand{\vipLagPNineNineDG}{1147.2}
+
+% ---- §7.1 perturbation: AR drop / DM drop per category --------------------
+\newcommand{\pertDropARwhitespace}{-0.000}
+\newcommand{\pertDropDMwhitespace}{0.081}
+\newcommand{\pertDropARabbrev}{-0.002}
+\newcommand{\pertDropDMabbrev}{0.005}
+\newcommand{\pertDropARsep}{0.011}
+\newcommand{\pertDropDMsep}{0.093}
+\newcommand{\pertDropARencoding}{0.006}
+\newcommand{\pertDropDMencoding}{0.035}
+\newcommand{\pertDropARwrapping}{0.010}
+\newcommand{\pertDropDMwrapping}{0.041}
+\newcommand{\pertDropARmissing}{0.018}
+\newcommand{\pertDropDMmissing}{0.067}
+\newcommand{\pertDropARreorder}{0.045}
+\newcommand{\pertDropDMreorder}{0.124}
+\newcommand{\pertDropARtimestamp}{0.080}
+\newcommand{\pertDropDMtimestamp}{0.104}
+\newcommand{\pertDropARsynonym}{0.020}
+\newcommand{\pertDropDMsynonym}{0.025}
+\newcommand{\pertDropARcase}{0.113}
+\newcommand{\pertDropDMcase}{0.132}
+\newcommand{\pertRatioEncoding}{5.8}
+\newcommand{\pertRatioWrapping}{4.1}
+\newcommand{\pertRatioMissing}{3.7}
+\newcommand{\pertRatioReorder}{2.8}
+\newcommand{\pertRatioTimestamp}{1.3}
+\newcommand{\pertRatioSynonym}{1.3}
+\newcommand{\pertRatioCase}{1.2}
+
+% ---- §7.2--7.6 ------------------------------------------------------------
+\newcommand{\imputeARKtwo}{0.591}
+\newcommand{\imputeARKsix}{0.643}
+\newcommand{\imputeARKeight}{0.688}
+\newcommand{\imputeDMKfour}{0.301}
+\newcommand{\imputeDMKsix}{0.154}
+\newcommand{\imputeDMKeight}{0.221}
+\newcommand{\imputeLatencyRatio}{1.01}
+\newcommand{\imputeCostRatio}{1.11}
+\newcommand{\adaptARRoutine}{0.855}
+\newcommand{\adaptDMRoutine}{0.873}
+\newcommand{\adaptSlowdown}{13}
+\newcommand{\semiARFOneBFour}{0.511}
+\newcommand{\semiARConsistBFour}{80.0}
+\newcommand{\semiARPFifty}{1262}
+\newcommand{\llmStructuralPerField}{0.974}
+\newcommand{\kSweepFOneKtwo}{0.350}
+\newcommand{\kSweepFOneKeight}{0.762}
+\newcommand{\kSweepFOneKtwentyfour}{0.790}
