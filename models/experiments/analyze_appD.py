@@ -31,7 +31,7 @@ P2.update({("ar", L): RESULTS / f"p2_ar3b_L{L}.json" for L in (32, 64, 128, 256,
 APPD = {("dg", L): RESULTS / f"appD_dg_L{L}.json" for L in (1024, 2048)}
 APPD.update({("ar", L): RESULTS / f"appD_ar3b_L{L}.json" for L in (1024, 2048)})
 
-PRED_DG = {1024: 719.0, 2048: 1120.0}   # issue #17 P-D2 extrapolation
+PRED_DG = {1024: 719.0, 2048: 1120.0}   # issue #17 P-D2 extrapolation (NOT a fit — see #51)
 AR_PRED_SLOPE = 6.28                     # issue #16 law
 
 
@@ -53,8 +53,11 @@ def fit_ar(points):
 def fit_dg(points):
     """DG: T(L) = base + step * (ceil(L/256) - 1).
 
-    step is the marginal cost per additional 256-token canvas block,
-    computed as (T - base) / (blocks - 1) for each multi-block point.
+    step is the marginal cost per additional 256-token canvas block.
+    The step is NOT constant across cells (issue #51): the first extra
+    canvas costs ~101 ms, later ones ~120 ms. We report both the
+    unweighted mean (as before) and the least-squares fit (weighted by
+    (n_c-1)^2, dominated by the n_c=8 cell).
     """
     L = np.array(sorted(points), dtype=float)
     blocks = np.maximum(1, np.ceil(L / 256)).astype(int)
@@ -63,13 +66,30 @@ def fit_dg(points):
     for b_, t_ in zip(blocks, T):
         per_block.setdefault(b_, []).append(t_)
     base = float(np.mean(per_block.get(1, [np.nan])))
+
+    # Per-cell implied steps (for diagnostics)
+    per_cell_steps = {}
     steps = []
     for k, vals in per_block.items():
         if k > 1:
             for v in vals:
-                steps.append((v - base) / (k - 1))
-    step = float(np.mean(steps)) if steps else float("nan")
-    return base, step
+                s = (v - base) / (k - 1)
+                steps.append(s)
+                per_cell_steps[k] = s
+
+    # Unweighted mean (original method)
+    step_mean = float(np.mean(steps)) if steps else float("nan")
+
+    # Least-squares: step = sum((T-base)*(n_c-1)) / sum((n_c-1)^2)
+    multi_mask = blocks > 1
+    if np.any(multi_mask):
+        numer = np.sum((T[multi_mask] - base) * (blocks[multi_mask] - 1))
+        denom = np.sum((blocks[multi_mask] - 1) ** 2)
+        step_ls = float(numer / denom) if denom > 0 else float("nan")
+    else:
+        step_ls = float("nan")
+
+    return base, step_mean, step_ls, per_cell_steps
 
 
 def multiplier(path):
@@ -91,10 +111,15 @@ def main():
     for m in ("dg", "ar"):
         tg[m] = {int(k): v for k, v in tg[m].items()}
     b0, b1, sigma = fit_ar(tg["ar"])
-    base, step = fit_dg(tg["dg"])
+    base, step_mean, step_ls, per_cell_steps = fit_dg(tg["dg"])
     out["ar_fit"] = {"intercept_ms": round(b0, 2), "slope_ms_per_token": round(b1, 3),
                      "resid_sigma_ms": round(sigma, 2)}
-    out["dg_fit"] = {"base_ms": round(base, 2), "step_per_canvas_ms": round(step, 2)}
+    out["dg_fit"] = {"base_ms": round(base, 2),
+                     "step_per_canvas_ms_unweighted_mean": round(step_mean, 2),
+                     "step_per_canvas_ms_least_squares": round(step_ls, 2),
+                     "per_cell_implied_steps": {str(k): round(v, 2) for k, v in per_cell_steps.items()},
+                     "step_is_constant": bool(abs(max(per_cell_steps.values()) - min(per_cell_steps.values())) < 5.0) if per_cell_steps else None}
+    step = step_ls  # use LS for downstream ratios (most defensible)
     out["ratio_T_AR_over_T_DG"] = {
         str(L): round((b0 + b1 * L) / (base + step * (math.ceil(L / 256) - 1)), 2)
         for L in sorted(tg["ar"]) if L in tg["dg"]}

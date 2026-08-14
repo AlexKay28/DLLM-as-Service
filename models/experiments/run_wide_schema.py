@@ -69,12 +69,14 @@ def summarize(values):
     return out
 
 
-def run_level(llm, sampling_params, prompts, gold_12, raw_lines, level):
+def run_level(llm, sampling_params, prompts, gold_12, raw_lines, level,
+              save_predictions=False):
     """Run extraction at a given schema level; measure quality + latency."""
     fields = field_names_for_level(level)
     latencies = []
     records = []
     out_tokens = []
+    raw_texts = []
 
     print(f"  streaming {len(prompts)} events at L{level} "
           f"({len(fields)} fields)...", flush=True)
@@ -85,6 +87,8 @@ def run_level(llm, sampling_params, prompts, gold_12, raw_lines, level):
         latencies.append(dt)
         text = outs[0].outputs[0].text
         out_tokens.append(len(outs[0].outputs[0].token_ids))
+        if save_predictions:
+            raw_texts.append(text)
         parsed = parse_json_output(text)
         wide = {k: parsed.get(k, "") for k in fields}
         records.append(Record(fields=wide))
@@ -106,7 +110,7 @@ def run_level(llm, sampling_params, prompts, gold_12, raw_lines, level):
         "consistency_pct": round(consistency(records), 2),
         "n_fields": len(fields),
     }
-    return {
+    result = {
         "level": level,
         "n_fields": len(fields),
         "latency": lat,
@@ -115,6 +119,10 @@ def run_level(llm, sampling_params, prompts, gold_12, raw_lines, level):
         "tail_ratio": lat.get("p99_9_ms", 0) / lat.get("p50_ms", 1)
             if lat.get("p50_ms") else None,
     }
+    if save_predictions and raw_texts:
+        result["raw_texts_sample"] = raw_texts[:10]
+        result["raw_token_counts"] = out_tokens
+    return result
 
 
 def main():
@@ -132,6 +140,8 @@ def main():
     ap.add_argument("--dtype", default="bfloat16")
     ap.add_argument("--denoising-steps", type=int, default=None)
     ap.add_argument("--output", default="results/wide_schema.json")
+    ap.add_argument("--save-predictions", action="store_true",
+                    help="save per-record raw text + token count to .preds.jsonl")
     args = ap.parse_args()
 
     from vllm import LLM, SamplingParams
@@ -176,7 +186,8 @@ def main():
             prompts.append(tokenizer.apply_chat_template(
                 msgs, tokenize=False, add_generation_prompt=True))
         entry = run_level(llm, level_params, prompts, gold_12,
-                          raw_lines, level)
+                          raw_lines, level,
+                          save_predictions=args.save_predictions)
         results["per_level"][str(level)] = entry
         q = entry["quality"]
         print(f"  L{level} ({q['n_fields']}F): p50={entry['latency']['p50_ms']:.0f}ms  "

@@ -69,26 +69,39 @@
     "note": "Each hop is a single llm.generate([prompt]) call, no concurrent requests in flight"
   },
   "P_E4_quality": {
+    "bug_note": "Original chain_dg.json/chain_ar3b.json had a gold-misalignment bug (cursor never reset between depths; gold sliced from index 0). Only D=1 was aligned. See issue #55.",
     "dg": {
-      "f1_per_depth": [
+      "f1_per_depth_original_bug": [
         0.783,
         0.4565,
         0.4554,
         0.4654,
         0.4598
       ],
-      "unchanged": false
+      "f1_per_depth_corrected": [
+        0.783,
+        0.7885,
+        0.7889,
+        0.7931,
+        0.789
+      ],
+      "unchanged": true,
+      "correction_source": "models/experiments/diagnose_chain_offset.py ARM 4 (aligned scoring on saved DG predictions, deterministic at temp=0)"
     },
     "ar": {
-      "f1_per_depth": [
+      "f1_per_depth_original_bug": [
         0.8258,
         0.4953,
         0.4962,
         0.5054,
         0.5009
       ],
-      "unchanged": false
-    }
+      "f1_per_depth_corrected": null,
+      "corrected_note": "AR predictions were not saved; corrected values require GPU re-run. Predicted flat at ~0.83 (D=1 value, same bug mechanism).",
+      "unchanged": null
+    },
+    "latency_results_unaffected": true,
+    "latency_note": "P-E1, P-E2, P-E3 computed from correctly-ordered hop_lats \u2014 unaffected by the scoring bug."
   },
   "mixed_hop_simulation": {
     "uniform_extraction_dg": {

@@ -6,16 +6,23 @@
   },
   "dg_fit": {
     "base_ms": 418.24,
-    "step_per_canvas_ms": 113.43
+    "step_per_canvas_ms_unweighted_mean": 113.43,
+    "step_per_canvas_ms_least_squares": 118.83,
+    "per_cell_implied_steps": {
+      "2": 101.09,
+      "4": 120.3,
+      "8": 118.92
+    },
+    "step_is_constant": false
   },
   "ratio_T_AR_over_T_DG": {
     "32": 0.5,
     "64": 0.98,
     "128": 1.94,
     "256": 3.87,
-    "512": 6.07,
-    "1024": 8.5,
-    "2048": 10.63
+    "512": 6.01,
+    "1024": 8.32,
+    "2048": 10.31
   },
   "P_D2_check": {
     "1024": {

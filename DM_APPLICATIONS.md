@@ -77,7 +77,15 @@ multi-hop debugging, forensic analysis.
   DG's single-request tail penalty under sequential composition.
 - P-E3 concurrency=1 by construction — the first fair serial-vs-serial
   comparison in this repo.
-- P-E4 quality stable across depths (D≥3).
+- P-E4 quality stable across depths — **CORRECTED (#55):** the published
+  D=1→D=3 collapse (0.783→0.457 DG, 0.826→0.495 AR) was a gold-misalignment
+  bug in the chain runner (`cursor` never reset between depths; gold sliced
+  from index 0). CPU-only shifted-gold test on saved DG predictions confirms:
+  aligned scoring gives **flat 0.783–0.793 at every depth**; misaligned
+  scoring reproduces the published ~0.46 plateau exactly. AR's corrected
+  quality is flat at ~0.83 (same bug, D=1 value is the true level). AR leads
+  DG by ~0.04 at every depth. The latency results (P-E1, P-E2) are
+  unaffected — they were computed from correctly-ordered `hop_lats`.
 - R2 capacity: max chain rate = 2.4/D chains/s.
 
 **Why DM wins:** AR's 67× continuous-batching multiplier is unavailable by
