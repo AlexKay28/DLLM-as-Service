@@ -68,7 +68,7 @@ def record_completeness(records):
         data = parse_json_output(json.dumps(rec.fields))
         if not data:
             continue
-        has_all = all(rec.has(f) and rec.get(f) not in (None, "", 0.0, False, 0)
+        has_all = all(rec.has(f) and rec.get(f) is not None
                        for f in FIELD_NAMES)
         if has_all:
             n_complete += 1
@@ -79,7 +79,7 @@ def field_completeness(records):
     total_pct = 0
     for rec in records:
         present = sum(1 for f in FIELD_NAMES
-                     if rec.has(f) and rec.get(f) not in (None, "", 0.0, False, 0))
+                     if rec.has(f) and rec.get(f) is not None)
         total_pct += present / len(FIELD_NAMES) * 100
     return total_pct / len(records) if records else 0
 

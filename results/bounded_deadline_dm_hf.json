@@ -1,0 +1,17 @@
+{
+  "experiment": "issue26_bounded_deadline",
+  "model_type": "dm_hf",
+  "model": "Qwen/Qwen2.5-3B-Instruct",
+  "n": 500,
+  "cells": [
+    {
+      "deadline_ms": "none (one canvas)",
+      "field_f1": 0.7319,
+      "record_completeness_pct": 100.0,
+      "field_completeness_pct": 100.0,
+      "p50_ms": 1076.62,
+      "mean_ms": 1075.92
+    }
+  ],
+  "timestamp": "2026-08-14T14:05:20Z"
+}
