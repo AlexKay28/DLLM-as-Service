@@ -108,7 +108,7 @@ def build_prompts(llm, log_lines, source):
 
 
 def run_streaming(llm, sampling_params, prompts, gold_records, log_every=100,
-                  save_predictions=None):
+                  save_predictions=None, save_raw=False):
     """Table 3: one request in flight at a time (streaming mode, m=1)."""
     latencies_ms = []
     records = []
@@ -149,13 +149,22 @@ def run_streaming(llm, sampling_params, prompts, gold_records, log_every=100,
         "consistency_pct": round(consistency(records), 2),
         "anomaly_f1": round(anomaly_f1(records, gold)["anomaly_f1"], 4),
     }
-    return {
+    result = {
         "latency": lat,
         "quality": quality,
         "mean_output_tokens": float(statistics.fmean(out_tokens)),
         "tail_ratio_p999_over_p50": (
             lat["p99_9_ms"] / lat["p50_ms"] if lat.get("p50_ms") else None),
     }
+    if save_raw:
+        result["raw_latencies_ms"] = latencies_ms
+        result["raw_out_tokens"] = out_tokens
+        per_event_f1 = []
+        for rec, g in zip(records, gold):
+            r = field_f1([rec], [g])
+            per_event_f1.append(r["macro_field_f1"])
+        result["per_event_f1"] = per_event_f1
+    return result
 
 
 def run_throughput(llm, sampling_params, prompts, batch_sizes, sla_grid, repeats):
@@ -281,6 +290,16 @@ def main():
     ap.add_argument("--output", default="results/vllm_serving.json")
     ap.add_argument("--save-predictions",
                     help="JSONL path for per-event predictions (one model only)")
+    ap.add_argument("--save-raw", action="store_true",
+                    help="save per-request latency array + per-event F1 in the "
+                         "output JSON for bootstrap CIs (issue #46)")
+    ap.add_argument("--speculative-config", default=None,
+                    help="JSON dict for vLLM speculative decoding config, e.g. "
+                         "'{\"method\":\"ngram\",\"num_speculative_tokens\":5,"
+                         "\"prompt_lookup_max\":4}' (issue #45)")
+    ap.add_argument("--guided-json", default=None,
+                    help="path to a JSON Schema file for grammar-constrained "
+                         "decoding via vLLM GuidedDecodingParams (issue #47)")
     args = ap.parse_args()
 
     from vllm import LLM, SamplingParams
@@ -320,18 +339,52 @@ def main():
                 "canvas_length": 256,
                 "max_denoising_steps": args.denoising_steps}
         llm = LLM(**llm_kwargs)
-        sampling_params = SamplingParams(
+        sp_kwargs = dict(
             max_tokens=args.max_new_tokens, min_tokens=args.min_tokens,
             temperature=0.0)
+        if args.speculative_config:
+            import json as _json
+            spec = _json.loads(args.speculative_config)
+            sp_kwargs["speculative_config"] = spec
+            print(f"  speculative decoding: {spec}", flush=True)
+        if args.guided_json:
+            try:
+                from vllm.sampling_params import GuidedDecodingParams
+                with open(args.guided_json) as gf:
+                    schema = _json.load(gf)
+                sp_kwargs["guided_decoding"] = GuidedDecodingParams(json=schema)
+                print(f"  grammar-constrained decoding: {args.guided_json}",
+                      flush=True)
+            except ImportError:
+                print("  WARNING: GuidedDecodingParams not available in this "
+                      "vLLM version", flush=True)
+        sampling_params = SamplingParams(**sp_kwargs)
 
         prompts = build_prompts(llm, log_lines, args.source)
         entry = {"model": model_name}
         if args.denoising_steps is not None:
             entry["max_denoising_steps"] = args.denoising_steps
+        try:
+            import vllm as _vllm
+            entry["vllm_version"] = getattr(_vllm, "__version__", "unknown")
+        except Exception:
+            entry["vllm_version"] = "unknown"
+        try:
+            import torch as _torch
+            entry["torch_version"] = getattr(_torch, "__version__", "unknown")
+        except Exception:
+            entry["torch_version"] = "unknown"
+
+        prompts = build_prompts(llm, log_lines, args.source)
+        try:
+            tok = llm.get_tokenizer()
+            entry["prompt_token_count"] = len(tok.encode(prompts[0])) if prompts else 0
+        except Exception:
+            entry["prompt_token_count"] = None
 
         entry["streaming_table3"] = run_streaming(
             llm, sampling_params, prompts, gold_records,
-            save_predictions=args.save_predictions)
+            save_predictions=args.save_predictions, save_raw=args.save_raw)
         lat = entry["streaming_table3"]["latency"]
         q = entry["streaming_table3"]["quality"]
         print(f"  p50={lat['p50_ms']:.1f}ms  p99={lat['p99_ms']:.1f}ms  "

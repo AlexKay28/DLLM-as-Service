@@ -1,0 +1,21 @@
+{
+  "type": "object",
+  "properties": {
+    "timestamp_norm": {"type": "string"},
+    "host": {"type": "string"},
+    "component": {"type": "string"},
+    "severity": {"type": "string", "enum": ["DEBUG", "INFO", "WARN", "ERROR", "FATAL", "CRITICAL"]},
+    "event_type": {"type": "string"},
+    "message_template": {"type": "string"},
+    "error_code": {"type": "string"},
+    "affected_entity": {"type": "string"},
+    "metric_value": {"type": "number"},
+    "is_anomaly": {"type": "boolean"},
+    "anomaly_score": {"type": "number"},
+    "remediation_hint": {"type": "string"}
+  },
+  "required": ["timestamp_norm", "host", "component", "severity", "event_type",
+    "message_template", "error_code", "affected_entity", "metric_value",
+    "is_anomaly", "anomaly_score", "remediation_hint"],
+  "additionalProperties": false
+}

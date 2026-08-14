@@ -93,6 +93,8 @@ def main():
     ap.add_argument("--dtype", default="bfloat16")
     ap.add_argument("--denoising-steps", type=int, default=None)
     ap.add_argument("--output", default="results/chain_experiment.json")
+    ap.add_argument("--save-predictions", action="store_true",
+                    help="save per-hop raw text + parsed record to a .jsonl")
     args = ap.parse_args()
 
     from vllm import LLM, SamplingParams
@@ -135,13 +137,20 @@ def main():
         "per_hop_latencies_ms": [],
     }
 
+    hop_records_all = []
+    hop_raw_texts_all = []
+    hop_lats_all = []
+    depth_pred_ranges = []
+
     cursor = 0
     for D in args.depths:
         print(f"\n=== depth D={D} ===", flush=True)
         chain_cumul = []
         hop_lats = []
         hop_records = []
+        hop_golds = []
         hop_out_tokens = []
+        hop_raw_texts = []
 
         for c in range(args.chains):
             chain_lat = 0.0
@@ -156,9 +165,11 @@ def main():
                 hop_lats.append(dt)
                 hop_out_tokens.append(
                     len(outs[0].outputs[0].token_ids))
+                raw_text = outs[0].outputs[0].text
+                hop_raw_texts.append(raw_text)
                 hop_records.append(
-                    _dict_to_record(parse_json_output(
-                        outs[0].outputs[0].text)))
+                    _dict_to_record(parse_json_output(raw_text)))
+                hop_golds.append(gold)
             chain_cumul.append(chain_lat)
             if (c + 1) % 20 == 0:
                 print(f"    chain {c+1}/{args.chains}  "
@@ -167,8 +178,7 @@ def main():
 
         cumul_summary = summarize(chain_cumul)
         hop_summary = summarize(hop_lats)
-        gold = gold_records[:len(hop_records)]
-        f1_res = field_f1(hop_records, gold)
+        f1_res = field_f1(hop_records, hop_golds)
         quality = {
             "field_f1": round(f1_res["macro_field_f1"], 4),
             "schema_valid_pct": round(schema_validity(hop_records), 2),
@@ -184,6 +194,11 @@ def main():
         }
         results["per_depth"][str(D)] = entry
         results["per_hop_latencies_ms"].extend(hop_lats)
+        depth_pred_ranges.append((D, len(hop_records_all),
+                                   len(hop_records_all) + len(hop_records)))
+        hop_records_all.extend(hop_records)
+        hop_raw_texts_all.extend(hop_raw_texts)
+        hop_lats_all.extend(hop_lats)
         print(f"  D={D}: cumul p50={cumul_summary['p50_ms']:.0f}ms  "
               f"p99={cumul_summary['p99_ms']:.0f}ms  "
               f"p99.9={cumul_summary['p99_9_ms']:.0f}ms  "
@@ -200,6 +215,20 @@ def main():
     with open(out_path, "w") as f:
         json.dump(results, f, indent=2)
     print(f"\nWrote {out_path}")
+
+    if args.save_predictions:
+        preds_path = out_path.with_suffix(".preds.jsonl")
+        with open(preds_path, "w") as f:
+            for D, start, end in depth_pred_ranges:
+                for i in range(start, end):
+                    rec = hop_records_all[i]
+                    f.write(json.dumps({
+                        "depth": D,
+                        "raw": hop_raw_texts_all[i],
+                        "record": rec.fields,
+                        "latency_ms": hop_lats_all[i],
+                    }) + "\n")
+        print(f"Wrote {preds_path}")
 
 
 if __name__ == "__main__":

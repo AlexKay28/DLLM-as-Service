@@ -133,18 +133,22 @@ def schema_validity(pred_records: list[Record],
 
 def _check_consistency(rec: Record) -> bool:
     """
-    Check inter-field constraints.
+    Check inter-field constraints (3 rules over 4 fields, all involving severity).
 
-    Constraints from the paper:
-      - severity ↔ is_anomaly  (ERROR/FATAL → is_anomaly=true)
-      - component ↔ error_code  (error_code should be valid for component)
-      - severity ↔ anomaly_score (score should align with severity)
+    Constraints:
+      R1: severity ∈ {ERROR,FATAL,CRITICAL} ⇒ is_anomaly == true
+      R2: severity ∈ {INFO,DEBUG} ⇒ anomaly_score ≤ 0.8;
+          severity ∈ {FATAL,CRITICAL} ⇒ anomaly_score ≥ 0.5
+      R3: error_code non-empty ⇒ severity != "INFO"
+
+    Note: the docstring previously advertised a "component ↔ error_code"
+    constraint. It does not exist — `component` was read into a local but
+    never used (dead variable, issue #54). Removed.
     """
     severity = rec.get("severity")
     is_anomaly = rec.get("is_anomaly")
     anomaly_score = rec.get("anomaly_score")
     error_code = rec.get("error_code")
-    component = rec.get("component")
 
     # Constraint 1: severity ↔ is_anomaly
     if severity and is_anomaly is not None:

@@ -125,6 +125,13 @@ def main():
                            "no concurrent requests in flight"}
 
     # P-E4: quality unchanged across depths
+    # NOTE (#55): the original chain_dg.json/chain_ar3b.json have a
+    # gold-misalignment bug (cursor never reset between depths; gold sliced
+    # from index 0). Only D=1 quality is trustworthy from those files.
+    # Corrected DG values (from aligned scoring on saved preds):
+    #   [0.783, 0.789, 0.789, 0.793, 0.789] — flat, unchanged=True.
+    # AR corrected values need GPU re-run (preds not saved).
+    # See models/experiments/diagnose_chain_offset.py for the decisive test.
     for label, chain in [("dg", dg_chain), ("ar", ar_chain)]:
         f1s = []
         for D in sorted(int(d) for d in chain["per_depth"]):
