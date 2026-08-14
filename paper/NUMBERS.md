@@ -203,6 +203,38 @@ L=1024 (measured 779.1, **+0.6%**) and 1250.0 ms at L=2048 (measured 1250.7,
 Source: `results/p2_{dg,ar3b}_L{32,64,128,256,512}.json`,
 `results/appD_{dg,ar3b}_L{1024,2048}.json`. n=300/cell, forced `min_tokens = L`.
 
+> ## ⚠ **[BLOCKER — this result may be a harness artifact. Issue #43.]**
+>
+> **Do not build the paper's headline claim on this table until #43 resolves.**
+> Every link of an artifact mechanism is confirmed in committed code:
+>
+> 1. **AR is forced past EOS.** Each cell sets `min_tokens == max_new_tokens == L`
+>    and `mean_output_tokens` is *exactly* L. A model that finishes the record at
+>    ~123 tokens must emit ~389 more at L=512.
+> 2. **The parser spans every repeated record.** `models/baselines/ar_model.py:181-183`
+>    takes `text[text.find("{") : text.rfind("}")+1]` — first brace to **last**
+>    brace. Concatenated objects fail strict `json.loads`, falling through to the
+>    regex fallback.
+> 3. **The fallback is last-wins.** `ar_model.py:213-217` assigns
+>    `result[key] = ...` inside a left-to-right `finditer`, so the **final, most
+>    drifted** copy of each field is the one scored.
+> 4. **The observed signature matches exactly.** A last-wins parser over drifted
+>    repeats yields *high validity* with *collapsing field accuracy* — precisely
+>    the anomaly here: AR at L=512 holds `schema_valid` 99.3% while `host` falls
+>    1.00 → 0.673 and `anomaly_f1` falls to 0.3553 on a boolean copied from a
+>    native BGL label, which should be immune to output length. A model genuinely
+>    degrading would lose validity too.
+> 5. **Unfalsifiable from artifacts.** No `*_preds.jsonl` was saved for any
+>    L-sweep cell, so this cannot be checked without a re-run.
+>
+> If a first-object-wins parser restores AR to ~0.8 at L≥512, then this section
+> **and** §6's long-structured-extraction application both collapse, leaving a
+> latency cost law only. Note the symmetry: this would be a **third** harness
+> defect biasing against AR, in a paper whose central methodological claim is
+> "price the AR baseline first." The truncation-regime rows may be similarly
+> suspect — both models score *identically* 0.3167 at L=32 and L=64, which looks
+> like an empty-prediction floor rather than a measurement.
+
 | L | DG F1 | DG valid% | AR F1 | AR valid% | regime |
 |---|---|---|---|---|---|
 | 32 | 0.3167 | 0.0 | 0.3167 | 0.0 | truncation — both fail |
@@ -586,6 +618,33 @@ F1 0.872, beating AR-7B (0.842, 1161 ms) on *both* quality and speed — the
    against its *claims*; never imply reproduction.
 10. **Small n in places:** semi-AR ablation n=30; adaptive-effort n=100/bin (DM)
     vs 200/bin (AR).
+11. **The headline quality result may be a parser artifact** (§3 warning box).
+    → **#43**. Highest-priority open item; run before any other experiment.
+12. **The batching mechanism is inferred, not measured.** The KV-cache
+    explanation is consistent with the multipliers but was never tested
+    directly, and the dInfer control that licenses the word "architectural" was
+    itself run `cache=''` because of the `modeling_llada.py:938` bug — so a
+    cache-based mechanism is argued from a cache-less measurement. → **#42**.
+13. **`T_DG`'s step is not constant** (§2.1): 101.1 ms for the 2nd canvas vs
+    120.3/118.9 for the 4th/8th. The single-step law is an approximation.
+14. **"Drain" is a regex fallback**, not the reference implementation
+    (`logparser3` was not installed) — §7.6 caveat. Re-run or relabel.
+15. **Semantic gold labels are placeholder output of the same parser that
+    produces structural gold**, so "semantic F1" may measure agreement with a
+    regex rather than semantic quality — which would undercut the
+    structural-vs-semantic decomposition in §7.6.
+16. **The `consistency` metric is undefined in every report.** It is load-bearing
+    for §6.2 and §7.6; its rule set has never been enumerated, and it is unknown
+    whether the rule count scales with field count in the wide-schema
+    experiment (which the O(F²) framing assumes).
+17. **Chain quality collapses ~40% from depth 1 to depth 3** for *both* models,
+    unexplained, before plateauing. §6.1's quality numbers are uninterpretable
+    until the cause is known.
+18. **Wide-schema latency is not like-for-like:** diffusion emits ~48% more
+    tokens than AR at F=100 (1406 vs 951) for the same schema.
+19. **No cell was ever repeated.** There are no confidence intervals anywhere in
+    the repo, and at least one cell (DG at L=512) has two different recorded
+    values across artifacts. → **#46**.
 
 ---
 
