@@ -396,10 +396,21 @@ single `generate([prompt])` that must finish before the next starts).
   ratio** by D≥3. CLT washes out DG's single-request tail penalty under
   sequential composition. Analytical CLT: DG σ=268.2 ms, AR σ=158.7 ms; predicted
   cumulative p99.9 at D=20 is 12072 ms (DG) vs 18935 ms (AR).
-- **P-E4 [CORRECTION to `DM_APPLICATIONS.md`]:** quality is **not** "stable across
-  depths." Both models drop sharply D=1 → D=3 (DG 0.783 → 0.457; AR 0.826 →
-  0.495) and only then plateau. **AR is ~0.04 better at every depth.** The chain
-  result is a *latency* result only. State this.
+- **P-E4 — the quality rows are INVALID. Scoring bug located. Issue #55.**
+  `models/experiments/run_chain_experiment.py:138` initialises `cursor = 0`
+  **outside** the depth loop, so it keeps advancing across depths; but line 170
+  scores with `gold = gold_records[:len(hop_records)]`, always slicing gold from
+  index 0. Predictions and gold are aligned **only at D=1**. At D=3/5/10/20 the
+  predictions come from prompts offset by 100/400/900/1900 events and are scored
+  against unrelated gold. The dead `gold` local at line 150 (assigned inside the
+  hop loop, never used) shows per-hop gold was intended.
+  This reproduces the observed signature exactly: D=1 correct (0.783 / 0.826),
+  everything after flat at a random-pairing floor (~0.46 / ~0.50), for **both**
+  models identically. **Do not report chain Field-F1 in the paper.** Fix and
+  re-run; the runner exists, so this is cheap.
+  **The latency rows are unaffected** — `cursor` only selects which prompt is
+  used, and per-hop latency is prompt-independent (slope CV 1.1%/1.2%). §6.1's
+  tail-convergence result stands.
 
 ### 6.2 Wide-schema normalization — `results/wide_schema_analysis.json`
 
@@ -412,14 +423,51 @@ single `generate([prompt])` that must finish before the next starts).
 
 - Kill condition (DG consistency < 80% at F=50) **not triggered**; DG plateaus at
   87.0–87.5%, non-monotonic (rises 91.0 → 92.5 before falling).
-- DG validity **rises** with F (97.0 → 99.0) while consistency falls — the two
-  decouple.
-- **Caveat that must be stated:** DG emits more tokens than AR at every width
-  (F=100: 1406.4 vs 950.7 mean tokens), so part of the latency ratio is DG doing
-  more work, and part of the consistency gap may be length-related. AR holds
-  96.5% consistency at F=100 vs DG's 87.5% — **AR wins consistency at every
-  width.** The DG claim here is latency + graceful degradation, *not* superior
-  consistency.
+- DG validity **rises** with F (97.0 → 99.0) while consistency falls.
+- AR holds 96.5% consistency at F=100 vs DG's 87.5% — **AR wins consistency at
+  every width.**
+
+> ## ⚠ **[THE O(F²) CLAIM IS REFUTED BY INSPECTION. Issue #54.]**
+>
+> `DM_APPLICATIONS.md` §3.4 claims joint-canvas denoising "absorbs the O(F²)
+> inter-field constraint cost." **Nothing in this experiment measures O(F²)
+> anything.**
+>
+> `metrics/quality_metrics.py:134` `_check_consistency` is **three hardcoded
+> rules** over four *base-12* fields (`severity` ↔ `is_anomaly`, `severity` ↔
+> `anomaly_score`, `error_code` ⇒ non-INFO severity). Its docstring advertises a
+> fourth constraint (`component` ↔ `error_code`) that **does not exist** —
+> `component` is assigned at line 147 and never read.
+>
+> `models/experiments/run_wide_schema.py` calls that same function at F=12 and
+> at F=100, so **the constraint count is 3 at every width**. Meanwhile
+> `models/baselines/wide_schema.py` *generates* dozens of genuinely pairwise
+> constraints and prompts the model to satisfy them — and then never checks
+> them.
+>
+> So the "consistency plateaus at 87%" curve measures three fixed rules over 12
+> fields while the schema grows around them. **Drop the O(F²) framing entirely.**
+> The wide-schema application cannot be claimed in its current form.
+
+> ## ⚠ **[THE DG COST LAW FAILS OUT OF SAMPLE HERE. Issues #56 → #44.]**
+>
+> The schema is embedded in the system prompt, so widening F lengthens the
+> *input*. That makes this an accidental input-length sweep — and the first
+> out-of-sample test of §2.1's laws:
+>
+> | | AR law error | DG law error |
+> |---|---|---|
+> | F=12 … F=100 | **< 0.4%** at all four widths | +58% at F=50, **+112%** at F=100 |
+>
+> `T_AR(L)` reproduces the measured latencies almost exactly. `T_DG(L)`
+> under-predicts massively as the prompt grows. **This is direct evidence that
+> DG's cost is a function of input length as well as output length** — i.e. §3's
+> law is under-specified, and the paper's spine needs the two-variable form
+> (#44) before the law can be stated as published.
+>
+> Separately: normalising latency per emitted token *strengthens* the diffusion
+> latency claim (2.91× → **4.31×** at F=100), since DG emits ~48% more tokens
+> (1406.4 vs 950.7) for the same record.
 
 ### 6.3 Bounded-deadline completion — `results/bounded_deadline_report.md`
 
@@ -543,8 +591,23 @@ L/T/S training**, not a general MDM trick. n=30 only — label as preliminary.
 |---|---|
 | Latency linear in K | **R² = 1.0000**, slope ≈157 ms/step, intercept ≈6 ms (LLaDA-8B) |
 | K knee | K = 6–8 (F1 +0.41 from K=2→8; +0.03 from K=8→24) |
-| Structural vs semantic | structural > 0.93, semantic 0.47–0.72 |
-| Consistency is the weak spot | 76.6% vs AR 99.9% |
+| Structural vs semantic | structural > 0.93, semantic 0.47–0.72 — **NO LONGER SAFE, see below** |
+| Consistency is the weak spot | 76.6% vs AR 99.9% — **metric is 3 fixed rules, see §6.2 box** |
+
+> **[DOWNGRADED — two of the four "surviving" claims are no longer safe.]**
+>
+> - **Structural vs semantic** was listed as confirmed. But the semantic golds
+>   are placeholder output of the same parser that produces the structural golds
+>   (`datasets/prepare.py:333–334`), and `remediation_hint` gold is the constant
+>   `"none"`. "Semantic F1" may therefore measure agreement with a regex rather
+>   than semantic quality. **Withdraw or heavily qualify until #53 resolves.**
+> - **The consistency gap** (76.6% vs 99.9%) is computed by a three-rule check
+>   over four fields (§6.2 box). The gap may be dominated by a single rule
+>   firing. Decompose per-rule before claiming it (#54).
+>
+> The two that remain fully safe are the **K-sweep linearity** (R²=1.0000) and
+> the **K knee** — both purely internal to the diffusion model, measured on
+> latency, and independent of the gold pipeline and the consistency metric.
 
 K-sweep: K=2 → F1 0.350 / 319 ms; K=8 → 0.762 / 1265 ms; K=24 → 0.790 / 3771 ms.
 
@@ -563,14 +626,40 @@ Scale check (#18): Thunderbird at 211M lines — DM ≈ **1.6 years**, Drain
 **Implication to state plainly:** the LLM's value is confined to the 3 semantic
 + 2 anomaly fields. Any end-to-end extraction paper omitting Drain oversells.
 
-> **[CAVEAT — must be disclosed]** `results/baselines_report.md` records
-> *"Drain: logparser3 not installed — regex fallback used."* Our "Drain" is
-> therefore **not the reference Drain implementation** but a regex approximation
-> of it. This most likely *understates* the baseline, which makes the argument
-> above conservative — but the label must not be left unqualified in the paper.
-> Either install `logparser3` and re-run, or rename the row "Drain-style regex
-> parser" throughout. Recommended: re-run; it is cheap and removes an easy
-> reviewer objection against the paper's strongest baseline claim.
+> ## ⚠ **[THE BASELINE IS SCORED AGAINST ITS OWN TWIN. Issues #52, #53.]**
+>
+> **[SUPERSEDES an earlier note in this file, which guessed the opposite.]** An
+> earlier revision said the regex fallback "most likely *understates* the
+> baseline, which makes the argument conservative." **That is backwards.**
+>
+> Two facts, both verified in source:
+>
+> 1. `results/baselines_report.md` records *"Drain: logparser3 not installed —
+>    regex fallback used."* Our "Drain" is **not** the reference implementation.
+> 2. The fallback and the gold generator are **the same code**.
+>    `datasets/prepare.py:333` produces gold
+>    `event_type = message_template[:30]`; `models/baselines/drain_only.py:267`
+>    produces the prediction `event_type = template[:30]`. Identical.
+>
+> So drain-only's **0.998 semantic F1 is self-agreement**, not accuracy — the
+> baseline is being scored against its own output. A real Drain would score
+> **lower** on semantic fields, not higher, because it would no longer be
+> grading itself.
+>
+> Worse: `datasets/prepare.py:334` sets `remediation_hint = "none"` for **every
+> event in the corpus**. That field is a constant, not a measurement. Any model
+> emitting `"none"` scores 1.0; any model emitting a real remediation hint is
+> scored wrong. This retroactively explains the odd result that our MDM's
+> `remediation_hint` (0.887) "exceeded the paper's FlowFill" (0.78) — it measures
+> how often the model said `"none"`.
+>
+> **Consequences.** The §7.5 argument ("the LLM's value is confined to 3 semantic
+> + 2 anomaly fields") depends on a semantic comparison that is currently
+> circular. Structural and anomaly comparisons are unaffected — those golds come
+> from BGL's native fields, not from the fallback. Fix: install `logparser3` and
+> re-run, **and** resolve the semantic-gold problem (#53) before making any
+> semantic claim. Until both land, report structural + anomaly only and rename
+> the row "Drain-style regex parser".
 
 ---
 
@@ -645,6 +734,45 @@ F1 0.872, beating AR-7B (0.842, 1161 ms) on *both* quality and speed — the
 19. **No cell was ever repeated.** There are no confidence intervals anywhere in
     the repo, and at least one cell (DG at L=512) has two different recorded
     values across artifacts. → **#46**.
+20. **`T_DG(L)` fails out of sample** — it under-predicts by +58%/+112% at F=50/100
+    in the wide-schema data, where the prompt grows with the schema. Strong
+    evidence that DG's cost depends on **input** length too, so §3's law is
+    under-specified. `T_AR(L)` reproduces the same cells to <0.4%. → **#56, #44**.
+    *This is the most serious open item after #43, because §3 is the paper's spine.*
+21. **Chain Field-F1 is invalid** — gold/prediction misalignment for every depth
+    after D=1 (§6.1 box). Latency rows unaffected. → **#55**.
+22. **The wide-schema O(F²) claim was never measured** — three fixed rules at
+    every schema width (§6.2 box). → **#54**.
+23. **The classical baseline grades itself on semantic fields** — the "Drain"
+    fallback and the gold generator are the same code (§7.6 box). → **#52, #53**.
+
+---
+
+## 9a. Priority order (as of 2026-08-14)
+
+**Gating the paper:**
+
+| Rank | Item | Why | Cost |
+|---|---|---|---|
+| 1 | **#43** | The headline result may be our own parser | ~2–3 h |
+| 2 | **#44 / #56** | The cost law — the paper's spine — fails out of sample | ~4 h |
+| 3 | **#46** | Three disagreeing fits, no CIs, no repeated cells | ~4 h |
+| 4 | **#42** *or* retitle | The title asserts an untested mechanism | ~6–8 h |
+
+**Fix, don't research** (root cause already located): #55 (chain cursor),
+#54 (drop the O(F²) framing), #52/#53 (report structural + anomaly only until
+the gold pipeline is fixed).
+
+**Not gating:** #45, #47, #48, #49, #50, #51, #34.
+
+**Scope consequence.** §6 currently defends six applications. Wide-schema is
+dead as framed (#54); chains is latency-only pending a re-run (#55);
+bounded-deadline rests on a probable harness bug (#38); imputation is already
+refuted. What remains is refinement, plus whatever survives #43. **Cut §6 to
+what can be defended line by line** — a four-claim paper beats an eight-claim
+paper with soft edges. The methodology contribution, the cost laws, the two
+walls, the batching gap and the perturbation refutation do not depend on §6 at
+all.
 
 ---
 
