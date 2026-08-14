@@ -388,8 +388,6 @@ The two surviving advantages are #24 (iterative refinement) and #25
 "DM is faster/better" claims. The cost-invariance (flat latency) holds
 in all experiments; the quality winners are split by difficulty bin.
 
-### Shared infrastructure (the #26 enabler)
-
 The selective-masking extension to `mdm_wrapper.py` (placing mask tokens at
 specific field positions instead of the whole canvas) is the one code change
 that unblocks both #26 and #24. It is the highest-leverage piece of new
