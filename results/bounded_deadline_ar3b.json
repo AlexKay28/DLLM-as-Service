@@ -2,71 +2,71 @@
   "experiment": "issue26_bounded_deadline",
   "model_type": "ar3b",
   "model": "Qwen/Qwen2.5-3B-Instruct",
-  "n": 500,
+  "n": 200,
   "cells": [
     {
       "deadline_ms": 200,
       "max_tokens": 31,
-      "field_f1": 0.3187,
+      "field_f1": 0.3146,
       "record_completeness_pct": 0.0,
       "field_completeness_pct": 0.0,
-      "p50_ms": 203.17,
-      "mean_ms": 203.46
+      "p50_ms": 202.75,
+      "mean_ms": 203.26
     },
     {
       "deadline_ms": 400,
       "max_tokens": 63,
-      "field_f1": 0.3187,
+      "field_f1": 0.3146,
       "record_completeness_pct": 0.0,
       "field_completeness_pct": 0.0,
-      "p50_ms": 403.56,
-      "mean_ms": 403.66
+      "p50_ms": 402.91,
+      "mean_ms": 403.02
     },
     {
       "deadline_ms": 600,
       "max_tokens": 95,
-      "field_f1": 0.3187,
+      "field_f1": 0.3146,
       "record_completeness_pct": 0.0,
       "field_completeness_pct": 0.0,
-      "p50_ms": 604.4,
-      "mean_ms": 604.52
+      "p50_ms": 604.52,
+      "mean_ms": 604.67
     },
     {
       "deadline_ms": 800,
       "max_tokens": 127,
-      "field_f1": 0.6134,
-      "record_completeness_pct": 0.0,
-      "field_completeness_pct": 36.87,
-      "p50_ms": 805.29,
-      "mean_ms": 795.26
+      "field_f1": 0.6207,
+      "record_completeness_pct": 61.5,
+      "field_completeness_pct": 61.5,
+      "p50_ms": 805.16,
+      "mean_ms": 797.47
     },
     {
       "deadline_ms": 1000,
       "max_tokens": 159,
-      "field_f1": 0.8078,
-      "record_completeness_pct": 0.0,
-      "field_completeness_pct": 60.7,
-      "p50_ms": 808.17,
-      "mean_ms": 831.17
+      "field_f1": 0.8143,
+      "record_completeness_pct": 97.5,
+      "field_completeness_pct": 97.5,
+      "p50_ms": 808.01,
+      "mean_ms": 831.16
     },
     {
       "deadline_ms": 1500,
       "max_tokens": 238,
-      "field_f1": 0.8205,
-      "record_completeness_pct": 0.0,
-      "field_completeness_pct": 62.72,
-      "p50_ms": 807.82,
-      "mean_ms": 840.3
+      "field_f1": 0.8266,
+      "record_completeness_pct": 100.0,
+      "field_completeness_pct": 100.0,
+      "p50_ms": 806.86,
+      "mean_ms": 836.84
     },
     {
       "deadline_ms": 2000,
       "max_tokens": 318,
-      "field_f1": 0.8205,
-      "record_completeness_pct": 0.0,
-      "field_completeness_pct": 62.72,
-      "p50_ms": 807.16,
-      "mean_ms": 843.76
+      "field_f1": 0.8266,
+      "record_completeness_pct": 100.0,
+      "field_completeness_pct": 100.0,
+      "p50_ms": 806.86,
+      "mean_ms": 836.76
     }
   ],
-  "timestamp": "2026-08-14T13:53:34Z"
+  "timestamp": "2026-08-14T17:51:44Z"
 }
