@@ -45,15 +45,22 @@ def field_f1_single(pred: Optional[str], gold: Optional[str]) -> tuple[float, fl
     return (precision, recall, f1)
 
 
-def field_f1(pred_records: list[Record], gold_records: list[Record]) -> dict[str, float]:
+def field_f1(pred_records: list[Record], gold_records: list[Record],
+              fields_to_eval: Optional[list[str]] = None) -> dict[str, float]:
     """
-    Compute macro-averaged Field-F1 across all 12 slots.
+    Compute macro-averaged Field-F1 across slots.
+
+    Args:
+        fields_to_eval: if set, restrict the macro average to these fields
+            only (per-field F1 is still computed for all 12). Default None
+            evaluates all fields (backward-compatible).
 
     Returns:
         dict with 'field_f1', per-field F1 scores, and 'macro_f1'
     """
     assert len(pred_records) == len(gold_records), "Record counts must match"
 
+    eval_fields = fields_to_eval if fields_to_eval else FIELD_NAMES
     per_field_f1: dict[str, list[float]] = {name: [] for name in FIELD_NAMES}
 
     for pred_rec, gold_rec in zip(pred_records, gold_records):
@@ -68,15 +75,22 @@ def field_f1(pred_records: list[Record], gold_records: list[Record]) -> dict[str
         scores = per_field_f1[field_name]
         result[f"f1_{field_name}"] = sum(scores) / len(scores) if scores else 0.0
 
-    result["macro_field_f1"] = sum(result[f"f1_{n}"] for n in FIELD_NAMES) / len(FIELD_NAMES)
+    result["macro_field_f1"] = sum(result[f"f1_{n}"] for n in eval_fields) / len(eval_fields)
     return result
 
 
-def schema_validity(pred_records: list[Record]) -> float:
+def schema_validity(pred_records: list[Record],
+                     skip_missing: Optional[list[str]] = None) -> float:
     """
     Compute Schema-valid %: percentage of records that are parseable,
     have all required keys, and correct types.
+
+    Args:
+        skip_missing: if set, fields in this list are not flagged as invalid
+            when missing (for imputation where known fields are intentionally
+            absent from the prediction). Default None checks all fields.
     """
+    skip_set = set(skip_missing) if skip_missing else set()
     valid_count = 0
 
     for rec in pred_records:
@@ -86,6 +100,8 @@ def schema_validity(pred_records: list[Record]) -> float:
             field = FIELD_BY_NAME[field_name]
 
             if field.required and not rec.has(field_name):
+                if field_name in skip_set:
+                    continue
                 is_valid = False
                 break
 

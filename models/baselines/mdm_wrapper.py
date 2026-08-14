@@ -176,7 +176,8 @@ class MDMModel:
         torch_dtype = dtype_map.get(self.dtype, "auto")
 
         # --- Patch 1: get_total_byte_count tolerates missing all_tied_weights_keys ---
-        if not getattr(_mu, "_llada_patch_gtbc_applied", False):
+        # Only applies to transformers>=5.x where get_total_byte_count exists.
+        if hasattr(_mu, "get_total_byte_count") and not getattr(_mu, "_llada_patch_gtbc_applied", False):
             _orig_gtbc = _mu.get_total_byte_count
 
             def _patched_gtbc(model, accelerator_device_map, hf_quantizer=None):
@@ -210,12 +211,11 @@ class MDMModel:
         self.model = AutoModelForCausalLM.from_pretrained(
             self.model_name,
             torch_dtype=torch_dtype,
-            device_map=self.device if self.device != "cpu" else None,
             trust_remote_code=True,
             local_files_only=True,
         )
-        if self.device == "cpu":
-            self.model = self.model.to("cpu")
+        if self.device != "cpu":
+            self.model = self.model.to(self.device)
         self.model.eval()
 
         # LLaDA mask token: <|mdm_mask|> = token id 126336
@@ -423,6 +423,93 @@ class MDMModel:
         return self.extract(log_lines, source=source, show_progress=show_progress,
                            k_steps=k_steps, blocks=1)
 
+    def extract_impute(self, log_lines: list[str], known_fields_list: list[dict],
+                       missing_fields_list: list[list[str]], source: str = "hdfs",
+                       show_progress: bool = True,
+                       k_steps: int = None) -> MDMResult:
+        """Impute missing fields via selective masking (issue #23).
+
+        Instead of masking the entire completion, this builds a partial JSON
+        with known fields filled as real tokens and missing fields as mask
+        tokens. _denoise fills only the masked positions, conditioning on the
+        known fields — DM's native operation.
+
+        Args:
+            log_lines: raw log lines.
+            known_fields_list: per-event dict of known field values.
+            missing_fields_list: per-event list of field names to impute.
+            source: log source.
+            k_steps: override default K.
+        """
+        import torch
+
+        from models.baselines.imputation import (
+            build_dm_imputation_prompt_text,
+            build_dm_imputation_token_ids,
+        )
+
+        if not self._is_loaded:
+            self.load()
+
+        k = k_steps or self.k_steps
+        records = []
+        latencies = []
+        token_counts = []
+        total_input_tokens = 0
+        total_output_tokens = 0
+
+        if show_progress:
+            try:
+                from tqdm import tqdm
+                iterator = tqdm(zip(log_lines, known_fields_list, missing_fields_list),
+                               desc=f"  {self.model_name} (impute K={k})", unit="ev")
+            except ImportError:
+                iterator = zip(log_lines, known_fields_list, missing_fields_list)
+        else:
+            iterator = zip(log_lines, known_fields_list, missing_fields_list)
+
+        for line, known, missing in iterator:
+            prompt_text = build_dm_imputation_prompt_text(
+                line, source, known, missing)
+
+            input_ids, prompt_len, n_mask = build_dm_imputation_token_ids(
+                self.tokenizer, prompt_text, known, missing,
+                self.mask_token_id, max_length=2048)
+            input_ids = input_ids.to(self.model.device)
+
+            t0 = time.perf_counter()
+            output_ids = self._denoise(input_ids, k_steps=k, blocks=1)
+            elapsed = (time.perf_counter() - t0) * 1000
+
+            gen_ids = output_ids[0][prompt_len:]
+            output_text = self.tokenizer.decode(gen_ids, skip_special_tokens=True)
+            n_output = int((gen_ids != self.mask_token_id).sum())
+
+            data = parse_json_output(output_text)
+            merged = dict(known)
+            merged.update(data)
+            rec = _dict_to_record(merged)
+            records.append(rec)
+            latencies.append(elapsed)
+            token_counts.append(n_output)
+            total_input_tokens += prompt_len
+            total_output_tokens += n_output
+
+            if show_progress and hasattr(iterator, 'set_postfix'):
+                avg_lat = sum(latencies) / len(latencies)
+                iterator.set_postfix(avg_ms=f"{avg_lat:.1f}")
+
+        return MDMResult(
+            records=records,
+            latencies_ms=latencies,
+            token_counts=token_counts,
+            model_name=self.model_name,
+            k_steps=k,
+            blocks=1,
+            n_input_tokens=total_input_tokens,
+            n_output_tokens=total_output_tokens,
+        )
+
 
 class MockMDMModel:
     """Mock MDM model for testing the experiment harness without GPU.
@@ -498,8 +585,45 @@ class MockMDMModel:
         return self.extract(log_lines, source=source, show_progress=show_progress,
                            k_steps=k_steps, blocks=1)
 
+    def extract_impute(self, log_lines: list[str], known_fields_list: list[dict],
+                       missing_fields_list: list[list[str]], source: str = "hdfs",
+                       show_progress: bool = True,
+                       k_steps: int = None) -> MDMResult:
+        """Mock imputation: drain extract + merge known fields."""
+        from models.baselines.drain_only import extract as drain_extract
 
-# ---------------------------------------------------------------------------
+        k = k_steps or self.k_steps
+        dr_result = drain_extract(log_lines, source=source)
+
+        records = []
+        for dr_rec, known, missing in zip(dr_result.records, known_fields_list, missing_fields_list):
+            merged = dict(known)
+            for fname in FIELD_NAMES:
+                if fname not in merged or merged[fname] is None:
+                    merged[fname] = dr_rec.get(fname)
+            records.append(_dict_to_record(merged))
+
+        rng = random.Random(42)
+        latencies = []
+        for missing in missing_fields_list:
+            n_mask = len(missing)
+            base = k * MS_PER_STEP * (0.3 + 0.1 * n_mask)
+            jitter = rng.gauss(0, base * 0.08)
+            latencies.append(max(base + jitter, 0.5))
+
+        token_counts = [sum(len(str(v).split()) for v in known.values()) // 2 + 10]
+        token_counts = [128] * len(log_lines)
+
+        return MDMResult(
+            records=records,
+            latencies_ms=latencies,
+            token_counts=token_counts,
+            model_name=self.model_name,
+            k_steps=k,
+            blocks=1,
+            n_input_tokens=len(log_lines) * 300,
+            n_output_tokens=len(log_lines) * 64,
+        )
 # Integration notes for tomorrow's GPU work
 # ---------------------------------------------------------------------------
 #

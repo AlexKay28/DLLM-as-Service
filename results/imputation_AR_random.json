@@ -1,0 +1,189 @@
+{
+  "experiment": "issue23_imputation",
+  "model": "Qwen/Qwen2.5-3B-Instruct",
+  "model_type": "AR",
+  "source": "bgl",
+  "stratification": "random",
+  "n": 500,
+  "k_steps": null,
+  "mock": false,
+  "timestamp": "2026-08-14T10:52:06Z",
+  "cells": [
+    {
+      "imputed_fields": [
+        "timestamp_norm"
+      ],
+      "field_f1_imputed": 0.25,
+      "per_field_f1": {
+        "f1_timestamp_norm": 0.25,
+        "f1_host": 1.0,
+        "f1_component": 1.0,
+        "f1_severity": 1.0,
+        "f1_event_type": 1.0,
+        "f1_message_template": 0.996,
+        "f1_error_code": 0.988,
+        "f1_affected_entity": 0.99,
+        "f1_metric_value": 1.0,
+        "f1_is_anomaly": 1.0,
+        "f1_anomaly_score": 1.0,
+        "f1_remediation_hint": 1.0
+      },
+      "field_f1_all": 0.25,
+      "schema_validity": 99.0,
+      "consistency": 98.2,
+      "anomaly_f1": 1.0,
+      "latency": {
+        "p50_ms": 917.0653503388166,
+        "p90_ms": 1060.6692670844495,
+        "p99_ms": 1326.812267769128,
+        "p99_9_ms": 1628.8081742823124,
+        "mean_ms": 953.8022332405671
+      },
+      "k": 1
+    },
+    {
+      "imputed_fields": [
+        "error_code",
+        "metric_value"
+      ],
+      "field_f1_imputed": 0.591,
+      "per_field_f1": {
+        "f1_timestamp_norm": 1.0,
+        "f1_host": 1.0,
+        "f1_component": 1.0,
+        "f1_severity": 1.0,
+        "f1_event_type": 1.0,
+        "f1_message_template": 0.996,
+        "f1_error_code": 0.964,
+        "f1_affected_entity": 0.998,
+        "f1_metric_value": 0.218,
+        "f1_is_anomaly": 1.0,
+        "f1_anomaly_score": 1.0,
+        "f1_remediation_hint": 1.0
+      },
+      "field_f1_all": 0.591,
+      "schema_validity": 99.2,
+      "consistency": 99.6,
+      "anomaly_f1": 1.0,
+      "latency": {
+        "p50_ms": 878.2448968850076,
+        "p90_ms": 1097.9857542552054,
+        "p99_ms": 1388.6653282679617,
+        "p99_9_ms": 1626.7868233844638,
+        "mean_ms": 920.8576444108039
+      },
+      "k": 2
+    },
+    {
+      "imputed_fields": [
+        "host",
+        "error_code",
+        "timestamp_norm",
+        "severity"
+      ],
+      "field_f1_imputed": 0.7434999999999998,
+      "per_field_f1": {
+        "f1_timestamp_norm": 0.47,
+        "f1_host": 0.628,
+        "f1_component": 1.0,
+        "f1_severity": 0.938,
+        "f1_event_type": 1.0,
+        "f1_message_template": 0.996,
+        "f1_error_code": 0.938,
+        "f1_affected_entity": 0.992,
+        "f1_metric_value": 1.0,
+        "f1_is_anomaly": 1.0,
+        "f1_anomaly_score": 1.0,
+        "f1_remediation_hint": 1.0
+      },
+      "field_f1_all": 0.7434999999999998,
+      "schema_validity": 98.4,
+      "consistency": 95.0,
+      "anomaly_f1": 1.0,
+      "latency": {
+        "p50_ms": 903.4129739739001,
+        "p90_ms": 1085.031792987138,
+        "p99_ms": 1622.0965390093625,
+        "p99_9_ms": 1629.398648161441,
+        "mean_ms": 934.0278760436922
+      },
+      "k": 4
+    },
+    {
+      "imputed_fields": [
+        "metric_value",
+        "message_template",
+        "component",
+        "remediation_hint",
+        "event_type",
+        "error_code"
+      ],
+      "field_f1_imputed": 0.6430264476798156,
+      "per_field_f1": {
+        "f1_timestamp_norm": 1.0,
+        "f1_host": 1.0,
+        "f1_component": 0.962,
+        "f1_severity": 1.0,
+        "f1_event_type": 0.1172761904761904,
+        "f1_message_template": 0.6708824956027037,
+        "f1_error_code": 0.894,
+        "f1_affected_entity": 1.0,
+        "f1_metric_value": 0.222,
+        "f1_is_anomaly": 1.0,
+        "f1_anomaly_score": 1.0,
+        "f1_remediation_hint": 0.992
+      },
+      "field_f1_all": 0.6430264476798156,
+      "schema_validity": 99.8,
+      "consistency": 98.8,
+      "anomaly_f1": 1.0,
+      "latency": {
+        "p50_ms": 827.754566911608,
+        "p90_ms": 953.8227673619986,
+        "p99_ms": 1402.165748178959,
+        "p99_9_ms": 1618.0800688453019,
+        "mean_ms": 860.4493185663596
+      },
+      "k": 6
+    },
+    {
+      "imputed_fields": [
+        "affected_entity",
+        "event_type",
+        "message_template",
+        "severity",
+        "remediation_hint",
+        "error_code",
+        "component",
+        "timestamp_norm"
+      ],
+      "field_f1_imputed": 0.6882182589265036,
+      "per_field_f1": {
+        "f1_timestamp_norm": 0.004,
+        "f1_host": 1.0,
+        "f1_component": 0.958,
+        "f1_severity": 0.934,
+        "f1_event_type": 0.1076857142857142,
+        "f1_message_template": 0.6740603571263145,
+        "f1_error_code": 0.918,
+        "f1_affected_entity": 0.944,
+        "f1_metric_value": 1.0,
+        "f1_is_anomaly": 1.0,
+        "f1_anomaly_score": 1.0,
+        "f1_remediation_hint": 0.966
+      },
+      "field_f1_all": 0.6882182589265036,
+      "schema_validity": 99.2,
+      "consistency": 94.19999999999999,
+      "anomaly_f1": 1.0,
+      "latency": {
+        "p50_ms": 928.9674949832261,
+        "p90_ms": 1059.9783160723746,
+        "p99_ms": 1402.837643865496,
+        "p99_9_ms": 1627.4894066154957,
+        "mean_ms": 969.0238056425005
+      },
+      "k": 8
+    }
+  ]
+}
