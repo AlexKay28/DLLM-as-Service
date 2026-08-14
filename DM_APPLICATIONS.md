@@ -261,31 +261,31 @@ in its issue.
 
 | # | Application | The DM property it exploits | Reuses | New code | Est. GPU |
 |---|---|---|---|---|---|
-| **#23** | [Missing-field imputation](https://github.com/AlexKay28/DLLM-as-Service/issues/23) — DM's native mask operation | Selective masking (#17 cost law + #19 consistency) | data, `_denoise`, `derive_fields`, metrics | imputation prompts, selective mask construction, `fields_to_eval` | ~2 h |
-| **#24** | [Adaptive-effort via threshold decoding](https://github.com/AlexKay28/DLLM-as-Service/issues/24) — fast on easy, deep on hard | dInfer threshold decoder (#22, F1 0.872) | dInfer runner, vLLM AR runner, metrics | difficulty binning, per-bin aggregation | ~1.5 h |
-| **#25** | [Iterative refinement loops](https://github.com/AlexKay28/DLLM-as-Service/issues/25) — re-mask only wrong fields | Selective masking (#23) + serial composition (#21 P-E2) | chain runner timing/sweep, vLLM DG config | critic function, refinement loop, re-prompt builder | ~2 h |
-| **#26** | [Bounded-deadline completion](https://github.com/AlexKay28/DLLM-as-Service/issues/26) — DM completes, AR truncates | Content-independent latency O(K) (#17, R²=1.0) | vLLM AR runner (`max_tokens`), HF MDMModel | completeness metric, deadline sweep runner | ~1 h |
+| **#26** | [Missing-field imputation](https://github.com/AlexKay28/DLLM-as-Service/issues/26) — DM's native mask operation | Selective masking (#17 cost law + #19 consistency) | data, `_denoise`, `derive_fields`, metrics | imputation prompts, selective mask construction, `fields_to_eval` | ~2 h |
+| **#23** | [Adaptive-effort via threshold decoding](https://github.com/AlexKay28/DLLM-as-Service/issues/23) — fast on easy, deep on hard | dInfer threshold decoder (#22, F1 0.872) | dInfer runner, vLLM AR runner, metrics | difficulty binning, per-bin aggregation | ~1.5 h |
+| **#24** | [Iterative refinement loops](https://github.com/AlexKay28/DLLM-as-Service/issues/24) — re-mask only wrong fields | Selective masking (#26) + serial composition (#21 P-E2) | chain runner timing/sweep, vLLM DG config | critic function, refinement loop, re-prompt builder | ~2 h |
+| **#25** | [Bounded-deadline completion](https://github.com/AlexKay28/DLLM-as-Service/issues/25) — DM completes, AR truncates | Content-independent latency O(K) (#17, R²=1.0) | vLLM AR runner (`max_tokens`), HF MDMModel | completeness metric, deadline sweep runner | ~1 h |
 | **#27** | [Perturbation / drift robustness](https://github.com/AlexKay28/DLLM-as-Service/issues/27) — DM corrects input noise | Joint denoising (#19) + length-robustness (#17 L=512) | #8 perturbation suite, vLLM/dInfer runners | perturbation port, robustness runner, per-category analysis | ~1.5 h |
 
 ### Priority
 
-- **#23 (imputation)** is the most differentiated — it uses DM's defining
+- **#26 (imputation)** is the most differentiated — it uses DM's defining
   mechanism (selective masking) directly, and AR has no architectural answer.
-- **#24 (adaptive-effort)** is the most surprising — it would deliver the
+- **#23 (adaptive-effort)** is the most surprising — it would deliver the
   "DM wins both quality AND speed" data point the survey currently lacks
   (§7), by being adaptive where AR is flat.
-- **#25 (refinement)** depends on #23's selective-masking work landing
-  first; run it after #23.
-- **#26 (bounded-deadline)** is the defensible version of the paper's
+- **#24 (refinement)** depends on #26's selective-masking work landing
+  first; run it after #26.
+- **#25 (bounded-deadline)** is the defensible version of the paper's
   withdrawn "bounded latency" claim — not "faster" but "completes within
   the bound."
 - **#27 (perturbation)** tests whether the length-robustness of #17
   generalizes to input noise — a real-world drift property.
 
-### Shared infrastructure (the #23 enabler)
+### Shared infrastructure (the #26 enabler)
 
 The selective-masking extension to `mdm_wrapper.py` (placing mask tokens at
 specific field positions instead of the whole canvas) is the one code change
-that unblocks both #23 and #25. It is the highest-leverage piece of new
+that unblocks both #26 and #24. It is the highest-leverage piece of new
 code across the five issues. The `_denoise` core is already field-agnostic;
 only the mask-construction line (`mdm_wrapper.py:327-332`) needs to change.
