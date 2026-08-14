@@ -341,7 +341,7 @@ the model emits reasoning text before the JSON (e.g., "Output:\n```\njson\n{..."
 and only ~8 fields survive. A debug run with verbose token counting
 would confirm the token budget breakdown.
 
-### 9.4 Size-matched comparison (cross-cutting)
+### 9.4 Size-matched comparison (cross-cutting) — filed as #34
 
 Every DM advantage we found (flattening latency at K, DM F1 > AR F1
 on novel events, DM improves with refinement, DM completes when AR
@@ -351,11 +351,31 @@ AR-0.5B, or they may disappear against AR-7B. The size-matched
 arm (#12, DiffusionGemma-26B vs Qwen2.5-7B) is the unresolved baseline
 that affects every DM advantage claim.
 
-**New question:** for each DM advantage found in #23-#27, re-run the
-comparable experiment with DiffusionGemma-26B against Qwen2.5-7B.
-Does the DM win hold, strengthen, or reverse?
+**Action:** Issue #34 files a size-matched revalidation of #24/#25
+with DiffusionGemma-26B vs Qwen2.5-7B.
 
-### 9.5 Imputation mechanism works when paired with critic (Issue #24 vs #26)
+### 9.5 Why is DM more perturbation-sensitive than AR? — filed as #39
+
+The perturbation example (§9.1) shows DM loses harder than AR across
+all 10 noise types. Proposed mechanisms M1/M2/M3 (AR's causal
+conditioning, denoiser loop propagation, LLaDA training bias) need
+validation via DiffusionGemma-26B to distinguish intrinsic DM-type
+vs naive-LLM vulnerability.
+
+**Action:** Issue #39 files the mechanism explanation with the
+proposed ablations.
+
+### 9.6 AR Record incompleteness debug — filed as #38
+
+At max_tokens=318 (D=2000), AR's Record completeness is 0% at every
+tested deadline. This appears artificial: the generate-and-parse
+should produce all 12 fields the schema requires. The incompleteness
+may stem from the AR's "Output:```\njson\n{..." preamble consumption
+and the bounded-deadline budget formula for max_tokens.
+
+**Action:** Issue #38 files the debug tokenizer/AR/pacing analysis.
+
+### 9.7 Imputation mechanism works when paired with critic (Issue #24 vs #26)
 
 **Result separation:** Issue #26 (one-shot imputation, P-F1 REFUTED)
 showed DM cannot impute low-confidence fields directly. Issue #24
