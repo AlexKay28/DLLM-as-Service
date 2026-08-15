@@ -2,6 +2,19 @@
 
 All notable changes to this project. Dates are 2026-08-15 unless noted.
 
+## 2026-08-16 — Evidence gaps filled, application claims strengthened
+
+### Issue #69: AR-1.5B measured at L=512/1024, energy, K=4 p99
+- **AR-1.5B L=512: 2005 ms** (was extrapolated 826 ms — 2.4× too low)
+- **AR-1.5B L=1024: 4026 ms** (was extrapolated 1652 ms — 2.4× too low)
+- **AR-1.5B energy: 5.1 J/event** (net, was estimated ~5.6 J — close)
+- **DM K=4 p99: 394.3 ms** (was estimated ~380 ms — meets 400 ms SLA)
+- AR-0.5B: not available offline, removed from comparison
+- **Impact:** all EDR-021/022 application claims STRENGTHENED. DG advantage at L=512 is 4.0× (not 1.65×)
+- Root cause of extrapolation error: AR-1.5B rambles when forced past natural output length (~123 tokens), vLLM processes all forced tokens
+
+---
+
 ## 2026-08-15 — Paper draft + pinned harness + cost laws
 
 ### Infrastructure (#57)

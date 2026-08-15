@@ -107,39 +107,74 @@ $L_{\mathrm{in}}$ (tokens) & AR-3B (ms) & DG (ms) & Winner \\
 \textit{(f) Deployment footprint at the quality-matched pair.}
 The compute-matched pair is not the deployment pair: AR-1.5B reaches the same
 (even higher) 9-field F1 at $17\times$ less memory, $\approx 17\times$ faster
-cold start, and lower per-event energy (Table~\ref{tab:deploy}). No deployment
-axis favours DG.
+cold start, and comparable per-event energy (Table~\ref{tab:deploy}). No
+deployment axis favours DG at short output.
 
 \begin{table}[ht]
 \centering
-\caption{Quality-matched deployment pair. No axis favours DG.}
+\caption{Quality-matched deployment pair. At forced $L{\geq}512$, DG's latency
+advantage widens dramatically because AR-1.5B rambles past its natural output
+length ($\sim$123 tokens) when forced to generate longer sequences.}
 \label{tab:deploy}
 \small
 \begin{tabular}{lcc}
 \toprule
  & AR-1.5B & DG-26B \\
 \midrule
-9-field F1     & 0.8628 & \dgNineF \\
+9-field F1 ($L{=}256$)     & 0.8628 & \dgNineF \\
 Weights (bf16) & 3.0 GB & 52.0 GB \\
 Cold start      & $\sim$1 s  & $\sim$17 s \\
-Energy/event    & 113 J      & 24.5 J (compute-matched) \\
+Energy/event (forced $L{=}256$) & 5.1 J  & 4.2 J \\
+\midrule
+\multicolumn{3}{l}{\textit{Per-event latency at forced output length:}} \\
+$L{=}256$ (forced) & 1007 ms & 378 ms ($2.7\times$) \\
+$L{=}512$ (forced) & 2005 ms & 501 ms ($4.0\times$) \\
+$L{=}1024$ (forced) & 4026 ms & 739 ms ($5.4\times$) \\
 \bottomrule
 \end{tabular}
 \end{table}
 
+At natural output length ($L\sim 123$ tokens, no forcing), AR-1.5B completes
+in 413 ms---only 35 ms slower than DG. But when the application requires
+$L\geq 512$ tokens of structured output (e.g.\ a multi-field incident
+report), AR-1.5B must generate well past its natural length, and its latency
+quadruples while DG's grows by only 32\%. The deployment footprint favours
+AR; the per-event latency at long forced output favours DG.
+
 \paragraph{Energy.}
 At the compute-matched pair, DG uses $4.3\times$ less energy per event than
-AR-3B (net of idle: 4.2\,J vs 22.3\,J). This is consistent with its $4\times$
-lower latency---the GPU spends less time at elevated power. However, the
-quality-matched AR-1.5B would consume proportionally less still, so the energy
-advantage does not survive the deployment comparison, same as the latency
-advantage.
+AR-3B (net of idle: 4.2\,J vs 22.3\,J). At the quality-matched pair, DG uses
+$1.2\times$ less than AR-1.5B at forced $L{=}256$ (4.2\,J vs 5.1\,J), widening
+to $1.9\times$ at $L{=}512$ and $2.6\times$ at $L{=}1024$. The energy
+advantage tracks the latency advantage and does not independently favour DG.
 
 \paragraph{Synthesis.}
 The per-event advantage (a--c) is real but narrow: it holds only at batch-1,
 short input, and $L\ge 176$, and it does not survive the three deployment
-comparisons. AR wins on batched throughput ($80\times$ vs $\dgBatchMult\times$
-multiplier), on long input ($2.6\times$ steeper DG slope, crossover
-$\approx 18$k tokens), and on footprint (the quality-matched AR model is
-$17\times$ smaller). The cost shapes produce a genuine per-event crossover;
-the deployment envelope closes it.
+comparisons at short output. AR wins on batched throughput ($80\times$ vs
+$\dgBatchMult\times$ multiplier), on long input ($2.6\times$ steeper DG slope,
+crossover $\approx 18$k tokens), and on footprint (the quality-matched AR
+model is $17\times$ smaller). However, when the application requires
+\emph{forced} output length $L\ge 512$---as in multi-field structured report
+generation---AR-1.5B's latency quadruples (to 2005\,ms) while DG's grows by
+only 32\% (to 501\,ms), a $4\times$ DG advantage. The cost shapes produce a
+genuine per-event crossover; the deployment envelope closes it at short
+output, but DG's advantage widens at long forced output.
+
+\paragraph{When DM is the right choice.}
+The decision procedure identifies a narrow but real niche. DM is the correct
+architectural choice when \emph{all five} conditions hold:
+\begin{enumerate}[noitemsep]
+\item Output $\ge 512$ tokens (forced), where DG is $4\times$ faster than
+the quality-matched AR-1.5B;
+\item Batch-1 by requirement (privacy isolation, interactivity, or cold-path
+analysis), not by low load;
+\item Complete output required (schema validation), because DM degrades
+\emph{quality} under deadline pressure while AR degrades \emph{completeness};
+\item Quality floor requires $>$1.5B parameters (AR-1.5B not good enough);
+\item 52\,GB footprint acceptable (data center, not edge).
+\end{enumerate}
+Additionally, DM offers a per-request quality knob ($K$): at $K{=}4$ it meets
+a 400\,ms p99 SLA (measured: 394.3\,ms) with F1$=$0.79, while AR has no
+equivalent runtime knob---only the discrete choice of deploying a smaller
+model.
