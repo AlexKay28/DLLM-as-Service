@@ -51,6 +51,7 @@ Each EDR has these sections:
 | [EDR-018](018-energy-measurement.md) | DG uses 4.3× less energy per event at compute-matched pair | Accepted | 2026-08-15 |
 | [EDR-019](019-memory-probe.md) | Long-context memory probe — inconclusive (measurement method wrong) | Inconclusive | 2026-08-15 |
 | [EDR-020](020-infilling-experiment.md) | Infilling advantage refuted — AR trivially regenerates suffix | Accepted | 2026-08-15 |
+| [EDR-021](021-real-life-applications.md) | Real-life applications where DM is the right choice | Proposed | 2026-08-15 |
 
 ## Rules
 
