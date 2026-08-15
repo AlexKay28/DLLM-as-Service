@@ -137,8 +137,7 @@ comparison, which makes it the worst of the five in one specific sense: it is
 a correctness-of-record defect, and it made audit impossible until correction
 sidecars were written.
 
-\begin{keybox}
-\boxhead{The asymmetry is the point}
+\paragraph{The asymmetry is the point}
 A comparison harness written by someone hoping the new architecture wins fails
 \emph{asymmetrically}. The failures are not random: they cluster on the arm
 the experimenter is not rooting for, because that arm inherits the checkpoint
@@ -147,4 +146,3 @@ production infrastructure that the new architecture is being compared against.
 Each of the five checks in \artifact{CHECKLIST.md} takes under five minutes,
 and each catches a failure that moved a headline number by more than the
 effect it was reporting.
-\end{keybox}

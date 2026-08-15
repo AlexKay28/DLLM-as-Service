@@ -87,8 +87,7 @@ unchanged. \textbf{B} is the finding: the diffusion model's prefill slope is
 \label{fig:input}
 \end{figure}
 
-\begin{caution}
-\boxhead{Scope condition}
+\paragraph{Scope condition}
 Every one-variable statement in this paper --- the crossover $L^{*}$, the
 per-event ratios, the decision procedure's default mode --- is calibrated at
 the reference prompt of $\sim$\refPrompt\ tokens. At longer inputs the
@@ -98,7 +97,6 @@ near $L_{\mathrm{in}} \approx 18{,}000$ tokens, beyond which the
 autoregressive model is cheaper at \emph{any} output length. We did not measure
 that far; the number is an extrapolation of two fitted slopes and is quoted as
 an order of magnitude, not a boundary.
-\end{caution}
 
 \subsection{Where the diffusion base actually goes}
 
@@ -147,8 +145,7 @@ because the loss comes out of the whole.}
 \label{fig:ksweep}
 \end{figure}
 
-\begin{keybox}
-\boxhead{The shape is structural}
+\paragraph{The shape is structural}
 The floor is the majority of the base --- bounded above by 53\% from the
 $K{=}2$ measurement and by 68\% from the canvas-step measurement
 (\artifact{results/issue44\_dg\_ksweep\_K2.json},
@@ -158,7 +155,6 @@ likely closer to 47\%. The staircase therefore comes from the \emph{canvas},
 not from the diffusion: any decoder that emits output in fixed-size blocks would
 have the same shape, and diffusion is simply the way this particular model gets
 block structure. We name the paper after the block for that reason.
-\end{keybox}
 
 \subsection{The crossover}
 

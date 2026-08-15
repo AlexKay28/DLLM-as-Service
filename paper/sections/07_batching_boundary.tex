@@ -63,8 +63,7 @@ disabled drops the multiplier from \cacheOnMult$\times$ to
 ceiling of \dgBatchMult$\times$. Cache reuse therefore accounts for part of
 the gap and cannot account for the rest.
 
-\begin{caution}
-\boxhead{How much of the mechanism we actually isolated}
+\paragraph{How much of the mechanism we isolated}
 The diffusion batching ceiling reproduces across two runtimes and two model
 families, but \emph{both measurements are bounded by known engine defects}:
 vLLM caps the batch at 8, and dInfer runs cache-less. The true ceiling on an
@@ -76,7 +75,6 @@ the diffusion ceiling. Remaining candidates: mixture-of-experts routing that
 varies across denoising steps; sheer model size, since the diffusion model
 is \footprintRatio$\times$ larger; and kernel maturity. We disentangle none
 of these.
-\end{caution}
 
 \subsection{A free Pareto improvement at canvas $= 128$}
 
