@@ -34,6 +34,21 @@ $\arSlope\times\canvasLength \approx \num{1610}$\,ms.}
 \label{fig:cost-shapes}
 \end{figure}
 
+\begin{figure}[t]
+\centering
+\includegraphics[width=\linewidth]{figures/fig8_defects.pdf}
+\caption{Eight priced errors in our own comparison harness, each found by
+re-reading committed artifacts rather than by running new experiments. Each row
+gives the value as originally recorded, the value after correction, and which
+arm the bias favoured; rows~1--5 are harness defects and rows~6--8 are claims
+withdrawn because the measurement behind them was contaminated. Five of the
+eight biased against the autoregressive arm, one (row~7) against the diffusion
+arm, and two were neutral. The clustering on one arm is the finding: a
+comparison harness written by someone hoping the new architecture wins fails
+asymmetrically.}
+\label{fig:defects}
+\end{figure}
+
 \paragraph{Why this is worth measuring carefully}
 Diffusion language models are routinely advertised as a low-latency route to
 structured generation, and the argument is architecturally sound as far as it
@@ -44,7 +59,7 @@ runtime, the parser, and the metric are each worth a multiple. This project
 began as an attempt to reproduce one such claim and found, instead, five
 defects in \emph{its own} harness --- four of them biasing against the
 autoregressive arm, each large enough to move a headline number by more than
-the effect being reported (\S\ref{sec:setup}). We report them first, because
+the effect being reported (Figure~\ref{fig:defects}; \S\ref{sec:setup}). We report them first, because
 every number after them depends on their being fixed.
 
 \paragraph{What we measure, and on what}

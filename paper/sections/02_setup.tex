@@ -80,18 +80,8 @@ not interpretable to the precision stated, and we say so wherever they appear.
 
 \subsection{Pricing the Baseline}
 
-\begin{figure}[t]
-\centering
-\includegraphics[width=\linewidth]{figures/fig8_defects.pdf}
-\caption{Pricing the baseline: eight corrections to our own measurements and
-claims. Each row is one item: the value as originally recorded, the value
-after the fix, and which arm the bias favoured. Rows~1--5 are harness
-defects; rows~6--8 are claims withdrawn because the measurement behind them
-was contaminated. Five of the eight biased against the autoregressive arm,
-one (row~7) against the diffusion arm, and two were neutral. All eight were
-found by re-reading committed artifacts.}
-\label{fig:defects}
-\end{figure}
+Figure~\ref{fig:defects} (front matter) summarises the eight items; the
+paragraphs below give the mechanism behind each.
 
 \paragraph{1. Decoding configuration}
 HuggingFace \texttt{generate()} honours \texttt{repetition\_penalty} even
