@@ -1,267 +1,165 @@
 \section{The Two Cost Laws}
-\label{sec:cost_laws}
+\label{sec:laws}
 
-With quality fixed at the exchange rate of \S3, we derive and verify the
-per-event latency laws for the two architectures. The laws have
-fundamentally different shapes: AR cost is a line in one variable
-(output length); DG cost is a staircase in output length with a second,
-steeper dependence on input length. Both laws are measured on the
-pinned stack (vLLM~\vllmVersion, torch~\torchVersion, \gpuModel) with
-run-to-run coefficient of variation below $0.3\%$, and both generalise
-from BGL to HDFS within $1\%$.
+With quality fixed, we fit latency as a function of output length for both
+architectures on the pinned stack. The two laws have different shapes, and the
+rest of the paper is a consequence of that difference.
 
-\subsection{The AR cost law: linear in one variable}
-\label{sec:cost_law_ar}
+\subsection{Autoregressive: a line with no floor}
 
-Autoregressive decoding generates one token at a time, each requiring a
-full forward pass over the KV-cache. Cost is therefore linear in output
-length and independent of how many canvases the output spans:
+Each output token requires one forward pass over the KV cache, so cost is
+linear in output length and independent of how many canvases the output would
+have spanned:
 \begin{equation}
-\label{eq:ar_law}
-T_{\mathrm{AR}}(L_{\mathrm{out}}) \;=\; \arBase \;+\; \arSlope \,\cdot\, L_{\mathrm{out}}
-\quad\text{(ms)}
+\label{eq:ar}
+T_{\textsc{ar}}(L_{\mathrm{out}}) \;=\; \arBase \;+\; \arSlope \cdot L_{\mathrm{out}}
+\qquad\text{(ms)}
 \end{equation}
-The intercept $\arBase$\,ms absorbs prompt prefill (amortised by prefix
-caching across requests) and dispatch overhead; the slope
-$\arSlope$\,ms/token is the per-token decode cost. We verify
-Eq.~\ref{eq:ar_law} at two output lengths with five (resp.\ three)
-repeats of $n{=}300$ events each on BGL.
+The intercept absorbs prompt prefill (amortised by prefix caching across
+requests) and dispatch overhead; the slope is the per-token decode cost. Five
+repeats at $L{=}\canvasLength$ give p50 $=$ \arAnchorTwoFive~ms
+(CV \arCV\%) and three at $L{=}512$ give \arAnchorFiveOne~ms (CV $0.01\%$);
+Eq.~\ref{eq:ar} predicts both within $0.1\%$. The law holds out to $L{=}2048$,
+where it predicts \num{12889}~ms against a measured \num{12893}~ms.
 
-\begin{table}[t]
-\centering
-\caption{AR-3B anchor measurements on the pinned stack. The linear law
-$T = \arBase + \arSlope \cdot L$ predicts both points within $0.1\%$.
-Run-to-run CV is below $0.06\%$.}
-\label{tab:ar_anchor}
-\begin{tabular}{lrrrr}
-\toprule
-$L_{\mathrm{out}}$ & Measured p50 (ms) & Predicted (ms) & Error & CV \\
-\midrule
-256 & 1616.0 & 1617.5 & $+0.09\%$ & $0.05\%$ \\
-512 & 3225.1 & 3225.2 & $+0.00\%$ & $0.01\%$ \\
-\bottomrule
-\end{tabular}
-\end{table}
+\subsection{Block diffusion: a staircase with a high floor}
 
-Input length enters weakly. Sweeping the prompt from 992 to 6{,}172
-tokens (by repeating the schema block) yields a slope of
-$\arInputSlope$\,ms/prompt-token---less than $1\%$ of the per-token
-decode slope. AR pays for the prompt once via prefix caching; each
-generated token attends to the cached KV without recomputation.
-
-The law generalises to HDFS: at $L{=}256$ the HDFS p50 is
-1616.5\,ms---a $+0.03\%$ shift from BGL's 1616.0\,ms, well inside the
-run-to-run CV.
-
-\subsection{The DG cost law: staircase in two variables}
-\label{sec:cost_law_dg}
-
-Block-diffusion decoding generates tokens in fixed-size canvases of
-$\canvasLength$ tokens. Within a canvas, all positions are denoised in
-parallel at no additional sequential cost; crossing a canvas boundary
-triggers a fresh denoising pass. Cost is therefore a staircase in
-output length, not a line:
+Diffusion decoding writes onto fixed-size canvases. Within one canvas every
+position is denoised in parallel at no additional sequential cost; crossing a
+boundary triggers a fresh denoising pass over a new canvas. Cost is therefore
+stepwise:
 \begin{equation}
-\label{eq:dg_law}
-T_{\mathrm{DG}}(L_{\mathrm{in}},\, L_{\mathrm{out}}) \;=\;
-\underbrace{\dgBase}_{\text{base (K=8)}} \;+\;
+\label{eq:dg}
+T_{\textsc{dg}}(L_{\mathrm{in}}, L_{\mathrm{out}}) \;=\;
+\underbrace{\dgBase}_{\text{base, } K=8} \;+\;
 \underbrace{\dgInputSlope \cdot \Delta L_{\mathrm{in}}}_{\text{prefill}} \;+\;
-\underbrace{\dgStep \cdot \Bigl(\!\Bigl\lceil \tfrac{L_{\mathrm{out}}}{\canvasLength}\Bigr\rceil - 1\Bigr)}_{\text{canvas staircase}}
-\quad\text{(ms)}
+\underbrace{\dgStep \cdot \Bigl(\bigl\lceil \tfrac{L_{\mathrm{out}}}{\canvasLength}\bigr\rceil - 1\Bigr)}_{\text{canvas staircase}}
+\qquad\text{(ms)}
 \end{equation}
-where $\Delta L_{\mathrm{in}} = L_{\mathrm{in}} - L_{\mathrm{in,ref}}$
-is the deviation from the reference prompt ($\approx$1047 tokens). At
-the reference prompt the prefill term vanishes and the law reduces to a
-one-variable staircase with base $\dgBase$\,ms and step
-$\dgStep$\,ms per additional canvas.
+where $\Delta L_{\mathrm{in}}$ is the deviation from the reference prompt of
+$\sim$\refPrompt\ tokens. At the reference prompt the prefill term vanishes
+and the law reduces to a one-variable staircase.
 
-The staircase has sharp edges at exactly $\canvasLength$-token
-boundaries and is flat between them. Table~\ref{tab:dg_edges} probes
-both sides of the first two boundaries.
-
-\begin{table}[t]
-\centering
-\caption{Canvas-boundary edges (DG, K=8, BGL). Crossing a 256-token
-boundary costs $\sim$120\,ms; staying within a canvas costs $<$1\,ms.}
-\label{tab:dg_edges}
-\begin{tabular}{lrrll}
-\toprule
-$L_{\mathrm{out}}$ & p50 (ms) & $\lceil L/256\rceil$ & $\Delta$ from prev. & Edge? \\
-\midrule
-240 & 378.1 & 1 & --- & --- \\
-256 & 378.4 & 1 & $+0.2$\,ms & no \\
-264 & 500.0 & 2 & $+121.7$\,ms & \textbf{yes} \\
-\midrule
-496 & 500.0 & 2 & --- & --- \\
-512 & 500.9 & 2 & $+0.9$\,ms & no \\
-528 & 619.6 & 3 & $+118.7$\,ms & \textbf{yes} \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-The step cost $\dgStep$\,ms is the median of seven canvas transitions
-measured from $L{=}256$ to $L{=}2048$ (range 113.1--121.8\,ms, see
-Table~\ref{tab:dg_staircase}). The variation is run-to-run noise, not a
-systematic trend: the first extra canvas is not cheaper than later
-ones, refuting an earlier hypothesis based on a K=32 vs K=8
-configuration confound (\S0, discrepancy~\#2).
-
-\begin{table}[t]
-\centering
-\caption{Full DG staircase on BGL (K=8, $n{=}200$ per point). Each row
-is a canvas boundary; the step column is the p50 increment from the
-previous row. Steps are uniform within run-to-run noise.}
-\label{tab:dg_staircase}
-\begin{tabular}{rrrr}
-\toprule
-$L_{\mathrm{out}}$ & canvases & p50 (ms) & step (ms) \\
-\midrule
-\phantom{0}256 & 1 & \phantom{0}378.4 & --- \\
-\phantom{0}512 & 2 & \phantom{0}500.9 & 122.5 \\
-\phantom{0}768 & 3 & \phantom{0}620.4 & 119.5 \\
-1024 & 4 & \phantom{0}738.7 & 118.3 \\
-1280 & 5 & \phantom{0}860.5 & 121.8 \\
-1536 & 6 & \phantom{0}973.6 & 113.1 \\
-1792 & 7 & 1091.2 & 117.5 \\
-2048 & 8 & 1212.0 & 120.9 \\
-\midrule
-\multicolumn{2}{r}{median step} & & \dgStep \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-Input length enters DG cost more steeply than AR. The same prompt sweep
-yields a slope of $\dgInputSlope$\,ms/prompt-token for DG versus
-$\arInputSlope$ for AR---a ratio of
-$\dgInputSlope/\arInputSlope \approx 2.6\times$. Each denoising step
-re-attends the full prompt, so the prefill cost is paid $K$ times
-rather than once. This is the second variable that makes the DG law
-two-dimensional.
-
-Both variables generalise to HDFS. The AR law reproduces at $+0.03\%$
-(\S\ref{sec:cost_law_ar}). The DG staircase step reproduces at
-120.5\,ms on HDFS versus a BGL median of 118.5\,ms---within $1.7\%$.
-The staircase shape is corpus-independent; only the prompt content
-changes.
-
-\subsection{Base decomposition: where the DG cost goes}
-\label{sec:base_decomp}
-
-The base $\dgBase$\,ms is not monolithic. Sweeping the denoising step
-count $K \in \{2,4,8,16,32,64\}$ decomposes it into a $K$-independent
-floor (prefill + fixed overhead) and a $K$-dependent denoising term:
-\begin{equation}
-\label{eq:ksweep}
-T(K) \;=\; 296.1 \;+\; 2.57 \,\cdot\, K \quad\text{(ms, } R^2 = 0.49\text{)}
-\end{equation}
-The low $R^2$ reflects saturation above $K{=}16$: extra denoising steps
-beyond convergence add negligible latency. Table~\ref{tab:ksweep}
-reports the measured values and 9-field F1 at each $K$.
-
-\begin{table}[t]
-\centering
-\caption{K-sweep: DG latency and quality vs denoising steps (BGL,
-$L{=}256$, $n{=}200$). F1 collapses below $K{=}4$ and is flat above
-$K{=}8$. Latency saturates above $K{=}16$.}
-\label{tab:ksweep}
-\begin{tabular}{rrrl}
-\toprule
-$K$ & p50 (ms) & 9-field F1 & regime \\
-\midrule
-\phantom{0}2 & \phantom{0}201.7 & 0.485 & collapse \\
-\phantom{0}4 & \phantom{0}292.1 & 0.790 & transition \\
-\phantom{0}8 & \phantom{0}378.6 & 0.853 & \textbf{operating point} \\
-16 & \phantom{0}382.5 & 0.853 & flat \\
-32 & \phantom{0}421.8 & 0.862 & flat \\
-64 & \phantom{0}423.9 & 0.858 & saturated \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-At the operating point $K{=}8$, the decomposition is:
-\begin{equation}
-\label{eq:decomp}
-\underbrace{296\;\text{ms}}_{\substack{\text{prefill + fixed}\\\dgPrefillPct\%}}
-\;+\;
-\underbrace{20.6\;\text{ms}}_{\substack{\text{denoising loop}\\\dgDenoisePct\%}}
-\;=\; 316.6\;\text{ms (fit)}
-\end{equation}
-The denoising loop---the part that makes the model ``diffusion''---is
-$\dgDenoisePct\%$ of the fitted cost. The remaining $\dgPrefillPct\%$
-is prefill and fixed dispatch overhead, shared with any
-prompt-conditioned model. This is why halving $K$ from 8 to 4 saves only
-$\sim$87\,ms ($23\%$) while collapsing F1 from 0.85 to 0.79: the cost
-savings come from the small slice, the quality loss from the whole.
-
-\subsection{The crossover}
-\label{sec:crossover}
-
-The two laws cross where $T_{\mathrm{AR}} = T_{\mathrm{DG}}$. At the
-reference prompt ($\Delta L_{\mathrm{in}} = 0$) and the first canvas
-($L_{\mathrm{out}} \leq \canvasLength$), the staircase reduces to its
-floor and the crossover is analytic:
-\begin{equation}
-\label{eq:lcross}
-L^* \;=\; \frac{\dgBase - \arBase}{\arSlope}
-\;=\; \frac{378.8 - 7.27}{6.29}
-\;=\; 59.1 \;\;\text{tokens}
-\end{equation}
-Below $L^* \approx \crossoverL$ output tokens, AR is faster; above it,
-DG is faster---until the next canvas edge, where DG jumps by
-$\dgStep$\,ms and the gap widens again.
-
-The throughput crossover is the arrival rate at which DG's serial
-single-event throughput saturates. With one event in flight, DG's
-maximum throughput is the reciprocal of its base:
-\begin{equation}
-\label{eq:lambdacross}
-\lambda^* \;=\; \frac{1000}{\dgBase}
-\;=\; \frac{1000}{378.8}
-\;=\; 2.6 \;\;\text{events/s}
-\end{equation}
-Above $\lambda^* \approx \crossoverLambda$\,ev/s, a queue forms in
-front of the DG server. AR, which supports continuous batching, does
-not saturate until $\sim$80\,ev/s (\S7).
-
-Both crossovers are reproduced by the decision procedure's self-test
-suite (\texttt{models/decision/test\_procedure.py}, 11/11 passing).
-The test computes $L^*$ and $\lambda^*$ from the fitted constants
-alone---no hardcoded values---confirming that the crossovers are
-consequences of the laws, not tunable parameters.
-
-\paragraph{Takeaway.} AR cost is a line through the origin with slope
-$\arSlope$\,ms/token; DG cost is a staircase with floor $\dgBase$\,ms,
-step $\dgStep$\,ms per $\canvasLength$-token canvas, and a prefill slope
-$\dgInputSlope$\,ms/prompt-token that is $2.6\times$ steeper than AR's.
-The lines cross at $L^* \approx \crossoverL$ tokens and $\lambda^*
-\approx \crossoverLambda$\,ev/s. The denoising loop that distinguishes
-DG from a cached-prefill model is $\dgDenoisePct\%$ of its own cost.
-\S5 turns these laws into a deployment decision.
+\paragraph{The edges are exactly where the canvas is}
+Figure~\ref{fig:edges}A probes both sides of the first two boundaries.
+Growing the output from 240 to \canvasLength\ tokens costs $0.2$\,ms; growing
+it from \canvasLength\ to 264 --- eight more tokens, but one more canvas ---
+costs $121.7$\,ms. The same pattern repeats at 512.
 
 \begin{figure}[t]
 \centering
-\includegraphics[width=0.9\linewidth]{figures/fig1_cost_laws.pdf}
-\caption{AR linear vs DG staircase cost law. The crossover at $L^*\approx\crossoverL$ tokens is where AR becomes cheaper per event.}
-\label{fig:cost_laws}
+\includegraphics[width=\linewidth]{figures/fig2_canvas_edges.pdf}
+\caption{The staircase, probed and then swept
+(\artifact{results/issue68\_dg\_L*.json}, $K{=}8$, BGL, $n{=}200$ per point).
+\textbf{A:} latency is flat inside a canvas and jumps at the boundary.
+\textbf{B:} all seven canvas transitions out to $L{=}2048$ cost the same
+within run-to-run noise (range \dgStepLo--\dgStepHi\,ms, median \dgStep\,ms).
+An earlier hypothesis that the first extra canvas is cheaper does not
+survive: it was a $K{=}32$ versus $K{=}8$ configuration confound.}
+\label{fig:edges}
 \end{figure}
 
-\begin{figure}[t]
-\centering
-\includegraphics[width=0.9\linewidth]{figures/fig2_canvas_edges.pdf}
-\caption{Canvas step edges. Latency is flat within a canvas and jumps $\sim$120\,ms at each 256-token boundary.}
-\label{fig:canvas_edges}
-\end{figure}
+\paragraph{The steps are uniform}
+Figure~\ref{fig:edges}B shows every step out to $L{=}2048$. The spread
+(\dgStepLo--\dgStepHi\,ms) is run-to-run noise around a median of
+\dgStep\,ms with no systematic trend, so a single global step is an adequate
+model over this range. We quote it to one decimal and no further.
+
+\subsection{The second variable: input length}
+
+Equation~\ref{eq:dg} has two variables, and the second one matters more for
+diffusion than for autoregression. Sweeping the prompt from roughly 1{,}000 to
+6{,}800 tokens (Figure~\ref{fig:input}) gives \arInputSlope\,ms per prompt
+token for the autoregressive arm and \dgInputSlope\,ms for the diffusion arm
+--- \inputSlopeRatio$\times$ steeper. The mechanism is direct: the
+autoregressive model pays for the prompt once and every generated token then
+attends to a cached KV, whereas each denoising step re-attends the full
+prompt, so prefill is paid $K$ times.
 
 \begin{figure}[t]
 \centering
-\includegraphics[width=0.9\linewidth]{figures/fig6_ksweep.pdf}
-\caption{K-sweep base decomposition. Left axis: p50 latency. Right axis: 9-field F1. Quality collapses below K=4 and plateaus above K=8.}
+\includegraphics[width=\linewidth]{figures/fig3_input_sweep.pdf}
+\caption{Input-length sweep at fixed $L_{\mathrm{out}}{=}\canvasLength$
+(\artifact{results/issue44\_\{ar3b,dg\}\_input\_sweep.json}, $n{=}100$ per
+point). The prompt is lengthened by repeating the schema block, so the task is
+unchanged. \textbf{B} is the finding: the diffusion model's prefill slope is
+\inputSlopeRatio$\times$ the autoregressive model's.}
+\label{fig:input}
+\end{figure}
+
+\begin{caution}
+\boxhead{Scope condition, not a footnote}
+Every one-variable statement in this paper --- the crossover $L^{*}$, the
+per-event ratios, the decision procedure's default mode --- is calibrated at
+the reference prompt of $\sim$\refPrompt\ tokens. At longer inputs the
+diffusion base rises \inputSlopeRatio$\times$ faster and pushes $L^{*}$ upward.
+Extrapolated to a fixed $L_{\mathrm{out}}{=}\canvasLength$, the two curves meet
+near $L_{\mathrm{in}} \approx 18{,}000$ tokens, beyond which the
+autoregressive model is cheaper at \emph{any} output length. We did not measure
+that far; the number is an extrapolation of two fitted slopes and is quoted as
+an order of magnitude, not a boundary.
+\end{caution}
+
+\subsection{Where the diffusion base actually goes}
+
+The base is not monolithic, and decomposing it changes what the staircase
+means. Sweeping the denoising step count $K \in \{2,4,8,16,32,64\}$ at fixed
+output length separates a $K$-independent floor from a $K$-dependent denoising
+term (Figure~\ref{fig:ksweep}):
+\begin{equation}
+\label{eq:kfit}
+T(K) \;=\; \kfitBase \;+\; \kfitSlope \cdot K
+\qquad (R^2 = \kfitRsq)
+\end{equation}
+The low $R^2$ is itself informative: latency saturates above $K{=}16$, so the
+linear term is a poor description at the top of the range and the fit is
+carried by the bottom. At the operating point $K{=}8$ the fit puts
+\kfitBase\,ms in the $K$-independent floor against \num{20.6}\,ms in the
+denoising loop --- \dgPrefillPct\% against \dgDenoisePct\%.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.92\linewidth]{figures/fig4_ksweep.pdf}
+\caption{Denoising-step sweep at $L_{\mathrm{out}}{=}\canvasLength$
+(\artifact{results/issue44\_dg\_ksweep\_K*.json}, $n{=}200$ per point).
+Latency saturates above $K{=}16$; quality collapses below $K{=}4$ and is flat
+above $K{=}8$. Halving $K$ from 8 to 4 saves $\sim$87\,ms because the saving
+comes out of the small slice, while F1 falls from \kEightFone\ to \kFourFone\
+because the loss comes out of the whole.}
 \label{fig:ksweep}
 \end{figure}
 
-\begin{figure}[t]
-\centering
-\includegraphics[width=0.9\linewidth]{figures/fig3_input_sweep.pdf}
-\caption{Input-length sweep. DG's slope (0.123 ms/prompt-tok) is 2.6$\times$ steeper than AR's (0.047).}
-\label{fig:input_sweep}
-\end{figure}
+\begin{keybox}
+\boxhead{The shape is structural, not algorithmic}
+The denoising loop --- the part that makes this model a diffusion model --- is
+\dgDenoisePct\% of its own base cost. The remaining \dgPrefillPct\% is prefill
+and fixed dispatch, shared with any prompt-conditioned model. The staircase
+therefore comes from the \emph{canvas}, not from the diffusion: any decoder
+that emits output in fixed-size blocks would have the same shape, and
+diffusion is simply the way this particular model gets block structure. We
+name the paper after the block for that reason.
+\end{keybox}
+
+\subsection{The crossover}
+
+At the reference prompt and inside the first canvas, the staircase reduces to
+its floor and the crossing point is analytic:
+\begin{equation}
+\label{eq:lcross}
+L^{*} \;=\; \frac{\dgBase - \arBase}{\arSlope} \;=\; \crossoverL \ \text{tokens}
+\qquad\qquad
+\lambda^{*} \;=\; \frac{1000}{\dgBase} \;=\; \crossoverLambda \ \text{events/s}
+\end{equation}
+Below $L^{*}$ the autoregressive model is cheaper per event; above it the
+diffusion model is, until the next canvas edge, where the gap widens again.
+$\lambda^{*}$ is the other boundary: with one event in flight, the reciprocal
+of the diffusion base is the ceiling on its serial throughput, and above that
+rate a queue forms. \S\ref{sec:decision} turns both into a procedure.
+
+\subsection{Both laws survive a change of corpus}
+
+Re-running the sweeps on HDFS leaves both shapes intact. The autoregressive
+p50 at $L{=}\canvasLength$ moves from \arBgl\,ms on BGL to \arHdfs\,ms on HDFS
+--- $+0.03\%$, well inside the run-to-run CV. The diffusion canvas step moves
+from \bglStep\,ms to \hdfsStep\,ms, a $1.7\%$ shift. The prompt content
+changes; the shape does not.

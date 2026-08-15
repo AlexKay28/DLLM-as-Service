@@ -1,180 +1,169 @@
 \section{The Fair Comparison}
 \label{sec:fair}
 
-The decision procedure identifies a regime where block-structured decoding
+The decision procedure identifies a region where block-structured decoding
 wins on per-event latency. This section asks the sharper question: at a
-\emph{fair} comparison point, does that advantage survive? Fairness has two
-axes---same quality and same compute---and the pair that satisfies both is the
-compute-matched pair of Table~\ref{tab:pair}.
+\emph{fair} comparison point, does the win survive? Fairness has two axes, and
+they select different pairs.
 
-\begin{table}[ht]
+\begin{table}[h]
 \centering
-\caption{The compute-matched pair: same quality, comparable active compute.}
-\label{tab:pair}
-\small
-\begin{tabular}{lcc}
+\caption{Two fair pairs, two different answers. The compute-matched pair is
+the right one for per-event claims; the quality-matched pair is the right one
+for deployment claims. Confusing them is how a per-event advantage gets
+reported as a deployment advantage.}
+\label{tab:pairs}
+\begin{tabular}{@{}lccc@{}}
 \toprule
- & AR-3B & DG-26B-A4B \\
+ & \thead{\ARthree} & \thead{\ARoneb} & \thead{\DG-26B-A4B} \\
 \midrule
-Architecture              & dense, autoregressive    & MoE, block diffusion \\
-Total parameters          & 3.0B                      & 26B \\
-Active parameters         & 3.0B (all)                & 4.0B (top-8 of 128) \\
-Active-parameter ratio    & $1.0\times$               & $1.33\times$ \\
-Weights (bf16)            & 6.0 GB                    & 52.0 GB \\
-9-field F1 ($L{=}256$)    & \arThreeBFnine            & \dgNineF \\
+\tabfont Decoding            & \tabfont dense, autoregressive & \tabfont dense, autoregressive & \tabfont MoE, block diffusion \\
+\tabfont Total parameters    & \tabfont 3.0\,B & \tabfont 1.5\,B & \tabfont 26\,B \\
+\tabfont Active parameters   & \tabfont 3.0\,B & \tabfont 1.5\,B & \tabfont 4.0\,B (top-8 of 128) \\
+\tabfont Weights (bf16)      & \tabfont 6.0\,GB & \tabfont \arOneFiveWeights\,GB & \tabfont \dgWeights\,GB \\
+\tabfont 9-field F1 ($L{=}\canvasLength$) & \tabfont \arThreeBFnine & \tabfont \arOneFiveFnine & \tabfont \dgNineF \\
+\midrule
+\tabfont Matched on          & \multicolumn{1}{c}{\tabfont \emph{compute}} & \multicolumn{1}{c}{\tabfont \emph{quality}} & \tabfont --- \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-Quality is identical (gap $=0.0002$) and active inference parameters are
-comparable ($1.33\times$ ratio). This is the pair for per-event claims. It is
-\emph{not} the quality-matched deployment pair: a smaller AR model reaches the
-same quality at $17\times$ less memory (Table~\ref{tab:deploy}).
+\subsection{Where the diffusion model wins}
 
-\paragraph{Where DG wins.}
-\textit{(a) Per-event latency at batch-1.}
-Within a canvas DG emits 1 token or 256 for the same cost; AR pays per token.
-The gap widens with output length (Table~\ref{tab:per-event}).
+\paragraph{(a) Per-event latency at batch-1}
+Within a canvas the diffusion model emits one token or \canvasLength\ for the
+same cost, while the autoregressive model pays per token. The gap therefore
+widens with output length: $2.1\times$ at $L{=}128$, $4.3\times$ at
+$L{=}\canvasLength$, $6.5\times$ at $L{=}512$, $8.8\times$ at $L{=}1024$, and
+$10.6\times$ at $L{=}2048$.
 
-\begin{table}[ht]
+\paragraph{(b) Output-length invariance inside a canvas}
+Across $L \in \{32, 64, 128, \canvasLength\}$ the diffusion arm costs
+$\approx$379\,ms with a spread under 3\,ms, while the autoregressive arm grows
+from 211\,ms to \arAnchorTwoFive\,ms. For a workload whose record size is
+variable and not known in advance, this converts a latency distribution into a
+latency constant.
+
+\paragraph{(c) Energy}
+At the compute-matched pair the diffusion model uses \energyRatio$\times$ less
+energy per event, net of idle draw: \dgEnergy\,J against \arThreeEnergy\,J at
+forced $L{=}\canvasLength$. The advantage tracks the latency advantage rather
+than adding to it --- the two models draw comparable power, and the diffusion
+model is simply busy for less time.
+
+\paragraph{(d) A runtime quality knob}
+$K$ is a per-request parameter. One deployment serves $K{=}8$ at
+\kEightPfifty\,ms and F1 \kEightFone, $K{=}4$ at \kFourPfifty\,ms and
+\kFourFone, and $K{=}2$ at \kTwoPfifty\,ms and \kTwoFone, with no model
+switch. The autoregressive equivalent is discrete --- deploy a different model
+--- so meeting a tightened SLA means routing to a second checkpoint that must
+already be resident. Concretely: if a p99 budget tightens to 400\,ms, dropping
+$K$ from 8 to 4 meets it at a measured \kFourPninetynine\,ms p99.
+
+\paragraph{(e) Graceful degradation of the right kind}
+Under deadline pressure the two architectures fail differently. The diffusion
+model degrades in \emph{quality} and always returns a complete canvas; the
+autoregressive model degrades in \emph{completeness} and returns a truncated
+record. For a caller that validates output against a schema, that difference
+is qualitative rather than quantitative: a complete record at F1 \kFourFone\
+passes validation, and 46 tokens of a 256-token JSON object does not.
+
+\begin{caution}
+\boxhead{The mirror image, stated in the same place}
+Property (e) inverts below the natural record length. At $L{=}128$ the
+autoregressive model retains \arFOneTwentyEight\ F1 and
+\arValidTwentyEight\% schema validity, while the diffusion model falls to
+\dgFOneTwentyEight\ and \dgValidTwentyEight\% (\S\ref{sec:exchange},
+Figure~\ref{fig:quality}). Diffusion degrades gracefully against a
+\emph{time} budget and catastrophically against an \emph{output-length}
+budget. Which one an application faces decides which architecture is safer.
+\end{caution}
+
+\subsection{Where the autoregressive model wins}
+
+\paragraph{(f) Batched throughput}
+Continuous batching converts arrival concurrency into throughput at
+\arBatchLo--\arBatchHi$\times$ for the autoregressive arm and
+\dgBatchMult$\times$ for diffusion. At $\lambda{=}64$ events/s the effective
+per-event cost is $\approx$20\,ms against $\approx$321\,ms --- a $16\times$
+advantage under load, running the opposite direction to the batch-1 result.
+\S\ref{sec:batching} takes this apart.
+
+\paragraph{(g) Long input}
+The diffusion prefill slope is \inputSlopeRatio$\times$ steeper
+(\S\ref{sec:laws}), so the advantage narrows as prompts grow and, on the
+fitted slopes, closes entirely somewhere around $L_{\mathrm{in}} \approx
+18{,}000$ tokens.
+
+\paragraph{(h) Deployment footprint}
+This is the one that closes the crossover. The quality-matched autoregressive
+model is not \ARthree\ but \ARoneb, which scores \arOneFiveFnine\ on the
+9-field metric --- \emph{higher} than the diffusion model --- at
+\arOneFiveWeights\,GB against \dgWeights\,GB. Whenever memory or cost matters,
+a \footprintRatio$\times$ smaller model that matches quality is the deployment
+winner.
+
+\begin{figure}[t]
 \centering
-\caption{Per-event latency, batch-1, short input. Fitted values; measured anchors agree within $0.4\%$ (AR) and $1\%$ (DG).}
-\label{tab:per-event}
-\small
-\begin{tabular}{rrrr}
-\toprule
-$L$ (tokens) & AR-3B (ms) & DG (ms) & DG speedup \\
-\midrule
-128  & 812   & 379  & $2.14\times$ \\
-256  & 1618  & 379  & $4.27\times$ \\
-512  & 3228  & 498  & $6.48\times$ \\
-1024 & 6448  & 738  & $8.74\times$ \\
-2048 & 12889 & 1216 & $10.6\times$ \\
-\bottomrule
-\end{tabular}
-\end{table}
+\includegraphics[width=\linewidth]{figures/fig9_deployment.pdf}
+\caption{The quality-matched deployment pair. \textbf{A:} at forced output
+lengths the diffusion model's advantage is real and grows, because \ARoneb\
+rambles well past its natural length ($\sim$\naturalLar\ tokens) and vLLM
+still processes every forced token. \textbf{B:} the standing cost of keeping
+each model resident. Energy per event is net of idle draw; the two energy runs
+recorded different idle baselines (52.6\,W and 58.6\,W), so treat the energy
+comparison as indicative rather than as a tight measurement.}
+\label{fig:deploy}
+\end{figure}
 
-\textit{(b) Output-length invariance within a canvas.}
-DG at $L\in\{32,64,128,256\}$ costs $\approx 379$ ms flat (spread $<\!3$ ms);
-AR over the same range grows $\approx 209\to 1618$ ms linearly. The canvas
-boundary is structural: the model denoises the whole canvas in $K{=}8$ parallel
-steps regardless of how many tokens are actually needed.
+\subsection{So where does that leave the diffusion model?}
 
-\textit{(c) Growth rate with output length.}
-Each extra canvas adds $\dgStep$ ms to DG; each extra 256 tokens adds
-$\arSlope\times\canvasLength\approx 1610$ ms to AR---a $\approx\!13\times$
-steeper marginal cost. The per-event advantage therefore \emph{widens} with
-output length, from $2.1\times$ at $L=128$ to $10.6\times$ at $L=2048$ (eight
-canvases).
+At \emph{natural} output length the contest is close: \ARoneb\ completes a
+record in 665.7\,ms p50 at 138 output tokens on the pinned stack, against the
+diffusion model's \dgTwoFive\,ms. A $1.8\times$ gap, on a model that is
+\footprintRatio$\times$ larger, is not a deployment argument.
 
-\paragraph{Where AR wins.}
-\textit{(d) Batched throughput.}
-AR's KV cache lets batching amortise prefill across requests; DG's bidirectional
-attention re-attends the full canvas on every denoising step and has no
-bandwidth headroom to convert into throughput. The measured batch multipliers
-are $\approx 80\times$ (AR-3B, vLLM; range 77--86$\times$) vs
-$\dgBatchMult\times$ (DG, dInfer). At $\lambda=64$ ev/s the effective per-event
-cost is $\approx 20$ ms (AR, $T_{\textsc{ar}}/80$) vs $\approx 321$ ms
-(DG, $T_{\textsc{dg}}/\dgBatchMult$)---a $16\times$ AR advantage under load.
-(This is the measured correlation; the causal mechanism is not
-isolated---EDR-004.)
+At \emph{forced} output length the picture changes, and this is the surviving
+niche. When an application requires $L \geq 512$ tokens of structured output
+--- a multi-field incident report, a full trajectory plan, a long structured
+summary --- \ARoneb's latency quadruples to \arOneFiveFiveOne\,ms while the
+diffusion model's grows by 32\% to \dgFiveOne\,ms
+(Figure~\ref{fig:deploy}A). At $L{=}1024$ the gap is $5.4\times$.
 
-\textit{(e) Long input.}
-AR pays for the prompt once; DG pays for it on every denoising step. DG's
-input-length slope is $\dgInputSlope$ ms/prompt-tok vs AR's
-$\arInputSlope$---$2.6\times$ steeper---so DG's prefill cost overwhelms its
-canvas advantage past a crossover at $L_{\mathrm{in}}\approx 18{,}000$ tokens
-(Table~\ref{tab:longinput}).
-
-\begin{table}[ht]
-\centering
-\caption{Input-length sweep ($L_{\mathrm{out}}{=}256$): DG wins below the crossover, AR above.}
-\label{tab:longinput}
-\small
-\begin{tabular}{rrrl}
-\toprule
-$L_{\mathrm{in}}$ (tokens) & AR-3B (ms) & DG (ms) & Winner \\
-\midrule
-1{,}000  & 1705 & 420  & DG ($4.1\times$) \\
-4{,}000  & 1846 & 789  & DG ($2.3\times$) \\
-7{,}000  & 1987 & 1158 & DG ($1.7\times$) \\
-18{,}000 & 2504 & 2511 & crossover \\
-25{,}000 & 2833 & 3372 & AR ($1.2\times$) \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-\textit{(f) Deployment footprint at the quality-matched pair.}
-The compute-matched pair is not the deployment pair: AR-1.5B reaches the same
-(even higher) 9-field F1 at $17\times$ less memory, $\approx 17\times$ faster
-cold start, and comparable per-event energy (Table~\ref{tab:deploy}). No
-deployment axis favours DG at short output.
-
-\begin{table}[ht]
-\centering
-\caption{Quality-matched deployment pair. At forced $L{\geq}512$, DG's latency
-advantage widens dramatically because AR-1.5B rambles past its natural output
-length ($\sim$123 tokens) when forced to generate longer sequences.}
-\label{tab:deploy}
-\small
-\begin{tabular}{lcc}
-\toprule
- & AR-1.5B & DG-26B \\
-\midrule
-9-field F1 ($L{=}256$)     & 0.8628 & \dgNineF \\
-Weights (bf16) & 3.0 GB & 52.0 GB \\
-Cold start      & $\sim$1 s  & $\sim$17 s \\
-Energy/event (forced $L{=}256$) & 5.1 J  & 4.2 J \\
-\midrule
-\multicolumn{3}{l}{\textit{Per-event latency at forced output length:}} \\
-$L{=}256$ (forced) & 1007 ms & 378 ms ($2.7\times$) \\
-$L{=}512$ (forced) & 2005 ms & 501 ms ($4.0\times$) \\
-$L{=}1024$ (forced) & 4026 ms & 739 ms ($5.4\times$) \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-At natural output length ($L\sim 123$ tokens, no forcing), AR-1.5B completes
-in 413 ms---only 35 ms slower than DG. But when the application requires
-$L\geq 512$ tokens of structured output (e.g.\ a multi-field incident
-report), AR-1.5B must generate well past its natural length, and its latency
-quadruples while DG's grows by only 32\%. The deployment footprint favours
-AR; the per-event latency at long forced output favours DG.
-
-\paragraph{Energy.}
-At the compute-matched pair, DG uses $4.3\times$ less energy per event than
-AR-3B (net of idle: 4.2\,J vs 22.3\,J). At the quality-matched pair, DG uses
-$1.2\times$ less than AR-1.5B at forced $L{=}256$ (4.2\,J vs 5.1\,J), widening
-to $1.9\times$ at $L{=}512$ and $2.6\times$ at $L{=}1024$. The energy
-advantage tracks the latency advantage and does not independently favour DG.
-
-\paragraph{Synthesis.}
-The per-event advantage (a--c) is real but narrow: it holds only at batch-1,
-short input, and $L\ge 176$, and it does not survive the three deployment
-comparisons at short output. AR wins on batched throughput ($80\times$ vs
-$\dgBatchMult\times$ multiplier), on long input ($2.6\times$ steeper DG slope,
-crossover $\approx 18$k tokens), and on footprint (the quality-matched AR
-model is $17\times$ smaller). However, when the application requires
-\emph{forced} output length $L\ge 512$---as in multi-field structured report
-generation---AR-1.5B's latency quadruples (to 2005\,ms) while DG's grows by
-only 32\% (to 501\,ms), a $4\times$ DG advantage. The cost shapes produce a
-genuine per-event crossover; the deployment envelope closes it at short
-output, but DG's advantage widens at long forced output.
-
-\paragraph{When DM is the right choice.}
-The decision procedure identifies a narrow but real niche. DM is the correct
-architectural choice when \emph{all five} conditions hold:
-\begin{enumerate}[noitemsep]
-\item Output $\ge 512$ tokens (forced), where DG is $4\times$ faster than
-the quality-matched AR-1.5B;
-\item Batch-1 by requirement (privacy isolation, interactivity, or cold-path
-analysis), not by low load;
-\item Complete output required (schema validation), because DM degrades
-\emph{quality} under deadline pressure while AR degrades \emph{completeness};
-\item Quality floor requires $>$1.5B parameters (AR-1.5B not good enough);
-\item 52\,GB footprint acceptable (data center, not edge).
+\begin{keybox}
+\boxhead{When block diffusion is the right choice}
+All five conditions must hold together:
+\begin{enumerate}[nosep]
+  \item Output length $\geq 512$ tokens, and \emph{forced} --- the application
+    needs a full structured record, not the shortest one the model would emit.
+  \item Batch-1 by \emph{requirement}, not by low load: tenant isolation,
+    interactivity, or a human-initiated cold path. If batching is available,
+    \S\ref{sec:batching} settles it.
+  \item Completeness is validated. The caller checks the output against a
+    schema and cannot use a prefix.
+  \item The quality floor exceeds what \ARoneb\ delivers. If it does not, the
+    \arOneFiveWeights\,GB model wins on every axis that is not per-event
+    latency.
+  \item A \dgWeights\,GB resident footprint is acceptable --- data centre, not
+    edge.
 \end{enumerate}
-Additionally, DM offers a per-request quality knob ($K$): at $K{=}4$ it meets
-a 400\,ms p99 SLA (measured: 394.3\,ms) with F1$=$0.79, while AR has no
-equivalent runtime knob---only the discrete choice of deploying a smaller
-model.
+\vspace{2pt}
+That is a narrow niche. It is also a real one, and it is not primarily about
+speed: it is the combination of per-event speed, a per-request quality knob,
+and a guarantee of complete output under deadline pressure.
+\end{keybox}
+
+\subsection{One autoregressive advantage we did not expect}
+
+The autoregressive arm's latency distribution is dramatically tighter. Across
+the 300 individual events of one anchor run at $L{=}\canvasLength$, its
+per-event coefficient of variation is \arEventCV\% and its maximum-to-median
+ratio is \arMaxMed$\times$; the diffusion arm's CV is \dgEventCV\% with a
+max/median of \dgMaxMed$\times$, driven by mixture-of-experts routing
+variability and warm-up on the first events of a run. (These are
+\emph{within}-run figures, distinct from the run-to-run p50 CVs of \arCV\%
+and \dgCV\% quoted in \S\ref{sec:intro}.) For capacity
+planning this favours the autoregressive model directly: a tighter
+distribution means less provisioned headroom. Both models are deterministic at
+temperature 0 --- across five repeats of 300 events, outputs were identical
+--- so determinism is not a differentiator between them.

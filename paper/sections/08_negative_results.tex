@@ -1,71 +1,93 @@
 \section{Negative Results}
 \label{sec:negative}
 
-We set out to find cases where the diffusion model beats the autoregressive
-baseline. Five hypotheses were refuted; three claims were withdrawn. In every
-refuted case the apparent diffusion advantage traced to a harness defect that
-had inflated it.
+We set out to find regimes where the diffusion model beats the autoregressive
+baseline, and generated hypotheses accordingly. Six were refuted and three
+earlier claims were withdrawn. They are reported here at the same length and
+in the same register as the confirmations, because a paper whose central
+methodological claim is ``price the baseline before you compare against it''
+has exactly one asset, and that asset is spent the moment a negative result
+gets softened into a footnote.
 
-\subsection{Five refuted hypotheses}
+\subsection{Six refuted hypotheses}
 
-\begin{table}[t]
+\begin{table}[h]
 \centering
-\caption{Five refuted hypotheses. Each apparent diffusion advantage dissolved
-under a corrected harness.}
+\caption{Six hypotheses of ours that did not survive measurement.}
 \label{tab:refuted}
-\begin{tabular}{p{4.2cm}p{9.5cm}}
+\begin{tabularx}{\linewidth}{@{}p{4.6cm}L@{}}
 \toprule
-Hypothesis & Why refuted \\
+\thead{Hypothesis} & \thead{What we measured instead} \\
 \midrule
-Diffusion is more robust to input perturbation & DM worse than AR in 10/10 perturbation categories \\
-Diffusion improves with iterative refinement & DM gains from selective masking ($+0.023$), but AR improves equally under the same loop \\
-Diffusion beats AR under bounded deadlines & AR actually completes within the deadline; the opposite finding was the completeness metric bug (defect~4) \\
-Wide-schema cost scales as $O(F^2)$ for diffusion & F1 is flat, not quadratic, in schema width \\
-Quality is invariant to output length & Quality rises with $L$ ($0.31 \to 0.85$), then plateaus \\
+\tabfont Joint denoising resists input perturbation
+  & \tabfont The diffusion model degraded more in \textbf{10 of 10} categories, by up to $8.2\times$ the autoregressive drop. Discussed below. \\
+\tabfont Bidirectional conditioning wins at infilling
+  & \tabfont \ARthree\ scores $0.993$--$0.999$ across all suffix sizes; the diffusion model holds to $0.960$ then falls to $0.753$ at $S{=}8$. Discussed below. \\
+\tabfont Diffusion has a refinement mechanism that pays off
+  & \tabfont It has the mechanism --- selective re-masking gains $+0.023$ F1 over three rounds --- but after three rounds it still trails the autoregressive model after one. The mechanism is real; the win is not. \\
+\tabfont Diffusion beats autoregression under bounded deadlines
+  & \tabfont This was defect 4. The autoregressive model does complete within the deadline; the metric had been counting valid falsy values as missing keys (\S\ref{sec:setup}). \\
+\tabfont Wide-schema cost scales as $O(F^2)$ for diffusion
+  & \tabfont Never measured. The consistency metric is three hardcoded rules over four fields at \emph{every} schema width, so the curve it produces cannot show quadratic structure in $F$. The framing is dropped, not softened. \\
+\tabfont Quality is invariant to output length
+  & \tabfont Quality rises steeply with $L$ and then plateaus (\S\ref{sec:exchange}). The apparent invariance came from the contaminated 12-field metric. \\
 \bottomrule
-\end{tabular}
+\end{tabularx}
 \end{table}
 
-The common cause is the same as in \S\ref{sec:methodology}: each apparent
-diffusion advantage was an infrastructure artifact. The bounded-deadline result
-was the completeness metric bug (defect~4); the perturbation and refinement
-arms ran the mis-provenanced diffusion model (defect~5); the length-invariance
-claim rested on the three degenerate 12-field metrics that masked the true
-quality curve; the robustness and $O(F^2)$ claims dissolved once both arms ran
-on the parity-checked, pinned stack. In every case the correction moved the
-diffusion model from \emph{apparent advantage} to \emph{measured disadvantage
-or parity}.
+\paragraph{Perturbation robustness, refuted in every category}
+We predicted that denoising a whole canvas jointly would make the diffusion
+model more tolerant of noisy input than left-to-right decoding. Across ten
+perturbation categories at full intensity, it was worse in all ten. Two
+categories --- whitespace and abbreviation --- left the autoregressive model
+completely flat while costing the diffusion model $0.081$ and $0.005$ F1. The
+largest ratio is separator changes, at $8.2\times$. One hypothesis for the
+direction: left-to-right conditioning propagates input noise forward only,
+while bidirectional conditioning also propagates it backward. We did not test
+that, and it stays a hypothesis.
 
-\subsection{Infilling advantage refuted}
-
-We hypothesised that bidirectional conditioning would give the diffusion model
-an advantage on infilling tasks with fixed right-context (suffix): the suffix
-tokens are never in the denoised set, so they would be preserved
-byte-identical by construction. AR must regenerate the suffix from its prompt.
-The experiment ($S \in \{0,2,4,8\}$ suffix fields, $n{=}50$, BGL) refuted
-this: AR-3B scores F1${=}0.99{+}$ (it trivially regenerates the full record
-from the prompt), while DG degrades at $S{=}8$ (F1${=}0.75$). The
-structured-extraction task is copy-heavy, and AR's copy ability suffices.
-The infilling advantage would likely manifest only on tasks with long
-suffixes that must be preserved exactly (e.g.\ code infilling), not on
-short JSON fields.
+\paragraph{Infilling, refuted for a reason worth stating}
+The prediction was structural rather than statistical: with a fixed right
+context, suffix tokens are never in the denoised set, so the diffusion model
+should preserve them byte-identically by construction, while an autoregressive
+model must regenerate them. The experiment ($S \in \{0,2,4,8\}$ suffix fields,
+$n{=}50$) refuted it, but the mechanism matters --- the autoregressive model
+scores $0.993$--$0.999$ because it trivially regenerates the whole record from
+the prompt. This task is copy-heavy, and copying is something autoregressive
+decoding does well. The structural argument may still hold where the suffix is
+long and cannot be regenerated from context, such as code infilling. It does
+not hold on short JSON fields, which is what we measured, so it is not a claim
+we make.
 
 \subsection{Three withdrawn claims}
 
-\begin{table}[t]
+\begin{table}[h]
 \centering
-\caption{Three claims withdrawn from the paper.}
+\caption{Three claims that appeared in earlier drafts and are cut from this
+one. Withdrawn claims are removed, not qualified.}
 \label{tab:withdrawn}
-\begin{tabular}{p{4.2cm}p{9.5cm}}
+\begin{tabularx}{\linewidth}{@{}p{4.6cm}L@{}}
 \toprule
-Claim & Why withdrawn \\
+\thead{Claim} & \thead{Why it is gone} \\
 \midrule
-Drain-only matches LLM extraction & Drain F1 0.68 vs LLM 0.85; the gap is too large to bridge \\
-Structural vs semantic field separation & Semantic fields have degenerate gold; the split is vacuous \\
-M/D/1 queueing predicts latency & M/D/1 is not predictive under bursty (non-Poisson) arrivals \\
+\tabfont A classical parser matches LLM extraction
+  & \tabfont Field-F1 $0.68$ against $0.85$; the gap is too large. Worse, our ``Drain''~\cite{drain} was a regex fallback rather than the reference implementation, and the fallback and the gold generator are the same code, so on semantic fields it was grading itself. \\
+\tabfont Structural and semantic fields separate cleanly
+  & \tabfont The semantic gold labels are placeholder output of that same parser, and one of them is a constant. ``Semantic F1'' may be measuring agreement with a regex. \\
+\tabfont An M/D/1 queue predicts diffusion latency under load
+  & \tabfont It matches the measured saturation knee under Poisson arrivals and stops being predictive under bursty (MMPP) arrivals, which is what log streams actually look like. \\
 \bottomrule
-\end{tabular}
+\end{tabularx}
 \end{table}
 
-Withdrawn claims are cut, not softened: a claim that cannot be established
-against committed artifacts does not appear in the comparison.
+\begin{takeaway}
+\boxhead{A pattern in the refutations}
+Every refuted hypothesis had, at some earlier point, appeared to be confirmed.
+In each case the apparent confirmation traced to an artifact of our own
+harness rather than to a property of either architecture: the bounded-deadline
+result was the completeness metric, the length-invariance result was the
+contaminated metric, and the perturbation and refinement arms ran a
+mis-provenanced model. The measurement discipline of \S\ref{sec:setup} is not
+a preamble to the results. It is what separates these six from the ones we
+kept.
+\end{takeaway}

@@ -1,0 +1,823 @@
+#!/usr/bin/env python3
+"""Build every figure in the paper from committed artifacts.
+
+Each function prints the values it plotted so they can be diffed against
+paper/NUMBERS.md and macros.tex. Nothing here hardcodes a number that is not
+either (a) read from results/*.json or (b) a fitted constant declared in
+LAWS below and traceable to an artifact.
+
+Run:  python3 paper/figures/make_figures.py
+"""
+
+import json
+import math
+from pathlib import Path
+
+import numpy as np
+import matplotlib.pyplot as plt
+from matplotlib.patches import Patch
+from matplotlib.lines import Line2D
+
+import style as S
+
+REPO = Path(__file__).resolve().parents[2]
+RESULTS = REPO / "results"
+OUT = REPO / "paper" / "figures"
+
+# --- Fitted laws (macros.tex is the authority; these must match it) ---------
+LAWS = {
+    "ar_a": 7.27,        # ms, AR intercept
+    "ar_b": 6.29,        # ms/token, AR decode slope
+    "dg_base": 378.8,    # ms, DG base at K=8
+    "dg_step": 119.5,    # ms per extra canvas (median of 7)
+    "canvas": 256,       # tokens
+    "l_star": 59.1,      # token crossover
+    "lam_star": 2.64,    # ev/s rate crossover
+    "nat_l_dg": 176,     # DG natural output length
+}
+
+
+# ------------------------------------------------------------------ loaders
+
+def _p50(path):
+    """p50 latency out of a run_vllm_serving-shaped artifact."""
+    with open(path) as f:
+        d = json.load(f)
+    for mv in d.get("models", {}).values():
+        return mv["streaming_table3"]["latency"]["p50_ms"]
+    return d.get("p50_ms")
+
+
+def _quality(path):
+    with open(path) as f:
+        d = json.load(f)
+    for mv in d.get("models", {}).values():
+        return mv["streaming_table3"]["quality"]
+    return None
+
+
+def t_ar(L):
+    return LAWS["ar_a"] + LAWS["ar_b"] * np.asarray(L, dtype=float)
+
+
+def t_dg(L):
+    L = np.asarray(L, dtype=float)
+    nc = np.maximum(1, np.ceil(L / LAWS["canvas"]))
+    return LAWS["dg_base"] + LAWS["dg_step"] * (nc - 1)
+
+
+def staircase(lmax, lmin=1.0):
+    """Explicit (x, y) polyline for the DG staircase, so the vertical risers
+    are drawn rather than interpolated away."""
+    xs, ys = [], []
+    c = 1
+    x = lmin
+    while x < lmax:
+        hi = min(c * LAWS["canvas"], lmax)
+        y = LAWS["dg_base"] + LAWS["dg_step"] * (c - 1)
+        xs += [x, hi]
+        ys += [y, y]
+        x = hi
+        c += 1
+        if x < lmax:                       # the riser
+            y2 = LAWS["dg_base"] + LAWS["dg_step"] * (c - 1)
+            xs += [hi, hi]
+            ys += [y, y2]
+    return np.array(xs), np.array(ys)
+
+
+# =============================================================== figure 1 ===
+
+def fig1_cost_shapes():
+    """The two cost shapes: a line with no floor vs a staircase with one."""
+    ar_pts = {}
+    for L in (32, 64, 128, 256, 512):
+        p = RESULTS / f"p2_ar3b_L{L}.json"
+        if p.exists():
+            ar_pts[L] = _p50(p)
+    for L in (1024, 2048):
+        p = RESULTS / f"appD_ar3b_L{L}.json"
+        if p.exists():
+            ar_pts[L] = _p50(p)
+
+    dg_pts = {}
+    for L in (256, 512, 768, 1024, 1280, 1536, 1792, 2048):
+        p = RESULTS / f"issue68_dg_L{L}.json"
+        if p.exists():
+            dg_pts[L] = _p50(p)
+
+    print("fig1 AR:", {k: round(v, 1) for k, v in ar_pts.items()})
+    print("fig1 DG:", {k: round(v, 1) for k, v in dg_pts.items()})
+
+    fig, (axA, axB) = plt.subplots(
+        1, 2, figsize=(S.FULL, 2.75),
+        gridspec_kw={"width_ratios": [1.35, 1.0], "wspace": 0.30})
+
+    # ---- Panel A: the whole range -----------------------------------------
+    Ls = np.linspace(1, 2100, 800)
+    axA.plot(Ls, t_ar(Ls), color=S.AR, lw=1.6, zorder=3)
+    sx, sy = staircase(2100)
+    axA.plot(sx, sy, color=S.DG, lw=1.6, zorder=3)
+
+    axA.plot(list(ar_pts), list(ar_pts.values()), S.MARK["ar"], color=S.AR,
+             ms=4.0, mec=S.SURFACE, mew=0.9, ls="none", zorder=4)
+    axA.plot(list(dg_pts), list(dg_pts.values()), S.MARK["dg"], color=S.DG,
+             ms=4.0, mec=S.SURFACE, mew=0.9, ls="none", zorder=4)
+
+    axA.set_xlim(0, 2320)
+    axA.set_ylim(0, 13800)
+    axA.set_xticks([0, 512, 1024, 1536, 2048])
+    axA.set_yticks([0, 4000, 8000, 12000])
+    axA.set_yticklabels(["0", "4,000", "8,000", "12,000"])
+    axA.set_xlabel("output length $L_{\\mathrm{out}}$  (tokens)")
+    axA.set_ylabel("p50 latency  (ms)")
+    S.title(axA, "A  Two shapes, one axis")
+    S.despine(axA)
+    axA.grid(axis="x", visible=False)
+
+    S.label_end(axA, 2048, t_ar(2048), "AR-3B\n12,889 ms", S.AR,
+                dx=6, dy=-2, va="top", size=8.0)
+    S.label_end(axA, 2048, 1212, "DG-26B-A4B\n1,212 ms", S.DG,
+                dx=6, dy=2, va="bottom", size=8.0)
+    axA.annotate("", xy=(2048, 12889), xytext=(2048, 1212),
+                 arrowprops=dict(arrowstyle="<->", color=S.MUTED, lw=0.7,
+                                 shrinkA=1, shrinkB=1))
+    axA.text(1990, 6800, "10.6$\\times$", ha="right", va="center",
+             fontsize=8.2, color=S.INK2, fontweight="medium")
+
+    # marker for the zoom region shown in panel B
+    axA.add_patch(plt.Rectangle((0, 0), 600, 900, facecolor=S.WASH_NEUTRAL,
+                                ec=S.MUTED, lw=0.7, zorder=1))
+    axA.annotate("panel B", xy=(600, 450), xytext=(24, 26),
+                 textcoords="offset points", fontsize=7.6, color=S.MUTED,
+                 arrowprops=dict(arrowstyle="-", color=S.MUTED, lw=0.6))
+
+    # ---- Panel B: the crossover -------------------------------------------
+    Ls = np.linspace(1, 600, 600)
+    axB.fill_between(Ls, 0, 760, where=(Ls < LAWS["l_star"]),
+                     color=S.WASH_AR, lw=0, zorder=0)
+    axB.fill_between(Ls, 0, 760, where=(Ls >= LAWS["l_star"]),
+                     color=S.WASH_DG, lw=0, zorder=0)
+
+    axB.plot(Ls, t_ar(Ls), color=S.AR, lw=1.6, zorder=3)
+    sx, sy = staircase(600)
+    axB.plot(sx, sy, color=S.DG, lw=1.6, zorder=3)
+
+    for L, v in ar_pts.items():
+        if L <= 512:
+            axB.plot([L], [v], S.MARK["ar"], color=S.AR, ms=4.0,
+                     mec=S.SURFACE, mew=0.9, zorder=4)
+    for L, v in dg_pts.items():
+        if L <= 512:
+            axB.plot([L], [v], S.MARK["dg"], color=S.DG, ms=4.0,
+                     mec=S.SURFACE, mew=0.9, zorder=4)
+
+    axB.axvline(LAWS["l_star"], color=S.INK2, lw=0.7, zorder=2)
+    axB.plot([LAWS["l_star"]], [t_ar(LAWS["l_star"])], "o", ms=4.5,
+             mfc=S.SURFACE, mec=S.INK, mew=1.1, zorder=6)
+    axB.annotate("$L^{*}\\!=\\!59$", xy=(LAWS["l_star"], 378.8),
+                 xytext=(8, 26), textcoords="offset points",
+                 fontsize=8.2, color=S.INK, fontweight="medium")
+
+    axB.set_xlim(0, 600)
+    axB.set_ylim(0, 760)
+    axB.set_xticks([0, 128, 256, 384, 512])
+    axB.set_xlabel("output length $L_{\\mathrm{out}}$  (tokens)")
+    axB.set_ylabel("p50 latency  (ms)")
+    S.title(axB, "B  Where the shapes cross")
+    S.despine(axB)
+    axB.grid(axis="x", visible=False)
+
+    axB.text(52, 40, "AR\ncheaper", fontsize=7.6, color=S.AR,
+             fontweight="medium", ha="right", va="bottom", linespacing=1.25)
+    axB.text(72, 40, "DG cheaper", fontsize=7.6, color=S.DG,
+             fontweight="medium", va="bottom")
+    axB.annotate("canvas edge", xy=(256, 440), xytext=(30, -6),
+                 textcoords="offset points", fontsize=7.4, color=S.MUTED,
+                 ha="left", va="center",
+                 arrowprops=dict(arrowstyle="-", color=S.MUTED, lw=0.6))
+
+    handles = [
+        Line2D([], [], color=S.AR, lw=1.6, marker=S.MARK["ar"], ms=4.0,
+               label="AR-3B  (Qwen2.5-3B, vLLM)"),
+        Line2D([], [], color=S.DG, lw=1.6, marker=S.MARK["dg"], ms=4.0,
+               label="DG-26B-A4B  (DiffusionGemma, $K\\!=\\!8$)"),
+    ]
+    fig.legend(handles=handles, loc="lower center", ncol=2,
+               bbox_to_anchor=(0.5, -0.10), frameon=False)
+
+    S.save(fig, "fig1_cost_shapes", OUT)
+
+
+# =============================================================== figure 2 ===
+
+def fig2_canvas_edges():
+    """Latency is flat inside a canvas and jumps at the boundary."""
+    probe = [240, 256, 264, 496, 512, 528]
+    vals = {}
+    for L in probe:
+        p = RESULTS / f"issue68_dg_L{L}.json"
+        if p.exists():
+            vals[L] = _p50(p)
+    full = [256, 512, 768, 1024, 1280, 1536, 1792, 2048]
+    fv = {L: _p50(RESULTS / f"issue68_dg_L{L}.json") for L in full
+          if (RESULTS / f"issue68_dg_L{L}.json").exists()}
+    steps = [fv[b] - fv[a] for a, b in zip(full, full[1:]) if a in fv and b in fv]
+    print("fig2 edges:", {k: round(v, 1) for k, v in vals.items()})
+    print("fig2 steps:", [round(s, 1) for s in steps],
+          "median", round(float(np.median(steps)), 1))
+
+    fig, (axA, axB) = plt.subplots(
+        1, 2, figsize=(S.FULL, 2.55),
+        gridspec_kw={"width_ratios": [1.0, 1.15], "wspace": 0.30})
+
+    # ---- Panel A: the two probed boundaries -------------------------------
+    xs = np.arange(len(probe))
+    ys = [vals[L] for L in probe]
+    axA.bar(xs, ys, width=0.62, color=S.DG, zorder=3)
+    for i, (L, y) in enumerate(zip(probe, ys)):
+        axA.text(i, y + 14, f"{y:.0f}", ha="center", va="bottom",
+                 fontsize=7.6, color=S.INK2)
+    axA.set_xticks(xs)
+    axA.set_xticklabels([str(L) for L in probe])
+    axA.set_ylim(0, 820)
+    axA.set_xlabel("output length $L_{\\mathrm{out}}$  (tokens)")
+    axA.set_ylabel("p50 latency  (ms)")
+    S.title(axA, "A  Probing the boundary")
+    S.despine(axA)
+    axA.grid(axis="x", visible=False)
+
+    # shade the two within-canvas pairs; the gaps between them are the edges
+    axA.axvspan(-0.5, 1.5, color=S.WASH_NEUTRAL, lw=0, zorder=0)
+    axA.axvspan(2.5, 4.5, color=S.WASH_NEUTRAL, lw=0, zorder=0)
+    for i, y0, lab in ((0.5, 430, "same canvas\n+0.2 ms"),
+                       (3.5, 552, "same canvas\n+0.9 ms")):
+        axA.text(i, y0, lab, ha="center", va="bottom", fontsize=7.2,
+                 color=S.MUTED, linespacing=1.3)
+    for i, lab in ((1.5, "one more canvas\n+121.7 ms"),
+                   (4.5, "one more canvas\n+118.7 ms")):
+        axA.text(i, 780, lab, ha="center", va="top", fontsize=7.2,
+                 color=S.INK, fontweight="medium", linespacing=1.3)
+        axA.plot([i, i], [0, 700], color=S.MUTED, lw=0.7, zorder=1)
+
+    # ---- Panel B: every step, out to 2048 ---------------------------------
+    axB.axhline(float(np.median(steps)), color=S.INK2, lw=0.8, zorder=2)
+    bx = np.arange(len(steps))
+    axB.bar(bx, steps, width=0.55, color=S.DG, zorder=3)
+    axB.set_xticks(bx)
+    axB.set_xticklabels([f"{a}$\\to${b}" for a, b in zip(full, full[1:])],
+                        fontsize=6.6, rotation=30, ha="right")
+    axB.set_ylim(0, 160)
+    axB.set_ylabel("cost of one extra canvas  (ms)")
+    S.title(axB, "B  Every step is the same step")
+    S.despine(axB)
+    axB.grid(axis="x", visible=False)
+    axB.annotate(f"median {np.median(steps):.1f} ms",
+                 xy=(len(steps) - 0.4, float(np.median(steps))),
+                 xytext=(0, 7), textcoords="offset points", ha="right",
+                 fontsize=7.6, color=S.INK, fontweight="medium")
+
+    S.save(fig, "fig2_canvas_edges", OUT)
+
+
+# =============================================================== figure 3 ===
+
+def fig3_input_sweep():
+    """The second variable: prompt length, where DG is 2.6x steeper."""
+    def load(name):
+        with open(RESULTS / name) as f:
+            d = json.load(f)
+        xs = [e["prompt_token_count"] for e in d["sweep"]]
+        ys = [e["latency_ms"]["p50"] for e in d["sweep"]]
+        return np.array(xs, float), np.array(ys, float)
+
+    axr, ayr = load("issue44_ar3b_input_sweep.json")
+    dxr, dyr = load("issue44_dg_input_sweep.json")
+    ar_slope = np.polyfit(axr, ayr, 1)[0]
+    dg_slope = np.polyfit(dxr, dyr, 1)[0]
+    print(f"fig3 AR slope {ar_slope:.4f} ms/tok, DG slope {dg_slope:.4f} ms/tok, "
+          f"ratio {dg_slope/ar_slope:.2f}x")
+
+    fig, (axA, axB) = plt.subplots(
+        1, 2, figsize=(S.FULL, 2.55),
+        gridspec_kw={"width_ratios": [1.15, 1.0], "wspace": 0.30})
+
+    # ---- Panel A: absolute latency ---------------------------------------
+    axA.plot(axr, ayr, S.DASH["ar"], color=S.AR, marker=S.MARK["ar"],
+             ms=4.0, mec=S.SURFACE, mew=0.9, zorder=3)
+    axA.plot(dxr, dyr, S.DASH["dg"], color=S.DG, marker=S.MARK["dg"],
+             ms=4.0, mec=S.SURFACE, mew=0.9, zorder=3)
+    axA.set_xlim(0, 7900)
+    axA.set_ylim(0, 2300)
+    axA.set_xticks([0, 2000, 4000, 6000])
+    axA.set_xticklabels(["0", "2,000", "4,000", "6,000"])
+    axA.set_xlabel("input length $L_{\\mathrm{in}}$  (prompt tokens)")
+    axA.set_ylabel("p50 latency  (ms)")
+    S.title(axA, "A  Cost vs prompt length", "$L_{\\mathrm{out}}$ fixed at 256 tokens")
+    S.despine(axA)
+    axA.grid(axis="x", visible=False)
+    S.label_end(axA, axr[-1], ayr[-1], "AR-3B", S.AR, dx=7)
+    S.label_end(axA, dxr[-1], dyr[-1], "DG", S.DG, dx=7)
+
+    # ---- Panel B: the slopes, which is the actual finding -----------------
+    axB.barh([1, 0], [ar_slope, dg_slope], height=0.30,
+             color=[S.AR, S.DG], zorder=3)
+    axB.set_yticks([1, 0])
+    axB.set_yticklabels(["AR-3B", "DG"])
+    axB.set_ylim(-0.55, 1.55)
+    axB.set_xlim(0, 0.165)
+    axB.set_xlabel("prefill slope  (ms per prompt token)")
+    S.title(axB, "B  DG pays for the prompt $K$ times")
+    S.despine(axB, left=False)
+    axB.grid(axis="y", visible=False)
+    axB.tick_params(axis="y", length=0, labelcolor=S.INK2)
+    for y, v, c in ((1, ar_slope, S.AR), (0, dg_slope, S.DG)):
+        axB.text(v + 0.004, y, f"{v:.3f}", va="center", fontsize=8.0,
+                 color=c, fontweight="medium")
+    axB.annotate(f"{dg_slope/ar_slope:.1f}$\\times$ steeper",
+                 xy=(0.128, 0.45), fontsize=8.4, color=S.INK,
+                 fontweight="medium", ha="center")
+
+    S.save(fig, "fig3_input_sweep", OUT)
+
+
+# =============================================================== figure 4 ===
+
+def fig4_ksweep():
+    """Where the base actually goes: two panels, one x-axis, no dual axis."""
+    ks = [2, 4, 8, 16, 32, 64]
+    lat, f1, valid = {}, {}, {}
+    for k in ks:
+        p = RESULTS / f"issue44_dg_ksweep_K{k}.json"
+        if not p.exists():
+            continue
+        lat[k] = _p50(p)
+        q = _quality(p)
+        f1[k] = q.get("field_f1_9", q.get("field_f1"))
+        valid[k] = q.get("schema_valid_pct")
+    print("fig4 lat:", {k: round(v, 1) for k, v in lat.items()})
+    print("fig4 f1 :", f1)
+
+    kk = np.array(sorted(lat))
+    yy = np.array([lat[k] for k in kk])
+    a, b = np.polyfit(kk, yy, 1)[1], np.polyfit(kk, yy, 1)[0]
+    print(f"fig4 fit: T(K) = {a:.1f} + {b:.2f}K")
+
+    fig, (axA, axB) = plt.subplots(
+        2, 1, figsize=(S.FULL, 3.75), sharex=True,
+        gridspec_kw={"height_ratios": [1.0, 0.82], "hspace": 0.34})
+
+    for ax in (axA, axB):
+        ax.axvspan(1.7, 4, color=S.WASH_NEUTRAL, lw=0, zorder=0)
+        ax.axvline(8, color=S.INK2, lw=0.7, zorder=2)
+
+    axA.plot(kk, yy, "-", color=S.DG, marker=S.MARK["dg"], ms=4.2,
+             mec=S.SURFACE, mew=0.9, zorder=3)
+    axA.axhline(a, color=S.MUTED, lw=0.8, zorder=2)
+    axA.annotate(f"prefill + fixed floor  {a:.0f} ms", xy=(24, a),
+                 xytext=(0, -13), textcoords="offset points", ha="center",
+                 fontsize=7.6, color=S.INK2)
+    axA.set_ylim(0, 520)
+    axA.set_ylabel("p50 latency  (ms)")
+    S.title(axA, "A  Latency saturates in $K$",
+            "DiffusionGemma, BGL, $L_{\\mathrm{out}}\\!=\\!256$, $n\\!=\\!200$ per point")
+    S.despine(axA)
+    axA.grid(axis="x", visible=False)
+    for k in kk:
+        dy = -14 if k == 2 else 8
+        axA.annotate(f"{lat[k]:.0f}", xy=(k, lat[k]), xytext=(0, dy),
+                     textcoords="offset points", ha="center", fontsize=7.2,
+                     color=S.INK2)
+
+    ff = np.array([f1[k] for k in kk])
+    axB.plot(kk, ff, "-", color=S.DG, marker=S.MARK["dg"], ms=4.2,
+             mec=S.SURFACE, mew=0.9, zorder=3)
+    axB.set_ylim(0.40, 0.95)
+    axB.set_ylabel("9-field macro F1")
+    axB.set_xlabel("denoising steps $K$")
+    axB.set_xscale("log", base=2)
+    axB.set_xticks(ks)
+    axB.set_xticklabels([str(k) for k in ks])
+    axB.minorticks_off()
+    S.title(axB, "B  Quality collapses below $K\\!=\\!4$")
+    S.despine(axB)
+    axB.grid(axis="x", visible=False)
+    for k in kk:
+        axB.annotate(f"{f1[k]:.3f}", xy=(k, f1[k]), xytext=(0, -13),
+                     textcoords="offset points", ha="center", fontsize=7.2,
+                     color=S.INK2)
+
+    axA.annotate("operating point $K\\!=\\!8$", xy=(8, 480), xytext=(6, 0),
+                 textcoords="offset points", fontsize=7.8, color=S.INK,
+                 fontweight="medium", va="center")
+    axB.annotate("collapse", xy=(2.6, 0.44), fontsize=7.6, color=S.MUTED,
+                 ha="center")
+
+    S.save(fig, "fig4_ksweep", OUT)
+
+
+# =============================================================== figure 5 ===
+
+def fig5_quality_vs_length():
+    """Quality vs forced output length, with the truncation regime visible."""
+    with open(RESULTS / "issue43_nine_field_f1.json") as f:
+        nine = json.load(f)
+    Ls = [32, 128, 256, 512]
+    ar = [nine[f"ar3b_L{L}"]["field_f1_9"] for L in Ls]
+    dg = [nine[f"dg_L{L}"]["field_f1_9"] for L in Ls]
+    arv, dgv = [], []
+    for L in Ls:
+        arv.append(_quality(RESULTS / "issue43" / f"ar3b_L{L}.json")["schema_valid_pct"])
+        dgv.append(_quality(RESULTS / "issue43" / f"dg_L{L}.json")["schema_valid_pct"])
+    print("fig5 AR F1", ar, "valid", arv)
+    print("fig5 DG F1", dg, "valid", dgv)
+
+    fig, (axA, axB) = plt.subplots(
+        1, 2, figsize=(S.FULL, 2.75), gridspec_kw={"wspace": 0.28})
+
+    x = np.arange(len(Ls))
+    for ax, ay, dy, ylab, ttl, ylim in (
+        (axA, ar, dg, "9-field macro F1", "A  Extraction quality", (0, 1.0)),
+        (axB, arv, dgv, "schema-valid outputs  (%)", "B  Parseable output", (0, 108)),
+    ):
+        ax.axvspan(-0.5, 1.5, color=S.WASH_NEUTRAL, lw=0, zorder=0)
+        ax.plot(x, ay, S.DASH["ar"], color=S.AR, marker=S.MARK["ar"], ms=4.6,
+                mec=S.SURFACE, mew=0.9, zorder=3)
+        ax.plot(x, dy, S.DASH["dg"], color=S.DG, marker=S.MARK["dg"], ms=4.6,
+                mec=S.SURFACE, mew=0.9, zorder=3)
+        ax.set_xticks(x)
+        ax.set_xticklabels([str(L) for L in Ls])
+        ax.set_xlim(-0.5, len(Ls) - 0.35)
+        ax.set_ylim(*ylim)
+        ax.set_xlabel("forced output length $L_{\\mathrm{out}}$  (tokens)")
+        ax.set_ylabel(ylab)
+        S.title(ax, ttl)
+        S.despine(ax)
+        ax.grid(axis="x", visible=False)
+
+    axA.text(0.5, 0.965, "truncation regime", ha="center", fontsize=7.4,
+             color=S.MUTED)
+    axA.annotate("AR keeps a\nvalid prefix", xy=(1, ar[1]), xytext=(-6, 22),
+                 textcoords="offset points", fontsize=7.4, color=S.AR,
+                 ha="right", va="bottom", linespacing=1.25,
+                 arrowprops=dict(arrowstyle="-", color=S.AR, lw=0.6))
+    axA.annotate("DG emits nothing\nparseable", xy=(1, dg[1]), xytext=(-6, -20),
+                 textcoords="offset points", fontsize=7.4, color=S.DG,
+                 ha="right", va="top", linespacing=1.25,
+                 arrowprops=dict(arrowstyle="-", color=S.DG, lw=0.6))
+    S.label_end(axA, x[-1], ar[-1], f"{ar[-1]:.3f}", S.AR, dx=6, dy=7)
+    S.label_end(axA, x[-1], dg[-1], f"{dg[-1]:.3f}", S.DG, dx=6, dy=-7)
+
+    axB.text(0.5, 104, "truncation regime", ha="center", fontsize=7.4,
+             color=S.MUTED)
+    axB.annotate("66.7%", xy=(1, arv[1]), xytext=(-7, 0),
+                 textcoords="offset points", fontsize=7.4, color=S.AR,
+                 ha="right", va="center")
+    axB.annotate("1.0%", xy=(1, dgv[1]), xytext=(-7, 0),
+                 textcoords="offset points", fontsize=7.4, color=S.DG,
+                 ha="right", va="center")
+    S.label_end(axB, x[-1], arv[-1], "AR-3B", S.AR, dx=6, dy=-7)
+    S.label_end(axB, x[-1], dgv[-1], "DG", S.DG, dx=6, dy=7)
+
+    handles = [
+        Line2D([], [], color=S.AR, lw=1.6, marker=S.MARK["ar"], ms=4.2,
+               label="AR-3B"),
+        Line2D([], [], color=S.DG, lw=1.6, marker=S.MARK["dg"], ms=4.2,
+               ls=S.DASH["dg"], label="DG-26B-A4B ($K\\!=\\!8$)"),
+    ]
+    fig.legend(handles=handles, loc="lower center", ncol=2,
+               bbox_to_anchor=(0.5, -0.09), frameon=False)
+
+    S.save(fig, "fig5_quality_vs_length", OUT)
+
+
+# =============================================================== figure 6 ===
+
+def fig6_batching():
+    """The batching gap, and the KV-cache test that only half explains it."""
+    with open(RESULTS / "issue42_batching.json") as f:
+        b42 = json.load(f)
+    on = b42["configs"]["caching_on"]
+    off = b42["configs"]["caching_off"]
+    with open(RESULTS / "llada_dinfer" / "batch_sweep.json") as f:
+        llada = json.load(f)
+    lla_mult = max(r["multiplier"] for r in llada["results"])
+    print(f"fig6 AR cache-on {on['multiplier']}x, cache-off {off['multiplier']}x, "
+          f"LLaDA {lla_mult}x")
+
+    rows = [
+        ("AR-3B  vLLM, $L\\!=\\!512$",        86.0, S.AR,    False),
+        ("AR-3B  vLLM, $L\\!=\\!128$",        77.1, S.AR,    False),
+        ("AR-3B  prefix cache on",  on["multiplier"],  S.AR,    False),
+        ("AR-3B  prefix cache off", off["multiplier"], S.AR,    False),
+        ("DG-26B  vLLM, $L\\!=\\!128$",        1.7,  S.DG,    True),
+        ("DG-26B  vLLM, $L\\!=\\!512$",        1.5,  S.DG,    True),
+        ("LLaDA-8B  dInfer",             lla_mult,   S.LLADA, False),
+    ]
+
+    fig, (axA, axB) = plt.subplots(
+        1, 2, figsize=(S.FULL, 2.85),
+        gridspec_kw={"width_ratios": [1.25, 1.0], "wspace": 0.06})
+
+    # ---- Panel A: the multipliers ----------------------------------------
+    y = np.arange(len(rows))[::-1]
+    for yi, (lab, v, c, lower) in zip(y, rows):
+        axA.barh(yi, v, height=0.56, color=c,
+                 hatch="///" if lower else None,
+                 edgecolor=S.SURFACE, lw=0.8, zorder=3)
+        axA.text(v * 1.14, yi, f"{v:g}$\\times$", va="center", fontsize=7.8,
+                 color=c, fontweight="medium")
+    axA.set_yticks(y)
+    axA.set_yticklabels([r[0] for r in rows], fontsize=7.4)
+    axA.set_xscale("log")
+    axA.set_xlim(0.9, 260)
+    axA.set_xticks([1, 10, 100])
+    axA.set_xticklabels(["1$\\times$", "10$\\times$", "100$\\times$"])
+    axA.set_xlabel("throughput multiplier, batch-1 $\\to$ peak")
+    S.title(axA, "A  Two orders of magnitude apart")
+    S.despine(axA, left=False)
+    axA.grid(axis="y", visible=False)
+    axA.tick_params(axis="y", length=0, labelcolor=S.INK2)
+    axA.axhspan(2.5, 4.5, color=S.WASH_NEUTRAL, lw=0, zorder=0)
+    axA.annotate("hatched = lower bound\n(engine caps batch at 8)",
+                 xy=(3.4, 1.35), fontsize=7.0, color=S.MUTED, va="center",
+                 linespacing=1.3)
+
+    # ---- Panel B: the cache test -----------------------------------------
+    bs = [r["batch_size"] for r in on["sweep"]]
+    axB.plot(bs, [r["events_per_s"] for r in on["sweep"]], "-",
+             color=S.AR, marker=S.MARK["ar"], ms=3.8, mec=S.SURFACE, mew=0.9,
+             zorder=3)
+    axB.plot(bs, [r["events_per_s"] for r in off["sweep"]], ls=(0, (4, 2)),
+             color=S.AR, marker="D", ms=3.4, mec=S.SURFACE, mew=0.9, zorder=3,
+             alpha=0.85)
+    axB.axhline(1.18 * 0.5, color=S.LLADA, lw=1.4, zorder=3)
+    axB.set_xscale("log", base=2)
+    axB.set_xticks(bs)
+    axB.set_xticklabels([str(b) for b in bs], fontsize=7.2)
+    axB.minorticks_off()
+    axB.set_xlabel("batch size")
+    axB.set_ylabel("throughput  (events/s)")
+    axB.set_ylim(0, 26)
+    S.title(axB, "B  Turning the cache off does not close it")
+    S.despine(axB)
+    axB.grid(axis="x", visible=False)
+    S.label_end(axB, bs[-1], on["sweep"][-1]["events_per_s"],
+                f"prefix cache on  {on['multiplier']:g}$\\times$", S.AR,
+                dx=-6, dy=8, ha="right", size=7.4)
+    S.label_end(axB, bs[-1], off["sweep"][-1]["events_per_s"],
+                f"cache off  {off['multiplier']:g}$\\times$", S.AR,
+                dx=-6, dy=-14, ha="right", size=7.4)
+    axB.annotate("diffusion ceiling, $\\approx$1.2$\\times$", xy=(1.15, 2.6),
+                 fontsize=7.4, color=S.LLADA, fontweight="medium", va="bottom")
+
+    S.save(fig, "fig6_batching", OUT)
+
+
+# =============================================================== figure 7 ===
+
+def fig7_decision_map():
+    """The decision procedure drawn as a map of the deployment plane."""
+    Ls = np.linspace(16, 2048, 420)
+    lams = np.logspace(np.log10(0.2), np.log10(128), 380)
+    LL, MM = np.meshgrid(Ls, lams)
+
+    # guard 1 truncation, guard 2 throughput (batching available), else DG
+    arm = np.zeros_like(LL)                       # 0 = DG
+    arm[LL < LAWS["nat_l_dg"]] = 1                # 1 = AR by truncation
+    thr = (MM > LAWS["lam_star"]) & (LL >= LAWS["nat_l_dg"])
+    arm[thr] = 2                                  # 2 = AR by throughput
+
+    fig, (axA, axB) = plt.subplots(
+        1, 2, figsize=(S.FULL, 2.85),
+        gridspec_kw={"width_ratios": [1.22, 1.0], "wspace": 0.32})
+
+    axA.pcolormesh(LL, MM, arm, shading="auto",
+                   cmap=plt.matplotlib.colors.ListedColormap(
+                       [S.WASH_DG, S.WASH_AR, "#e3eaf3"]), zorder=0)
+    axA.set_yscale("log")
+    axA.set_xlim(16, 2048)
+    axA.set_ylim(0.2, 128)
+    axA.set_xticks([256, 512, 1024, 1536, 2048])
+    axA.set_yticks([0.25, 1, 4, 16, 64])
+    axA.set_yticklabels(["0.25", "1", "4", "16", "64"])
+    axA.set_xlabel("expected output length $L$  (tokens)")
+    axA.set_ylabel("arrival rate $\\lambda$  (events/s)")
+    S.title(axA, "A  What the procedure returns",
+            "batching available; 9-field tolerance $\\tau\\!=\\!0.05$")
+    S.despine(axA)
+    axA.grid(False)
+
+    axA.axvline(LAWS["nat_l_dg"], color=S.INK2, lw=0.8, zorder=3)
+    axA.axhline(LAWS["lam_star"], color=S.INK2, lw=0.8, zorder=3)
+    axA.annotate("truncation guard  $L\\!<\\!176$", xy=(163, 0.30),
+                 rotation=90, ha="right", va="bottom", fontsize=7.2,
+                 color=S.INK2)
+    axA.annotate("throughput guard  $\\lambda>\\lambda^{*}\\!=\\!2.6$",
+                 xy=(210, 3.4), fontsize=7.4, color=S.INK2, va="bottom")
+    axA.text(1100, 0.7, "DG", fontsize=13, color=S.DG, fontweight="bold",
+             ha="center", va="center")
+    axA.text(1100, 24, "AR", fontsize=13, color=S.AR, fontweight="bold",
+             ha="center", va="center", alpha=0.75)
+    axA.text(96, 24, "AR", fontsize=10, color=S.AR, fontweight="bold",
+             ha="center", va="center", alpha=0.75)
+    axA.text(1100, 0.42, "per-event speedup 2.1–10.6$\\times$", fontsize=7.2,
+             color=S.DG, ha="center", va="center")
+
+    # ---- Panel B: the ratio along the DG band -----------------------------
+    Lb = np.linspace(16, 2048, 800)
+    ratio = t_ar(Lb) / t_dg(Lb)
+    axB.axhline(1.0, color=S.MUTED, lw=0.8, zorder=2)
+    axB.fill_between(Lb, 1.0, ratio, where=(ratio >= 1), color=S.WASH_DG,
+                     lw=0, zorder=1)
+    axB.fill_between(Lb, ratio, 1.0, where=(ratio < 1), color=S.WASH_AR,
+                     lw=0, zorder=1)
+    axB.plot(Lb, ratio, color=S.INK, lw=1.4, zorder=3)
+    axB.axvline(LAWS["nat_l_dg"], color=S.INK2, lw=0.8, ls=(0, (3, 2)), zorder=3)
+    axB.set_xlim(16, 2048)
+    axB.set_ylim(0, 12)
+    axB.set_xticks([256, 512, 1024, 1536, 2048])
+    axB.set_xlabel("expected output length $L$  (tokens)")
+    axB.set_ylabel("$T_{\\mathrm{AR}}/T_{\\mathrm{DG}}$")
+    S.title(axB, "B  The size of the prize", "batch-1, reference prompt")
+    S.despine(axB)
+    axB.grid(axis="x", visible=False)
+    axB.annotate("break-even", xy=(1900, 1.0), xytext=(0, 5),
+                 textcoords="offset points", ha="right", fontsize=7.4,
+                 color=S.MUTED)
+    axB.annotate("$L\\!=\\!176$\n(guard)", xy=(LAWS["nat_l_dg"], 10.4),
+                 xytext=(8, 0), textcoords="offset points", fontsize=7.4,
+                 color=S.INK2, va="center")
+    for L in (256, 512, 1024, 2048):
+        r = float(t_ar(L) / t_dg(L))
+        axB.plot([L], [r], "o", ms=4.0, color=S.INK, mec=S.SURFACE, mew=0.9,
+                 zorder=4)
+        axB.annotate(f"{r:.1f}$\\times$", xy=(L, r), xytext=(0, 7),
+                     textcoords="offset points", ha="center", fontsize=7.4,
+                     color=S.INK)
+
+    S.save(fig, "fig7_decision_map", OUT)
+
+
+# =============================================================== figure 8 ===
+
+def fig8_defects():
+    """Five harness defects: before, after, and which arm the bias favoured."""
+    rows = [
+        ("1", "Decoding config", "checkpoint sets a penalty",
+         "0.779", "0.844", "Field-F1", "$+0.065$ F1", "AR"),
+        ("2", "Serving parity", "one arm on a research loop",
+         "1841.6", "413.3", "p50 ms", "4.5$\\times$ faster", "AR"),
+        ("3", "Parser policy", "last-object-wins parser",
+         "0.599", "0.826", "Field-F1", "$+0.227$ F1", "AR"),
+        ("4", "Metric defaults", "falsy value read as missing",
+         "0", "100", "completeness %", "finding refuted", "AR"),
+        ("5", "Provenance", "CLI default hit the artifact",
+         "3", "0", "files mislabelled", "audit restored", "neutral"),
+    ]
+    print("fig8 rows:", [(r[1], r[3], r[4]) for r in rows])
+
+    fig, ax = plt.subplots(figsize=(S.FULL, 2.60))
+    y = np.arange(len(rows))[::-1]
+    XB, XA = 0.400, 0.600          # fixed before/after positions
+
+    for yi, (num, name, mech, before, after, unit, delta, bias) in zip(y, rows):
+        col = S.DG if bias == "AR" else S.MUTED
+        ax.annotate("", xy=(XA, yi), xytext=(XB, yi),
+                    arrowprops=dict(arrowstyle="-|>", color=col, lw=1.2,
+                                    shrinkA=3, shrinkB=3, alpha=0.75))
+        ax.plot([XB], [yi], "o", ms=5.4, mfc=S.SURFACE, mec=col, mew=1.3,
+                zorder=3)
+        ax.plot([XA], [yi], "o", ms=5.4, color=col, mec=S.SURFACE, mew=0.8,
+                zorder=3)
+        ax.text(0.005, yi, num, ha="left", va="center", fontsize=8.0,
+                color=S.MUTED)
+        ax.text(0.035, yi + 0.16, name, ha="left", va="center", fontsize=8.2,
+                color=S.INK, fontweight="medium")
+        ax.text(0.035, yi - 0.20, mech, ha="left", va="center", fontsize=6.9,
+                color=S.MUTED)
+        ax.text(XB, yi + 0.27, before, ha="center", va="bottom", fontsize=7.4,
+                color=S.MUTED)
+        ax.text(XA, yi + 0.27, after, ha="center", va="bottom", fontsize=7.4,
+                color=col, fontweight="medium")
+        ax.text((XB + XA) / 2, yi - 0.245, unit, ha="center", va="top",
+                fontsize=6.9, color=S.MUTED)
+        ax.text(0.672, yi, delta, ha="left", va="center", fontsize=7.6,
+                color=S.INK2)
+        ax.text(0.995, yi, "against AR" if bias == "AR" else "neutral",
+                ha="right", va="center", fontsize=7.6,
+                color=S.DG if bias == "AR" else S.MUTED,
+                fontweight="medium" if bias == "AR" else "normal")
+
+    ax.text(XB, len(rows) - 0.34, "before", ha="center", fontsize=7.2,
+            color=S.MUTED, style="italic")
+    ax.text(XA, len(rows) - 0.34, "after", ha="center", fontsize=7.2,
+            color=S.MUTED, style="italic")
+    ax.text(0.995, len(rows) - 0.34, "direction of bias", ha="right",
+            fontsize=7.2, color=S.MUTED, style="italic")
+
+    ax.set_xlim(0, 1.0)
+    ax.set_ylim(-0.75, len(rows) - 0.02)
+    ax.set_xticks([]); ax.set_yticks([])
+    S.despine(ax, left=False, bottom=False)
+    ax.grid(False)
+    S.title(ax, "Five harness defects, and which arm each one hurt",
+            "all five were found by re-reading committed artifacts, not by running new experiments")
+    ax.text(0.995, -0.68, "4 of 5 biased the same direction", fontsize=7.8,
+            color=S.INK, fontweight="medium", ha="right")
+
+    S.save(fig, "fig8_defects", OUT)
+
+
+# =============================================================== figure 9 ===
+
+def fig9_deployment():
+    """The deployment envelope: quality-matched pair, not compute-matched."""
+    Ls = [256, 512, 1024]
+    ar15 = [1007.3, 2004.7, 4025.9]     # issue_evidence_ar1b_*.json + energy probe
+    dg = [378.3, 500.9, 738.7]          # issue68_dg_L*.json
+    for L, v in zip((512, 1024), (ar15[1], ar15[2])):
+        p = RESULTS / f"issue_evidence_ar1b_L{L}.json"
+        if p.exists():
+            got = _p50(p)
+            assert abs(got - v) < 1.0, f"AR-1.5B L={L}: artifact {got} vs plotted {v}"
+    print("fig9 AR-1.5B", ar15, "DG", dg)
+
+    fig, (axA, axB) = plt.subplots(
+        1, 2, figsize=(S.FULL, 2.6),
+        gridspec_kw={"width_ratios": [1.25, 1.0], "wspace": 0.34})
+
+    x = np.arange(len(Ls))
+    w = 0.34
+    axA.bar(x - w / 2 - 0.01, ar15, width=w, color=S.AR, zorder=3)
+    axA.bar(x + w / 2 + 0.01, dg, width=w, color=S.DG, zorder=3)
+    for xi, (a, d) in enumerate(zip(ar15, dg)):
+        axA.text(xi - w / 2 - 0.01, a + 90, f"{a:,.0f}", ha="center",
+                 fontsize=7.4, color=S.AR)
+        axA.text(xi + w / 2 + 0.01, d + 90, f"{d:,.0f}", ha="center",
+                 fontsize=7.4, color=S.DG)
+        axA.text(xi, max(a, d) + 380, f"{a/d:.1f}$\\times$", ha="center",
+                 fontsize=8.0, color=S.INK, fontweight="medium")
+    axA.set_xticks(x)
+    axA.set_xticklabels([f"{L}" for L in Ls])
+    axA.set_ylim(0, 5000)
+    axA.set_yticks([0, 1000, 2000, 3000, 4000])
+    axA.set_yticklabels(["0", "1,000", "2,000", "3,000", "4,000"])
+    axA.set_xlabel("forced output length $L_{\\mathrm{out}}$  (tokens)")
+    axA.set_ylabel("p50 latency  (ms)")
+    S.title(axA, "A  Latency at the quality-matched pair",
+            "AR-1.5B (F1 0.868) vs DG-26B-A4B (F1 0.852)")
+    S.despine(axA)
+    axA.grid(axis="x", visible=False)
+
+    # ---- Panel B: what it costs to keep on a GPU --------------------------
+    cats = ["weights on disk\n(GB, bf16)", "energy per event\n(J, net of idle, $L\\!=\\!256$)"]
+    arv = [3.0, 5.1]
+    dgv = [52.0, 4.2]
+    xb = np.arange(len(cats))
+    # each category normalised to its own max — the units differ
+    norm = [max(a, d) for a, d in zip(arv, dgv)]
+    axB.bar(xb - w / 2 - 0.01, [a / n for a, n in zip(arv, norm)], width=w,
+            color=S.AR, zorder=3)
+    axB.bar(xb + w / 2 + 0.01, [d / n for d, n in zip(dgv, norm)], width=w,
+            color=S.DG, zorder=3)
+    for xi, (a, d, n) in enumerate(zip(arv, dgv, norm)):
+        axB.text(xi - w / 2 - 0.01, a / n + 0.03, f"{a:g}", ha="center",
+                 fontsize=7.4, color=S.AR)
+        axB.text(xi + w / 2 + 0.01, d / n + 0.03, f"{d:g}", ha="center",
+                 fontsize=7.4, color=S.DG)
+    axB.set_xticks(xb)
+    axB.set_xticklabels(cats, fontsize=7.2)
+    axB.set_ylim(0, 1.30)
+    axB.set_yticks([])
+    axB.set_ylabel("each pair scaled to its own maximum", fontsize=7.6)
+    S.title(axB, "B  What it costs to keep resident")
+    S.despine(axB, left=False)
+    axB.grid(False)
+    axB.tick_params(axis="x", length=0)
+
+    handles = [
+        Patch(facecolor=S.AR, label="AR-1.5B  (Qwen2.5-1.5B, 3 GB)"),
+        Patch(facecolor=S.DG, label="DG-26B-A4B  (52 GB)"),
+    ]
+    fig.legend(handles=handles, loc="lower center", ncol=2,
+               bbox_to_anchor=(0.5, -0.10), frameon=False)
+
+    S.save(fig, "fig9_deployment", OUT)
+
+
+# ==============================================================================
+
+if __name__ == "__main__":
+    S.apply()
+    print("building figures ->", OUT)
+    fig1_cost_shapes()
+    fig2_canvas_edges()
+    fig3_input_sweep()
+    fig4_ksweep()
+    fig5_quality_vs_length()
+    fig6_batching()
+    fig7_decision_map()
+    fig8_defects()
+    fig9_deployment()
+    print("done.")

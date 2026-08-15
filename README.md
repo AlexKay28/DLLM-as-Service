@@ -10,7 +10,7 @@ prefill-dominated floor. This repo contains the experiments, decision
 procedure, and paper that establish these cost laws and determine where
 each architecture belongs.
 
-**Paper:** [`Cost-Shape-of-Block-Structured-Decoding.pdf`](Cost-Shape-of-Block-Structured-Decoding.pdf) (16 pages)
+**Paper:** [`Cost-Shape-of-Block-Structured-Decoding_v0.pdf`](Cost-Shape-of-Block-Structured-Decoding_v0.pdf) (21 pages, 9 figures)
 
 ---
 
@@ -18,22 +18,25 @@ each architecture belongs.
 
 ```
 .
-├── Cost-Shape-of-Block-Structured-Decoding.pdf   # Compiled paper
+├── Cost-Shape-of-Block-Structured-Decoding_v0.pdf   # Compiled paper
 ├── CHECKLIST.md                                   # 5 harness defects (citiable)
 ├── CHANGELOG.md                                   # Project history
 ├── AGENTS.md                                      # Guide for AI agents
 ├── README.md                                      # This file
 │
 ├── paper/                          # LaTeX source + figures
-│   ├── main.tex                    # Entry point — compiles to 16 pages
-│   ├── macros.tex                  # All numbers (shared with CHECKLIST.md)
+│   ├── main.tex                    # Entry point — compiles to 21 pages
+│   ├── style.tex                   # Design system: fonts, colours, boxes
+│   ├── macros.tex                  # All numbers, each traced to an artifact
 │   ├── NUMBERS.md                  # Pinned stack, provenance, discrepancy analysis
 │   ├── BACKBONE.md                 # Claim ledger (21 green, 2 amber, 0 red)
-│   ├── CHARTS.md                   # Figure list with data sources
+│   ├── CHARTS.md                   # Figure list, data sources, house rules
 │   ├── verify_numbers.py           # Asserts all cited numbers against artifacts
-│   ├── generate_figures.py         # Builds 7 figures from results/
-│   ├── sections/                   # 9 .tex sections
-│   └── figures/                    # 7 PDF/PNG figures
+│   ├── sections/                   # 10 .tex sections
+│   └── figures/
+│       ├── style.py                # Shared visual system (palette, marks)
+│       ├── make_figures.py         # Builds all 9 figures from results/
+│       └── fig*.pdf|.png           # 9 figures, PDF for print + PNG for review
 │
 ├── models/
 │   ├── baselines/
@@ -90,10 +93,14 @@ each architecture belongs.
 | Active parameters | 3.0B | 4.0B (top-8/128 MoE) |
 | p50 at L=256 (batch-1) | 1616 ms | 378 ms |
 | Batch multiplier | 77–86× | 1.18× |
+| Energy per event (net of idle) | 22.3 J | 4.2 J |
 | Input-length slope | 0.047 ms/tok | 0.123 ms/tok |
 
-**DM wins:** per-event latency (2–10×), output-length invariance, energy (4.2 J vs 22.3 J)
-**AR wins:** batched throughput (80× vs 1.18×), long input, deployment footprint (17× smaller)
+**DM wins:** per-event latency (2–10×), output-length invariance, energy, a
+per-request quality knob (K), and complete output under deadline pressure.
+**AR wins:** batched throughput (80× vs 1.18×), long input, graceful degradation
+under a tight *output-length* budget, tighter latency distribution, and
+deployment footprint (17× smaller at matched quality).
 
 ## Decision procedure
 
@@ -116,6 +123,10 @@ $PY models/experiments/run_input_length_sweep.py --n 100
 
 # Verify all numbers
 python3 paper/verify_numbers.py
+
+# Rebuild the figures, then the paper
+cd paper/figures && python3 make_figures.py && cd ..
+tectonic -X compile main.tex
 ```
 
 ## EDRs

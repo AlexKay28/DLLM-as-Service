@@ -1,99 +1,91 @@
 \section{The Exchange Rate: Quality Is Comparable}
-\label{sec:exchange_rate}
+\label{sec:exchange}
 
-Before comparing cost, we must fix the quality at which the two
-architectures are compared. The naive choice---FlowFill's 12-field macro
-F1---is wrong: that metric is contaminated by three degenerate gold
-fields, and the quality gap it reports is an artifact of that
-contamination. On a clean 9-field metric, the compute-matched pair
-(AR-3B vs DG, 3B vs 4B active parameters) is indistinguishable: F1
-differs by $0.0002$. This is the exchange rate that licenses the cost
-comparison in the rest of the paper.
+A cost comparison is meaningless until the quality it buys is fixed. This
+section establishes the exchange rate: on a decontaminated metric with a fixed
+parser policy, the compute-matched pair is indistinguishable, and the
+remainder of the paper is free to compare cost at matched quality.
 
-\subsection{The contaminated 12-field metric}
+\subsection{What the contaminated metric was measuring}
 
-FlowFill's 12-field macro F1 averages over twelve fields, three of which
-carry no discriminative signal on BGL. Across 2{,}000 events,
-\texttt{event\_type} takes 2 unique values, \texttt{affected\_entity}
-takes 1, and \texttt{remediation\_hint} takes 1. A model that emits an
-empty object \texttt{\{\}} scores $1.000$ on two of the three fields by
-trivially matching the constant gold. These fields reward verbosity and
-guessing rather than extraction fidelity, and they inflate any model
-that fills them with plausible-sounding text.
+Table~\ref{tab:exchange} reports both metrics side by side. On the 12-field
+macro the autoregressive model leads by \twelveGap. On the 9-field macro the
+two models differ by \qualityGap\ --- two ten-thousandths of an F1 point.
 
-\subsection{A clean 9-field metric}
-
-We redefine the extraction target as nine fields: seven structural
-(\texttt{timestamp\_norm}, \texttt{host}, \texttt{component},
-\texttt{severity}, \texttt{message\_template}, \texttt{error\_code},
-\texttt{metric\_value}) and two anomaly (\texttt{is\_anomaly},
-\texttt{anomaly\_score}). All nine vary across the corpus; none is
-constant. We rescore both models on this metric without retraining or
-changing their outputs.
-
-\subsection{Results}
-
-Table~\ref{tab:exchange_rate} reports both metrics side by side for the
-compute-matched pair. On the 9-field metric the two models are identical
-within $0.0002$ F1. On the contaminated 12-field metric a gap of $0.040$
-opens---in AR's favour.
-
-\begin{table}[t]
+\begin{table}[h]
 \centering
-\caption{Macro F1 on the contaminated 12-field metric vs the clean
-9-field metric, compute-matched pair (AR-3B vs DG). The $0.040$ 12-field
-gap collapses to $0.0002$ on the decontaminated metric.}
-\label{tab:exchange_rate}
-\begin{tabular}{lcc}
+\caption{Macro F1 at $L{=}\canvasLength$ on the contaminated 12-field metric
+and the clean 9-field metric, compute-matched pair. Re-scored from saved
+generations with a first-object-wins parser
+(\artifact{results/issue43\_nine\_field\_f1.json}).}
+\label{tab:exchange}
+\begin{tabular}{@{}lcc@{}}
 \toprule
-Model & 9-field F1 & 12-field F1 \\
+\thead{Model} & \thead{9-field F1} & \thead{12-field F1} \\
 \midrule
-AR-3B  & \arThreeBFnine   & \arThreeBFtwelve \\
-DG     & \dgNineF         & \dgTwelveF \\
+\tabfont \ARthree\ (3.0\,B active) & \tabfont \arThreeBFnine & \tabfont \arThreeBFtwelve \\
+\tabfont \DG\ (4.0\,B active)      & \tabfont \dgNineF       & \tabfont \dgTwelveF \\
 \midrule
-$\Delta$ (AR $-$ DG) & $-0.0002$ & $+0.0405$ \\
+\tabfont $\Delta$ (AR $-$ DG) & \tabfont $-\qualityGap$ & \tabfont $+\twelveGap$ \\
 \bottomrule
 \end{tabular}
 \end{table}
 
 The entire 12-field gap is attributable to the three degenerate fields.
-DG emits structured records and leaves fields it cannot populate empty;
-AR-3B, prompted to fill every field, produces text that matches the
-near-constant gold on \texttt{event\_type},
-\texttt{affected\_entity}, and \texttt{remediation\_hint}. Remove those
-three fields and the gap collapses to $0.0002$. The 12-field metric does
-not measure extraction quality; it measures willingness to emit
-constants.
+DiffusionGemma emits structured records and leaves fields it cannot populate
+empty; \ARthree, prompted to fill every field, produces plausible text that
+matches the near-constant gold. Remove those three fields and the gap
+collapses. The 12-field metric was not measuring extraction quality; it was
+measuring willingness to emit constants.
 
-\subsection{The quality-matched AR model is the 1.5B, not the 7B}
+\subsection{Parser policy is an autoregressive variable, not a diffusion one}
 
-Because DG and AR-3B are quality-matched on the clean metric, the
-deployment-relevant question is which is the \emph{smallest} AR model
-that matches DG's quality. The 1.5B-parameter AR model scores $0.8628$ on
-the 9-field metric---higher than DG's $\dgNineF$ by $0.011$. The
-quality-matched AR model is therefore AR-1.5B ($\approx$3\,GB on disk),
-not AR-7B; this drives the deployment-footprint comparison in \S6.
+Quality is also sensitive to how output is turned into a record, and that
+sensitivity is not symmetric. At $L{=}512$ with a forced minimum output
+length, \rambleRate\% of \ARthree\ outputs contain more than one JSON object;
+the parser policy that decides which one to keep swings its score from
+\defectThreeBefore\ (last-object-wins) to \defectThreeAfter\
+(first-object-wins). DiffusionGemma emits a single fixed-length canvas and
+scores identically under either policy. Any quality comparison that does not
+fix the parser policy is confounded, and confounded in a direction that
+depends on which arm over-generates. We use first-object-wins throughout.
 
-\subsection{Parser policy is an AR variable, not a DG one}
-
-Quality is also sensitive to how the model's output is parsed into a
-record. At $L=512$ with a forced minimum output length, $96\%$ of AR-3B
-outputs contain more than one JSON object: the model emits a second
-object after the first complete one. The parser policy that selects
-which object to keep swings AR-3B's 12-field F1 from \defectThreeBefore{}
-(last-object-wins) to \defectThreeAfter{} (first-object-wins)---a
-$0.227$ swing from parser choice alone. DG emits a single fixed-length
-canvas and is parser-invariant: its score does not move under either
-policy. Any quality comparison that does not fix the parser policy is
-confounded; we use first-object-wins throughout.
-
-\paragraph{Takeaway.} On a decontaminated metric with a fixed parser,
-AR and DG are quality-equivalent within $0.0002$ F1. The remainder of
-the paper compares their cost at this matched quality.
+\subsection{Quality is not invariant to output length}
 
 \begin{figure}[t]
 \centering
-\includegraphics[width=0.95\linewidth]{figures/fig7_quality.pdf}
-\caption{Quality vs output length. Left: 9-field (headline). Right: 12-field (contaminated).}
+\includegraphics[width=\linewidth]{figures/fig5_quality_vs_length.pdf}
+\caption{Quality and parseability against forced output length
+(\artifact{results/issue43/}, $n{=}\nPerCell$ per cell, first-object-wins).
+The shaded band is the truncation regime, where the output budget is below the
+task's natural record length. \textbf{A:} at $L{=}128$ the autoregressive
+model retains \arFOneTwentyEight\ F1 while the diffusion model collapses to
+\dgFOneTwentyEight. \textbf{B:} the mechanism --- left-to-right decoding
+yields a valid \emph{prefix} of fields, while a canvas truncated mid-denoise
+yields nothing parseable at all (\arValidTwentyEight\% vs
+\dgValidTwentyEight\% schema-valid).}
 \label{fig:quality}
 \end{figure}
+
+Both models need roughly the task's natural record length before they produce
+anything useful, and below it they fail in qualitatively different ways
+(Figure~\ref{fig:quality}). This is an autoregressive advantage, and it is the
+mirror image of the paper's headline: graceful degradation under a tight
+output budget belongs to the architecture that emits tokens in order.
+
+We flag one asymmetry in the figure honestly. The autoregressive curve is flat
+from $L{=}256$ to $L{=}512$ at \arThreeBFnine\ only because first-object-wins
+discards the rambled continuations; under the old parser it appeared to decay
+monotonically, and that apparent decay was defect 3, not a property of the
+model. The measured invariance of the diffusion arm across the same range
+(\dgNineF\ to $0.8546$) is real and does not depend on parser choice.
+
+\begin{takeaway}
+\boxhead{Exchange rate}
+At the compute-matched pair, on a decontaminated metric with a fixed parser,
+the two architectures are quality-equivalent to within \qualityGap\ F1 at
+$L{=}\canvasLength$. Everything that follows compares cost at that quality.
+Separately: the \emph{quality-matched} model is not \ARthree\ but \ARoneb,
+which reaches \arOneFiveFnine\ --- higher than either. That fact drives
+\S\ref{sec:fair}.
+\end{takeaway}

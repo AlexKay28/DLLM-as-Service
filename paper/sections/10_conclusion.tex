@@ -1,0 +1,33 @@
+\section{Conclusion}
+\label{sec:conclusion}
+
+Autoregressive and block-diffusion decoders do not sit at two points on a
+latency scale. They have different cost \emph{shapes}: a line with no floor,
+and a staircase with a floor that is \dgPrefillPct\% prefill. Almost
+everything a deployment needs to know follows from that difference and from
+where the two shapes cross.
+
+We measured both laws on one pinned stack, showed the staircase has sharp
+edges exactly at canvas boundaries and uniform steps out to $L{=}2048$, found
+the second variable that makes the diffusion law two-dimensional, and turned
+the pair into a decision procedure whose constants all trace to committed
+artifacts. Then we asked the question that motivated the work: does the
+per-event advantage survive a fair comparison? At short output it does not.
+The quality-matched autoregressive model is \footprintRatio$\times$ smaller,
+batches \arBatchMult$\times$ better, and pays \inputSlopeRatio$\times$ less
+per prompt token. At forced long output under a batch-1 constraint it does
+survive, by $4.0$--$5.4\times$, and it brings two structural properties the
+autoregressive model has no equivalent for: a per-request quality knob, and a
+complete record at every point on the quality curve.
+
+Two things we would emphasise to anyone extending this. First, the shape is
+caused by the \emph{block}, not by the diffusion --- the denoising loop is
+\dgDenoisePct\% of the base cost, so any decoder emitting fixed-size blocks
+would inherit the same staircase, and the interesting design space is block
+size rather than denoising schedule. Second, the four defects that biased our
+own harness against the autoregressive baseline all lived in the
+infrastructure around the model rather than in the model itself. That is not a
+coincidence; it is what a comparison harness does when the person writing it
+would prefer one of the two answers. The five checks in
+\artifact{CHECKLIST.md} each take under five minutes, and each of them caught
+something that had already changed a headline number.
