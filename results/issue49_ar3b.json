@@ -1,0 +1,36 @@
+{
+  "model": "Qwen/Qwen2.5-3B-Instruct",
+  "n_events": 300,
+  "max_new_tokens": 256,
+  "min_tokens": 0,
+  "cold_start_s": 43.13,
+  "power": {
+    "avg_power_w": 237.48,
+    "peak_power_w": 267.54,
+    "idle_power_w": 46.62,
+    "duration_s": 318.694,
+    "n_readings": 3636,
+    "energy_j_total": 60826.12,
+    "j_per_event": 202.7537
+  },
+  "peak_mem_gb": 71.02,
+  "latency_ms": {
+    "p50": 1018.5,
+    "p99": 1612.5,
+    "mean": 1062.2
+  },
+  "mean_output_tokens": 131.7,
+  "quality": {
+    "field_f1": 0.8275,
+    "schema_valid_pct": 99.33,
+    "consistency_pct": 96.33
+  },
+  "energy_per_event_j": 202.7537,
+  "cost": {
+    "gpu_cost_per_event": 0.000694,
+    "electricity_cost_per_event": 6.76e-06,
+    "total_per_event": 0.000701
+  },
+  "wall_time_s": 318.69,
+  "timestamp": "2026-08-15T12:46:38Z"
+}
