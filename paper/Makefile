@@ -14,7 +14,7 @@ PAPER     := main
 REPO      := $(abspath ..)
 # Released snapshots live in paper/<VERSION>/main.pdf — bump VERSION to cut a
 # new one rather than overwriting the last.
-VERSION   := v1
+VERSION   := v2
 RELEASE   := $(VERSION)/main.pdf
 
 # Override if your interpreter is named differently: make PYTHON=python3.12
@@ -26,7 +26,7 @@ FIGS      := $(patsubst %,figures/%.pdf, \
                fig1_cost_shapes fig2_canvas_edges fig3_input_sweep fig4_ksweep \
                fig5_quality_vs_length fig6_batching fig7_decision_map \
                fig8_defects fig9_deployment)
-TEXSRC    := $(PAPER).tex style.tex macros.tex references.bib $(wildcard sections/*.tex)
+TEXSRC    := $(PAPER).tex assets/style.tex assets/macros.tex assets/references.bib $(wildcard sections/*.tex)
 
 .PHONY: all figures paper verify publish check clean distclean
 
