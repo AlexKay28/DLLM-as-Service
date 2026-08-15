@@ -105,11 +105,43 @@ def kill_server(proc, log):
     time.sleep(10)  # let CUDA memory release before the next engine loads
 
 
+def mmpp_schedule(rng, rate_low, rate_high, p_low_to_high, p_high_to_low,
+                  duration_s, max_events):
+    """Markov-Modulated Poisson Process: 2-state CTMC.
+
+    State LOW  (rate_low)  -> HIGH with prob p_low_to_high per step
+    State HIGH (rate_high) -> LOW  with prob p_high_to_low  per step
+
+    Produces bursty traffic: long quiet stretches punctuated by bursts.
+    The long-run average rate is:
+      r_avg = (rate_low * p_h2l + rate_high * p_l2h) / (p_l2h + p_h2l)
+    """
+    schedule = []
+    t = 0.0
+    state = "low"
+    while t <= duration_s and len(schedule) < max_events:
+        schedule.append(t)
+        if state == "low":
+            t += rng.expovariate(rate_low)
+            if rng.random() < p_low_to_high:
+                state = "high"
+        else:
+            t += rng.expovariate(rate_high)
+            if rng.random() < p_high_to_low:
+                state = "low"
+    return schedule
+
+
 async def run_window(port, model, prompts, rate, seed, duration_s,
                      max_events, drain_timeout, max_tokens, min_tokens,
-                     pbar_label, vip_every_s=0.0, vip_policy="abort"):
-    """One offered rate: Poisson sends for min(duration_s, max_events/rate),
-    then wait for completions up to drain_timeout.
+                     pbar_label, vip_every_s=0.0, vip_policy="abort",
+                     arrival_mode="poisson", mmpp_params=None):
+    """One offered rate: Poisson or MMPP sends for min(duration_s,
+    max_events/rate), then wait for completions up to drain_timeout.
+
+    arrival_mode='poisson': standard Poisson at the given rate.
+    arrival_mode='mmpp': 2-state CTMC with bursty arrivals.
+      mmpp_params = dict(rate_low, rate_high, p_low_to_high, p_high_to_low)
 
     With vip_every_s > 0, a latency-critical "VIP" request is injected every
     vip_every_s seconds:
@@ -123,11 +155,17 @@ async def run_window(port, model, prompts, rate, seed, duration_s,
     import httpx
 
     rng = random.Random(seed)
-    schedule = []
-    t = 0.0
-    while t <= duration_s and len(schedule) < max_events:
-        schedule.append(t)
-        t += rng.expovariate(rate)
+    if arrival_mode == "mmpp" and mmpp_params:
+        schedule = mmpp_schedule(
+            rng, mmpp_params["rate_low"], mmpp_params["rate_high"],
+            mmpp_params["p_low_to_high"], mmpp_params["p_high_to_low"],
+            duration_s, max_events)
+    else:
+        schedule = []
+        t = 0.0
+        while t <= duration_s and len(schedule) < max_events:
+            schedule.append(t)
+            t += rng.expovariate(rate)
     n_to_send = len(schedule)
 
     order = list(range(len(prompts)))
@@ -297,7 +335,17 @@ async def amain():
         description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--model", required=True)
     ap.add_argument("--rates", type=float, nargs="+", required=True,
-                    help="offered Poisson rates in events/s")
+                    help="offered rates in events/s (Poisson) or avg rates "
+                         "(MMPP, used to derive low/high)")
+    ap.add_argument("--arrival-mode", choices=["poisson", "mmpp"],
+                    default="poisson",
+                    help="poisson: standard. mmpp: 2-state bursty (issue #48)")
+    ap.add_argument("--mmpp-burst-ratio", type=float, default=4.0,
+                    help="MMPP: rate_high / rate_low ratio (burst intensity)")
+    ap.add_argument("--mmpp-p-low-high", type=float, default=0.05,
+                    help="MMPP: P(low->high) per arrival")
+    ap.add_argument("--mmpp-p-high-low", type=float, default=0.15,
+                    help="MMPP: P(high->low) per arrival")
     ap.add_argument("--n-prompt-pool", type=int, default=400,
                     help="distinct BGL lines cycled through (prompt variety)")
     ap.add_argument("--duration-s", type=float, default=150.0,
@@ -346,21 +394,39 @@ async def amain():
         "seed": args.seed,
         "min_tokens": args.min_tokens,
         "max_new_tokens": args.max_new_tokens,
+        "arrival_mode": args.arrival_mode,
         "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ"),
         "rates": [],
     }
+    if args.arrival_mode == "mmpp":
+        results["mmpp_params"] = {
+            "burst_ratio": args.mmpp_burst_ratio,
+            "p_low_to_high": args.mmpp_p_low_high,
+            "p_high_to_low": args.mmpp_p_high_low,
+        }
     try:
         print("waiting for server health...", flush=True)
         await wait_healthy(proc, args.port)
         print("server healthy; sweeping rates", flush=True)
         for rate in args.rates:
-            print(f"  rate={rate} ev/s ...", flush=True)
+            print(f"  rate={rate} ev/s ({args.arrival_mode}) ...", flush=True)
+            mmpp_params = None
+            if args.arrival_mode == "mmpp":
+                r_high = rate * args.mmpp_burst_ratio
+                r_low = max(rate * 2 / (1 + args.mmpp_burst_ratio), 0.01)
+                mmpp_params = {
+                    "rate_low": r_low,
+                    "rate_high": r_high,
+                    "p_low_to_high": args.mmpp_p_low_high,
+                    "p_high_to_low": args.mmpp_p_high_low,
+                }
             recs, n_sent, n_aband = await run_window(
                 args.port, args.model, prompts, rate, args.seed,
                 args.duration_s, args.max_events, args.drain_timeout,
                 args.max_new_tokens, args.min_tokens,
                 pbar_label=f"λ={rate}",
-                vip_every_s=args.vip_every_s, vip_policy=args.vip_policy)
+                vip_every_s=args.vip_every_s, vip_policy=args.vip_policy,
+                arrival_mode=args.arrival_mode, mmpp_params=mmpp_params)
             row = summarize(recs, n_sent, n_aband, rate)
             results["rates"].append(row)
             lag = row["lag_ms"]
