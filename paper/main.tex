@@ -36,8 +36,9 @@ availability, quality tolerance), and then ask whether the crossover survives
 a fair deployment comparison. It does not, at short output: the
 quality-matched autoregressive model is \footprintRatio$\times$ smaller,
 converts arrival concurrency into throughput at \arBatchMult$\times$ against
-the diffusion model's \dgBatchMult$\times$, and pays \inputSlopeRatio$\times$
-less per prompt token. What survives is narrower and real --- at forced output
+the diffusion model's $\leq$\dgBatchVllmHi$\times$ (both diffusion
+measurements are engine-bounded; \S\ref{sec:batching}), and pays
+\inputSlopeRatio$\times$ less per prompt token. What survives is narrower and real --- at forced output
 $L \geq 512$ under a batch-1 constraint, the diffusion model is
 $4.0$--$5.4\times$ faster than the quality-matched baseline, uses less energy,
 and degrades under deadline pressure by losing quality rather than

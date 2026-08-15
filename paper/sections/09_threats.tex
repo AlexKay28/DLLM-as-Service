@@ -14,22 +14,16 @@ so, therefore, are $L^{*}$ and $\lambda^{*}$. We have no H100 comparison.
 \paragraph{One model family carries the staircase}
 The staircase is established on DiffusionGemma-26B-A4B and confirmed across
 two corpora (BGL step \bglStep\,ms; HDFS \hdfsStep\,ms). The LLaDA-8B arm
-under dInfer was measured and is \emph{inconclusive}: dInfer's prefix and
-vicinity KV-cache paths error on prompts of 632 tokens or more, forcing a
-cache-less mode that inflates absolute latency by roughly $30\times$ and
-introduces variance that swamps any block-length stepping. We therefore cannot
-say the staircase reproduces on a second diffusion family --- only that its
-form should hold for any canvas-bound decoder, and that confirming it needs a
-production-grade diffusion runtime with a working cache, which did not exist
-at the time of writing.
+under dInfer was measured and is \emph{inconclusive}: dInfer's cache bug
+(\S\ref{sec:batching}) prevents a clean second-family confirmation. The
+staircase's form should hold for any canvas-bound decoder, but confirming
+it needs a production-grade diffusion runtime with a working cache.
 
-\paragraph{The batching cap is measured; its cause is not}
-\S\ref{sec:batching} reports a direct test that falsifies KV-cache reuse as a
-\emph{complete} explanation and leaves three candidate causes untested.
-Separately, the dInfer control that licenses calling the ceiling
-architectural was itself run cache-less because of the bug above --- so a
-cache-based mechanism is being argued partly from a cache-less measurement.
-We state the ceiling as a reproduced correlation.
+\paragraph{The batching ceiling is measured on compromised stacks}
+Both diffusion batching measurements are bounded by known engine defects,
+as stated in \S\ref{sec:batching}. The ceiling reproduces across two runtimes
+and two model families, but neither measurement was taken on an uncrippled
+stack. We do not claim the ceiling is architectural; we claim it reproduces.
 
 \paragraph{The one-variable law is a projection}
 The cost law is two-variable (Eq.~\ref{eq:dg}). $L^{*} = \crossoverL$ is its
