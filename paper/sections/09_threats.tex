@@ -1,0 +1,42 @@
+\section{Threats to Validity}
+\label{sec:threats}
+
+\paragraph{Single GPU.}
+All measurements are on one \gpuModel{}. We have no H100 comparison, so the
+absolute latencies and the crossover constants carry an unknown
+hardware-scaling term. The cost \emph{laws} (linear vs.\ staircase) should
+transfer---they are structural---but the fitted constants ($\arBase$,
+$\arSlope$, $\dgBase$, $\dgStep$) are A100-specific.
+
+\paragraph{Single model family for the staircase.}
+The staircase cost law is established on DiffusionGemma-26B-A4B. The LLaDA-8B
+arm is pending and not yet measured on the pinned stack. If LLaDA's denoising
+loop has a different per-step cost, the step parameter (\dgStep{}~ms) and base
+(\dgBase{}~ms) may not generalise. The \emph{form} of the law (base $+$ step
+$\cdot \lfloor L/\text{canvas}\rfloor$) should hold for any canvas-bound
+diffusion model, but its parameters are model-specific.
+
+\paragraph{Two-variable scope.}
+The cost law is two-variable: $T_{DG}(L_{out}, L_{in})$. The per-event
+crossover $L^\ast=\crossoverL$~tokens is derived from the one-variable
+projection at the corpus's few-shot input length ($\sim\!1047$ tokens). At
+longer inputs the diffusion model's steeper input slope (\dgInputSlope{} vs
+\arInputSlope{}~ms/prompt-token) raises the base and pushes $L^\ast$ upward.
+The one-variable crossover is valid only near the input length at which it was
+calibrated and must not be extrapolated to arbitrary prompt lengths.
+
+\paragraph{Not size-matched.}
+The compute-matched pair (AR-3B vs DG-26B-A4B; 3B vs 4B active parameters) is
+matched on active compute, not on size. The quality-matched AR model
+(Qwen2.5-1.5B, $\sim$3~GB) is $17\times$ smaller than DiffusionGemma (52~GB).
+The per-event latency advantage the diffusion model holds at batch-1 does not
+survive this footprint comparison: a $17\times$ smaller model that matches
+quality is the deployment winner whenever memory or cost matters, which is
+whenever it is deployed.
+
+\paragraph{$K$ is pinned.}
+$K=8$ denoising steps is pinned throughout. The base is $K$-dependent: at
+$K=32$ it was \dgOldBase{}~ms. A different $K$ changes both the base and the
+crossover ($L^\ast=\crossoverL$ at $K=8$ vs $65$ at $K=32$). The decision
+procedure takes $K$ as an input so the crossover recomputes, but every number
+in this paper assumes $K=8$ unless stated.

@@ -1,0 +1,41 @@
+\section{The Batching Boundary}
+\label{sec:batching}
+
+The per-event crossover (\S\ref{sec:decision}) favours the diffusion model at
+short output length, but a deployment serves an arrival stream, not a single
+event. Under batching the picture inverts.
+
+\subsection{Batch multipliers}
+
+On vLLM, the AR model sustains a $77$--$86\times$ throughput multiplier as
+batch size grows (prefix-cached, continuous batching). On dInfer with
+\verb|cache=''|, DiffusionGemma sustains only \dgBatchMult$\times$. The two
+multipliers differ by roughly two orders of magnitude, so any deployment that
+can batch its requests---a log pipeline serving many concurrent extractions
+at $\lambda > \crossoverLambda$~events/s---belongs to AR regardless of
+per-event latency. The throughput guard in the decision procedure
+(\S\ref{sec:decision}) fires for exactly this reason.
+
+\subsection{Correlation, not mechanism}
+
+We state the \dgBatchMult$\times$ cap as a \emph{correlation}, not a proven
+mechanism; we did not isolate the cause. The candidates are:
+(i)~bidirectional attention, whose non-causal mask may defeat prefix-cache
+reuse; (ii)~MoE routing, whose expert assignment may vary across denoising
+steps and invalidate cached activations; (iii)~model size, since DG is
+$17\times$ larger than the quality-matched AR model and memory pressure binds
+earlier; and (iv)~kernel maturity---vLLM's AR path is years more optimised
+than its diffusion path. Disentangling these is future work. The cap is real
+and measured; the explanation is not.
+
+\subsection{Canvas tuning does not move the crossover}
+
+DiffusionGemma's canvas length is a config parameter. We swept it.
+\texttt{canvas=128} is a free improvement: base cost falls 2.4\% and 9-field
+F1 rises 0.011. \texttt{canvas=64} is not viable: base cost rises 48\%, because
+the per-canvas fixed overhead is paid twice as often. Crucially, neither
+setting moves the per-event crossover $L^\ast=\crossoverL$~tokens. The
+crossover is set by the prefill cost that dominates the DG base
+(\dgPrefillPct\% of the base at $K=8$ is prefill plus fixed overhead), and
+prefill does not shrink with canvas. Tuning the canvas trades quality against
+step count; it does not trade the crossover.

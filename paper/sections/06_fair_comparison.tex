@@ -1,0 +1,137 @@
+\section{The Fair Comparison}
+\label{sec:fair}
+
+The decision procedure identifies a regime where block-structured decoding
+wins on per-event latency. This section asks the sharper question: at a
+\emph{fair} comparison point, does that advantage survive? Fairness has two
+axes---same quality and same compute---and the pair that satisfies both is the
+compute-matched pair of Table~\ref{tab:pair}.
+
+\begin{table}[ht]
+\centering
+\caption{The compute-matched pair: same quality, comparable active compute.}
+\label{tab:pair}
+\small
+\begin{tabular}{lcc}
+\toprule
+ & AR-3B & DG-26B-A4B \\
+\midrule
+Architecture              & dense, autoregressive    & MoE, block diffusion \\
+Total parameters          & 3.0B                      & 26B \\
+Active parameters         & 3.0B (all)                & 4.0B (top-8 of 128) \\
+Active-parameter ratio    & $1.0\times$               & $1.33\times$ \\
+Weights (bf16)            & 6.0 GB                    & 52.0 GB \\
+9-field F1 ($L{=}256$)    & \arThreeBFnine            & \dgNineF \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Quality is identical (gap $=0.0002$) and active inference parameters are
+comparable ($1.33\times$ ratio). This is the pair for per-event claims. It is
+\emph{not} the quality-matched deployment pair: a smaller AR model reaches the
+same quality at $17\times$ less memory (Table~\ref{tab:deploy}).
+
+\paragraph{Where DG wins.}
+\textit{(a) Per-event latency at batch-1.}
+Within a canvas DG emits 1 token or 256 for the same cost; AR pays per token.
+The gap widens with output length (Table~\ref{tab:per-event}).
+
+\begin{table}[ht]
+\centering
+\caption{Per-event latency, batch-1, short input. Fitted values; measured anchors agree within $0.4\%$ (AR) and $1\%$ (DG).}
+\label{tab:per-event}
+\small
+\begin{tabular}{rrrr}
+\toprule
+$L$ (tokens) & AR-3B (ms) & DG (ms) & DG speedup \\
+\midrule
+128  & 812   & 379  & $2.14\times$ \\
+256  & 1618  & 379  & $4.27\times$ \\
+512  & 3228  & 498  & $6.48\times$ \\
+1024 & 6448  & 738  & $8.74\times$ \\
+2048 & 12889 & 1216 & $10.6\times$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textit{(b) Output-length invariance within a canvas.}
+DG at $L\in\{32,64,128,256\}$ costs $\approx 379$ ms flat (spread $<\!3$ ms);
+AR over the same range grows $\approx 209\to 1618$ ms linearly. The canvas
+boundary is structural: the model denoises the whole canvas in $K{=}8$ parallel
+steps regardless of how many tokens are actually needed.
+
+\textit{(c) Growth rate with output length.}
+Each extra canvas adds $\dgStep$ ms to DG; each extra 256 tokens adds
+$\arSlope\times\canvasLength\approx 1610$ ms to AR---a $\approx\!13\times$
+steeper marginal cost. The per-event advantage therefore \emph{widens} with
+output length, from $2.1\times$ at $L=128$ to $10.6\times$ at $L=2048$ (eight
+canvases).
+
+\paragraph{Where AR wins.}
+\textit{(d) Batched throughput.}
+AR's KV cache lets batching amortise prefill across requests; DG's bidirectional
+attention re-attends the full canvas on every denoising step and has no
+bandwidth headroom to convert into throughput. The measured batch multipliers
+are $\approx 80\times$ (AR-3B, vLLM; range 77--86$\times$) vs
+$\dgBatchMult\times$ (DG, dInfer). At $\lambda=64$ ev/s the effective per-event
+cost is $\approx 20$ ms (AR, $T_{\textsc{ar}}/80$) vs $\approx 321$ ms
+(DG, $T_{\textsc{dg}}/\dgBatchMult$)---a $16\times$ AR advantage under load.
+(This is the measured correlation; the causal mechanism is not
+isolated---EDR-004.)
+
+\textit{(e) Long input.}
+AR pays for the prompt once; DG pays for it on every denoising step. DG's
+input-length slope is $\dgInputSlope$ ms/prompt-tok vs AR's
+$\arInputSlope$---$2.6\times$ steeper---so DG's prefill cost overwhelms its
+canvas advantage past a crossover at $L_{\mathrm{in}}\approx 18{,}000$ tokens
+(Table~\ref{tab:longinput}).
+
+\begin{table}[ht]
+\centering
+\caption{Input-length sweep ($L_{\mathrm{out}}{=}256$): DG wins below the crossover, AR above.}
+\label{tab:longinput}
+\small
+\begin{tabular}{rrrl}
+\toprule
+$L_{\mathrm{in}}$ (tokens) & AR-3B (ms) & DG (ms) & Winner \\
+\midrule
+1{,}000  & 1705 & 420  & DG ($4.1\times$) \\
+4{,}000  & 1846 & 789  & DG ($2.3\times$) \\
+7{,}000  & 1987 & 1158 & DG ($1.7\times$) \\
+18{,}000 & 2504 & 2511 & crossover \\
+25{,}000 & 2833 & 3372 & AR ($1.2\times$) \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textit{(f) Deployment footprint at the quality-matched pair.}
+The compute-matched pair is not the deployment pair: AR-1.5B reaches the same
+(even higher) 9-field F1 at $17\times$ less memory, $\approx 17\times$ faster
+cold start, and lower per-event energy (Table~\ref{tab:deploy}). No deployment
+axis favours DG.
+
+\begin{table}[ht]
+\centering
+\caption{Quality-matched deployment pair. No axis favours DG.}
+\label{tab:deploy}
+\small
+\begin{tabular}{lcc}
+\toprule
+ & AR-1.5B & DG-26B \\
+\midrule
+9-field F1     & 0.8628 & \dgNineF \\
+Weights (bf16) & 3.0 GB & 52.0 GB \\
+Cold start      & $\sim$1 s  & $\sim$17 s \\
+Energy/event    & 113 J      & higher (pending) \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{Synthesis.}
+The per-event advantage (a--c) is real but narrow: it holds only at batch-1,
+short input, and $L\ge 176$, and it does not survive the three deployment
+comparisons. AR wins on batched throughput ($80\times$ vs $\dgBatchMult\times$
+multiplier), on long input ($2.6\times$ steeper DG slope, crossover
+$\approx 18$k tokens), and on footprint (the quality-matched AR model is
+$17\times$ smaller). The cost shapes produce a genuine per-event crossover;
+the deployment envelope closes it.

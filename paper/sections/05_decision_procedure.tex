@@ -1,0 +1,132 @@
+\section{The Decision Procedure}
+\label{sec:decision}
+
+The two cost laws of \S\ref{sec:cost_laws} produce two crossovers, and those
+crossovers delimit the regime in which block-structured decoding wins on
+per-event latency. This section turns that derivation into an executable
+artifact: a procedure that takes four deployment inputs and returns which
+architecture to serve. It is implemented, tested, and runnable from a clean
+checkout with no GPU.
+
+\paragraph{Inputs.}
+The procedure takes $(L, \lambda, B, \tau)$: expected output length $L$
+(tokens), arrival rate $\lambda$ (events/s), batching availability
+$B\in\{0,1\}$, and Field-F1 tolerance $\tau$ (the F1 a caller will trade for
+latency). Every constant the procedure uses traces to a committed artifact and
+a \texttt{NUMBERS.md} section; none is hardcoded in the result.
+
+\paragraph{Cost laws in force.}
+From \S\ref{sec:cost_laws},
+\[
+T_{\textsc{ar}}(L)=a+bL,\qquad a=\arBase,\ b=\arSlope\ \text{ms/tok},
+\]
+\[
+T_{\textsc{dg}}(L)=c+s\!\left(\left\lceil L/C\right\rceil-1\right),\qquad
+c=\dgBase,\ s=\dgStep,\ C=\canvasLength.
+\]
+The DG base is prefill-dominated ($\dgPrefillPct\%$ prefill $+$ fixed,
+$\dgDenoisePct\%$ denoising at $K{=}8$), so the staircase is \emph{structural}:
+a property of the canvas boundary, not of the diffusion process.
+
+\paragraph{Crossovers.}
+Solving $T_{\textsc{ar}}(L^\star)=T_{\textsc{dg}}(L^\star)$ at the first
+canvas ($\lceil L^\star/C\rceil=1$, so $T_{\textsc{dg}}=c$) gives
+\[
+L^\star=\frac{c-a}{b}=\frac{\dgBase-\arBase}{\arSlope}\approx \crossoverL\ \text{tokens}.
+\]
+DG's serial throughput is the bar AR batching must clear:
+\[
+\lambda^\star=\frac{1000}{c}=\frac{1000}{\dgBase}\approx \crossoverLambda\ \text{ev/s}.
+\]
+Both are $K$-dependent: at $K{=}32$ ($c=\dgOldBase$), $L^\star\approx 65$ and
+$\lambda^\star\approx 2.4$. The procedure reports the $K{=}8$ values as
+default and reproduces both from the law constants, not from hardcoded
+answers.
+
+\paragraph{The procedure.}
+Five guards fire in order; the first that fires wins
+(Algorithm~\ref{alg:decide}).
+
+\begin{algorithm}[ht]
+\caption{Decide which architecture to serve.}
+\label{alg:decide}
+\begin{algorithmic}[1]
+\State $T_{\textsc{ar}}\gets a+bL$;\ \ $T_{\textsc{dg}}\gets c+s(\lceil L/C\rceil-1)$;\ \ $r\gets T_{\textsc{ar}}/T_{\textsc{dg}}$
+\If{$L < L_{\mathrm{nat}}^{\textsc{dg}}$} \Comment{guard 1: truncation}
+  \State \Return \textsc{ar} \Comment{DG output truncated below natural length; quality collapses}
+\ElsIf{$B \wedge \lambda > \lambda^\star$} \Comment{guard 2: throughput}
+  \State \Return \textsc{ar} \Comment{DG serial throughput saturated; AR batching wins}
+\ElsIf{$L < L^\star$} \Comment{guard 3: length}
+  \State \Return \textsc{ar} \Comment{below the latency crossover}
+\ElsIf{$\tau < |\Delta F_1|$} \Comment{guard 4: quality}
+  \State \Return \textsc{ar} \Comment{quality price exceeds tolerance}
+\Else \Comment{guard 5: default}
+  \State \Return \textsc{dg} with expected speedup $r$
+\EndIf
+\end{algorithmic}
+\end{algorithm}
+
+Guard~3 is structurally subsumed by guard~1 in the current configuration
+($L_{\mathrm{nat}}^{\textsc{dg}}=176 > L^\star=\crossoverL$): any output short
+enough to lie below the latency crossover is already below DG's natural
+length, so truncation fires first. Both recommend \textsc{ar}, so the
+recommendation is unchanged; the length guard remains because it is the guard
+that fires once a shorter-canvas DG variant is configured. The quality guard's
+threshold is metric-dependent: on the contaminated 12-field metric the price
+is $|\Delta F_1|=0.039$, but on the 9-field metric (\S\ref{sec:exchange_rate}) the
+price is $\approx 0$ ($\arThreeBFnine$ vs $\dgNineF$), so the guard is inert
+and DG pays no quality tax at equal quality.
+
+\paragraph{Worked examples.}
+Table~\ref{tab:worked} walks six scenarios through the procedure. The ratio
+column is $r=T_{\textsc{ar}}/T_{\textsc{dg}}$---the per-event speedup DG
+\emph{would} deliver---reported even when a non-latency guard selects
+\textsc{ar}, so the opportunity cost of each guard is visible.
+
+\begin{table}[ht]
+\centering
+\caption{Six worked examples through the decision procedure.}
+\label{tab:worked}
+\small
+\begin{tabular}{lrrrrlll}
+\toprule
+Scenario & $L$ & $\lambda$ & $B$ & $\tau$ & Arm & $T_{\textsc{ar}}/T_{\textsc{dg}}$ & Rule \\
+\midrule
+Interactive single-record extraction      & 176  & 0.5 & no & 0.05 & \textbf{DG} & $2.94\times$  & default \\
+Long stack-trace summarisation, batch-1   & 2048 & 1.0 & no & 0.05 & \textbf{DG} & $10.6\times$ & default \\
+High-volume log pipeline                   & 256  & 64  & yes& 0.05 & \textbf{AR} & $4.27\times$ & throughput \\
+Short field-completion                     & 32   & 0.5 & no & 0.10 & \textbf{AR} & $0.55\times$ & truncation \\
+Tight output budget, unknown record size   & 128  & 0.5 & no & 0.05 & \textbf{AR} & $2.14\times$ & truncation \\
+Quality-critical extraction                & 512  & 1.0 & no & 0.01 & \textbf{AR} & $6.48\times$ & quality \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Rows~4--5 carry the key subtlety: in row~5 DG would be $2.14\times$ faster
+per-event, yet \textsc{ar} is chosen, because at $L<176$ DG is truncated below
+its natural output length and its quality collapses. The guard protects
+\emph{quality}, not latency; the ratio column exposes the latency an operator
+gives up to obtain valid output.
+
+\paragraph{Implementation.}
+The procedure lives in \texttt{models/decision/procedure.py}, with a CLI:
+\begin{center}
+\texttt{python -m models.decision -{}-L 512 -{}-lambda 1.0 -{}-no-batching -{}-f1-tolerance 0.05}
+\end{center}
+$T_{\textsc{dg}}$ is \emph{injectable}: the one-variable law $T_{\textsc{dg}}(L)$
+ships now, and the two-variable law $T_{\textsc{dg}}(L_{\mathrm{in}},L_{\mathrm{out}})$
+swaps in as the only change when the input-length sweep
+(\S\ref{sec:cost_laws}, two-variable scope) is in force---in two-variable mode
+the procedure emits a warning that its prefill slope is pending calibration.
+The self-test (\texttt{test\_procedure.py}) reproduces $L^\star$ and
+$\lambda^\star$ from the law constants, fires each guard in isolation, checks
+all six worked examples, and probes step-range robustness: \textbf{11/11 tests
+pass} (claim~C15).
+
+\paragraph{Validity domain.}
+The constants are calibrated on one \gpuModel{} under vLLM \vllmVersion{},
+BF16, serial diffusion (\texttt{-{}-max-num-seqs 1}), for structured extraction
+over BGL with a $\sim$1047-token few-shot prompt. The procedure must not be
+applied outside this domain---in particular to batch-served diffusion,
+canvases other than \canvasLength, materially different input lengths, other
+GPUs/runtimes, or 12-field F1 tolerances (use the 9-field metric).

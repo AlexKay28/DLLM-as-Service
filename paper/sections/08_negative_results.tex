@@ -1,0 +1,57 @@
+\section{Negative Results}
+\label{sec:negative}
+
+We set out to find cases where the diffusion model beats the autoregressive
+baseline. Five hypotheses were refuted; three claims were withdrawn. In every
+refuted case the apparent diffusion advantage traced to a harness defect that
+had inflated it.
+
+\subsection{Five refuted hypotheses}
+
+\begin{table}[t]
+\centering
+\caption{Five refuted hypotheses. Each apparent diffusion advantage dissolved
+under a corrected harness.}
+\label{tab:refuted}
+\begin{tabular}{p{4.2cm}p{9.5cm}}
+\toprule
+Hypothesis & Why refuted \\
+\midrule
+Diffusion is more robust to input perturbation & DM worse than AR in 10/10 perturbation categories \\
+Diffusion improves with iterative refinement & DM gains from selective masking ($+0.023$), but AR improves equally under the same loop \\
+Diffusion beats AR under bounded deadlines & AR actually completes within the deadline; the opposite finding was the completeness metric bug (defect~4) \\
+Wide-schema cost scales as $O(F^2)$ for diffusion & F1 is flat, not quadratic, in schema width \\
+Quality is invariant to output length & Quality rises with $L$ ($0.31 \to 0.85$), then plateaus \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The common cause is the same as in \S\ref{sec:methodology}: each apparent
+diffusion advantage was an infrastructure artifact. The bounded-deadline result
+was the completeness metric bug (defect~4); the perturbation and refinement
+arms ran the mis-provenanced diffusion model (defect~5); the length-invariance
+claim rested on the three degenerate 12-field metrics that masked the true
+quality curve; the robustness and $O(F^2)$ claims dissolved once both arms ran
+on the parity-checked, pinned stack. In every case the correction moved the
+diffusion model from \emph{apparent advantage} to \emph{measured disadvantage
+or parity}.
+
+\subsection{Three withdrawn claims}
+
+\begin{table}[t]
+\centering
+\caption{Three claims withdrawn from the paper.}
+\label{tab:withdrawn}
+\begin{tabular}{p{4.2cm}p{9.5cm}}
+\toprule
+Claim & Why withdrawn \\
+\midrule
+Drain-only matches LLM extraction & Drain F1 0.68 vs LLM 0.85; the gap is too large to bridge \\
+Structural vs semantic field separation & Semantic fields have degenerate gold; the split is vacuous \\
+M/D/1 queueing predicts latency & M/D/1 is not predictive under bursty (non-Poisson) arrivals \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Withdrawn claims are cut, not softened: a claim that cannot be established
+against committed artifacts does not appear in the comparison.
