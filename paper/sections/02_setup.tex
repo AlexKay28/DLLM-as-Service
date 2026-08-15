@@ -59,6 +59,23 @@ the three by trivially matching a constant. \S\ref{sec:exchange} shows what
 that contamination does to the comparison. Both metrics are computed on every
 run; only the 9-field number is cited in comparison tables.
 
+\subsection{Numeric precision}
+
+Every number in this paper is quoted to a precision its measurement error
+supports. \S\ref{sec:laws} makes that statement for one number --- ``quote it
+to one decimal and no further'' --- and this section makes it policy for all of
+them, enforced as a lint by \artifact{paper/verify\_numbers.py} over
+\artifact{macros.tex}. Latency is quoted to $0.1$\,ms: the run-to-run CV on the
+pinned stack is \arCV--\dgCV\%, so $0.1$\,ms is real resolution at the p50 and
+anything finer is noise. F1 scores are quoted to three decimals: at
+$n = \nPerCell$ events the standard error of a nine-field macro F1 is roughly
+$0.006$, so three decimals is the defensible resolution and a fourth is not.
+Ratios and multipliers are quoted to one decimal. Fitted coefficients are
+quoted only to the precision the residuals support, which is why the K-sweep
+decomposition is cited as a shape rather than a measurement: at $R^2 =
+\kfitRsq$ its intercept \kfitBase\,ms and slope \kfitSlope\,ms per step are
+not interpretable to the precision stated, and we say so wherever they appear.
+
 \subsection{Five defects, four of them one-sided}
 
 \begin{figure}[t]

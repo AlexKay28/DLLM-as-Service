@@ -11,6 +11,7 @@ Exit code 1 = one or more artifacts lack provenance or fail consistency.
 """
 
 import json
+import re
 import sys
 from pathlib import Path
 
@@ -199,6 +200,104 @@ def check_defect_magnitudes() -> None:
             print(f"  Defect 5 (provenance): {sidecar.name} OK")
 
 
+# --- Numeric precision policy (#85) ----------------------------------------
+# Latency (ms, p50/p90/p99, base, step, slope, anchor, energy): 1 decimal.
+# F1 (F, f1, Fone, Gap):                                       3 decimals.
+# Ratio / multiplier / CV / percentage (Ratio, Mult, CV, Pct): 1 decimal.
+_LATENCY_KEYS = (
+    "ms", "p50", "p99", "p90", "base", "step", "slope",
+    "anchor", "energy", "pfifty", "pninetynine", "latency",
+)
+_RATIO_KEYS = ("ratio", "mult", "cv", "pct")
+_F1_KEYS = ("f", "f1", "fone", "gap")
+_MAX_DECIMALS = {"latency": 1, "f1": 3, "ratio": 1}
+
+PRECISION_VIOLATIONS = []
+
+
+def _count_decimals(value: str) -> int:
+    s = value.replace("{,}", "").strip()
+    if "." in s:
+        return len(s.split(".", 1)[1])
+    return 0
+
+
+def _is_numeric(value: str) -> bool:
+    try:
+        float(value.replace("{,}", "").strip())
+        return True
+    except ValueError:
+        return False
+
+
+def _classify_macro(name: str) -> str | None:
+    low = name.lower()
+    # Latency first: its keyword list (incl. Energy, Slope) takes precedence.
+    for k in _LATENCY_KEYS:
+        if k in low:
+            return "latency"
+    # Ratio before F1: "Footprint" contains "F" but is a ratio, not an F1.
+    for k in _RATIO_KEYS:
+        if k in low:
+            return "ratio"
+    for k in _F1_KEYS:
+        if k in low:
+            return "f1"
+    return None
+
+
+def check_precision_policy() -> bool:
+    """Lint paper/macros.tex against the numeric precision policy (#85).
+
+    Returns True if every classified macro is within policy, False otherwise.
+    """
+    macros_path = REPO_ROOT / "paper" / "macros.tex"
+    print("Checking numeric precision policy (#85)...")
+
+    if not macros_path.exists():
+        error(f"macros.tex not found at {macros_path}")
+        return False
+
+    text = macros_path.read_text()
+    # \newcommand{\name}{value}, tolerating one level of nested braces
+    # (e.g. refPrompt = 1{,}047).
+    pattern = re.compile(
+        r"\\newcommand\{\\(\w+)\}\{([^{}]*(?:\{[^{}]*\}[^{}]*)*)\}"
+    )
+
+    checked = 0
+    passed = 0
+    PRECISION_VIOLATIONS.clear()
+
+    print(f"  {'macro':<34} {'value':<10} {'type':<8} {'dec':>3}  status")
+    for name, raw_value in pattern.findall(text):
+        value = raw_value.strip()
+        if not _is_numeric(value):
+            continue
+        mtype = _classify_macro(name)
+        if mtype is None:
+            continue
+        checked += 1
+        dec = _count_decimals(value)
+        limit = _MAX_DECIMALS[mtype]
+        if dec <= limit:
+            passed += 1
+            print(f"  {name:<34} {value:<10} {mtype:<8} {dec:>3}  ok")
+        else:
+            PRECISION_VIOLATIONS.append((name, value, mtype, dec, limit))
+            print(
+                f"  {name:<34} {value:<10} {mtype:<8} {dec:>3}  "
+                f"VIOLATION (max {limit})"
+            )
+
+    failed = len(PRECISION_VIOLATIONS)
+    print(
+        f"\n  Precision policy: {checked} macros checked, "
+        f"{passed} pass, {failed} violation(s)."
+    )
+    return failed == 0
+
+
 def main():
     print("=== paper/verify_numbers.py ===")
     print()
@@ -224,13 +323,21 @@ def main():
 
     check_defect_magnitudes()
 
+    precision_ok = check_precision_policy()
+
     print()
     print(f"=== Summary ===")
     print(f"  Warnings: {len(WARNINGS)}")
     print(f"  Errors:   {len(ERRORS)}")
+    print(f"  Precision violations: {len(PRECISION_VIOLATIONS)}")
 
-    if ERRORS:
-        print(f"\n  Failing — {len(ERRORS)} error(s) must be fixed.")
+    if ERRORS or not precision_ok:
+        parts = []
+        if ERRORS:
+            parts.append(f"{len(ERRORS)} error(s)")
+        if not precision_ok:
+            parts.append(f"{len(PRECISION_VIOLATIONS)} precision violation(s)")
+        print(f"\n  Failing — {' and '.join(parts)} must be fixed.")
         sys.exit(1)
 
     if WARNINGS:
