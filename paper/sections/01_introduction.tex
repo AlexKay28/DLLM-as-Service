@@ -52,7 +52,7 @@ One task: extracting a 12-field structured record from a raw log line, scored
 on the nine fields that carry discriminative signal (\S\ref{sec:exchange}).
 Two corpora: BGL and HDFS from LOGHUB. One serving stack, pinned from issue
 \#57 onward: vLLM \vllmVersion\ on an \gpuModel. Two models at the
-compute-matched pair --- Qwen2.5-3B~\cite{qwen25} (\ARthree, 3.0\,B dense, all
+active-parameter-matched pair --- Qwen2.5-3B~\cite{qwen25} (\ARthree, 3.0\,B dense, all
 active) against DiffusionGemma-26B-A4B~\cite{diffusiongemma} (\DG, 26\,B
 total, 4.0\,B active through a top-8-of-128 mixture of experts) --- plus
 Qwen2.5-1.5B as the \emph{quality}-matched baseline, and

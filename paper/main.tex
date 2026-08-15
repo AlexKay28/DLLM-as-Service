@@ -21,7 +21,7 @@
 \noindent
 Autoregressive and block-diffusion language models reach the same quality on
 structured log extraction --- 9-field macro F1 differs by \qualityGap\ at the
-compute-matched pair --- but their inference costs have different
+active-parameter-matched pair --- but their inference costs have different
 \emph{shapes}. Autoregressive cost is a line in output length with no floor:
 \arBase~ms plus \arSlope~ms per token. Block-diffusion cost is a staircase
 with a prefill-dominated floor: \dgBase~ms for the first canvas of

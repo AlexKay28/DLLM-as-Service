@@ -8,10 +8,12 @@ they select different pairs.
 
 \begin{table}[h]
 \centering
-\caption{Two fair pairs, two different answers. The compute-matched pair is
-the right one for per-event claims; the quality-matched pair is the right one
-for deployment claims. Confusing them is how a per-event advantage gets
-reported as a deployment advantage.}
+\caption{Two fair pairs, two different answers. The active-parameter-matched
+pair is the claim under test --- the pairing that produces a published-style
+result --- and is the right one for per-event latency claims. The
+quality-matched pair is the paper's baseline for deployment claims.
+Confusing them is how a per-event advantage gets reported as a deployment
+advantage.}
 \label{tab:pairs}
 \begin{tabular}{@{}lccc@{}}
 \toprule
@@ -23,7 +25,7 @@ reported as a deployment advantage.}
 \tabfont Weights (bf16)      & \tabfont 6.0\,GB & \tabfont \arOneFiveWeights\,GB & \tabfont \dgWeights\,GB \\
 \tabfont 9-field F1 ($L{=}\canvasLength$) & \tabfont \arThreeBFnine & \tabfont \arOneFiveFnine & \tabfont \dgNineF \\
 \midrule
-\tabfont Matched on          & \multicolumn{1}{c}{\tabfont \emph{compute}} & \multicolumn{1}{c}{\tabfont \emph{quality}} & \tabfont --- \\
+\tabfont Matched on          & \multicolumn{1}{c}{\tabfont \emph{active params}} & \multicolumn{1}{c}{\tabfont \emph{quality}} & \tabfont --- \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -41,11 +43,13 @@ $10.6\times$ at $L{=}2048$.
 Across $L \in \{32, 64, 128, \canvasLength\}$ the diffusion arm costs
 $\approx$379\,ms with a spread under 3\,ms, while the autoregressive arm grows
 from 211\,ms to \arAnchorTwoFive\,ms. For a workload whose record size is
-variable and not known in advance, this converts a latency distribution into a
-latency constant.
+variable and not known in advance, this makes per-event latency constant
+\emph{in output length} --- not constant \emph{per event}, where the diffusion
+arm's CV is \dgEventCV\% with a max/median of \dgMaxMed$\times$
+(\S\ref{sec:unexpected}).
 
 \paragraph{(c) Energy}
-At the compute-matched pair the diffusion model uses \energyRatio$\times$ less
+At the active-parameter-matched pair the diffusion model uses \energyRatio$\times$ less
 energy per event, net of idle draw: \dgEnergy\,J against \arThreeEnergy\,J at
 forced $L{=}\canvasLength$. The advantage tracks the latency advantage rather
 than adding to it --- the two models draw comparable power, and the diffusion
@@ -154,6 +158,7 @@ and a guarantee of complete output under deadline pressure.
 \end{keybox}
 
 \subsection{One autoregressive advantage we did not expect}
+\label{sec:unexpected}
 
 The autoregressive arm's latency distribution is dramatically tighter. Across
 the 300 individual events of one anchor run at $L{=}\canvasLength$, its

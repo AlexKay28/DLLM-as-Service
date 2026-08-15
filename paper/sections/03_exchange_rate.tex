@@ -3,10 +3,10 @@
 
 A cost comparison is meaningless until the quality it buys is fixed. This
 section establishes the exchange rate: on a decontaminated metric with a fixed
-parser policy, the compute-matched pair is indistinguishable, and the
+parser policy, the active-parameter-matched pair is indistinguishable, and the
 remainder of the paper is free to compare cost at matched quality.
 
-The compute-matched pair is not size-matched, and this is the largest threat
+The active-parameter-matched pair is not size-matched, and this is the largest threat
 to the per-event comparison that follows. \ARthree\ is a 3.0\,B dense model
 (6.0\,GB); \DG\ is a 26\,B mixture-of-experts model (\dgWeights\,GB) with
 4.0\,B active parameters. The pairing matches active parameters, not total
@@ -14,7 +14,7 @@ compute, so every per-event claim made at this pair carries an asymmetry we
 cannot fully price. \S\ref{sec:fair} resolves this with a quality-matched
 pair --- \ARoneb\ (1.5\,B, \arOneFiveWeights\,GB) against \DG\ at 26\,B ---
 which reaches comparable quality at a fraction of the footprint and is the
-baseline for every deployment claim. The compute-matched pair remains the
+baseline for every deployment claim. The active-parameter-matched pair remains the
 right instrument for per-event latency; the quality-matched pair is the one
 for deployment.
 
@@ -27,7 +27,7 @@ two models differ by \qualityGap\ --- two ten-thousandths of an F1 point.
 \begin{table}[h]
 \centering
 \caption{Macro F1 at $L{=}\canvasLength$ on the contaminated 12-field metric
-and the clean 9-field metric, compute-matched pair. Re-scored from saved
+and the clean 9-field metric, active-parameter-matched pair. Re-scored from saved
 generations with a first-object-wins parser
 (\artifact{results/issue43\_nine\_field\_f1.json}).}
 \label{tab:exchange}
@@ -94,7 +94,7 @@ model. The measured invariance of the diffusion arm across the same range
 
 \begin{takeaway}
 \boxhead{Exchange rate}
-At the compute-matched pair, on a decontaminated metric with a fixed parser,
+At the active-parameter-matched pair, on a decontaminated metric with a fixed parser,
 the two architectures are quality-equivalent to within \qualityGap\ F1 at
 $L{=}\canvasLength$. Everything that follows compares cost at that quality.
 Separately: the \emph{quality-matched} model is not \ARthree\ but \ARoneb,
