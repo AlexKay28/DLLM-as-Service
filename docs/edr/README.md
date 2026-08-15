@@ -39,6 +39,14 @@ Each EDR has these sections:
 | [EDR-006](006-canvas-size-tuning.md) | Canvas=128 is a free improvement; canvas=64 is not viable | Accepted | 2026-08-15 |
 | [EDR-007](007-quality-matched-pair.md) | AR-1.5B is the quality-matched baseline, not AR-7B | Accepted | 2026-08-15 |
 | [EDR-008](008-dg-base-decomposition.md) | 93% of DG's base is prefill+fixed, not denoising | Accepted | 2026-08-15 |
+| [EDR-009](009-paper-identity.md) | Paper identity — resolving the interrogation tensions | Accepted | 2026-08-15 |
+| [EDR-010](010-the-fair-comparison.md) | The fair comparison — 3 DG wins + 3 AR wins | Accepted | 2026-08-15 |
+| [EDR-011](011-the-crossover.md) | L*≈59 tokens, λ*≈2.6 ev/s — derived from the laws | Accepted | 2026-08-15 |
+| [EDR-012](012-five-defects.md) | Five defects, four biased against AR, all found by re-reading | Accepted | 2026-08-15 |
+| [EDR-013](013-decision-procedure.md) | Decision procedure — implemented, tested, CLI | Accepted | 2026-08-15 |
+| [EDR-014](014-canvas-config-knob.md) | Canvas is tunable but not a design lever | Accepted | 2026-08-15 |
+| [EDR-015](015-negative-results.md) | Five refuted + three withdrawn hypotheses | Accepted | 2026-08-15 |
+| [EDR-016](016-generalization-hdfs.md) | Cost-law form generalises to HDFS | Accepted | 2026-08-15 |
 
 ## Rules
 
