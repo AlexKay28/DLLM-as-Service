@@ -51,7 +51,24 @@ HALF = 3.05
 
 # ------------------------------------------------------------------- type ---
 
-SANS = ["Helvetica Neue", "Helvetica", "Arial", "DejaVu Sans"]
+# Preference order. Fira Sans is first because it is the paper's heading face,
+# so a machine that has it produces figures typographically matched to the
+# text; it is packaged on Linux (fonts-firasans) but absent from stock macOS,
+# which falls through to Helvetica Neue. DejaVu Sans is matplotlib's bundled
+# fallback and always resolves, so the build never fails on a bare VM — it
+# just looks slightly different. `make check` reports which one was used.
+SANS = ["Fira Sans", "Helvetica Neue", "Helvetica", "Arial", "DejaVu Sans"]
+
+
+def resolved_font():
+    """Which entry of SANS matplotlib actually found. Reported by `make check`
+    so a reproduction can be compared against the committed figures."""
+    import matplotlib.font_manager as fm
+    available = {f.name for f in fm.fontManager.ttflist}
+    for name in SANS:
+        if name in available:
+            return name
+    return "(none of SANS found; matplotlib default)"
 
 
 def apply():

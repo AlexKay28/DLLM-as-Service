@@ -13,7 +13,7 @@ __pycache__/
 *.fls
 *.synctex.gz
 paper/main.pdf
-!Cost-Shape-of-Block-Structured-Decoding_v0.pdf
+!paper/v[0-9]*/main.pdf
 datasets/raw/
 datasets/splits/
 opencode-settings

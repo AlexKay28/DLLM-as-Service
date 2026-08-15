@@ -10,7 +10,9 @@ prefill-dominated floor. This repo contains the experiments, decision
 procedure, and paper that establish these cost laws and determine where
 each architecture belongs.
 
-**Paper:** [`Cost-Shape-of-Block-Structured-Decoding_v0.pdf`](Cost-Shape-of-Block-Structured-Decoding_v0.pdf) (21 pages, 9 figures)
+**Paper:** [`paper/v0/main.pdf`](paper/v0/main.pdf) — *The Cost Shape of
+Block-Structured Decoding* (21 pages, 9 figures).
+To rebuild it from source on any machine, see [`paper/BUILD.md`](paper/BUILD.md).
 
 ---
 
@@ -18,13 +20,16 @@ each architecture belongs.
 
 ```
 .
-├── Cost-Shape-of-Block-Structured-Decoding_v0.pdf   # Compiled paper
 ├── CHECKLIST.md                                   # 5 harness defects (citiable)
 ├── CHANGELOG.md                                   # Project history
 ├── AGENTS.md                                      # Guide for AI agents
 ├── README.md                                      # This file
 │
 ├── paper/                          # LaTeX source + figures
+│   ├── BUILD.md                    # How to build on a fresh VM (start here)
+│   ├── Makefile                    # make figures / paper / verify / publish
+│   ├── Dockerfile                  # Containerised build, no host toolchain
+│   ├── v0/main.pdf                 # Released snapshot
 │   ├── main.tex                    # Entry point — compiles to 21 pages
 │   ├── style.tex                   # Design system: fonts, colours, boxes
 │   ├── macros.tex                  # All numbers, each traced to an artifact
