@@ -6,6 +6,18 @@ section establishes the exchange rate: on a decontaminated metric with a fixed
 parser policy, the compute-matched pair is indistinguishable, and the
 remainder of the paper is free to compare cost at matched quality.
 
+The compute-matched pair is not size-matched, and this is the largest threat
+to the per-event comparison that follows. \ARthree\ is a 3.0\,B dense model
+(6.0\,GB); \DG\ is a 26\,B mixture-of-experts model (\dgWeights\,GB) with
+4.0\,B active parameters. The pairing matches active parameters, not total
+compute, so every per-event claim made at this pair carries an asymmetry we
+cannot fully price. \S\ref{sec:fair} resolves this with a quality-matched
+pair --- \ARoneb\ (1.5\,B, \arOneFiveWeights\,GB) against \DG\ at 26\,B ---
+which reaches comparable quality at a fraction of the footprint and is the
+baseline for every deployment claim. The compute-matched pair remains the
+right instrument for per-event latency; the quality-matched pair is the one
+for deployment.
+
 \subsection{What the contaminated metric was measuring}
 
 Table~\ref{tab:exchange} reports both metrics side by side. On the 12-field

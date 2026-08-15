@@ -2,13 +2,8 @@
 \label{sec:threats}
 
 \paragraph{The two arms are not size-matched}
-This is the largest threat and the reason \S\ref{sec:fair} exists. The
-compute-matched pair matches active parameters (3.0\,B against 4.0\,B), not
-model size: DiffusionGemma carries 26\,B total parameters and \dgWeights\,GB
-of weights against \ARthree's 6.0\,GB. Every per-event latency claim in this
-paper is made at that pair, and every per-event claim therefore favours the
-diffusion model by an amount we cannot fully price. The deployment comparison
-against \ARoneb\ is our attempt to bound it, not to eliminate it.
+We state this when the pair is introduced (\S\ref{sec:exchange}) and resolve it
+in \S\ref{sec:fair} with a quality-matched comparison.
 
 \paragraph{One GPU}
 All measurements are on a single \gpuModel. The cost \emph{shapes} --- a line
