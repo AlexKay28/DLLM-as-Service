@@ -1,0 +1,82 @@
+{
+  "experiment": "issue44_input_length_sweep",
+  "model": "Qwen/Qwen2.5-3B-Instruct",
+  "n_events": 100,
+  "max_new_tokens": 256,
+  "min_tokens": 256,
+  "timestamp": "2026-08-15T14:00:49Z",
+  "sweep": [
+    {
+      "schema_repeats": 0,
+      "prompt_token_count": 992,
+      "latency_ms": {
+        "p50": 1995.9,
+        "p99": 2181.5,
+        "mean": 2000.0
+      },
+      "mean_output_tokens": 256.0,
+      "field_f1": 0.8277,
+      "schema_valid_pct": 99.0
+    },
+    {
+      "schema_repeats": 2,
+      "prompt_token_count": 1510,
+      "latency_ms": {
+        "p50": 2010.1,
+        "p99": 2027.5,
+        "mean": 2011.3
+      },
+      "mean_output_tokens": 256.0,
+      "field_f1": 0.8295,
+      "schema_valid_pct": 99.0
+    },
+    {
+      "schema_repeats": 5,
+      "prompt_token_count": 2287,
+      "latency_ms": {
+        "p50": 2039.3,
+        "p99": 2048.0,
+        "mean": 2039.7
+      },
+      "mean_output_tokens": 256.0,
+      "field_f1": 0.8061,
+      "schema_valid_pct": 99.0
+    },
+    {
+      "schema_repeats": 10,
+      "prompt_token_count": 3582,
+      "latency_ms": {
+        "p50": 2098.0,
+        "p99": 2398.3,
+        "mean": 2101.7
+      },
+      "mean_output_tokens": 256.0,
+      "field_f1": 0.7962,
+      "schema_valid_pct": 99.0
+    },
+    {
+      "schema_repeats": 20,
+      "prompt_token_count": 6172,
+      "latency_ms": {
+        "p50": 2235.9,
+        "p99": 2249.1,
+        "mean": 2236.3
+      },
+      "mean_output_tokens": 256.0,
+      "field_f1": 0.8151,
+      "schema_valid_pct": 99.0
+    },
+    {
+      "schema_repeats": 40,
+      "prompt_token_count": 11352,
+      "latency_ms": {
+        "p50": 20.8,
+        "p99": 25.3,
+        "mean": 21.0
+      },
+      "mean_output_tokens": 0.0,
+      "field_f1": 0.3142,
+      "schema_valid_pct": 0.0
+    }
+  ]
+}
