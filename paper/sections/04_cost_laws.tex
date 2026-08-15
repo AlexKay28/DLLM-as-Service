@@ -237,3 +237,31 @@ The lines cross at $L^* \approx \crossoverL$ tokens and $\lambda^*
 \approx \crossoverLambda$\,ev/s. The denoising loop that distinguishes
 DG from a cached-prefill model is $\dgDenoisePct\%$ of its own cost.
 \S5 turns these laws into a deployment decision.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.9\linewidth]{figures/fig1_cost_laws.pdf}
+\caption{AR linear vs DG staircase cost law. The crossover at $L^*\approx\crossoverL$ tokens is where AR becomes cheaper per event.}
+\label{fig:cost_laws}
+\end{figure}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.9\linewidth]{figures/fig2_canvas_edges.pdf}
+\caption{Canvas step edges. Latency is flat within a canvas and jumps $\sim$120\,ms at each 256-token boundary.}
+\label{fig:canvas_edges}
+\end{figure}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.9\linewidth]{figures/fig6_ksweep.pdf}
+\caption{K-sweep base decomposition. Left axis: p50 latency. Right axis: 9-field F1. Quality collapses below K=4 and plateaus above K=8.}
+\label{fig:ksweep}
+\end{figure}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.9\linewidth]{figures/fig3_input_sweep.pdf}
+\caption{Input-length sweep. DG's slope (0.123 ms/prompt-tok) is 2.6$\times$ steeper than AR's (0.047).}
+\label{fig:input_sweep}
+\end{figure}
