@@ -52,6 +52,7 @@ Each EDR has these sections:
 | [EDR-019](019-memory-probe.md) | Long-context memory probe — inconclusive (measurement method wrong) | Inconclusive | 2026-08-15 |
 | [EDR-020](020-infilling-experiment.md) | Infilling advantage refuted — AR trivially regenerates suffix | Accepted | 2026-08-15 |
 | [EDR-021](021-real-life-applications.md) | Real-life applications where DM is the right choice | Proposed | 2026-08-15 |
+| [EDR-022](022-adaptive-k-and-graceful-degradation.md) | Adaptive K and graceful degradation as DM structural properties | Proposed | 2026-08-15 |
 
 ## Rules
 
