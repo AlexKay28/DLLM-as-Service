@@ -294,13 +294,24 @@ def main():
                     help="save per-request latency array + per-event F1 in the "
                          "output JSON for bootstrap CIs (issue #46)")
     ap.add_argument("--speculative-config", default=None,
-                    help="JSON dict for vLLM speculative decoding config, e.g. "
-                         "'{\"method\":\"ngram\",\"num_speculative_tokens\":5,"
-                         "\"prompt_lookup_max\":4}' (issue #45)")
+                    help="JSON dict for vLLM n-gram speculative decoding, e.g. "
+                         "'{\"num_speculative_tokens\":5,\"prompt_lookup_max\":4,"
+                         "\"prompt_lookup_min\":2}' (issue #45). In vLLM 0.7.x "
+                         "these are engine-level args, not SamplingParams.")
     ap.add_argument("--guided-json", default=None,
                     help="path to a JSON Schema file for grammar-constrained "
                          "decoding via vLLM GuidedDecodingParams (issue #47)")
+    ap.add_argument("--guided-backend", default="xgrammar",
+                    choices=["xgrammar", "outlines"],
+                    help="backend for grammar-constrained decoding")
     args = ap.parse_args()
+
+    if args.guided_json and args.guided_backend == "xgrammar":
+        import xgrammar
+        import xgrammar.xgrammar_bindings as xgr_core
+        if not hasattr(xgr_core.TokenizerInfo, "from_huggingface"):
+            xgr_core.TokenizerInfo.from_huggingface = staticmethod(
+                xgrammar.TokenizerInfo.from_huggingface)
 
     from vllm import LLM, SamplingParams
 
@@ -332,29 +343,34 @@ def main():
             enable_prefix_caching=not args.no_prefix_caching,
         )
         if args.denoising_steps is not None:
-            # A user-provided DiffusionConfig is used as-is (no merge with the
-            # checkpoint's config.json), so canvas_length must be restated or
-            # it defaults to None and crashes the runner's buffer alloc.
             llm_kwargs["diffusion_config"] = {
                 "canvas_length": 256,
                 "max_denoising_steps": args.denoising_steps}
+        if args.speculative_config:
+            import json as _json
+            spec = _json.loads(args.speculative_config)
+            llm_kwargs["speculative_model"] = "[ngram]"
+            llm_kwargs["num_speculative_tokens"] = spec.get(
+                "num_speculative_tokens", 5)
+            llm_kwargs["ngram_prompt_lookup_max"] = spec.get(
+                "prompt_lookup_max", 4)
+            llm_kwargs["ngram_prompt_lookup_min"] = spec.get(
+                "prompt_lookup_min", 2)
+            print(f"  speculative decoding (n-gram): {spec}", flush=True)
         llm = LLM(**llm_kwargs)
         sp_kwargs = dict(
             max_tokens=args.max_new_tokens, min_tokens=args.min_tokens,
             temperature=0.0)
-        if args.speculative_config:
-            import json as _json
-            spec = _json.loads(args.speculative_config)
-            sp_kwargs["speculative_config"] = spec
-            print(f"  speculative decoding: {spec}", flush=True)
         if args.guided_json:
             try:
+                import json as _json2
                 from vllm.sampling_params import GuidedDecodingParams
                 with open(args.guided_json) as gf:
-                    schema = _json.load(gf)
-                sp_kwargs["guided_decoding"] = GuidedDecodingParams(json=schema)
-                print(f"  grammar-constrained decoding: {args.guided_json}",
-                      flush=True)
+                    schema = _json2.load(gf)
+                sp_kwargs["guided_decoding"] = GuidedDecodingParams(
+                    json=schema, backend=args.guided_backend)
+                print(f"  grammar-constrained decoding ({args.guided_backend}): "
+                      f"{args.guided_json}", flush=True)
             except ImportError:
                 print("  WARNING: GuidedDecodingParams not available in this "
                       "vLLM version", flush=True)
