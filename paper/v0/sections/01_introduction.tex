@@ -1,0 +1,107 @@
+\section{Introduction}
+\label{sec:intro}
+
+An autoregressive language model pays one forward pass per output token, so
+its latency is a line: double the record you ask it to emit and you double the
+wait. A block-diffusion language model does something structurally different.
+It writes onto a fixed-size \emph{canvas} --- \canvasLength\ tokens, in the
+model we measure --- and denoises every position on that canvas in parallel,
+in a fixed number $K$ of steps. Inside a canvas, emitting one token and
+emitting \canvasLength\ of them cost the same. The cost only moves when the
+output crosses a canvas boundary, and then it moves in a step.
+
+These are two different \emph{shapes}, not two points on one scale, and the
+difference is the subject of this paper. A line with no floor and a staircase
+with a high one will cross exactly once in the first canvas, and everything a
+deployment cares about --- which model is cheaper, at what output length, at
+what arrival rate, at what memory budget --- follows from where that crossing
+sits relative to the workload. Figure~\ref{fig:cost-shapes} is the whole
+argument in one picture.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\linewidth]{figures/fig1_cost_shapes.pdf}
+\caption{The two cost shapes, measured on one pinned stack (vLLM
+\vllmVersion, \gpuModel, BF16, batch-1). Markers are measured p50 latencies;
+lines are the fitted laws. \textbf{A:} across the full sweep the
+autoregressive model reaches \num{12889}\,ms at $L{=}2048$ while the diffusion
+model reaches \num{1212}\,ms --- but the two curves are not the same kind of
+object. \textbf{B:} inside the first canvas the diffusion cost is flat at its
+floor, so the shapes cross once, at $L^{*}\approx\crossoverL$ tokens. Beyond
+the crossover the diffusion model is cheaper, and each canvas edge widens the
+gap by \dgStep\,ms against the autoregressive model's
+$\arSlope\times\canvasLength \approx \num{1610}$\,ms.}
+\label{fig:cost-shapes}
+\end{figure}
+
+\paragraph{Why this is worth measuring carefully}
+Diffusion language models are routinely advertised as a low-latency route to
+structured generation, and the argument is architecturally sound as far as it
+goes. But reported speedups are almost always measured against an
+autoregressive baseline built by the same authors, and constructing that
+baseline is not a neutral act. The decoding configuration, the serving
+runtime, the parser, and the metric are each worth a multiple. This project
+began as an attempt to reproduce one such claim and found, instead, five
+defects in \emph{its own} harness --- four of them biasing against the
+autoregressive arm, each large enough to move a headline number by more than
+the effect being reported (\S\ref{sec:setup}). We report them first, because
+every number after them depends on their being fixed.
+
+\paragraph{What we measure, and on what}
+One task: extracting a 12-field structured record from a raw log line, scored
+on the nine fields that carry discriminative signal (\S\ref{sec:exchange}).
+Two corpora: BGL and HDFS from LOGHUB. One serving stack, pinned from issue
+\#57 onward: vLLM \vllmVersion\ on an \gpuModel. Two models at the
+compute-matched pair --- Qwen2.5-3B~\cite{qwen25} (\ARthree, 3.0\,B dense, all
+active) against DiffusionGemma-26B-A4B~\cite{diffusiongemma} (\DG, 26\,B
+total, 4.0\,B active through a top-8-of-128 mixture of experts) --- plus
+Qwen2.5-1.5B as the \emph{quality}-matched baseline, and
+LLaDA-8B~\cite{llada2025} on a second, diffusion-native runtime as a control. Run-to-run coefficient of variation on the pinned stack
+is \arCV\% for the autoregressive arm and \dgCV\% for the diffusion arm over
+five repeats of $n{=}\nPerCell$ events, so the effects below are not noise.
+
+\paragraph{Contributions}
+\begin{itemize}
+  \item \textbf{Two fitted cost laws, and the mechanism behind the shapes.}
+    $T_{\textsc{ar}} = \arBase + \arSlope\,L_{\mathrm{out}}$;
+    $T_{\textsc{dg}} = \dgBase + \dgStep\,(\lceil
+    L_{\mathrm{out}}/\canvasLength\rceil - 1)$. We show the staircase has
+    sharp edges at exactly the canvas boundary (crossing one costs
+    $\sim$120\,ms; staying inside costs under 1\,ms), that all seven measured
+    steps are the same step, and that the shape survives a change of corpus.
+    We also decompose the diffusion base and find that the denoising loop ---
+    the part that makes the model ``diffusion'' --- is only \dgDenoisePct\% of
+    it. The shape comes from the \emph{block}, not from the diffusion
+    (\S\ref{sec:laws}).
+  \item \textbf{A second variable, stated as a scope condition rather than
+    buried.} Diffusion cost also depends on \emph{input} length, at
+    \dgInputSlope\,ms per prompt token against the autoregressive model's
+    \arInputSlope{} --- \inputSlopeRatio$\times$ steeper, because each denoising
+    step re-attends the whole prompt. Every one-variable claim in this paper is
+    calibrated at a \refPrompt-token prompt and must not be extrapolated past
+    it.
+  \item \textbf{An executable decision procedure.} Four inputs, five guards,
+    every constant traced to a committed artifact, 11/11 self-tests passing,
+    runnable from a clean checkout with no GPU (\S\ref{sec:decision}).
+  \item \textbf{A fair comparison that closes the crossover, and the niche
+    that survives it.} At the quality-matched pair the autoregressive model is
+    \footprintRatio$\times$ smaller, batches \arBatchMult$\times$ better, and
+    pays less per prompt token; the per-event advantage does not survive any
+    of the three. What does survive is forced long output under a batch-1
+    constraint, where the diffusion model is $4.0$--$5.4\times$ faster, uses
+    less energy, and --- unlike the autoregressive model --- degrades under a
+    deadline by losing quality rather than completeness (\S\ref{sec:fair}).
+  \item \textbf{Negative results at the same length as the positive ones.} Six
+    hypotheses of ours were refuted and three earlier claims withdrawn,
+    including a prediction that diffusion would be more robust to input
+    perturbation, which failed in 10 of 10 categories
+    (\S\ref{sec:negative}).
+\end{itemize}
+
+\paragraph{What this paper is not}
+It is not a claim that diffusion decoding is slow. It is a claim about where a
+particular cost \emph{shape} puts a particular model in a particular
+deployment plane, measured on one GPU, one runtime, one task family, and two
+corpora. \S\ref{sec:threats} states the limits before a reviewer has to, and
+the largest of them --- that our two arms are matched on active compute rather
+than on size --- is the reason \S\ref{sec:fair} exists at all.

@@ -1,0 +1,84 @@
+\section{Threats to Validity}
+\label{sec:threats}
+
+\paragraph{The two arms are not size-matched}
+This is the largest threat and the reason \S\ref{sec:fair} exists. The
+compute-matched pair matches active parameters (3.0\,B against 4.0\,B), not
+model size: DiffusionGemma carries 26\,B total parameters and \dgWeights\,GB
+of weights against \ARthree's 6.0\,GB. Every per-event latency claim in this
+paper is made at that pair, and every per-event claim therefore favours the
+diffusion model by an amount we cannot fully price. The deployment comparison
+against \ARoneb\ is our attempt to bound it, not to eliminate it.
+
+\paragraph{One GPU}
+All measurements are on a single \gpuModel. The cost \emph{shapes} --- a line
+against a staircase --- are structural and should transfer. The fitted
+constants ($\arBase$, $\arSlope$, $\dgBase$, $\dgStep$) are A100-specific, and
+so, therefore, are $L^{*}$ and $\lambda^{*}$. We have no H100 comparison.
+
+\paragraph{One model family carries the staircase}
+The staircase is established on DiffusionGemma-26B-A4B and confirmed across
+two corpora (BGL step \bglStep\,ms; HDFS \hdfsStep\,ms). The LLaDA-8B arm
+under dInfer was measured and is \emph{inconclusive}: dInfer's prefix and
+vicinity KV-cache paths error on prompts of 632 tokens or more, forcing a
+cache-less mode that inflates absolute latency by roughly $30\times$ and
+introduces variance that swamps any block-length stepping. We therefore cannot
+say the staircase reproduces on a second diffusion family --- only that its
+form should hold for any canvas-bound decoder, and that confirming it needs a
+production-grade diffusion runtime with a working cache, which did not exist
+at the time of writing.
+
+\paragraph{The batching cap is measured; its cause is not}
+\S\ref{sec:batching} reports a direct test that falsifies KV-cache reuse as a
+\emph{complete} explanation and leaves three candidate causes untested.
+Separately, the dInfer control that licenses calling the ceiling
+architectural was itself run cache-less because of the bug above --- so a
+cache-based mechanism is being argued partly from a cache-less measurement.
+We state the ceiling as a reproduced correlation.
+
+\paragraph{The one-variable law is a projection}
+The cost law is two-variable (Eq.~\ref{eq:dg}). $L^{*} = \crossoverL$ is its
+projection at a \refPrompt-token prompt. At longer inputs the steeper
+diffusion prefill slope raises the base and pushes $L^{*}$ upward, and the
+one-variable form under-predicts badly: on an accidental input-length sweep
+(a schema-widening experiment that lengthens the prompt) it under-predicted by
+$+58\%$ and $+112\%$ at the two largest widths, where the autoregressive law
+reproduced the same cells to within $0.4\%$. The crossover is valid near its
+calibration prompt and nowhere else.
+
+\paragraph{$K$ is pinned at 8}
+Every number assumes $K{=}8$ unless stated. The base is $K$-dependent: at
+$K{=}32$ it was \dgOldBase\,ms, which moves $L^{*}$ from \crossoverL\ to $65$
+and $\lambda^{*}$ from \crossoverLambda\ to $2.4$. An earlier finding that
+``the first extra canvas is 16\% cheaper'' dissolved once this confound was
+identified --- it was a $K{=}32$ measurement compared against $K{=}8$ ones.
+The decision procedure takes the base as an input so the crossovers recompute.
+
+\paragraph{Long-context memory is unmeasured}
+We attempted to measure \ARoneb's GPU memory at context lengths to 32k with
+\texttt{enforce\_eager}, and \texttt{torch.cuda.max\_memory\_allocated}
+returned zero because vLLM manages its own pool. The latency side confirms
+autoregressive input sensitivity (43.8\,ms at 1k context rising to 435.9\,ms
+at 16k), but the memory question is open. The absence of a growing KV cache
+may give the diffusion model a flatter memory curve at long context. We did
+not measure it and do not claim it.
+
+\paragraph{Energy is measured against two different idle baselines}
+The compute-matched energy comparison (\arThreeEnergy\,J against
+\dgEnergy\,J) was taken in one session at 52.6\,W idle. The \ARoneb\ figure
+(\arOneFiveEnergy\,J) comes from a later session at 58.6\,W idle. Net-of-idle
+subtraction makes them roughly comparable but not tightly so, and the
+quality-matched energy comparison in \S\ref{sec:fair} should be read as
+indicative.
+
+\paragraph{Cold-start cost is not reported}
+Earlier drafts of this work quoted a cold-start comparison. The measured
+values in our artifacts are engine-initialisation times dominated by runtime
+setup rather than by weight loading, and they do not support the comparison
+that was drawn from them. The row is removed rather than re-derived.
+
+\paragraph{No confidence intervals outside the anchors}
+Five repeats exist at the two anchor cells, which is where the CV figures come
+from. Most other cells are single runs of $n{=}\nPerCell$ events. We report
+run-to-run spread where we measured it and do not manufacture error bars where
+we did not.

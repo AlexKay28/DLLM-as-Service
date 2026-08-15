@@ -1,0 +1,198 @@
+% =============================================================================
+%  style.tex — the paper's design system.
+%
+%  Single-column modern-preprint layout: XCharter for text, Fira Sans for
+%  headings and captions, Inconsolata for code. Colours are the same three
+%  categorical slots the figures use (paper/figures/style.py), so a reader
+%  never has to relearn what blue and orange mean between a figure and the
+%  prose around it.
+% =============================================================================
+
+% ---------------------------------------------------------------- geometry --
+\usepackage[
+  letterpaper,
+  top=1.05in, bottom=1.05in, left=1.10in, right=1.10in,
+  footskip=0.45in, headsep=0.22in
+]{geometry}
+
+% ------------------------------------------------------------------- fonts --
+\usepackage[T1]{fontenc}
+\usepackage{XCharter}
+\usepackage[scaled=0.93]{FiraSans}
+\usepackage[varqu,varl,scaled=0.92]{inconsolata}
+\usepackage[charter,vvarbb,scaled=1.04]{newtxmath}
+\usepackage{microtype}
+
+\linespread{1.045}
+\setlength{\emergencystretch}{1.6em}   % long \texttt{} runs must not overflow
+
+% ------------------------------------------------------------------ colours --
+\usepackage[table,dvipsnames]{xcolor}
+
+\definecolor{arblue}{HTML}{2A78D6}    % autoregressive  (categorical slot 1)
+\definecolor{dgorange}{HTML}{EB6834}  % block diffusion (categorical slot 2)
+\definecolor{llaqua}{HTML}{1BAF7A}    % LLaDA           (categorical slot 3)
+
+\definecolor{ink}{HTML}{0B0B0B}
+\definecolor{ink2}{HTML}{52514E}
+\definecolor{muted}{HTML}{898781}
+\definecolor{rule}{HTML}{C3C2B7}
+\definecolor{hairline}{HTML}{E8E7E1}
+
+\definecolor{washblue}{HTML}{EAF1FB}
+\definecolor{washorange}{HTML}{FDEEE7}
+\definecolor{washneutral}{HTML}{F4F3F0}
+
+\definecolor{deepink}{HTML}{1B3A5C}    % heading ink — a calm dark blue
+
+% ------------------------------------------------------------------ tables --
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{tabularx}
+\renewcommand{\arraystretch}{1.18}
+\setlength{\tabcolsep}{6pt}
+\newcolumntype{R}{>{\raggedleft\arraybackslash}X}
+\newcolumntype{L}{>{\raggedright\arraybackslash}X}
+
+% Table body in the sans face at a slightly smaller size — numbers read
+% better and the table separates cleanly from the surrounding text.
+\newcommand{\tabfont}{\sffamily\footnotesize}
+\newcommand{\thead}[1]{\textcolor{ink2}{\footnotesize\textbf{#1}}}
+
+% --------------------------------------------------------------- headings ---
+\usepackage{titlesec}
+
+\titleformat{\section}
+  {\normalfont\sffamily\large\bfseries\color{deepink}}
+  {\textcolor{arblue}{\thesection}}{0.7em}{}
+\titlespacing*{\section}{0pt}{1.55\baselineskip}{0.55\baselineskip}
+
+\titleformat{\subsection}
+  {\normalfont\sffamily\normalsize\bfseries\color{deepink}}
+  {\textcolor{muted}{\thesubsection}}{0.6em}{}
+\titlespacing*{\subsection}{0pt}{1.15\baselineskip}{0.35\baselineskip}
+
+\titleformat{\subsubsection}
+  {\normalfont\sffamily\small\bfseries\color{ink2}}
+  {}{0em}{}
+\titlespacing*{\subsubsection}{0pt}{0.9\baselineskip}{0.25\baselineskip}
+
+\titleformat{\paragraph}[runin]
+  {\normalfont\sffamily\small\bfseries\color{ink}}
+  {}{0em}{}[.]
+\titlespacing*{\paragraph}{0pt}{0.7\baselineskip}{0.55em}
+
+% --------------------------------------------------------------- captions ---
+\usepackage[font=small,labelfont={sf,bf,color=deepink},
+            textfont={color=ink2},labelsep=period,
+            skip=7pt,justification=justified]{caption}
+\usepackage{subcaption}
+
+% ------------------------------------------------------------------- boxes --
+\usepackage[most]{tcolorbox}
+
+% A key-result callout: tinted panel, coloured left rule, sans heading.
+\newtcolorbox{keybox}[1][]{
+  enhanced, breakable,
+  colback=washneutral, colframe=washneutral,
+  boxrule=0pt, leftrule=2.2pt,
+  borderline west={2.2pt}{0pt}{arblue},
+  arc=0pt, outer arc=0pt,
+  left=9pt, right=9pt, top=7pt, bottom=7pt,
+  before skip=9pt, after skip=9pt,
+  fontupper=\small,
+  #1
+}
+
+% A "what this section establishes" strip, used once per major section.
+\newtcolorbox{takeaway}[1][]{
+  enhanced, breakable,
+  colback=washblue!55!white, colframe=washblue!55!white,
+  boxrule=0pt, arc=1.5pt, outer arc=1.5pt,
+  left=9pt, right=9pt, top=6pt, bottom=6pt,
+  before skip=9pt, after skip=9pt,
+  fontupper=\small,
+  #1
+}
+
+% A caution/limitation strip — for scope conditions the reader must carry.
+\newtcolorbox{caution}[1][]{
+  enhanced, breakable,
+  colback=washorange!60!white, colframe=washorange!60!white,
+  boxrule=0pt, leftrule=2.2pt,
+  borderline west={2.2pt}{0pt}{dgorange},
+  arc=0pt, outer arc=0pt,
+  left=9pt, right=9pt, top=6pt, bottom=6pt,
+  before skip=9pt, after skip=9pt,
+  fontupper=\small,
+  #1
+}
+
+\newcommand{\boxhead}[1]{%
+  \textcolor{deepink}{\sffamily\bfseries\footnotesize\MakeUppercase{#1}}\par
+  \vspace{2pt}}
+
+% ------------------------------------------------------------------- lists --
+\usepackage{enumitem}
+\setlist[itemize]{leftmargin=1.15em,itemsep=2.5pt,topsep=4pt,parsep=0pt}
+\setlist[enumerate]{leftmargin=1.5em,itemsep=2.5pt,topsep=4pt,parsep=0pt}
+
+% -------------------------------------------------------------------- misc --
+\usepackage{amsmath}
+\let\Bbbk\relax          % newtxmath already defines it
+\usepackage{amssymb}
+\usepackage{siunitx}
+\sisetup{group-separator={,},group-minimum-digits=4,detect-all}
+\usepackage{graphicx}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{float}
+\usepackage[hidelinks]{hyperref}
+\hypersetup{
+  colorlinks=true,
+  linkcolor=arblue, citecolor=arblue, urlcolor=arblue,
+  pdfborder={0 0 0}
+}
+
+% Model shorthands — one spelling per model, everywhere.
+\newcommand{\ARthree}{\textsc{ar-3b}}
+\newcommand{\ARoneb}{\textsc{ar-1.5b}}
+\newcommand{\DG}{\textsc{dg}}
+\newcommand{\LLaDA}{\textsc{llada-8b}}
+
+% Coloured inline model tags, matching the figures.
+\newcommand{\artag}{\textcolor{arblue}{\sffamily\bfseries AR}}
+\newcommand{\dgtag}{\textcolor{dgorange}{\sffamily\bfseries DG}}
+
+% A quiet inline source pointer.
+\newcommand{\artifact}[1]{\textcolor{muted}{\ttfamily\scriptsize #1}}
+
+% ---------------------------------------------------------------- title page --
+\usepackage{titling}
+\usepackage{fancyhdr}
+
+\pagestyle{fancy}
+\fancyhf{}
+\renewcommand{\headrulewidth}{0pt}
+\fancyfoot[C]{\textcolor{muted}{\sffamily\footnotesize\thepage}}
+
+% \papertitle{title}{subtitle}{author}{affiliation}{version line}
+\newcommand{\papertitle}[5]{%
+  \thispagestyle{empty}
+  \begingroup
+  \raggedright\parindent=0pt
+  {\sffamily\bfseries\fontsize{21}{25}\selectfont\color{deepink} #1\par}
+  \vspace{5pt}
+  {\sffamily\fontsize{13}{16}\selectfont\color{ink2} #2\par}
+  \vspace{8pt}
+  {\color{arblue}\rule{\linewidth}{2pt}\par}
+  \vspace{9pt}
+  {\sffamily\large\color{ink} #3\par}
+  \vspace{2pt}
+  {\sffamily\small\color{ink2} #4\par}
+  \vspace{3pt}
+  {\sffamily\footnotesize\color{muted} #5\par}
+  \endgroup
+  \vspace{16pt}
+}

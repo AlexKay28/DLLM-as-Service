@@ -1,0 +1,91 @@
+\documentclass[11pt]{article}
+
+\input{style.tex}
+\input{macros.tex}
+
+\begin{document}
+
+\papertitle
+  {The Cost Shape of Block-Structured Decoding}
+  {When diffusion LLMs win, and why they usually don't}
+  {Aleksandr Kaigorodov}
+  {Yandex}
+  {Preprint \textperiodcentered\ August 2026 \textperiodcentered\ v0}
+
+% ---------------------------------------------------------------- abstract --
+\begingroup
+\small
+\noindent
+{\sffamily\bfseries\footnotesize\color{deepink}ABSTRACT}\par
+\vspace{3pt}
+\noindent
+Autoregressive and block-diffusion language models reach the same quality on
+structured log extraction --- 9-field macro F1 differs by \qualityGap\ at the
+compute-matched pair --- but their inference costs have different
+\emph{shapes}. Autoregressive cost is a line in output length with no floor:
+\arBase~ms plus \arSlope~ms per token. Block-diffusion cost is a staircase
+with a prefill-dominated floor: \dgBase~ms for the first canvas of
+\canvasLength\ tokens, then \dgStep~ms for each additional canvas. We measure
+both laws on one pinned serving stack with run-to-run coefficient of variation
+below $0.3\%$, verify that the staircase has sharp edges exactly at canvas
+boundaries, and show that the shapes generalise from BGL to HDFS within
+$1.7\%$. The shapes cross at $L^{*} \approx \crossoverL$ output tokens, below
+which the autoregressive model is cheaper per event. We turn the two laws into
+an executable decision procedure over (output length, arrival rate, batching
+availability, quality tolerance), and then ask whether the crossover survives
+a fair deployment comparison. It does not, at short output: the
+quality-matched autoregressive model is \footprintRatio$\times$ smaller,
+converts arrival concurrency into throughput at \arBatchMult$\times$ against
+the diffusion model's \dgBatchMult$\times$, and pays \inputSlopeRatio$\times$
+less per prompt token. What survives is narrower and real --- at forced output
+$L \geq 512$ under a batch-1 constraint, the diffusion model is
+$4.0$--$5.4\times$ faster than the quality-matched baseline, uses less energy,
+and degrades under deadline pressure by losing quality rather than
+completeness. We also report five defects in our own measurement harness, four
+of which biased against the autoregressive baseline, each found by re-reading
+committed artifacts rather than by running new experiments.
+\endgroup
+
+\vspace{4pt}
+
+% ----------------------------------------------------- findings at a glance --
+\begin{keybox}
+\boxhead{The paper in one table}
+\vspace{-2pt}
+\begin{tabularx}{\linewidth}{@{}L r r@{}}
+\toprule
+\tabfont & \thead{\ARthree} & \thead{\DG-26B-A4B} \\
+\midrule
+\tabfont 9-field macro F1 ($L{=}\canvasLength$)      & \arThreeBFnine & \dgNineF \\
+\tabfont Active parameters                            & 3.0\,B & 4.0\,B \\
+\tabfont p50 latency at $L{=}\canvasLength$, batch-1  & \arAnchorTwoFive\,ms & \dgAnchorTwoFive\,ms \\
+\tabfont Marginal cost per output token               & \arSlope\,ms & \dgMarginal\,ms \\
+\tabfont Marginal cost per prompt token               & \arInputSlope\,ms & \dgInputSlope\,ms \\
+\tabfont Batch-1 $\to$ peak throughput multiplier     & \arBatchLo--\arBatchHi$\times$ & \dgBatchMult$\times$ \\
+\tabfont Energy per event, net of idle                & \arThreeEnergy\,J & \dgEnergy\,J \\
+\bottomrule
+\end{tabularx}
+\vspace{3pt}
+\par\footnotesize\textcolor{ink2}{%
+The diffusion model wins the first column of a latency table and loses the
+deployment comparison behind it. \S\ref{sec:fair} works out why, and
+\S\ref{sec:decision} makes the trade executable.}
+\end{keybox}
+
+\vspace{2pt}
+
+\input{sections/01_introduction}
+\input{sections/02_setup}
+\input{sections/03_exchange_rate}
+\input{sections/04_cost_laws}
+\input{sections/05_decision_procedure}
+\input{sections/06_fair_comparison}
+\input{sections/07_batching_boundary}
+\input{sections/08_negative_results}
+\input{sections/09_threats}
+\input{sections/10_conclusion}
+
+\bibliographystyle{plain}
+\bibliography{references}
+
+\end{document}

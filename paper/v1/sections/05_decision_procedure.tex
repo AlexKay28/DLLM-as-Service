@@ -1,0 +1,128 @@
+\section{The Decision Procedure: Turning Two Laws Into an Executable Map}
+\label{sec:decision}
+
+The two laws produce two crossovers, and the crossovers delimit a region of
+the deployment plane. This section turns that derivation into an executable
+artifact: a procedure that takes four deployment inputs and returns which
+architecture to serve, with the expected cost of the choice. It is
+implemented, self-tested, and runnable from a clean checkout with no GPU.
+
+\paragraph{Inputs}
+Expected output length $L$ in tokens; arrival rate $\lambda$ in events per
+second; whether cross-request batching is available, $B \in \{0,1\}$; and the
+Field-F1 a caller will trade for latency, $\tau$. Every constant the procedure
+uses traces to a committed artifact; none is hardcoded in the answer.
+
+\paragraph{Guards}
+Five guards fire in order and the first that fires wins
+(Algorithm~\ref{alg:decide}).
+
+\begin{algorithm}[H]
+\caption{Decide which architecture to serve.}
+\label{alg:decide}
+\begin{algorithmic}[1]
+\State $T_{\textsc{ar}} \gets a + bL$;\quad
+       $T_{\textsc{dg}} \gets c + s\,(\lceil L/C\rceil - 1)$;\quad
+       $r \gets T_{\textsc{ar}}/T_{\textsc{dg}}$
+\If{$L < L^{\textsc{dg}}_{\mathrm{nat}}$}
+    \Comment{truncation: output below the canvas's natural length}
+  \State \Return \textsc{ar}
+\ElsIf{$B \wedge \lambda > \lambda^{*}$}
+    \Comment{throughput: diffusion serial capacity exhausted}
+  \State \Return \textsc{ar}
+\ElsIf{$L < L^{*}$}
+    \Comment{length: below the latency crossover}
+  \State \Return \textsc{ar}
+\ElsIf{$\tau < |\Delta F_1|$}
+    \Comment{quality: the price exceeds the tolerance}
+  \State \Return \textsc{ar}
+\Else
+  \State \Return \textsc{dg}, with expected per-event speedup $r$
+\EndIf
+\end{algorithmic}
+\end{algorithm}
+
+\noindent
+with $a = \arBase$, $b = \arSlope$, $c = \dgBase$, $s = \dgStep$,
+$C = \canvasLength$, $L^{*} = \crossoverL$, $\lambda^{*} =
+\crossoverLambda$, and $L^{\textsc{dg}}_{\mathrm{nat}} = \naturalLdg$.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\linewidth]{figures/fig7_decision_map.pdf}
+\caption{The procedure drawn as a map. \textbf{A:} the two guards that
+actually bind carve the $(L, \lambda)$ plane into three regions. The diffusion
+region is bounded below in output length by the truncation guard and above in
+arrival rate by the throughput guard. \textbf{B:} inside that region, the
+per-event prize --- $T_{\textsc{ar}}/T_{\textsc{dg}}$ --- grows with output
+length, dropping back at each canvas edge and climbing again. It reaches
+$10.6\times$ at $L{=}2048$.}
+\label{fig:decision}
+\end{figure}
+
+\paragraph{Two guards subsume the others}
+In the current configuration $L^{\textsc{dg}}_{\mathrm{nat}} = \naturalLdg >
+L^{*} = \crossoverL$, so any output short enough to sit below the latency
+crossover is already below the diffusion model's natural output length and the
+truncation guard fires first. Both return \textsc{ar}, so the recommendation
+is unchanged; the length guard remains in the procedure because it is the one
+that binds as soon as a shorter-canvas variant is configured. The quality
+guard is metric-dependent: on the contaminated 12-field metric the price is
+$0.039$ and the guard bites, but on the 9-field metric it is $\approx 0$
+(\S\ref{sec:exchange}) and the guard is inert. That the guard's behaviour
+flips with the choice of metric is exactly why \S\ref{sec:exchange} comes
+first.
+
+\paragraph{Worked examples}
+Table~\ref{tab:worked} runs six scenarios through the procedure. The ratio
+column reports the per-event speedup the diffusion model \emph{would} deliver
+even when a non-latency guard selects the autoregressive arm, so the
+opportunity cost of each guard is visible rather than hidden.
+
+\begin{table}[h]
+\centering
+\caption{Six scenarios through the decision procedure. Rows 4--5 carry the
+subtlety: the diffusion model would be faster per event, and is still the
+wrong choice, because below its natural output length its output is truncated
+and stops parsing.}
+\label{tab:worked}
+\begin{tabular}{@{}lrrccll@{}}
+\toprule
+\thead{Scenario} & \thead{$L$} & \thead{$\lambda$} & \thead{$B$} & \thead{$\tau$}
+  & \thead{Arm} & \thead{$T_{\textsc{ar}}/T_{\textsc{dg}}$ \ \ Guard} \\
+\midrule
+\tabfont Interactive single-record extraction & \tabfont 176  & \tabfont 0.5 & \tabfont no  & \tabfont 0.05 & \tabfont \textcolor{dgorange}{\bfseries DG} & \tabfont $2.94\times$\quad default \\
+\tabfont Long report, batch-1                 & \tabfont 2048 & \tabfont 1.0 & \tabfont no  & \tabfont 0.05 & \tabfont \textcolor{dgorange}{\bfseries DG} & \tabfont $10.6\times$\quad default \\
+\tabfont High-volume log pipeline             & \tabfont 256  & \tabfont 64  & \tabfont yes & \tabfont 0.05 & \tabfont \textcolor{arblue}{\bfseries AR} & \tabfont $4.27\times$\quad throughput \\
+\tabfont Short field completion               & \tabfont 32   & \tabfont 0.5 & \tabfont no  & \tabfont 0.10 & \tabfont \textcolor{arblue}{\bfseries AR} & \tabfont $0.55\times$\quad truncation \\
+\tabfont Tight budget, unknown record size    & \tabfont 128  & \tabfont 0.5 & \tabfont no  & \tabfont 0.05 & \tabfont \textcolor{arblue}{\bfseries AR} & \tabfont $2.14\times$\quad truncation \\
+\tabfont Quality-critical, 12-field tolerance & \tabfont 512  & \tabfont 1.0 & \tabfont no  & \tabfont 0.01 & \tabfont \textcolor{arblue}{\bfseries AR} & \tabfont $6.48\times$\quad quality \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{Implementation}
+The procedure lives in \artifact{models/decision/procedure.py} with a
+command-line interface:
+\begin{center}
+\ttfamily\small
+python -m models.decision -{}-L 512 -{}-lambda 1.0 -{}-no-batching -{}-f1-tolerance 0.05
+\end{center}
+$T_{\textsc{dg}}$ is injectable: the one-variable law ships as the default and
+the two-variable law of Eq.~\ref{eq:dg} swaps in as the only change required,
+emitting a warning that its prefill slope applies only near the calibration
+prompt. The self-test recomputes $L^{*}$ and $\lambda^{*}$ from the law
+constants rather than from stored answers, fires each guard in isolation,
+checks all six worked examples, and probes robustness across the measured step
+range \dgStepLo--\dgStepHi\,ms: 11 of 11 tests pass.
+
+\begin{caution}
+\boxhead{Validity domain}
+The constants are calibrated on one \gpuModel\ under vLLM \vllmVersion, BF16,
+serial diffusion, for structured extraction over BGL with a
+$\sim$\refPrompt-token prompt, at $K{=}8$ and canvas $=\canvasLength$. The
+procedure must not be applied to batch-served diffusion, to other canvas
+sizes, to materially different input lengths, to other GPUs or runtimes, or
+with a tolerance interpreted against the 12-field metric. Outside that box the
+shapes should transfer --- they are structural --- but the constants will not.
+\end{caution}

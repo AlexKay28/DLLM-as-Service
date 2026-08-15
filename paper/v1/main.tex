@@ -1,0 +1,88 @@
+\documentclass[11pt]{article}
+
+\input{style.tex}
+\input{macros.tex}
+
+\begin{document}
+
+\papertitle
+  {Diffusion LLMs as Fast Models for Specific Tasks: The Cost Shape of Block-Structured Decoding}
+  {When diffusion language models win on latency, and why they usually don't}
+  {Aleksandr Kaigorodov}
+  {Yandex}
+  {Preprint \textperiodcentered\ August 2026 \textperiodcentered\ v1}
+
+% ---------------------------------------------------------------- abstract --
+\begingroup
+\small
+\noindent
+{\sffamily\bfseries\footnotesize\color{deepink}ABSTRACT}\par
+\vspace{3pt}
+\noindent
+Diffusion language models can be faster than autoregressive ones for
+structured output --- but only in a narrow regime, and only after the
+comparison is done fairly. We measure both architectures on a pinned serving
+stack (vLLM, A100 80GB) for structured log extraction, where they reach
+quality equivalence at 9-field macro F1. Their latency costs have different
+\emph{shapes}: autoregressive cost is a line in output length with no floor;
+block-diffusion cost is a staircase, flat inside a fixed-size block and
+stepping at each boundary. The shapes cross at \crossoverL\ output tokens,
+below which the autoregressive model is cheaper.
+
+The diffusion model's advantage grows with output length: at $L{=}1024$ it is
+$5.4\times$ faster at matched quality, uses less energy, and degrades under
+deadline pressure by losing quality rather than completeness. But the advantage
+does not survive deployment: at matched quality the autoregressive model is
+\footprintRatio$\times$ smaller and converts concurrency into throughput far
+better. What survives is one narrow regime --- long structured output under a
+batch-1 constraint --- and we state the five conditions it requires.
+
+We also correct five defects in our own measurement harness, four of which
+biased against the autoregressive baseline, each found by re-reading committed
+artifacts rather than by running new experiments.
+\endgroup
+
+\vspace{4pt}
+
+% ----------------------------------------------------- findings at a glance --
+\begin{keybox}
+\boxhead{The paper in one table}
+\vspace{-2pt}
+\begin{tabularx}{\linewidth}{@{}L r r@{}}
+\toprule
+\tabfont & \thead{\ARthree} & \thead{\DG-26B-A4B} \\
+\midrule
+\tabfont 9-field macro F1 ($L{=}\canvasLength$)      & \arThreeBFnine & \dgNineF \\
+\tabfont Active parameters                            & 3.0\,B & 4.0\,B \\
+\tabfont p50 latency at $L{=}\canvasLength$, batch-1  & \arAnchorTwoFive\,ms & \dgAnchorTwoFive\,ms \\
+\tabfont Marginal cost per output token               & \arSlope\,ms & \dgMarginal\,ms \\
+\tabfont Marginal cost per prompt token               & \arInputSlope\,ms & \dgInputSlope\,ms \\
+\tabfont Batch-1 $\to$ peak throughput multiplier     & \arBatchLo--\arBatchHi$\times$ & \dgBatchMult$\times$ \\
+\tabfont Energy per event, net of idle                & \arThreeEnergy\,J & \dgEnergy\,J \\
+\bottomrule
+\end{tabularx}
+\vspace{3pt}
+\par\footnotesize\textcolor{ink2}{%
+The diffusion model wins the first column of a latency table and loses the
+deployment comparison behind it. \S\ref{sec:fair} works out why, and
+\S\ref{sec:decision} makes the trade executable.}
+\end{keybox}
+
+\vspace{2pt}
+
+\input{sections/01_introduction}
+\input{sections/02b_related_work}
+\input{sections/02_setup}
+\input{sections/03_exchange_rate}
+\input{sections/04_cost_laws}
+\input{sections/05_decision_procedure}
+\input{sections/06_fair_comparison}
+\input{sections/07_batching_boundary}
+\input{sections/08_negative_results}
+\input{sections/09_threats}
+\input{sections/10_conclusion}
+
+\bibliographystyle{plain}
+\bibliography{references}
+
+\end{document}

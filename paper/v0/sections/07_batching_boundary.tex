@@ -1,0 +1,81 @@
+\section{The Batching Boundary}
+\label{sec:batching}
+
+The per-event crossover favours the diffusion model in a narrow region, but a
+deployment serves an arrival stream, not one event. Under batching the picture
+does not merely shift --- it inverts, by roughly two orders of magnitude
+(Figure~\ref{fig:batching}).
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\linewidth]{figures/fig6_batching.pdf}
+\caption{\textbf{A:} batch-1 to peak throughput multipliers. The split runs
+along architecture, not runtime: two diffusion models on two different engines
+sit at $\approx$1--$1.7\times$, while the autoregressive model on vLLM ranges
+from \cacheOffMult$\times$ to \arBatchHi$\times$ depending on output length
+and cache configuration. The DiffusionGemma bars are lower bounds --- the
+engine caps its batch at 8 (\S\ref{sec:setup}) --- which is why the LLaDA
+measurement on dInfer is the load-bearing one. \textbf{B:} the direct test.
+Disabling prefix-cache reuse costs the autoregressive model $37\%$ of its
+headroom and leaves \cacheOffMult$\times$ standing, more than twenty times the
+diffusion ceiling.}
+\label{fig:batching}
+\end{figure}
+
+\subsection{The gap, and a second runtime}
+
+On vLLM the autoregressive model sustains \arBatchLo$\times$ at $L{=}128$ and
+\arBatchHi$\times$ at $L{=}512$. DiffusionGemma on the same engine sustains
+\dgBatchVllmHi$\times$ and \dgBatchVllmLo$\times$ --- but those numbers were
+measured with the batch capped at 8 by the mixed-phase crash, so they are
+lower bounds on what vLLM could do, not measurements of a ceiling.
+
+The control that makes the result more than a bug report is LLaDA-8B on
+dInfer: a different model family (dense rather than mixture-of-experts), a
+different runtime, and a diffusion-native one. It sustains
+\dgBatchMult$\times$, flat from batch 2 to batch 64. Two runtimes, two model
+families, the same ceiling.
+
+\subsection{We tested the mechanism, and it is not the whole story}
+
+The standing explanation for the ceiling is that bidirectional attention
+invalidates the KV-cache reuse that makes autoregressive batching cheap,
+leaving the diffusion model compute-bound at batch-1 with no bandwidth-bound
+headroom for batching to convert. That explanation is plausible, and it is
+testable in one direction: if KV-cache reuse is what creates the headroom,
+removing it should remove the headroom.
+
+It does not. Re-running the autoregressive batch sweep with prefix caching
+disabled drops the multiplier from \cacheOnMult$\times$ to
+\cacheOffMult$\times$ --- a real effect, and clearly the cache is doing work
+--- but \cacheOffMult$\times$ is still more than twenty times the diffusion
+ceiling of \dgBatchMult$\times$. Cache reuse therefore accounts for part of
+the gap and cannot account for the rest.
+
+\begin{caution}
+\boxhead{Correlation, and how much of the mechanism we actually isolated}
+The $\approx$1$\times$ diffusion ceiling is measured and reproduces across two
+runtimes and two model families. The \emph{cause} is not isolated. The KV-cache
+hypothesis is now partly falsified as a complete explanation. Remaining
+candidates: mixture-of-experts routing that varies across denoising steps and
+invalidates cached activations; sheer model size, since the diffusion model is
+\footprintRatio$\times$ larger than the quality-matched autoregressive model
+and memory pressure binds earlier; and kernel maturity, since vLLM's
+autoregressive path is years more optimised than its diffusion path. We
+disentangle none of these. The ceiling is real; the explanation is open.
+\end{caution}
+
+\subsection{Tuning the canvas does not move the crossover}
+
+DiffusionGemma's canvas length is a configuration parameter, so we swept it.
+At canvas $=128$ the base falls to \canvasOneTwentyEightBase\,ms
+($-2.4\%$) and 9-field F1 rises to \canvasOneTwentyEightFone\ --- a free
+improvement on both axes. At canvas $=64$ the base rises $48\%$, because the
+per-canvas fixed overhead is now paid twice as often; that setting is not
+viable.
+
+Neither setting moves the per-event crossover. $L^{*}$ is set by the prefill
+cost that dominates the base --- \dgPrefillPct\% of it at $K{=}8$
+(\S\ref{sec:laws}) --- and prefill does not shrink when the canvas does.
+Tuning the canvas trades quality against step count. It does not buy a
+different crossover.

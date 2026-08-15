@@ -1,0 +1,58 @@
+\section{Related Work: A Cost Shape, Not a Speedup Number}
+\label{sec:related}
+
+\paragraph{Diffusion language models and their speedup claims}
+LLaDA-8B~\cite{llada2025} and DiffusionGemma-26B~\cite{diffusiongemma} are the
+two diffusion decoders whose serving cost this paper measures. Both are
+presented as low-latency routes to structured generation, and the speedup
+ratios that accompany them are measured against autoregressive baselines
+assembled by the same authors. Our motivating observation
+(\S\ref{sec:intro}) is not that these claims are wrong but that the baseline
+is not a neutral object: the decoding configuration, serving runtime, parser,
+and metric each admit a multiple, and we found five defects in our
+\emph{own} harness --- four of them biasing the same arm --- before any
+architectural conclusion could hold. Our delta is to put both arms on one
+pinned stack (vLLM \vllmVersion), fix those defects, and report a fitted cost
+\emph{shape} rather than a single speedup number. DiffusionGemma-26B-A4B is
+the diffusion arm; LLaDA-8B under a second, diffusion-native runtime is a
+control whose cache bug confines it to an inconclusive result
+(\S\ref{sec:threats}).
+
+\paragraph{Constrained and structured decoding}
+The standard answer to fixed-schema generation is grammar- or
+regex-constrained sampling: outlines~\cite{outlines2024},
+xgrammar~\cite{xgrammar2024}, llguidance~\cite{llguidance}, and
+jsonformer~\cite{jsonformer} each force every sampled token into the language
+of the target schema. vLLM \vllmVersion~\cite{vllm2023} ships xgrammar and
+llguidance on its structured-output path. Our task --- 12-field JSON
+extraction from LOGHUB log lines~\cite{loghub} (BGL and HDFS) --- is exactly
+the workload these tools target, and we do \emph{not} include a
+constrained-decoding baseline. That is a stated limitation (issue \#72):
+constrained decoding does not change the autoregressive cost \emph{shape} ---
+it is still a line in output length with no floor --- but it can raise schema
+validity and thereby tighten the quality-matched pair, which would move the
+crossover. We name the gap rather than close it.
+
+\paragraph{Speculative decoding}
+Medusa~\cite{medusa2024}, EAGLE~\cite{eagle2024}, and lookahead
+decoding~\cite{lookahead2024} attack the same per-token slope
+(\arSlope~ms/token) that this paper's argument turns on, by drafting and
+verifying multiple tokens per forward pass. Our delta is that speculative
+decoding changes the \emph{slope} of the autoregressive line, not its
+\emph{shape}: the cost remains linear in output length with no floor, so the
+crossover with the diffusion staircase moves rightward rather than
+vanishing. We do not measure speculative decoding on the pinned stack; as
+with constrained decoding, it is a baseline the fair comparison
+(\S\ref{sec:fair}) would need before any deployment claim is final.
+
+\paragraph{Benchmarking methodology and reproducibility}
+Prior work on measurement discipline in AI systems~\cite{hoefler2021}
+argues that benchmarking infrastructure carries biases invisible from the
+reported numbers alone. Our contribution is narrower and more concrete: the
+five harness defects in \S\ref{sec:setup} were each found by re-reading
+committed artifacts --- not by running new experiments --- and four of the
+five biased against the same arm. The lesson is that an experimenter who
+prefers one architecture builds a harness that fails asymmetrically, and the
+remedy is an audit checklist (\artifact{CHECKLIST.md}) whose items each take
+under five minutes and each caught a defect that had already moved a
+headline number.

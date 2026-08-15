@@ -1,0 +1,91 @@
+\section{The Exchange Rate: Quality Is Comparable}
+\label{sec:exchange}
+
+A cost comparison is meaningless until the quality it buys is fixed. This
+section establishes the exchange rate: on a decontaminated metric with a fixed
+parser policy, the compute-matched pair is indistinguishable, and the
+remainder of the paper is free to compare cost at matched quality.
+
+\subsection{What the contaminated metric was measuring}
+
+Table~\ref{tab:exchange} reports both metrics side by side. On the 12-field
+macro the autoregressive model leads by \twelveGap. On the 9-field macro the
+two models differ by \qualityGap\ --- two ten-thousandths of an F1 point.
+
+\begin{table}[h]
+\centering
+\caption{Macro F1 at $L{=}\canvasLength$ on the contaminated 12-field metric
+and the clean 9-field metric, compute-matched pair. Re-scored from saved
+generations with a first-object-wins parser
+(\artifact{results/issue43\_nine\_field\_f1.json}).}
+\label{tab:exchange}
+\begin{tabular}{@{}lcc@{}}
+\toprule
+\thead{Model} & \thead{9-field F1} & \thead{12-field F1} \\
+\midrule
+\tabfont \ARthree\ (3.0\,B active) & \tabfont \arThreeBFnine & \tabfont \arThreeBFtwelve \\
+\tabfont \DG\ (4.0\,B active)      & \tabfont \dgNineF       & \tabfont \dgTwelveF \\
+\midrule
+\tabfont $\Delta$ (AR $-$ DG) & \tabfont $-\qualityGap$ & \tabfont $+\twelveGap$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The entire 12-field gap is attributable to the three degenerate fields.
+DiffusionGemma emits structured records and leaves fields it cannot populate
+empty; \ARthree, prompted to fill every field, produces plausible text that
+matches the near-constant gold. Remove those three fields and the gap
+collapses. The 12-field metric was not measuring extraction quality; it was
+measuring willingness to emit constants.
+
+\subsection{Parser policy is an autoregressive variable, not a diffusion one}
+
+Quality is also sensitive to how output is turned into a record, and that
+sensitivity is not symmetric. At $L{=}512$ with a forced minimum output
+length, \rambleRate\% of \ARthree\ outputs contain more than one JSON object;
+the parser policy that decides which one to keep swings its score from
+\defectThreeBefore\ (last-object-wins) to \defectThreeAfter\
+(first-object-wins). DiffusionGemma emits a single fixed-length canvas and
+scores identically under either policy. Any quality comparison that does not
+fix the parser policy is confounded, and confounded in a direction that
+depends on which arm over-generates. We use first-object-wins throughout.
+
+\subsection{Quality is not invariant to output length}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\linewidth]{figures/fig5_quality_vs_length.pdf}
+\caption{Quality and parseability against forced output length
+(\artifact{results/issue43/}, $n{=}\nPerCell$ per cell, first-object-wins).
+The shaded band is the truncation regime, where the output budget is below the
+task's natural record length. \textbf{A:} at $L{=}128$ the autoregressive
+model retains \arFOneTwentyEight\ F1 while the diffusion model collapses to
+\dgFOneTwentyEight. \textbf{B:} the mechanism --- left-to-right decoding
+yields a valid \emph{prefix} of fields, while a canvas truncated mid-denoise
+yields nothing parseable at all (\arValidTwentyEight\% vs
+\dgValidTwentyEight\% schema-valid).}
+\label{fig:quality}
+\end{figure}
+
+Both models need roughly the task's natural record length before they produce
+anything useful, and below it they fail in qualitatively different ways
+(Figure~\ref{fig:quality}). This is an autoregressive advantage, and it is the
+mirror image of the paper's headline: graceful degradation under a tight
+output budget belongs to the architecture that emits tokens in order.
+
+We flag one asymmetry in the figure honestly. The autoregressive curve is flat
+from $L{=}256$ to $L{=}512$ at \arThreeBFnine\ only because first-object-wins
+discards the rambled continuations; under the old parser it appeared to decay
+monotonically, and that apparent decay was defect 3, not a property of the
+model. The measured invariance of the diffusion arm across the same range
+(\dgNineF\ to $0.8546$) is real and does not depend on parser choice.
+
+\begin{takeaway}
+\boxhead{Exchange rate}
+At the compute-matched pair, on a decontaminated metric with a fixed parser,
+the two architectures are quality-equivalent to within \qualityGap\ F1 at
+$L{=}\canvasLength$. Everything that follows compares cost at that quality.
+Separately: the \emph{quality-matched} model is not \ARthree\ but \ARoneb,
+which reaches \arOneFiveFnine\ --- higher than either. That fact drives
+\S\ref{sec:fair}.
+\end{takeaway}
