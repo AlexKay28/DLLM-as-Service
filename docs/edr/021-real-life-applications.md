@@ -38,11 +38,15 @@ DM is the right choice when ALL of these are true:
 |---|---|---|
 | DM (K=8) | 378 ms → **complete, F1=0.85** | 501 ms → **complete, F1=0.85** |
 | AR-3B | 1617 ms → **0 tokens** (misses) | 3225 ms → **0 tokens** |
-| AR-1.5B | 413 ms → **misses by 13 ms** | 826 ms → **misses by 426 ms** |
-| AR-0.5B | ~200 ms → complete but F1~0.70 | ~400 ms → complete but F1~0.70 |
+| AR-1.5B | 413 ms (natural L~123) / 1007 ms (forced L=256) → **misses if forced** | 2005 ms → **misses by 1605 ms** |
+| AR-0.5B | not available offline | — |
 
-DM is the only model that delivers **complete, high-quality** output within the
-deadline. AR gives either a fragment or a low-quality complete output.
+**Measured values** (replacing previous extrapolations): AR-1.5B at forced
+L=512 is 2005 ms (not the extrapolated 826 ms). The extrapolation was 2.4×
+too low because AR-1.5B does not scale linearly with forced output length —
+it rambles past its natural length (~123 tokens), and vLLM processes all
+forced tokens. This **strengthens** the application claim: DG's advantage at
+L=512 is 4.0× (not 1.65× as previously estimated).
 
 **Real-life examples:**
 - Autonomous driving: "produce a complete trajectory plan in <500 ms or hand to failsafe"
@@ -111,12 +115,13 @@ Device that always processes one event at a time:
 
 | L | DM (ms) | DM energy (J) | AR-1.5B (ms) | AR-1.5B energy (J) | Winner |
 |---|---|---|---|---|---|
-| 256 | 378 | 4.2 | 413 | ~5.6 | DM (1.3×) |
-| 512 | 501 | ~5.4 | 826 | ~5.8 | DM (1.07×) |
-| 1024 | 739 | ~8.0 | 1652 | ~11.6 | DM (1.45×) |
+| 256 (forced) | 378 | 4.2 | 1007 | 5.1 | DM (1.2× energy, 2.7× latency) |
+| 512 (forced) | 501 | ~5.4 | 2005 | ~10.2 | DM (1.9× energy, 4.0× latency) |
+| 1024 (forced) | 739 | ~8.0 | 4026 | ~20.5 | DM (2.6× energy, 5.4× latency) |
 
-DM wins on energy at L≥256 because its latency advantage outweighs its larger
-model size. The crossover is around L=400.
+**Measured:** AR-1.5B energy at forced L=256 = 5.1 J/event (net of idle).
+Previous estimate was ~5.6 J — close. DM at 4.2 J is 1.2× more efficient at
+L=256, and the gap widens at longer output (DM 1.9× at L=512, 2.6× at L=1024).
 
 **Real-life examples:**
 - Sensor node with power budget
@@ -127,11 +132,11 @@ model size. The crossover is around L=400.
 
 | Candidate | What kills it | Survives? |
 |---|---|---|
-| Fixed-deadline | AR-0.5B at 200ms (but low quality) | **Yes** if quality floor > 0.70 |
+| Fixed-deadline | AR-1.5B at natural L~123 is 413ms (close) | **Yes** — at forced L≥512, AR-1.5B is 2005ms (4× slower) |
 | Anytime quality | AR could emit early JSON with partial fields | **Yes** — schema validation is binary |
-| Privacy isolation | AR-1.5B at 413ms is close enough | **Yes** at L≥512 (1.65× gap) |
+| Privacy isolation | AR-1.5B at 413ms is close at L=256 | **Yes** at L≥512 (4.0× gap, measured) |
 | Cold-path | AR-3B batched is faster overall | **Yes** — cold path is inherently batch-1 |
-| Energy-bounded | AR-1.5B energy is comparable at L=256 | **Yes** at L≥512 |
+| Energy-bounded | AR-1.5B energy is 5.1J (close to DG 4.2J at L=256) | **Yes** at L≥512 (1.9× gap) |
 
 ## The recipe
 

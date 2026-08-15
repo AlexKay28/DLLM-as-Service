@@ -41,8 +41,8 @@ one serving path, per-request K).
 ### Real-life application: adaptive SLA compliance
 
 If SLA tightens from 500ms to 400ms p99:
-- DM: drop K from 8 to 4 → p99 ~380ms → **meets SLA**, quality drops 0.85→0.79
-- AR-1.5B: p99 ~430ms → **misses SLA**, no knob to turn
+- DM: drop K from 8 to 4 → p99 = 394.3ms → **meets SLA** (measured, `results/issue44_dg_ksweep_K4_preds.jsonl`), quality drops 0.85→0.79
+- AR-1.5B: p99 ~430ms → **misses SLA** (estimated from L=256 p50), no knob to turn
 - AR-3B: p99 ~1625ms → **misses SLA** badly
 
 DM can meet a tighter SLA by sacrificing quality. AR cannot meet it at all
