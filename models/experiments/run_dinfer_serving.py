@@ -193,7 +193,9 @@ def main():
         "gen_len": args.gen_len,
         "block_length": args.block_length,
         "cache": args.cache,
-        "field_f1": round(f1_res["macro_field_f1"], 4),
+        "field_f1": round(f1_res["macro_field_f1_9"], 4),
+        "field_f1_9": round(f1_res["macro_field_f1_9"], 4),
+        "field_f1_12": round(f1_res["macro_field_f1_12"], 4),
         "per_field_f1": {k: round(v, 4) for k, v in f1_res.items()
                          if k.startswith("f1_")},
         "schema_valid_pct": round(sv, 2),
@@ -210,6 +212,16 @@ def main():
         "avg_out_tokens": round(sum(out_toks) / len(out_toks), 1),
         "throughput_ev_s": round(len(records) / total, 3),
         "hf_baseline": HF_BASELINE,
+        "provenance": {
+            "model_name": "GSAI-ML/LLaDA-8B-Instruct",
+            "model_type": "llada",
+            "backend": "dinfer",
+            "max_new_tokens": args.gen_len,
+            "parser_policy": "first_object_wins",
+            "scoring_fields": "9",
+            "block_length": args.block_length,
+            "cache": args.cache,
+        },
     }
     out_path = RESULTS_DIR / args.out
     with open(out_path, "w") as f:
