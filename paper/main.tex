@@ -10,7 +10,7 @@
   {When diffusion language models win on latency, and why they usually don't}
   {Aleksandr Kaigorodov}
   {Yandex}
-  {Preprint \textperiodcentered\ August 2026 \textperiodcentered\ v1}
+  {Preprint \textperiodcentered\ August 2026 \textperiodcentered\ v2}
 
 % ---------------------------------------------------------------- abstract --
 \begingroup
@@ -40,6 +40,31 @@ batch-1 constraint --- and we state the five conditions it requires.
 
 \vspace{6pt}
 
+% ----------------------------------------------------- findings at a glance --
+\begin{keybox}
+\boxhead{The paper in one table}
+\vspace{-2pt}
+\begin{tabularx}{\linewidth}{@{}L r r@{}}
+\toprule
+\tabfont & \thead{\ARthree} & \thead{\DG-26B-A4B} \\
+\midrule
+\tabfont 9-field macro F1 ($L{=}\canvasLength$)      & \arThreeBFnine & \dgNineF \\
+\tabfont Active parameters                            & 3.0\,B & 4.0\,B \\
+\tabfont p50 latency at $L{=}\canvasLength$, batch-1  & \arAnchorTwoFive\,ms & \dgAnchorTwoFive\,ms \\
+\tabfont Marginal cost per output token               & \arSlope\,ms & \dgMarginal\,ms \\
+\tabfont Marginal cost per prompt token               & \arInputSlope\,ms & \dgInputSlope\,ms \\
+\tabfont Batch-1 $\to$ peak throughput multiplier     & \arBatchLo--\arBatchHi$\times$ & $\leq$\dgBatchVllmHi$\times$ \\
+\tabfont Energy per event, net of idle                & \arThreeEnergy\,J & \dgEnergy\,J \\
+\bottomrule
+\end{tabularx}
+\vspace{3pt}
+\par\footnotesize\textcolor{ink2}{%
+The diffusion model wins the first column of a latency table and loses the
+deployment comparison behind it.}
+\end{keybox}
+
+\vspace{2pt}
+
 % ================================================================ 1. intro ==
 \section{Introduction}
 \label{sec:intro}
@@ -57,15 +82,26 @@ We measure both on a pinned stack --- vLLM \vllmVersion{}, \gpuModel{}, BF16
 models are Qwen2.5-3B-Instruct (AR, 3.0\,B active) and
 DiffusionGemma-26B-A4B (DG, 4.0\,B active of 26\,B total), matched on active
 parameters. At $L{=}256$ output tokens they reach quality equivalence:
-\arThreeBFnine{} vs \dgNineF{} on the 9-field metric ($\Delta = \qualityGap$).
+\arThreeBFnine{} vs \dgNineF{} on the 9-field metric ($\Delta = \qualityGap$,
+95\% CI $[-0.012, +0.011]$, $n=300$).
 
 Five defects in our own harness, four biased against the AR arm, were
-corrected before any result was reported. All were found by re-reading
-committed artifacts, not by running new experiments. The corrected numbers
-are what follow.
+corrected before any result was reported (Appendix~\ref{app:defects}). All
+were found by re-reading committed artifacts, not by running new experiments.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\linewidth]{figures/fig8_defects.pdf}
+\caption{Eight priced errors in our own comparison harness, each found by
+re-reading committed artifacts. Five of eight biased against the
+autoregressive arm. The clustering on one arm is the finding: a comparison
+harness written by someone hoping the new architecture wins fails
+asymmetrically.}
+\label{fig:defects}
+\end{figure}
 
 % ========================================================== 2. cost laws ==
-\section{The Two Cost Laws}
+\section{The Two Cost Laws: A Line and a Staircase}
 \label{sec:laws}
 
 \subsection{Autoregressive: a line with no floor}
@@ -92,30 +128,50 @@ T_{\textsc{dg}}(L_{\mathrm{out}}) = \dgBase +
 \quad\text{(ms)}
 \end{equation}
 The \dgBase\,ms base at $K{=}8$ denoising steps is mostly prefill (bounded at
-53--68\% by two independent measurements). Each additional canvas costs
-\dgStep\,ms (median of 7 measured transitions, range \dgStepLo--\dgStepHi).
-The staircase has sharp edges: growing output from 240 to \canvasLength{}
-tokens costs 0.2\,ms; growing from \canvasLength{} to 264 costs 121.7\,ms.
+53--68\% by two independent measurements; see Appendix~\ref{app:decomp}). Each
+additional canvas costs \dgStep\,ms (median of 7 measured transitions, range
+\dgStepLo--\dgStepHi). The staircase has sharp edges: growing output from 240
+to \canvasLength{} tokens costs 0.2\,ms; growing from \canvasLength{} to 264
+costs 121.7\,ms.
 
 \begin{figure}[t]
 \centering
 \includegraphics[width=\linewidth]{figures/fig1_cost_shapes.pdf}
-\caption{The two cost shapes. AR is a line; DG is a staircase. The shapes
-cross at $L^{*} = \crossoverL$ output tokens.}
+\caption{The two cost shapes. AR is a line with no floor; DG is a staircase
+with a prefill-dominated floor. The shapes cross at $L^{*} = \crossoverL$
+output tokens.}
 \label{fig:shapes}
+\end{figure}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\linewidth]{figures/fig2_canvas_edges.pdf}
+\caption{The staircase probed. \textbf{A:} latency is flat inside a canvas
+and jumps at the boundary. \textbf{B:} all seven canvas transitions out to
+$L{=}2048$ cost the same within run-to-run noise (range
+\dgStepLo--\dgStepHi\,ms, median \dgStep\,ms).}
+\label{fig:edges}
 \end{figure}
 
 \subsection{The crossover}
 
 At the reference prompt the crossing point is analytic:
 \begin{equation}
+\label{eq:lcross}
 L^{*} = \frac{\dgBase - \arBase}{\arSlope} = \crossoverL \text{ tokens},
 \qquad
 \lambda^{*} = \frac{1000}{\dgBase} = \crossoverLambda \text{ events/s}
 \end{equation}
 Below $L^{*}$ the AR model is cheaper per event; above it the diffusion model
-is, until the next canvas edge. Both laws generalise from BGL to HDFS within
-1.7\%.
+is, until the next canvas edge. $\lambda^{*}$ is the other boundary: with one
+event in flight, the reciprocal of the diffusion base is the ceiling on its
+serial throughput, and above that rate a queue forms.
+
+\subsection{Generalisation}
+
+Both laws generalise from BGL to HDFS within 1.7\%. The AR p50 at
+$L{=}\canvasLength$ moves from \arBgl\,ms to \arHdfs\,ms ($+0.03\%$); the
+diffusion canvas step moves from \bglStep\,ms to \hdfsStep\,ms ($+1.7\%$).
 
 % ========================================================== 3. deployment ==
 \section{Where Diffusion Wins, and Where It Doesn't}
@@ -124,9 +180,8 @@ is, until the next canvas edge. Both laws generalise from BGL to HDFS within
 \subsection{The surviving advantage}
 
 At forced output $L \geq 512$ tokens, the diffusion model is faster at
-matched quality. Table~\ref{tab:niche} shows the gap. The advantage grows with
-output length because the AR model pays per token while the diffusion model
-pays per canvas: at $L{=}1024$ the gap is $5.4\times$.
+matched quality. The advantage grows with output length because the AR model
+pays per token while the diffusion model pays per canvas.
 
 \begin{table}[h]
 \centering
@@ -143,9 +198,22 @@ $L_{\mathrm{out}}$ & AR-1.5B (ms) & DG (ms) & DG advantage \\
 \end{tabular}
 \end{table}
 
+\begin{figure}[t]
+\centering
+\includegraphics[width=\linewidth]{figures/fig9_deployment.pdf}
+\caption{The quality-matched deployment pair. \textbf{A:} at forced output
+lengths the diffusion model's advantage is real and grows, because the AR
+model rambles well past its natural length ($\sim$\naturalLar\ tokens) and
+vLLM still processes every forced token. \textbf{B:} the standing cost of
+keeping each model resident.}
+\label{fig:deploy}
+\end{figure}
+
 The diffusion model also degrades gracefully under deadline pressure: it
 returns a complete canvas at lower quality, while the AR model returns a
-truncated record that fails schema validation.
+truncated record that fails schema validation. At a p99 budget of 400\,ms,
+dropping $K$ from 8 to 4 meets it at \kFourPninetynine\,ms p99 with F1 falling
+from \kEightFone\ to \kFourFone.
 
 \subsection{Why the advantage usually doesn't survive}
 
@@ -156,15 +224,25 @@ Three factors close the niche:
 \dgWeights\,GB --- a \footprintRatio$\times$ difference.
 
 \paragraph{Batching.} Continuous batching converts arrival concurrency into
-throughput at \arBatchLo--\arBatchHi$\times$ for AR against $\leq$\dgBatchVllmHi$\times$
-for diffusion. Both diffusion measurements are engine-bounded (vLLM caps the
-batch at 8; dInfer runs cache-less), so the true ceiling is unknown but lies
-at or above \dgBatchVllmHi$\times$. Even so, the gap is more than an order of
-magnitude.
+throughput at \arBatchLo--\arBatchHi$\times$ for AR against
+$\leq$\dgBatchVllmHi$\times$ for diffusion. Both diffusion measurements are
+engine-bounded (vLLM caps the batch at 8; dInfer runs cache-less), so the
+true ceiling is unknown but lies at or above \dgBatchVllmHi$\times$. Even so,
+the gap is more than an order of magnitude (Appendix~\ref{app:batching}).
 
 \paragraph{Input length.} The diffusion prefill slope is
 \inputSlopeRatio$\times$ steeper, because each denoising step re-attends the
 full prompt. At longer inputs the base rises and $L^{*}$ moves upward.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\linewidth]{figures/fig6_batching.pdf}
+\caption{Batch-1 to peak throughput multipliers. The split runs along
+architecture, not runtime: two diffusion models on two different engines sit
+at $\leq$\dgBatchVllmHi$\times$, while the AR model on vLLM ranges from
+\cacheOffMult$\times$ to \arBatchHi$\times$.}
+\label{fig:batching}
+\end{figure}
 
 \subsection{The five conditions}
 
@@ -183,13 +261,13 @@ The diffusion model is the right choice only when all five hold:
 
 Diffusion LM speedup claims (LLaDA~\cite{llada2025},
 DiffusionGemma~\cite{diffusiongemma}) are typically measured against
-author-built AR baselines. Constrained decoding (outlines~\cite{outlines2024},
-xgrammar~\cite{xgrammar2024}, llguidance~\cite{llguidance}) is the standard
-answer to the structured-output problem and is not measured here; it is a
-limitation. Speculative decoding (Medusa~\cite{medusa2024},
-EAGLE~\cite{eagle2024}) attacks the same per-token slope the AR cost law
-turns on. Harness bias in systems benchmarking is discussed
-by~\cite{hoefler2021}.
+author-built AR baselines. Constrained decoding
+(outlines~\cite{outlines2024}, xgrammar~\cite{xgrammar2024},
+llguidance~\cite{llguidance}) is the standard answer to the structured-output
+problem and is not measured here; it is a limitation. Speculative decoding
+(Medusa~\cite{medusa2024}, EAGLE~\cite{eagle2024}) attacks the same per-token
+slope the AR cost law turns on. Harness bias in systems benchmarking is
+discussed by~\cite{hoefler2021}.
 
 % ========================================================== 5. threats ==
 \section{Threats to Validity}
@@ -198,10 +276,11 @@ by~\cite{hoefler2021}.
 All measurements are on one GPU (\gpuModel{}); the fitted constants are
 A100-specific but the shapes should transfer. The batching ceiling reproduces
 across two runtimes and two model families, but both measurements are
-engine-bounded. The crossover is calibrated at a $\sim$\refPrompt-token prompt
-and shifts with input length. The AR--DG quality difference ($\Delta =
-\qualityGap$) has a 95\% CI of $[-0.012, +0.011]$ at $n=300$; the two are
-statistically equivalent at a $\pm 0.01$ margin.
+engine-bounded (Appendix~\ref{app:batching}). The crossover is calibrated at
+a $\sim$\refPrompt-token prompt and shifts with input length. The AR--DG
+quality difference ($\Delta = \qualityGap$) has a 95\% CI of $[-0.012,
++0.011]$ at $n=300$; the two are statistically equivalent at a $\pm 0.01$
+margin.
 
 % ========================================================== 6. conclusion ==
 \section{Conclusion}
@@ -219,6 +298,117 @@ The advantage does not survive deployment. At matched quality the AR model is
 better. What survives is a narrow regime: long forced output, batch-1, schema
 validation, and a data-centre footprint. Outside that regime, the line beats
 the staircase.
+
+% ======================================================================
+%                          APPENDICES
+% ======================================================================
+
+\appendix
+
+% ------------------------------------------------------- A. harness defects
+\section{Five Harness Defects}
+\label{app:defects}
+
+Each of the following was found by re-reading committed artifacts, not by
+running new experiments. Four of the five biased against the autoregressive
+arm; the fifth was a correctness-of-record defect.
+
+\begin{enumerate}
+\item \textbf{Decoding configuration.} Qwen2.5's checkpoint sets
+\texttt{repetition\_penalty}\,$=$\,1.1, which suppresses span-copying and
+empties the \texttt{host} field. Correcting to 1.0 moved AR 9-field F1 from
+\defectOneFBefore{} to \defectOneFAfter. \emph{Against AR.}
+
+\item \textbf{Serving parity.} The AR model ran a naive HuggingFace generate
+loop while the diffusion model ran on vLLM with continuous batching. Moving
+AR to vLLM moved its p50 from \defectTwoBefore{} to \defectTwoAfter\,ms
+(\defectTwoRatio$\times$), reversing the headline speed claim.
+\emph{Against AR.}
+
+\item \textbf{Parser policy.} At $L{=}512$, \rambleRate\% of AR outputs
+contained multiple JSON objects. The old parser took the last (most-drifted)
+copy; first-object-wins moved AR F1 from \defectThreeBefore{} to
+\defectThreeAfter. \emph{Against AR.}
+
+\item \textbf{Metric defaults.} The completeness metric treated falsy values
+(\texttt{""}, \texttt{0.0}, \texttt{False}) as missing keys. The AR model
+emits falsy defaults on early stop; DiffusionGemma always fills every field.
+Distinguishing absent from present-but-falsy moved AR completeness from
+\defectFourBefore\% to \defectFourAfter\%. \emph{Against AR.}
+
+\item \textbf{Provenance.} A CLI default wrote an AR model name into three DG
+result files. Biases no comparison but made audit impossible until correction
+sidecars were written. \emph{Neutral.}
+\end{enumerate}
+
+The clustering on one arm is not a coincidence: a comparison harness written by
+someone hoping the new architecture wins fails asymmetrically, because the
+arm the experimenter is not rooting for inherits the checkpoint defaults, the
+naive serving path, and the mature production infrastructure.
+
+% ------------------------------------------------------- B. decomposition
+\section{Base Decomposition: Why the Fit Fails}
+\label{app:decomp}
+
+Sweeping $K \in \{2,4,8,16,32,64\}$ at fixed output length fits
+$T(K) = \kfitBase + \kfitSlope \cdot K$ with $R^2 = \kfitRsq$. The low $R^2$ is
+itself informative: latency saturates above $K{=}16$, so the linear term is a
+poor description at the top of the range and the fit is carried by the bottom.
+The intercept is therefore not interpretable as a floor.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.85\linewidth]{figures/fig4_ksweep.pdf}
+\caption{Denoising-step sweep. Latency saturates above $K{=}16$; quality is
+flat above $K{=}8$. Halving $K$ from 8 to 4 saves $\sim$87\,ms because the
+saving comes out of the small slice, while F1 falls from \kEightFone\ to
+\kFourFone\ because the loss comes out of the whole.}
+\label{fig:ksweep}
+\end{figure}
+
+Two measurement-based bounds do the work instead:
+
+\begin{itemize}
+\item \textbf{From $K{=}2$.} For any decomposition
+$T(K) = \text{floor} + K \cdot c(K)$ with $c \geq 0$,
+$\text{floor} \leq T(2) = 202$\,ms. At $K{=}8$ the denoising-attributable
+share is $\geq 47\%$ of the \dgBase\,ms base.
+
+\item \textbf{From the canvas step.} One additional canvas costs \dgStep\,ms
+and is a $K{=}8$ denoising pass. So denoising is $\geq \dgStep / \dgBase = 32\%$
+of the base. The first canvas's pass is somewhat cheaper than a marginal one,
+but not by the $5\times$ the fitted intercept would require.
+\end{itemize}
+
+The honest range at $K{=}8$ is 32--47\% denoising against 53--68\% floor. The
+exact split awaits profiler attribution.
+
+% ------------------------------------------------------- C. batching
+\section{The Batching Ceiling and Its Engine Defects}
+\label{app:batching}
+
+The diffusion batching ceiling ($\leq$\dgBatchVllmHi$\times$) reproduces across
+two runtimes and two model families, but both measurements are bounded by
+known engine defects:
+
+\begin{itemize}
+\item \textbf{vLLM} caps the batch at 8 when two requests mix denoising
+phases, so the DiffusionGemma multipliers
+(\dgBatchVllmLo--\dgBatchVllmHi$\times$) are lower bounds, not ceiling
+measurements.
+
+\item \textbf{dInfer} (LLaDA-8B) errors on prompts of 632 tokens or more,
+forcing a cache-less mode that inflates absolute latency by $\sim$30$\times$.
+The multiplier (\dgBatchMult$\times$) is unaffected as a ratio, but the
+claim that this is a cache-enabled measurement is not defensible.
+\end{itemize}
+
+The standing explanation --- that bidirectional attention invalidates KV-cache
+reuse --- is partly falsified: disabling prefix caching on the AR arm drops
+its multiplier from \cacheOnMult$\times$ to \cacheOffMult$\times$, still more
+than twenty times the diffusion ceiling. Remaining candidates include
+mixture-of-experts routing variability and kernel maturity. The true ceiling
+on an uncrippled stack is unknown but lies at or above \dgBatchVllmHi$\times$.
 
 \bibliographystyle{plain}
 \bibliography{references}
