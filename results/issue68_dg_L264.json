@@ -1,0 +1,79 @@
+{
+  "experiment": "issue12_vllm_serving",
+  "source": "bgl",
+  "n_events": 200,
+  "sla_grid_ms": [
+    250.0,
+    500.0,
+    1000.0,
+    2000.0
+  ],
+  "max_new_tokens": 264,
+  "min_tokens": 264,
+  "prefix_caching": true,
+  "serving": "vLLM (PagedAttention + continuous batching)",
+  "timestamp": "2026-08-15T17:54:42Z",
+  "models": {
+    "google/diffusiongemma-26B-A4B-it": {
+      "model": "google/diffusiongemma-26B-A4B-it",
+      "max_denoising_steps": 8,
+      "vllm_version": "0.25.1",
+      "torch_version": "2.11.0+cu130",
+      "gpu_model": "NVIDIA A100 80GB PCIe",
+      "provenance": {
+        "model_name": "google/diffusiongemma-26B-A4B-it",
+        "model_type": "dg",
+        "backend": "vllm",
+        "max_new_tokens": 264,
+        "parser_policy": "first_object_wins",
+        "scoring_fields": "9",
+        "vllm_version": "0.25.1",
+        "torch_version": "2.11.0+cu130",
+        "transformers_version": "5.15.0",
+        "cuda_version": "13.0",
+        "gpu_model": "NVIDIA A100 80GB PCIe",
+        "python_version": "3.10.12",
+        "platform": "Linux-5.15.179-15.mofed2407ya-x86_64-with-glibc2.35",
+        "timestamp": "2026-08-15T14:55:26Z",
+        "repo_commit": "369cff8"
+      },
+      "prompt_token_count": 1077,
+      "streaming_table3": {
+        "latency": {
+          "p50_ms": 500.0292439945042,
+          "p90_ms": 592.9223368875682,
+          "p99_ms": 827.5348651222885,
+          "p99_9_ms": 1305.2207743749022,
+          "mean_ms": 505.0298301689327,
+          "min_ms": 364.21707086265087,
+          "max_ms": 1305.2207743749022,
+          "n_samples": 200
+        },
+        "quality": {
+          "field_f1": 0.8552,
+          "field_f1_9": 0.8552,
+          "field_f1_12": 0.7836,
+          "per_field_f1": {
+            "f1_timestamp_norm": 0.84,
+            "f1_host": 0.98,
+            "f1_component": 0.98,
+            "f1_severity": 0.975,
+            "f1_event_type": 0.3216,
+            "f1_message_template": 0.6465,
+            "f1_error_code": 0.935,
+            "f1_affected_entity": 0.52,
+            "f1_metric_value": 0.38,
+            "f1_is_anomaly": 0.98,
+            "f1_anomaly_score": 0.98,
+            "f1_remediation_hint": 0.865
+          },
+          "schema_valid_pct": 98.0,
+          "consistency_pct": 98.0,
+          "anomaly_f1": 0.9556
+        },
+        "mean_output_tokens": 264.0,
+        "tail_ratio_p999_over_p50": 2.6102888782025873
+      }
+    }
+  }
+}

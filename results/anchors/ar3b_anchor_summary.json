@@ -1,0 +1,23 @@
+{
+  "experiment": "issue57_anchor_remeasurement",
+  "arm": "ar3b",
+  "stack": "vLLM 0.25.1, torch 2.11.0+cu130, A100 80GB",
+  "summaries": {
+    "ar3b_L256": {
+      "n_repeats": 5,
+      "p50_median": 1616.04,
+      "p50_cv_pct": 0.05,
+      "p50_min": 1615.41,
+      "p50_max": 1617.02,
+      "f1_9_median": 0.8516
+    },
+    "ar3b_L512": {
+      "n_repeats": 3,
+      "p50_median": 3225.11,
+      "p50_cv_pct": 0.01,
+      "p50_min": 3224.61,
+      "p50_max": 3225.38,
+      "f1_9_median": 0.8516
+    }
+  }
+}

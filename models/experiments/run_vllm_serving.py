@@ -56,6 +56,7 @@ from metrics.quality_metrics import (
 from metrics.latency_metrics import latency_percentiles
 from models.baselines.ar_model import build_chat_messages, parse_json_output
 from models.baselines.ar_wrapper import _dict_to_record
+from models.baselines.provenance import capture_provenance
 
 SPLIT_DIR = _REPO_ROOT / "datasets" / "splits" / "test"
 
@@ -142,7 +143,9 @@ def run_streaming(llm, sampling_params, prompts, gold_records, log_every=100,
     gold = gold_records[:len(records)]
     f1_res = field_f1(records, gold)
     quality = {
-        "field_f1": round(f1_res["macro_field_f1"], 4),
+        "field_f1": round(f1_res["macro_field_f1_9"], 4),
+        "field_f1_9": round(f1_res["macro_field_f1_9"], 4),
+        "field_f1_12": round(f1_res["macro_field_f1_12"], 4),
         "per_field_f1": {k: round(v, 4) for k, v in f1_res.items()
                          if k.startswith("f1_")},
         "schema_valid_pct": round(schema_validity(records), 2),
@@ -361,6 +364,19 @@ def main():
         sp_kwargs = dict(
             max_tokens=args.max_new_tokens, min_tokens=args.min_tokens,
             temperature=0.0)
+
+        # Capture provenance from the actually-loaded model (#57 R1)
+        model_type = "dg" if "diffusion" in model_name.lower() else "ar"
+        prov = capture_provenance(
+            model_name=model_name,
+            model_type=model_type,
+            backend="vllm",
+            max_new_tokens=args.max_new_tokens,
+            parser_policy="first_object_wins",
+            scoring_fields="9",
+        )
+        if args.denoising_steps is not None:
+            prov.denoising_steps = args.denoising_steps
         if args.guided_json:
             try:
                 import json as _json2
@@ -380,16 +396,10 @@ def main():
         entry = {"model": model_name}
         if args.denoising_steps is not None:
             entry["max_denoising_steps"] = args.denoising_steps
-        try:
-            import vllm as _vllm
-            entry["vllm_version"] = getattr(_vllm, "__version__", "unknown")
-        except Exception:
-            entry["vllm_version"] = "unknown"
-        try:
-            import torch as _torch
-            entry["torch_version"] = getattr(_torch, "__version__", "unknown")
-        except Exception:
-            entry["torch_version"] = "unknown"
+        entry["vllm_version"] = prov.vllm_version
+        entry["torch_version"] = prov.torch_version
+        entry["gpu_model"] = prov.gpu_model
+        entry["provenance"] = prov.to_dict()
 
         prompts = build_prompts(llm, log_lines, args.source)
         try:

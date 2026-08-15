@@ -1,0 +1,8 @@
+{
+  "corrected_model": "GSAI-ML/LLaDA-8B-Instruct",
+  "recorded_model": "Qwen/Qwen2.5-3B-Instruct",
+  "model_type": "dm_hf",
+  "reason": "Same provenance bug as perturbation_dm_hf.json.",
+  "stack": "unknown",
+  "corrected_by": "#57 R1 audit"
+}

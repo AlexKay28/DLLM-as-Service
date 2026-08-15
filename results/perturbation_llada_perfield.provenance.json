@@ -1,0 +1,8 @@
+{
+  "corrected_model": "GSAI-ML/LLaDA-8B-Instruct",
+  "recorded_model": "Qwen/Qwen2.5-7B-Instruct",
+  "model_type": "dm_hf",
+  "reason": "Same bug as perturbation_dm_hf.json \u2014 argparse default leaked into result.",
+  "stack": "unknown",
+  "corrected_by": "#57 R1 audit"
+}

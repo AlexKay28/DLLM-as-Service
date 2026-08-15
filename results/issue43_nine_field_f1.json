@@ -1,0 +1,58 @@
+{
+  "ar3b_L32": {
+    "n": 300,
+    "field_f1_9": 0.3111,
+    "field_f1_12": 0.3167,
+    "parser_policy": "first_object_wins",
+    "note": "Re-scored from saved raw outputs with fixed first-object-wins parser (#57 R5)"
+  },
+  "ar3b_L128": {
+    "n": 300,
+    "field_f1_9": 0.669,
+    "field_f1_12": 0.6544,
+    "parser_policy": "first_object_wins",
+    "note": "Re-scored from saved raw outputs with fixed first-object-wins parser (#57 R5)"
+  },
+  "ar3b_L256": {
+    "n": 300,
+    "field_f1_9": 0.8516,
+    "field_f1_12": 0.8263,
+    "parser_policy": "first_object_wins",
+    "note": "Re-scored from saved raw outputs with fixed first-object-wins parser (#57 R5)"
+  },
+  "ar3b_L512": {
+    "n": 300,
+    "field_f1_9": 0.8516,
+    "field_f1_12": 0.8263,
+    "parser_policy": "first_object_wins",
+    "note": "Re-scored from saved raw outputs with fixed first-object-wins parser (#57 R5)"
+  },
+  "dg_L32": {
+    "n": 300,
+    "field_f1_9": 0.3111,
+    "field_f1_12": 0.3167,
+    "parser_policy": "first_object_wins",
+    "note": "Re-scored from saved raw outputs with fixed first-object-wins parser (#57 R5)"
+  },
+  "dg_L128": {
+    "n": 300,
+    "field_f1_9": 0.3111,
+    "field_f1_12": 0.3167,
+    "parser_policy": "first_object_wins",
+    "note": "Re-scored from saved raw outputs with fixed first-object-wins parser (#57 R5)"
+  },
+  "dg_L256": {
+    "n": 300,
+    "field_f1_9": 0.8518,
+    "field_f1_12": 0.7858,
+    "parser_policy": "first_object_wins",
+    "note": "Re-scored from saved raw outputs with fixed first-object-wins parser (#57 R5)"
+  },
+  "dg_L512": {
+    "n": 300,
+    "field_f1_9": 0.8546,
+    "field_f1_12": 0.7852,
+    "parser_policy": "first_object_wins",
+    "note": "Re-scored from saved raw outputs with fixed first-object-wins parser (#57 R5)"
+  }
+}

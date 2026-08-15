@@ -145,15 +145,19 @@ def build_chat_messages(log_line: str, source: str = "hdfs",
     ]
 
 
-def parse_json_output(raw_output: str) -> dict:
+def parse_json_output(raw_output: str, policy: str = "first_object_wins") -> dict:
     """Parse the model's JSON output, handling common failure modes.
 
-    - Strips markdown code fences (```json ... ```).
-    - Extracts the first {...} block if extra text is present.
-    - Returns empty dict on parse failure.
+    Policies (#57 R5):
+    - "first_object_wins" (primary, per #43): extract the first {...} block
+      and parse it. Tolerant of trailing text, extra prose, markdown fences.
+      This is the default and the policy that should be recorded in result JSONs.
+    - "strict": require the entire output (after fence stripping) to be valid
+      JSON. Used as a secondary column for comparison.
 
     Args:
         raw_output: raw model output string.
+        policy: "first_object_wins" (default) or "strict".
 
     Returns:
         Parsed dict with field names as keys, or empty dict on failure.
@@ -163,36 +167,75 @@ def parse_json_output(raw_output: str) -> dict:
     # Strip markdown code fences
     if text.startswith("```"):
         lines = text.split("\n")
-        # Remove first line (```json or ```) and last line (```)
+        # Remove first line (```json or ```)
         if lines[0].startswith("```"):
             lines = lines[1:]
         if lines and lines[-1].strip() == "```":
             lines = lines[:-1]
         text = "\n".join(lines).strip()
 
-    # Try direct parse
+    if policy == "strict":
+        try:
+            result = json.loads(text)
+            if isinstance(result, dict):
+                return result
+        except json.JSONDecodeError:
+            return {}
+        return {}
+
+    # first_object_wins: try direct parse first
     try:
-        return json.loads(text)
+        result = json.loads(text)
+        if isinstance(result, dict):
+            return result
     except json.JSONDecodeError:
         pass
 
-    # Extract first {...} block
+    # Extract first complete {...} block by tracking brace depth.
+    # The old code used text.rfind("}") which captures first-{ to last-},
+    # effectively scoring the last (most-drifted) copy of each field (#43).
     start = text.find("{")
-    end = text.rfind("}")
-    if start != -1 and end != -1 and end > start:
-        block = text[start:end + 1]
-        try:
-            return json.loads(block)
-        except json.JSONDecodeError:
-            pass
+    if start != -1:
+        depth = 0
+        end = -1
+        in_string = False
+        escape = False
+        for i in range(start, len(text)):
+            c = text[i]
+            if escape:
+                escape = False
+                continue
+            if c == "\\":
+                escape = True
+                continue
+            if c == '"':
+                in_string = not in_string
+                continue
+            if in_string:
+                continue
+            if c == "{":
+                depth += 1
+            elif c == "}":
+                depth -= 1
+                if depth == 0:
+                    end = i
+                    break
+        if end != -1:
+            block = text[start:end + 1]
+            try:
+                result = json.loads(block)
+                if isinstance(result, dict):
+                    return result
+            except json.JSONDecodeError:
+                pass
 
-        # Regex fallback: recover well-formed "key": value pairs even if the
-        # overall document is malformed (missing colon on one line, stray
-        # comment, unbalanced quote, etc.) — common MDM denoising artifacts
-        # where most fields decode correctly but one is garbled.
-        recovered = _extract_key_value_pairs(block)
-        if recovered:
-            return recovered
+            # Regex fallback: recover well-formed "key": value pairs even if the
+            # overall document is malformed (missing colon on one line, stray
+            # comment, unbalanced quote, etc.) — common MDM denoising artifacts
+            # where most fields decode correctly but one is garbled.
+            recovered = _extract_key_value_pairs(block)
+            if recovered:
+                return recovered
 
     return {}
 

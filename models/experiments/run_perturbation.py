@@ -102,7 +102,9 @@ def eval_category(records, gold_records, lats):
     cons = consistency(records)
     lat = latency_percentiles(lats)
     out = {
-        "field_f1": round(f1_res["macro_field_f1"], 4),
+        "field_f1": round(f1_res["macro_field_f1_9"], 4),
+        "field_f1_9": round(f1_res["macro_field_f1_9"], 4),
+        "field_f1_12": round(f1_res["macro_field_f1_12"], 4),
         "schema_valid_pct": round(sv, 2),
         "consistency_pct": round(cons, 2),
         "p50_ms": round(lat.get("p50_ms", 0), 2),
@@ -134,6 +136,8 @@ def main():
     gold_records = load_records(SPLIT_DIR / "bgl.jsonl", args.n)
     print(f"Loaded {len(log_lines)} events")
 
+    from models.baselines.provenance import capture_provenance
+
     if args.vllm_ar:
         from vllm import LLM, SamplingParams
         llm = LLM(model=args.model, dtype="bfloat16", gpu_memory_utilization=0.85,
@@ -141,12 +145,25 @@ def main():
         tokenizer = llm.get_tokenizer()
         sp = SamplingParams(max_tokens=256, temperature=0.0, repetition_penalty=1.0)
         extract_fn = lambda lines: extract_ar(llm, tokenizer, sp, lines)
+        actual_model = args.model
+        backend = "vllm"
     else:
         from models.baselines.mdm_wrapper import MDMModel
-        model = MDMModel(model_name="GSAI-ML/LLaDA-8B-Instruct",
+        actual_model = "GSAI-ML/LLaDA-8B-Instruct"
+        model = MDMModel(model_name=actual_model,
                          k_steps=args.k_steps, max_new_tokens=256)
         model.load()
         extract_fn = lambda lines: extract_mdm(model, lines)
+        backend = "hf_transformers"
+
+    prov = capture_provenance(
+        model_name=actual_model,
+        model_type=model_label,
+        backend=backend,
+        max_new_tokens=256,
+        parser_policy="first_object_wins",
+        scoring_fields="9",
+    )
 
     print("\n  Clean baseline...", flush=True)
     records, lats = extract_fn(log_lines)
@@ -174,10 +191,11 @@ def main():
     result = {
         "experiment": "issue27_perturbation_robustness",
         "model_type": model_label,
-        "model": args.model,
+        "model": actual_model,
         "n": len(log_lines),
         "categories": categories,
         "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+        "provenance": prov.to_dict(),
     }
 
     Path(out_path).parent.mkdir(parents=True, exist_ok=True)

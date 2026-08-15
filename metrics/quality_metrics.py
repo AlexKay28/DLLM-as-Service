@@ -8,6 +8,14 @@ from typing import Optional
 
 from metrics.schema import FIELD_NAMES, FIELD_BY_NAME, Record, FieldType
 
+# 9-field subset: 7 structural + 2 anomaly, per #57 R4.
+# Drops event_type, affected_entity, remediation_hint (#53 gold problem).
+NINE_FIELD_NAMES = [
+    "timestamp_norm", "host", "component", "severity",
+    "message_template", "error_code", "metric_value",
+    "is_anomaly", "anomaly_score",
+]
+
 
 def _tokenize(value: Optional[str]) -> list[str]:
     if value is None:
@@ -76,6 +84,19 @@ def field_f1(pred_records: list[Record], gold_records: list[Record],
         result[f"f1_{field_name}"] = sum(scores) / len(scores) if scores else 0.0
 
     result["macro_field_f1"] = sum(result[f"f1_{n}"] for n in eval_fields) / len(eval_fields)
+
+    # 9-field macro (7 structural + 2 anomaly) — #57 R4
+    nine_scores = [result[f"f1_{n}"] for n in NINE_FIELD_NAMES if f"f1_{n}" in result]
+    result["macro_field_f1_9"] = sum(nine_scores) / len(nine_scores) if nine_scores else 0.0
+
+    # 12-field macro (all fields) — for continuity with published tables
+    all_scores = [result[f"f1_{n}"] for n in FIELD_NAMES if f"f1_{n}" in result]
+    result["macro_field_f1_12"] = sum(all_scores) / len(all_scores) if all_scores else 0.0
+
+    # Backward compat: macro_field_f1 is the 12-field value (all fields)
+    # unless fields_to_eval was explicitly set.
+    if not fields_to_eval:
+        result["macro_field_f1"] = result["macro_field_f1_12"]
     return result
 
 

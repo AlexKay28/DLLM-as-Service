@@ -1,0 +1,8 @@
+{
+  "corrected_model": "GSAI-ML/LLaDA-8B-Instruct",
+  "recorded_model": "Qwen/Qwen2.5-3B-Instruct",
+  "model_type": "dm_hf",
+  "reason": "run_perturbation.py:170 serialized args.model (AR default) instead of the MDMModel actually loaded at line 146. Fixed in commit for #57.",
+  "stack": "unknown (vllm_version not recorded; likely .venv-dg vLLM 0.25.1)",
+  "corrected_by": "#57 R1 audit"
+}

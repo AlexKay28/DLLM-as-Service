@@ -2,14 +2,21 @@
 """Issue #44 — input-length sweep: are cost laws T(L_out) or T(L_in, L_out)?
 
 Sweeps prompt length by prepending variable-length filler context (repeated
-schema descriptions) to the standard prompt. Measures AR latency at each input
+schema descriptions) to the standard prompt. Measures latency at each input
 length with fixed output length (min=max=256 tokens).
 
 If T(L_in, L_out) = a + b*L_in + c*L_out, then varying L_in at fixed L_out
-should reveal the b coefficient. If b≈0, the cost law is single-variable.
+should reveal the b coefficient. If b~0, the cost law is single-variable.
+
+Supports both AR (Qwen2.5) and DG (DiffusionGemma) models.
 
 Usage:
+    # AR-3B
     python models/experiments/run_input_length_sweep.py --n 100
+
+    # DiffusionGemma (K=8)
+    python models/experiments/run_input_length_sweep.py \
+        --model google/diffusiongemma-26B-A4B-it --denoising-steps 8 --n 100
 """
 
 import argparse
@@ -29,6 +36,7 @@ from models.baselines.ar_model import (
     build_chat_messages, parse_json_output, SYSTEM_PROMPT, SCHEMA_DESCRIPTION,
 )
 from models.baselines.ar_wrapper import _dict_to_record
+from models.baselines.provenance import capture_provenance
 
 SPLIT_DIR = _REPO_ROOT / "datasets" / "splits" / "test"
 
@@ -77,6 +85,8 @@ def main():
     ap.add_argument("--schema-repeats", type=int, nargs="+",
                     default=[0, 2, 5, 10, 20, 40],
                     help="number of extra schema-description copies to prepend")
+    ap.add_argument("--denoising-steps", type=int, default=None,
+                    help="DG only: max_denoising_steps (e.g. 8)")
     ap.add_argument("--output", default="results/issue44_input_sweep.json")
     args = ap.parse_args()
 
@@ -86,9 +96,26 @@ def main():
     gold = load_gold(str(SPLIT_DIR / "bgl.jsonl"), args.n)
     print(f"Loaded {len(log_lines)} events", flush=True)
 
-    llm = LLM(model=args.model, dtype="bfloat16",
-              gpu_memory_utilization=0.85, max_model_len=8192,
-              enable_prefix_caching=False)
+    llm_kwargs = dict(
+        model=args.model, dtype="bfloat16",
+        gpu_memory_utilization=0.85, max_model_len=8192,
+        enable_prefix_caching=False,
+    )
+    if args.denoising_steps is not None:
+        llm_kwargs["diffusion_config"] = {
+            "canvas_length": 256,
+            "max_denoising_steps": args.denoising_steps,
+        }
+    llm = LLM(**llm_kwargs)
+
+    model_type = "dg" if "diffusion" in args.model.lower() else "ar"
+    prov = capture_provenance(
+        model_name=args.model, model_type=model_type, backend="vllm",
+        max_new_tokens=args.max_new_tokens,
+        parser_policy="first_object_wins", scoring_fields="9",
+    )
+    if args.denoising_steps is not None:
+        prov.denoising_steps = args.denoising_steps
 
     sp = SamplingParams(max_tokens=args.max_new_tokens,
                         min_tokens=args.min_tokens, temperature=0.0)
@@ -96,9 +123,12 @@ def main():
     results = {
         "experiment": "issue44_input_length_sweep",
         "model": args.model,
+        "model_type": model_type,
         "n_events": len(log_lines),
         "max_new_tokens": args.max_new_tokens,
         "min_tokens": args.min_tokens,
+        "denoising_steps": args.denoising_steps,
+        "provenance": prov.to_dict(),
         "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ"),
         "sweep": [],
     }
@@ -136,7 +166,9 @@ def main():
                 "mean": round(statistics.fmean(latencies), 1),
             },
             "mean_output_tokens": round(statistics.fmean(out_tokens), 1),
-            "field_f1": round(f1_res["macro_field_f1"], 4),
+            "field_f1": round(f1_res["macro_field_f1_9"], 4),
+            "field_f1_9": round(f1_res["macro_field_f1_9"], 4),
+            "field_f1_12": round(f1_res["macro_field_f1_12"], 4),
             "schema_valid_pct": round(schema_validity(records), 2),
         }
         results["sweep"].append(entry)

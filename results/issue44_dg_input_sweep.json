@@ -1,0 +1,99 @@
+{
+  "experiment": "issue44_input_length_sweep",
+  "model": "google/diffusiongemma-26B-A4B-it",
+  "model_type": "dg",
+  "n_events": 100,
+  "max_new_tokens": 256,
+  "min_tokens": 256,
+  "denoising_steps": 8,
+  "provenance": {
+    "model_name": "google/diffusiongemma-26B-A4B-it",
+    "model_type": "dg",
+    "backend": "vllm",
+    "max_new_tokens": 256,
+    "parser_policy": "first_object_wins",
+    "scoring_fields": "9",
+    "vllm_version": "0.25.1",
+    "torch_version": "2.11.0+cu130",
+    "transformers_version": "5.15.0",
+    "cuda_version": "13.0",
+    "gpu_model": "NVIDIA A100 80GB PCIe",
+    "python_version": "3.10.12",
+    "platform": "Linux-5.15.179-15.mofed2407ya-x86_64-with-glibc2.35",
+    "timestamp": "2026-08-15T14:31:56Z",
+    "repo_commit": "369cff8"
+  },
+  "timestamp": "2026-08-15T17:31:56Z",
+  "sweep": [
+    {
+      "schema_repeats": 0,
+      "prompt_token_count": 1077,
+      "latency_ms": {
+        "p50": 444.7,
+        "p99": 5990.6,
+        "mean": 502.2
+      },
+      "mean_output_tokens": 256.0,
+      "field_f1": 0.8448,
+      "field_f1_9": 0.8448,
+      "field_f1_12": 0.7771,
+      "schema_valid_pct": 98.0
+    },
+    {
+      "schema_repeats": 2,
+      "prompt_token_count": 1649,
+      "latency_ms": {
+        "p50": 501.5,
+        "p99": 613.3,
+        "mean": 495.8
+      },
+      "mean_output_tokens": 256.0,
+      "field_f1": 0.8399,
+      "field_f1_9": 0.8399,
+      "field_f1_12": 0.7719,
+      "schema_valid_pct": 99.0
+    },
+    {
+      "schema_repeats": 5,
+      "prompt_token_count": 2507,
+      "latency_ms": {
+        "p50": 598.6,
+        "p99": 715.3,
+        "mean": 603.3
+      },
+      "mean_output_tokens": 256.0,
+      "field_f1": 0.7916,
+      "field_f1_9": 0.7916,
+      "field_f1_12": 0.7321,
+      "schema_valid_pct": 100.0
+    },
+    {
+      "schema_repeats": 10,
+      "prompt_token_count": 3937,
+      "latency_ms": {
+        "p50": 756.1,
+        "p99": 875.5,
+        "mean": 758.1
+      },
+      "mean_output_tokens": 256.0,
+      "field_f1": 0.8057,
+      "field_f1_9": 0.8057,
+      "field_f1_12": 0.7453,
+      "schema_valid_pct": 98.0
+    },
+    {
+      "schema_repeats": 20,
+      "prompt_token_count": 6797,
+      "latency_ms": {
+        "p50": 1146.4,
+        "p99": 2043.3,
+        "mean": 1157.0
+      },
+      "mean_output_tokens": 256.0,
+      "field_f1": 0.8021,
+      "field_f1_9": 0.8021,
+      "field_f1_12": 0.7397,
+      "schema_valid_pct": 99.0
+    }
+  ]
+}
