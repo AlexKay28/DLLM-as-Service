@@ -8,9 +8,23 @@ inside this paper, not its spine.
 
 ## 1. Thesis sentence
 
-> Autoregressive and diffusion LLMs differ in the *shape* of their cost, not
-> in their quality; the shape determines where each belongs, and it yields a
-> decision procedure practitioners can apply.
+> Block-structured decoding (canvas-bound diffusion LLMs) and token-by-token
+> decoding (autoregressive LLMs) have different cost shapes: a staircase with
+> a prefill-dominated floor vs a line with no floor. The shapes produce a
+> per-event crossover (L≈60 tokens, λ≈2.6 ev/s) below which the
+> block-structured model is faster — but at the quality-matched pair, this
+> crossover does not translate to a deployment advantage, because the
+> quality-matched AR model is 5–17× smaller. The decision procedure
+> formalises the crossover; the deployment envelope closes it.
+
+### Paper identity (EDR-009, EDR-010)
+
+A cost-law paper with a systems contribution. The contribution is the
+decision procedure; the finding is that the per-event advantage is real but
+narrow and does not survive the deployment comparison. The comparison pair
+is **compute-matched** (AR-3B 3B active vs DG-26B-A4B 4B active, same quality)
+for per-event claims, and **quality-matched** (AR-1.5B 3 GB vs DG 52 GB) for
+deployment claims.
 
 ---
 
@@ -37,6 +51,8 @@ red.** Claims that cannot go green get cut from the paper, not softened.
 | C11 | The crossover is at λ≈1.8 events/s | §5 | `models/decision/procedure.py:compute_lambda_cross` | amber | #64 (λ*=2.6 at K=8) |
 | C12 | The dLLM batching multiplier is ~1× (stated as correlation, not mechanism) | §6 | `results/issue42_batching.json` | amber | #42 (retitle — mechanism not tested) |
 | C17 | Canvas=128 is a free improvement (base -2.4%, F1 +0.011); canvas=64 is not viable | §6 | `results/issue66_canvas_{128,64}.json` | green | #66 |
+| C18 | The staircase form generalises to HDFS (step ~120 ms on both corpora) | §4/§9 | `results/issue67_dg_hdfs_*.json` | green | #67: HDFS step=120.5 ms vs BGL 118.5 ms |
+| C19 | AR cost law generalises to HDFS (AR HDFS p50 matches BGL within 0.2%) | §4/§9 | `results/issue67_ar3b_hdfs_*.json` | green | #67: AR HDFS L=256=1616.5ms vs BGL 1616.0ms |
 | C13 | Four of five harness defects biased against the AR baseline | §2 | `CHECKLIST.md` | green | #65 |
 | C14 | The five defects were all found by re-reading artifacts | §2 | `CHECKLIST.md` | green | #65 |
 | C15 | The decision procedure reproduces the measured crossovers | §5 | `models/decision/test_procedure.py` (11/11) | green | #64 |
@@ -136,15 +152,14 @@ against the pinned stack (#57).
 
 Organised by our findings, not FlowFill's tables.
 
-1. **Introduction** — thesis, contribution structure
-2. **Methodology: how we got it wrong five times** (#65, CHECKLIST.md)
-3. **The exchange rate: quality is comparable** (C1, C2)
-4. **The two cost laws** (C3, C4, C5, C6, C8, C9)
-5. **The decision procedure** (C10, C11, C15)
-6. **The batching boundary** (C12, C16 — retitle, not mechanism)
-7. **Negative results** (§3 non-claims: five refuted + three withdrawn)
-8. **Threats to validity** — including the two-stack provenance, single-corpus
-   limitation (#67 pending), and the retitle on the batching mechanism
+1. **Introduction** — thesis, contribution structure, the two comparison pairs
+2. **Methodology: what we got wrong and how we fixed it** (EDR-001–003, secondary)
+3. **The exchange rate: quality is comparable** (C1, C2 — compute-matched pair)
+4. **The two cost laws** (C3, C4, C5, C6, C7, C8, C9 — two-variable, staircase, base decomposition)
+5. **The decision procedure** (C10, C11, C15 — crossover, worked examples, validity domain)
+6. **The fair comparison: where DM wins and where AR wins** (EDR-010 — a/b/c vs d/e/f)
+7. **The batching boundary** (C12, C16 — correlation not mechanism, canvas tuning)
+8. **Negative results** (§3 non-claims: five refuted + three withdrawn)
+9. **Threats to validity** — single corpus (pending #67), single GPU, single model pair, two-variable scope
 
-Working order: exchange rate → two cost laws → decision procedure → batching
-boundary → how we got it wrong → negative results → threats.
+Working order: exchange rate → two cost laws → decision procedure → fair comparison → batching boundary → methodology → negative results → threats.
