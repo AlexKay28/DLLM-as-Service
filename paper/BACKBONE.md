@@ -47,8 +47,8 @@ red.** Claims that cannot go green get cut from the paper, not softened.
 | C7 | The AR-3B 1618→1915 ms drift is a vLLM 0.25.1 vs 0.7.2 stack difference | §0 | `paper/NUMBERS.md` §0, `results/anchors/ar3b_anchor_summary.json` | green | #57 anchors reproduce 1616 ms on 0.25.1 (CV=0.05%) |
 | C8 | The per-canvas step cost is ~120 ms (not 100 ms) at K=8 | §4 | `results/issue68_dg_*.json` | green | #68: step=121.8/120.0/118.7/121.8/113.1/117.5 ms, median=119.6 ms |
 | C9 | T_DG is also a function of input length (two-variable law) | §4 | `results/issue44_dg_input_sweep.json` | green | #44: DG slope=0.123 ms/prompt-tok vs AR 0.047 — DG is 2.6× steeper |
-| C10 | The crossover is at L≈65 tokens | §5 | `models/decision/procedure.py:compute_l_cross` | amber | #64 (L*=59.1 at K=8 base 378.8; was 65.3 at K=32 base 418.24) |
-| C11 | The crossover is at λ≈1.8 events/s | §5 | `models/decision/procedure.py:compute_lambda_cross` | amber | #64 (λ*=2.6 at K=8) |
+| C10 | The crossover is at L≈59 tokens (K=8) / 65 (K=32) | §5 | `models/decision/procedure.py:compute_l_cross`, `models/decision/test_procedure.py` | green | #64: L*=59.1 (K=8 base 378.8), 65.3 (K=32 base 418.24). Verified by 11/11 tests. |
+| C11 | The crossover is at λ≈2.6 ev/s (K=8) / 2.4 (K=32) | §5 | `models/decision/procedure.py:compute_lambda_cross` | green | #64: λ*=1000/378.8=2.64. Verified by test suite. |
 | C12 | The dLLM batching multiplier is ~1× (stated as correlation, not mechanism) | §6 | `results/issue42_batching.json` | amber | #42 (retitle — mechanism not tested) |
 | C17 | Canvas=128 is a free improvement (base -2.4%, F1 +0.011); canvas=64 is not viable | §6 | `results/issue66_canvas_{128,64}.json` | green | #66 |
 | C18 | The staircase form generalises to HDFS (step ~120 ms on both corpora) | §4/§9 | `results/issue67_dg_hdfs_*.json` | green | #67: HDFS step=120.5 ms vs BGL 118.5 ms |
