@@ -1,0 +1,121 @@
+{
+  "experiment": "issue59_infilling_stage1",
+  "n_events": 50,
+  "suffix_sizes": [
+    0,
+    2,
+    4,
+    8
+  ],
+  "ar3b": {
+    "S=0": {
+      "n": 50,
+      "p50_ms": 921.9,
+      "p99_ms": 1617.6,
+      "field_f1_9": 0.9932,
+      "suffix_identity_rate": 0.0,
+      "identity_min": 0.0,
+      "identity_max": 0.0
+    },
+    "S=2": {
+      "n": 50,
+      "p50_ms": 901.6,
+      "p99_ms": 1132.6,
+      "field_f1_9": 0.9969,
+      "suffix_identity_rate": 0.0,
+      "identity_min": 0.0,
+      "identity_max": 0.0
+    },
+    "S=4": {
+      "n": 50,
+      "p50_ms": 901.3,
+      "p99_ms": 1133.2,
+      "field_f1_9": 0.9992,
+      "suffix_identity_rate": 0.0,
+      "identity_min": 0.0,
+      "identity_max": 0.0
+    },
+    "S=8": {
+      "n": 50,
+      "p50_ms": 903.3,
+      "p99_ms": 1199.0,
+      "field_f1_9": 0.9948,
+      "suffix_identity_rate": 0.0,
+      "identity_min": 0.0,
+      "identity_max": 0.0
+    }
+  },
+  "ar3b_provenance": {
+    "model_name": "Qwen/Qwen2.5-3B-Instruct",
+    "model_type": "ar3b",
+    "backend": "vllm",
+    "max_new_tokens": 256,
+    "parser_policy": "first_object_wins",
+    "scoring_fields": "9",
+    "vllm_version": "0.25.1",
+    "torch_version": "2.11.0+cu130",
+    "transformers_version": "5.15.0",
+    "cuda_version": "13.0",
+    "gpu_model": "NVIDIA A100 80GB PCIe",
+    "python_version": "3.10.12",
+    "platform": "Linux-5.15.179-15.mofed2407ya-x86_64-with-glibc2.35",
+    "timestamp": "2026-08-15T17:46:09Z",
+    "repo_commit": "d7a1f7f"
+  },
+  "dg": {
+    "S=0": {
+      "n": 50,
+      "p50_ms": 333.6,
+      "p99_ms": 1145.7,
+      "field_f1_9": 0.971,
+      "suffix_identity_rate": 0.0,
+      "identity_min": 0.0,
+      "identity_max": 0.0
+    },
+    "S=2": {
+      "n": 50,
+      "p50_ms": 362.2,
+      "p99_ms": 468.1,
+      "field_f1_9": 0.9708,
+      "suffix_identity_rate": 0.0,
+      "identity_min": 0.0,
+      "identity_max": 0.0
+    },
+    "S=4": {
+      "n": 50,
+      "p50_ms": 326.9,
+      "p99_ms": 472.3,
+      "field_f1_9": 0.9604,
+      "suffix_identity_rate": 0.0,
+      "identity_min": 0.0,
+      "identity_max": 0.0
+    },
+    "S=8": {
+      "n": 50,
+      "p50_ms": 377.1,
+      "p99_ms": 490.6,
+      "field_f1_9": 0.7527,
+      "suffix_identity_rate": 0.0,
+      "identity_min": 0.0,
+      "identity_max": 0.0
+    }
+  },
+  "dg_provenance": {
+    "model_name": "google/diffusiongemma-26B-A4B-it",
+    "model_type": "dg",
+    "backend": "vllm",
+    "max_new_tokens": 256,
+    "parser_policy": "first_object_wins",
+    "scoring_fields": "9",
+    "vllm_version": "0.25.1",
+    "torch_version": "2.11.0+cu130",
+    "transformers_version": "5.15.0",
+    "cuda_version": "13.0",
+    "gpu_model": "NVIDIA A100 80GB PCIe",
+    "python_version": "3.10.12",
+    "platform": "Linux-5.15.179-15.mofed2407ya-x86_64-with-glibc2.35",
+    "timestamp": "2026-08-15T17:48:18Z",
+    "repo_commit": "d7a1f7f"
+  },
+  "timestamp": "2026-08-15T17:48:18Z"
+}

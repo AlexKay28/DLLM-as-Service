@@ -47,6 +47,10 @@ Each EDR has these sections:
 | [EDR-014](014-canvas-config-knob.md) | Canvas is tunable but not a design lever | Accepted | 2026-08-15 |
 | [EDR-015](015-negative-results.md) | Five refuted + three withdrawn hypotheses | Accepted | 2026-08-15 |
 | [EDR-016](016-generalization-hdfs.md) | Cost-law form generalises to HDFS | Accepted | 2026-08-15 |
+| [EDR-017](017-llada-generalization.md) | LLaDA under dInfer — form does NOT clearly transfer | Accepted | 2026-08-15 |
+| [EDR-018](018-energy-measurement.md) | DG uses 4.3× less energy per event at compute-matched pair | Accepted | 2026-08-15 |
+| [EDR-019](019-memory-probe.md) | Long-context memory probe — inconclusive (measurement method wrong) | Inconclusive | 2026-08-15 |
+| [EDR-020](020-infilling-experiment.md) | Infilling advantage refuted — AR trivially regenerates suffix | Accepted | 2026-08-15 |
 
 ## Rules
 

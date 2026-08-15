@@ -163,3 +163,12 @@ Organised by our findings, not FlowFill's tables.
 9. **Threats to validity** — single corpus (pending #67), single GPU, single model pair, two-variable scope
 
 Working order: exchange rate → two cost laws → decision procedure → fair comparison → batching boundary → methodology → negative results → threats.
+
+## New claims from experiments #5/#6/#7
+
+| # | Claim | Section | Evidence artifact | Status | Verified by |
+|---|---|---|---|---|---|
+| C20 | DG uses 4.3× less energy per event than AR-3B at compute-matched pair (4.2 J vs 22.3 J net) | §6 | `results/issue_energy_measurement.json` | green | #5 energy measurement |
+| C21 | AR-1.5B latency grows 10× from 1k to 16k context (43→436 ms) | §9 | `results/issue58_memory_probe.json` | amber | #6 memory probe (latency only, memory inconclusive) |
+| C22 | Infilling advantage refuted — AR F1=0.99+, DG degrades at S=8 | §8 | `results/issue59_infilling.json` | green | #7 infilling experiment |
+| C23 | LLaDA under dInfer does NOT clearly reproduce the staircase | §9 | `results/llada_dinfer/issue67_*.json` | green | #67 arm (c), EDR-017 |

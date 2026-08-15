@@ -1,0 +1,52 @@
+{
+  "experiment": "issue58_p5_memory_probe",
+  "results": [
+    {
+      "model": "Qwen/Qwen2.5-1.5B-Instruct",
+      "ctx_len": 1024,
+      "peak_memory_gb": 0.0,
+      "reserved_memory_gb": 0.0,
+      "latency_ms": 43.8,
+      "enforce_eager": true
+    },
+    {
+      "model": "Qwen/Qwen2.5-1.5B-Instruct",
+      "ctx_len": 4096,
+      "peak_memory_gb": 0.0,
+      "reserved_memory_gb": 0.0,
+      "latency_ms": 83.9,
+      "enforce_eager": true
+    },
+    {
+      "model": "Qwen/Qwen2.5-1.5B-Instruct",
+      "ctx_len": 16384,
+      "peak_memory_gb": 0.0,
+      "reserved_memory_gb": 0.0,
+      "latency_ms": 435.9,
+      "enforce_eager": true
+    },
+    {
+      "model": "Qwen/Qwen2.5-1.5B-Instruct",
+      "ctx_len": 32768,
+      "error": "1 validation error for ModelConfig\n  Value error, User-specified max_model_len (33024) is greater than the derived max_model_len (max_position_embeddings=32768.0 or model_max_length=None in model's config.json). To allow overriding this maximum, set the env var VLLM_ALLOW_LONG_MAX_MODEL_LEN=1. VLLM_ALLOW_LONG_MAX_MODEL_LEN must be used with extreme caution. If the model uses relative position encoding (RoPE), positions exceeding derived_max_model_len lead to nan. If the model uses absolute position encoding, positions exceeding derived_max_model_len will cause a CUDA array out-of-bounds error. [type=value_error, input_value=ArgsKwargs((), {'model': ...nderer_num_workers': 1}), input_type=ArgsKwargs]\n    For further information visit https://errors.pydantic.dev/2.13/v/value_error"
+    }
+  ],
+  "provenance": {
+    "model_name": "Qwen/Qwen2.5-1.5B-Instruct",
+    "model_type": "ar1.5b",
+    "backend": "vllm",
+    "max_new_tokens": 1,
+    "parser_policy": "first_object_wins",
+    "scoring_fields": "9",
+    "vllm_version": "0.25.1",
+    "torch_version": "2.11.0+cu130",
+    "transformers_version": "5.15.0",
+    "cuda_version": "13.0",
+    "gpu_model": "NVIDIA A100 80GB PCIe",
+    "python_version": "3.10.12",
+    "platform": "Linux-5.15.179-15.mofed2407ya-x86_64-with-glibc2.35",
+    "timestamp": "2026-08-15T17:42:34Z",
+    "repo_commit": "d7a1f7f"
+  },
+  "timestamp": "2026-08-15T17:42:34Z"
+}

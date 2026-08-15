@@ -1,0 +1,73 @@
+{
+  "idle_power_w": 52.6,
+  "measurements": [
+    {
+      "label": "AR-3B L=256",
+      "model": "Qwen/Qwen2.5-3B-Instruct",
+      "n_events": 100,
+      "L": 256,
+      "inference_duration_s": 161.79,
+      "avg_power_w": 66.4,
+      "total_energy_j": 10738.5,
+      "energy_per_event_j": 107.4,
+      "p50_ms": 1617.3,
+      "p99_ms": 1662.4,
+      "field_f1_9": 0.8509,
+      "n_power_samples": 161,
+      "provenance": {
+        "model_name": "Qwen/Qwen2.5-3B-Instruct",
+        "model_type": "ar3b",
+        "backend": "vllm",
+        "max_new_tokens": 256,
+        "parser_policy": "first_object_wins",
+        "scoring_fields": "9",
+        "vllm_version": "0.25.1",
+        "torch_version": "2.11.0+cu130",
+        "transformers_version": "5.15.0",
+        "cuda_version": "13.0",
+        "gpu_model": "NVIDIA A100 80GB PCIe",
+        "python_version": "3.10.12",
+        "platform": "Linux-5.15.179-15.mofed2407ya-x86_64-with-glibc2.35",
+        "timestamp": "2026-08-15T17:38:58Z",
+        "repo_commit": "d7a1f7f"
+      },
+      "timestamp": "2026-08-15T17:38:58Z",
+      "idle_subtracted_power_w": 13.8,
+      "idle_subtracted_energy_per_event_j": 22.3
+    },
+    {
+      "label": "DG-26B K=8 L=256",
+      "model": "google/diffusiongemma-26B-A4B-it",
+      "n_events": 100,
+      "L": 256,
+      "inference_duration_s": 38.57,
+      "avg_power_w": 63.4,
+      "total_energy_j": 2446.6,
+      "energy_per_event_j": 24.5,
+      "p50_ms": 378.0,
+      "p99_ms": 1229.3,
+      "field_f1_9": 0.8504,
+      "n_power_samples": 39,
+      "provenance": {
+        "model_name": "google/diffusiongemma-26B-A4B-it",
+        "model_type": "dg",
+        "backend": "vllm",
+        "max_new_tokens": 256,
+        "parser_policy": "first_object_wins",
+        "scoring_fields": "9",
+        "vllm_version": "0.25.1",
+        "torch_version": "2.11.0+cu130",
+        "transformers_version": "5.15.0",
+        "cuda_version": "13.0",
+        "gpu_model": "NVIDIA A100 80GB PCIe",
+        "python_version": "3.10.12",
+        "platform": "Linux-5.15.179-15.mofed2407ya-x86_64-with-glibc2.35",
+        "timestamp": "2026-08-15T17:40:36Z",
+        "repo_commit": "d7a1f7f"
+      },
+      "timestamp": "2026-08-15T17:40:36Z",
+      "idle_subtracted_power_w": 10.8,
+      "idle_subtracted_energy_per_event_j": 4.2
+    }
+  ]
+}
