@@ -1,0 +1,11 @@
+\section{Threats to Validity}
+\label{sec:threats}
+
+All measurements are on one GPU (\gpuModel{}); the fitted constants are
+A100-specific but the shapes should transfer. The batching ceiling reproduces
+across two runtimes and two model families, but both measurements are
+engine-bounded (Appendix~\ref{app:batching}). The crossover is calibrated at
+a $\sim$\refPrompt-token prompt and shifts with input length. The AR--DG
+quality difference ($\Delta = \qualityGap$) has a 95\% CI of $[-0.012,
++0.011]$ at $n=300$; the two are statistically equivalent at a $\pm 0.01$
+margin.
