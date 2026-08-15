@@ -2,12 +2,14 @@
 \label{sec:setup}
 
 This section is partly a methods description and partly an audit. The audit
-comes first, because five defects in our own comparison harness biased the
-measurements before any architectural conclusion could be drawn, and four of
-the five biased the same way --- against the autoregressive baseline. We found
-all five by re-reading committed artifacts, not by running new experiments,
-and the corrections moved headline numbers by more than the effects we had
-been reporting.
+comes first, because eight errors in our own comparison harness and claims
+biased the measurements before any architectural conclusion could be drawn,
+and five of the eight biased the same way --- against the autoregressive
+baseline. We found all eight by re-reading committed artifacts, not by running
+new experiments, and the corrections moved headline numbers by more than the
+effects we had been reporting. Five are harness defects (items~1--5); three
+are claims withdrawn because the measurement behind them was contaminated
+(items~6--8), formerly reported in \S\ref{sec:negative}.
 
 \subsection{The stack everything is measured on}
 
@@ -76,17 +78,18 @@ decomposition is cited as a shape rather than a measurement: at $R^2 =
 \kfitRsq$ its intercept \kfitBase\,ms and slope \kfitSlope\,ms per step are
 not interpretable to the precision stated, and we say so wherever they appear.
 
-\subsection{Five defects, four of them one-sided}
+\subsection{Pricing the Baseline}
 
 \begin{figure}[t]
 \centering
 \includegraphics[width=\linewidth]{figures/fig8_defects.pdf}
-\caption{Five defects in our own harness. Each row is one defect: the value
-as originally recorded, the value after the fix, and which arm the bias
-favoured. The four autoregressive-biased defects live in the
-\emph{infrastructure the model runs on} --- its checkpoint defaults, its
-serving path, its over-generation behaviour, its early-stopping behaviour ---
-not in the model itself.}
+\caption{Pricing the baseline: eight corrections to our own measurements and
+claims. Each row is one item: the value as originally recorded, the value
+after the fix, and which arm the bias favoured. Rows~1--5 are harness
+defects; rows~6--8 are claims withdrawn because the measurement behind them
+was contaminated. Five of the eight biased against the autoregressive arm,
+one (row~7) against the diffusion arm, and two were neutral. All eight were
+found by re-reading committed artifacts.}
 \label{fig:defects}
 \end{figure}
 
@@ -137,12 +140,47 @@ comparison, which makes it the worst of the five in one specific sense: it is
 a correctness-of-record defect, and it made audit impossible until correction
 sidecars were written.
 
+\paragraph{6. Classical-parser baseline}
+An earlier draft claimed a classical parser matched LLM extraction at a
+Field-F1 of $0.68$ against $0.85$. What was recorded as a near-match was
+self-grading: our ``Drain''~\cite{drain} was a regex fallback rather than the
+reference implementation, and the gold generator was the same code, so on
+semantic fields the parser was marking its own output. What it should have
+been is the gap the comparison actually shows --- the parser is well behind
+the LLM, and the claim is withdrawn. The error inflated a third baseline
+rather than either architecture, so it is neutral to the AR--DG comparison.
+Found by re-reading the gold-generation script.
+
+\paragraph{7. Contaminated semantic gold}
+An earlier draft claimed structural and semantic fields separate cleanly. What
+was recorded was a 12-field macro on which \ARthree\ leads \DG\ by
+\twelveGap\ F1. What it should have been is the decontaminated 9-field macro,
+on which the two differ by \qualityGap: the semantic gold labels are
+placeholder output of that same parser, and one of them is a constant across
+2{,}000 events, so ``semantic F1'' was measuring agreement with a regex. The
+contamination inflated the arm that fills fields with plausible text
+(\ARthree) and penalised the arm that leaves unpopulated fields empty (\DG),
+so this error favoured the autoregressive arm. Found by re-reading the gold
+labels.
+
+\paragraph{8. Queueing model for diffusion latency}
+An earlier draft claimed an M/D/1 queue predicts diffusion latency under
+load. What was recorded was a match to the measured saturation knee under
+Poisson arrivals. What it should have been is the same test under bursty
+(MMPP) arrivals, which is what log streams actually look like: there the
+model stops being predictive. The error overstated how well the diffusion
+arm's load behaviour is modelled, favouring the diffusion arm. Found by
+re-reading the arrival generator.
+
 \paragraph{The asymmetry is the point}
 A comparison harness written by someone hoping the new architecture wins fails
 \emph{asymmetrically}. The failures are not random: they cluster on the arm
 the experimenter is not rooting for, because that arm inherits the checkpoint
 defaults, the naive serving path, and --- ironically --- the mature
 production infrastructure that the new architecture is being compared against.
-Each of the five checks in \artifact{CHECKLIST.md} takes under five minutes,
-and each catches a failure that moved a headline number by more than the
-effect it was reporting.
+Five of the eight items above biased against the autoregressive baseline; one
+(item~7) ran the other way, inflating the autoregressive arm on a
+contaminated metric, and two were neutral. The five harness checks in
+\artifact{CHECKLIST.md} each take under five minutes, and each catches a
+failure that moved a headline number by more than the effect it was
+reporting.

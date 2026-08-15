@@ -2,12 +2,19 @@
 \label{sec:negative}
 
 We set out to find regimes where the diffusion model beats the autoregressive
-baseline, and generated hypotheses accordingly. Six were refuted and three
-earlier claims were withdrawn. They are reported here at the same length and
-in the same register as the confirmations, because a paper whose central
-methodological claim is ``price the baseline before you compare against it''
-has exactly one asset, and that asset is spent the moment a negative result
-gets softened into a footnote.
+baseline, and generated hypotheses accordingly. Six were refuted. They are
+reported here at the same length and in the same register as the
+confirmations, because a paper whose central methodological claim is ``price
+the baseline before you compare against it'' has exactly one asset, and that
+asset is spent the moment a negative result gets softened into a footnote.
+
+The distinction between these six and the eight-item ledger in
+\S\ref{sec:setup} is worth stating plainly. There, our \emph{harness was
+wrong}: the measurement itself was contaminated, so the recorded number or
+claim was incorrect, and the correction is a new value. Here, our
+\emph{prediction was wrong}: the measurement was sound, but the hypothesis it
+tested did not survive it. The first kind is an error in the instrument; the
+second is an error in what we expected the instrument to say.
 
 \subsection{Six refuted hypotheses}
 
@@ -58,27 +65,6 @@ decoding does well. The structural argument may still hold where the suffix is
 long and cannot be regenerated from context, such as code infilling. It does
 not hold on short JSON fields, which is what we measured, so it is not a claim
 we make.
-
-\subsection{Three withdrawn claims}
-
-\begin{table}[h]
-\centering
-\caption{Three claims that appeared in earlier drafts and are cut from this
-one. Withdrawn claims are removed.}
-\label{tab:withdrawn}
-\begin{tabularx}{\linewidth}{@{}p{4.6cm}L@{}}
-\toprule
-\thead{Claim} & \thead{Why it is gone} \\
-\midrule
-\tabfont A classical parser matches LLM extraction
-  & \tabfont Field-F1 $0.68$ against $0.85$; the gap is too large. Worse, our ``Drain''~\cite{drain} was a regex fallback rather than the reference implementation, and the fallback and the gold generator are the same code, so on semantic fields it was grading itself. \\
-\tabfont Structural and semantic fields separate cleanly
-  & \tabfont The semantic gold labels are placeholder output of that same parser, and one of them is a constant. ``Semantic F1'' may be measuring agreement with a regex. \\
-\tabfont An M/D/1 queue predicts diffusion latency under load
-  & \tabfont It matches the measured saturation knee under Poisson arrivals and stops being predictive under bursty (MMPP) arrivals, which is what log streams actually look like. \\
-\bottomrule
-\end{tabularx}
-\end{table}
 
 \paragraph{A pattern in the refutations}
 Every refuted hypothesis had, at some earlier point, appeared to be confirmed.
