@@ -9,12 +9,24 @@ transfer---they are structural---but the fitted constants ($\arBase$,
 $\arSlope$, $\dgBase$, $\dgStep$) are A100-specific.
 
 \paragraph{Single model family for the staircase.}
-The staircase cost law is established on DiffusionGemma-26B-A4B. The LLaDA-8B
-arm is pending and not yet measured on the pinned stack. If LLaDA's denoising
-loop has a different per-step cost, the step parameter (\dgStep{}~ms) and base
-(\dgBase{}~ms) may not generalise. The \emph{form} of the law (base $+$ step
-$\cdot \lfloor L/\text{canvas}\rfloor$) should hold for any canvas-bound
-diffusion model, but its parameters are model-specific.
+The staircase cost law is established on DiffusionGemma-26B-A4B and confirmed
+across two corpora (BGL: step $= 118.5$\,ms; HDFS: step $= 120.5$\,ms). The
+LLaDA-8B arm under dInfer was measured but is \emph{inconclusive}: dInfer's
+prefix/vicinity KV-cache errors on prompts $\geq 632$ tokens force a
+cache-less mode that inflates absolute latency by $\sim 30\times$ and
+introduces variance that obscures any block-length-based stepping. The
+\emph{form} of the law should hold for any canvas-bound diffusion model, but
+LLaDA's confirmation requires a production-grade runtime with working KV
+cache, which does not exist at time of writing.
+
+\paragraph{Long-context memory.}
+We attempted to measure AR-1.5B's GPU memory at context lengths up to 32k
+with \texttt{enforce\_eager}, but \texttt{torch.cuda.max\_memory\_allocated}
+returns 0 because vLLM manages its own memory pool internally. The latency
+data confirms AR's input-length sensitivity (43\,ms at 1k context $\to$
+436\,ms at 16k), but the memory footprint question remains open. DG's
+absence of a growing KV cache may give it a flatter memory curve at long
+context, but this was not measured.
 
 \paragraph{Two-variable scope.}
 The cost law is two-variable: $T_{DG}(L_{out}, L_{in})$. The per-event

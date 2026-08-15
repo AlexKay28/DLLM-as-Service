@@ -122,10 +122,18 @@ axis favours DG.
 9-field F1     & 0.8628 & \dgNineF \\
 Weights (bf16) & 3.0 GB & 52.0 GB \\
 Cold start      & $\sim$1 s  & $\sim$17 s \\
-Energy/event    & 113 J      & higher (pending) \\
+Energy/event    & 113 J      & 24.5 J (compute-matched) \\
 \bottomrule
 \end{tabular}
 \end{table}
+
+\paragraph{Energy.}
+At the compute-matched pair, DG uses $4.3\times$ less energy per event than
+AR-3B (net of idle: 4.2\,J vs 22.3\,J). This is consistent with its $4\times$
+lower latency---the GPU spends less time at elevated power. However, the
+quality-matched AR-1.5B would consume proportionally less still, so the energy
+advantage does not survive the deployment comparison, same as the latency
+advantage.
 
 \paragraph{Synthesis.}
 The per-event advantage (a--c) is real but narrow: it holds only at batch-1,

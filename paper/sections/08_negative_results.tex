@@ -36,6 +36,20 @@ on the parity-checked, pinned stack. In every case the correction moved the
 diffusion model from \emph{apparent advantage} to \emph{measured disadvantage
 or parity}.
 
+\subsection{Infilling advantage refuted}
+
+We hypothesised that bidirectional conditioning would give the diffusion model
+an advantage on infilling tasks with fixed right-context (suffix): the suffix
+tokens are never in the denoised set, so they would be preserved
+byte-identical by construction. AR must regenerate the suffix from its prompt.
+The experiment ($S \in \{0,2,4,8\}$ suffix fields, $n{=}50$, BGL) refuted
+this: AR-3B scores F1${=}0.99{+}$ (it trivially regenerates the full record
+from the prompt), while DG degrades at $S{=}8$ (F1${=}0.75$). The
+structured-extraction task is copy-heavy, and AR's copy ability suffices.
+The infilling advantage would likely manifest only on tasks with long
+suffixes that must be preserved exactly (e.g.\ code infilling), not on
+short JSON fields.
+
 \subsection{Three withdrawn claims}
 
 \begin{table}[t]
