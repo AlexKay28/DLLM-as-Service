@@ -1,0 +1,8 @@
+{
+  "service_time_ms": 725.0,
+  "mode": "mmpp",
+  "md1_knee_ev_s": 1.4,
+  "md1_knee_0_8_ev_s": 1.1,
+  "measured_saturation_ev_s": null,
+  "saturation_vs_knee_pct": null
+}
