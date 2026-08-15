@@ -1,72 +1,60 @@
-%=============================================================================
-%  Two Cost Laws for Served Diffusion Language Models
-%
-%  BUILD:  cd paper && latexmk -pdf main.tex
-%
-%  RULE:   Every numeric value in this document must appear in paper/NUMBERS.md,
-%          which is verified against results/*.json by paper/verify_numbers.py.
-%          Do not introduce a number that is not in NUMBERS.md.
-%
-%  Numbers are defined once as macros in macros.tex and used symbolically here,
-%  so a re-run of an experiment changes one line, not twenty.
-%=============================================================================
-\documentclass[11pt]{article}
-
+\documentclass[10pt,letterpaper]{article}
 \usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb}
 \usepackage{booktabs}
 \usepackage{graphicx}
-\usepackage{amsmath}
-\usepackage{amssymb}
-\usepackage{siunitx}
-\usepackage{xcolor}
 \usepackage{hyperref}
-\usepackage{cleveref}
+\usepackage{xcolor}
+\usepackage{enumitem}
+\usepackage{multirow}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{listings}
 \usepackage{caption}
 \usepackage{subcaption}
-\usepackage{multirow}
-\usepackage{url}
 
-\hypersetup{colorlinks=true, linkcolor=blue!50!black, citecolor=blue!50!black,
-            urlcolor=blue!50!black}
+\input{macros.tex}
 
-\sisetup{detect-weight=true, detect-inline-weight=math}
-
-% Editorial markers -- must be empty before submission.
-\newcommand{\todo}[1]{\textcolor{red}{\textbf{[TODO: #1]}}}
-\newcommand{\open}[1]{\textcolor{orange}{\textbf{[OPEN: #1]}}}
-\newcommand{\needsnum}[1]{\textcolor{magenta}{\textbf{[NEEDS-NUMBER: #1]}}}
-
-\input{macros}
-
-%=============================================================================
-\title{Two Cost Laws for Served Diffusion Language Models:\\
-       Why Bidirectional Attention Cannot Batch}
-
-\author{\todo{authors}}
-\date{\today}
+\title{The Cost Shape of Block-Structured Decoding:\\
+When Diffusion LLMs Win and Why They Usually Don't}
+\author{}
+\date{}
 
 \begin{document}
 \maketitle
 
 \begin{abstract}
-\input{sections/00_abstract}
+Autoregressive (AR) and block-diffusion language models achieve comparable
+quality on structured log extraction (9-field F1 within 0.002), but their
+inference costs have fundamentally different shapes: AR cost is linear in
+output length, while block-diffusion cost is a staircase with a
+prefill-dominated floor. We derive these cost laws from first principles,
+verify them across two corpora (BGL, HDFS) with run-to-run CV below 0.3\%,
+and show they produce a per-event crossover at $L \approx 59$ tokens below
+which the diffusion model is faster. We implement a decision procedure that
+takes (output length, arrival rate, batching availability, quality
+tolerance) and returns which architecture to deploy, with all constants
+traced to committed artifacts. At the compute-matched pair (3B vs 4B active
+parameters), the diffusion model wins on per-event latency at batch-1
+(2--10$\times$), but loses on batched throughput (80$\times$ vs 1.18$\times$
+multiplier), long input (2.6$\times$ steeper input-length slope), and
+deployment footprint (the quality-matched AR model is 17$\times$ smaller).
+The per-event advantage is real but narrow, and does not survive the
+deployment comparison. We also document five harness defects that biased
+our own measurements against the AR baseline---four of five asymmetrically.
 \end{abstract}
 
 \input{sections/01_introduction}
-\input{sections/02_method_baseline}
-\input{sections/03_cost_laws}
-\input{sections/04_two_walls}
-\input{sections/05_mechanism}
-\input{sections/06_applications}
-\input{sections/07_negative_results}
-\input{sections/08_threats}
-\input{sections/09_related_work}
-\input{sections/10_conclusion}
+\input{sections/02_methodology}
+\input{sections/03_exchange_rate}
+\input{sections/04_cost_laws}
+\input{sections/05_decision_procedure}
+\input{sections/06_fair_comparison}
+\input{sections/07_batching_boundary}
+\input{sections/08_negative_results}
+\input{sections/09_threats}
 
 \bibliographystyle{plain}
-\bibliography{refs}
-
-\appendix
-\input{sections/A1_reproducibility}
+\bibliography{references}
 
 \end{document}
