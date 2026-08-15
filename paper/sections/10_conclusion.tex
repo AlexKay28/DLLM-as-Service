@@ -3,9 +3,9 @@
 
 Autoregressive and block-diffusion decoders do not sit at two points on a
 latency scale. They have different cost \emph{shapes}: a line with no floor,
-and a staircase with a floor that is \dgPrefillPct\% prefill. Almost
-everything a deployment needs to know follows from that difference and from
-where the two shapes cross.
+and a staircase with a floor that is mostly prefill (bounded above by
+53--68\%). Almost everything a deployment needs to know follows from that
+difference and from where the two shapes cross.
 
 We measured both laws on one pinned stack, showed the staircase has sharp
 edges exactly at canvas boundaries and uniform steps out to $L{=}2048$, found
@@ -21,10 +21,10 @@ autoregressive model has no equivalent for: a per-request quality knob, and a
 complete record at every point on the quality curve.
 
 Two things we would emphasise to anyone extending this. First, the shape is
-caused by the \emph{block}, not by the diffusion --- the denoising loop is
-\dgDenoisePct\% of the base cost, so any decoder emitting fixed-size blocks
-would inherit the same staircase, and the interesting design space is block
-size rather than denoising schedule. Second, the four defects that biased our
+caused by the \emph{block}, not by the diffusion --- the denoising loop is at
+least 32\% of the base cost (and likely closer to 47\%), so any decoder
+emitting fixed-size blocks would inherit the same staircase, and the
+interesting design space is block size rather than denoising schedule. Second, the four defects that biased our
 own harness against the autoregressive baseline all lived in the
 infrastructure around the model rather than in the model itself. That is not a
 coincidence; it is what a comparison harness does when the person writing it

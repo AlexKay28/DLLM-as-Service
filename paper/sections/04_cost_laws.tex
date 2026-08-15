@@ -113,9 +113,27 @@ T(K) \;=\; \kfitBase \;+\; \kfitSlope \cdot K
 \end{equation}
 The low $R^2$ is itself informative: latency saturates above $K{=}16$, so the
 linear term is a poor description at the top of the range and the fit is
-carried by the bottom. At the operating point $K{=}8$ the fit puts
-\kfitBase\,ms in the $K$-independent floor against \num{20.6}\,ms in the
-denoising loop --- \dgPrefillPct\% against \dgDenoisePct\%.
+carried by the bottom. \emph{The intercept is therefore not interpretable as
+a floor.} A floor is a $K$-independent cost that remains as $K \to 0$, and
+this fit cannot extrapolate to $K{=}0$ because the curve it fits is
+saturating, not linear. Two measurement-based bounds do the work instead:
+
+\begin{itemize}
+\item \textbf{From $K{=}2$.} For any decomposition $T(K) = \text{floor} + K
+\cdot c(K)$ with $c \geq 0$, $\text{floor} \leq T(2) = 202$\,ms. At $K{=}8$
+the denoising-attributable share is therefore $\geq 176.9$\,ms, i.e.\
+$\geq 47\%$ of the \dgBase\,ms base.
+\item \textbf{From the canvas step.} One additional canvas costs \dgStep\,ms
+(\S\ref{sec:laws}) and is a $K{=}8$ denoising pass over a canvas. So denoising
+is $\geq \dgStep / \dgBase = 32\%$ of the base. The first canvas's pass is
+somewhat cheaper than a marginal one, since it attends a shorter context, but
+not by the $5\times$ the fitted intercept would require.
+\end{itemize}
+
+Both bounds agree that the floor is the majority of the base, but the
+$93.5\%/6.5\%$ split the fit produces over-attributes to the floor by roughly
+fivefold. The honest range at $K{=}8$ is 32--47\% denoising against 53--68\%
+floor; the exact split awaits profiler attribution.
 
 \begin{figure}[t]
 \centering
@@ -131,13 +149,15 @@ because the loss comes out of the whole.}
 
 \begin{keybox}
 \boxhead{The shape is structural, not algorithmic}
-The denoising loop --- the part that makes this model a diffusion model --- is
-\dgDenoisePct\% of its own base cost. The remaining \dgPrefillPct\% is prefill
-and fixed dispatch, shared with any prompt-conditioned model. The staircase
-therefore comes from the \emph{canvas}, not from the diffusion: any decoder
-that emits output in fixed-size blocks would have the same shape, and
-diffusion is simply the way this particular model gets block structure. We
-name the paper after the block for that reason.
+The floor is the majority of the base --- bounded above by 53\% from the
+$K{=}2$ measurement and by 68\% from the canvas-step measurement
+(\artifact{results/issue44\_dg\_ksweep\_K2.json},
+\artifact{results/issue68\_dg\_L*.json}). The denoising loop --- the part that
+makes this model a diffusion model --- is at least 32\% of its own base cost and
+likely closer to 47\%. The staircase therefore comes from the \emph{canvas},
+not from the diffusion: any decoder that emits output in fixed-size blocks would
+have the same shape, and diffusion is simply the way this particular model gets
+block structure. We name the paper after the block for that reason.
 \end{keybox}
 
 \subsection{The crossover}

@@ -70,9 +70,9 @@ five repeats of $n{=}\nPerCell$ events, so the effects below are not noise.
     $\sim$120\,ms; staying inside costs under 1\,ms), that all seven measured
     steps are the same step, and that the shape survives a change of corpus.
     We also decompose the diffusion base and find that the denoising loop ---
-    the part that makes the model ``diffusion'' --- is only \dgDenoisePct\% of
-    it. The shape comes from the \emph{block}, not from the diffusion
-    (\S\ref{sec:laws}).
+    the part that makes the model ``diffusion'' --- is at least 32\% of it (and
+    likely closer to 47\%). The shape comes from the \emph{block}, not from the
+    diffusion (\S\ref{sec:laws}).
   \item \textbf{A second variable, stated as a scope condition rather than
     buried.} Diffusion cost also depends on \emph{input} length, at
     \dgInputSlope\,ms per prompt token against the autoregressive model's
