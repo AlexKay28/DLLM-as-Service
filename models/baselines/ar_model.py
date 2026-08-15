@@ -111,21 +111,26 @@ def build_prompt(log_line: str, source: str = "hdfs",
 
 
 def build_chat_messages(log_line: str, source: str = "hdfs",
-                        few_shot: bool = True) -> list[dict]:
+                        few_shot: bool = True, n_few_shot: int = None) -> list[dict]:
     """Build chat-format messages for models that use chat templates.
 
     Args:
         log_line: raw log line.
         source: log source.
         few_shot: include few-shot examples.
+        n_few_shot: if set, use only the first N few-shot examples (for
+                   input-length sweeping, issue #44). None = all examples.
 
     Returns:
         List of {"role": "system"/"user", "content": str} messages.
     """
     user_content = ""
     if few_shot:
+        examples = FEW_SHOT_EXAMPLES
+        if n_few_shot is not None:
+            examples = examples[:n_few_shot]
         user_content += "Examples:\n"
-        for ex in FEW_SHOT_EXAMPLES:
+        for ex in examples:
             user_content += f'  Input: "{ex["input"]}"\n'
             user_content += f'  Output: {json.dumps(ex["output"])}\n'
         user_content += "\n"
