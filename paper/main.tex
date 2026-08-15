@@ -6,8 +6,8 @@
 \begin{document}
 
 \papertitle
-  {Pricing the Baseline: Five Harness Defects, and the Cost Shape of Block-Structured Decoding}
-  {When diffusion LLMs win, and why they usually don't}
+  {Diffusion LLMs as Fast Models for Specific Tasks: The Cost Shape of Block-Structured Decoding}
+  {When diffusion language models win on latency, and why they usually don't}
   {Aleksandr Kaigorodov}
   {Yandex}
   {Preprint \textperiodcentered\ August 2026 \textperiodcentered\ v1}
@@ -19,25 +19,27 @@
 {\sffamily\bfseries\footnotesize\color{deepink}ABSTRACT}\par
 \vspace{3pt}
 \noindent
-Claims that diffusion language models decode faster than autoregressive ones
-are almost always measured against a baseline the same authors built. We
-rebuilt that comparison for structured log extraction and audited it first:
-five defects in our own harness, each large enough to move a headline number,
-and each found by re-reading committed artifacts rather than by running new
-experiments.
+Diffusion language models can be faster than autoregressive ones for
+structured output --- but only in a narrow regime, and only after the
+comparison is done fairly. We measure both architectures on a pinned serving
+stack (vLLM, A100 80GB) for structured log extraction, where they reach
+quality equivalence at 9-field macro F1. Their latency costs have different
+\emph{shapes}: autoregressive cost is a line in output length with no floor;
+block-diffusion cost is a staircase, flat inside a fixed-size block and
+stepping at each boundary. The shapes cross at \crossoverL\ output tokens,
+below which the autoregressive model is cheaper.
 
-After the corrections the two architectures are quality-equivalent, and their
-costs differ in shape rather than in magnitude. Autoregressive latency is
-linear in output length with no floor. Block-diffusion latency is a staircase
---- flat inside a fixed-size block, stepping at each boundary, on a floor that
-is mostly prefill. The shapes cross once and early, at \crossoverL\ output
-tokens on our stack.
+The diffusion model's advantage grows with output length: at $L{=}1024$ it is
+$5.4\times$ faster at matched quality, uses less energy, and degrades under
+deadline pressure by losing quality rather than completeness. But the advantage
+does not survive deployment: at matched quality the autoregressive model is
+\footprintRatio$\times$ smaller and converts concurrency into throughput far
+better. What survives is one narrow regime --- long structured output under a
+batch-1 constraint --- and we state the five conditions it requires.
 
-That crossover does not survive a fair deployment comparison: at matched
-quality the autoregressive model is \footprintRatio$\times$ smaller and
-converts concurrency into throughput far better. What survives is one narrow
-regime --- long structured output under a batch-1 constraint --- and we state
-the conditions it requires.
+We also correct five defects in our own measurement harness, four of which
+biased against the autoregressive baseline, each found by re-reading committed
+artifacts rather than by running new experiments.
 \endgroup
 
 \vspace{4pt}
