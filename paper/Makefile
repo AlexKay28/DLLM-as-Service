@@ -14,7 +14,7 @@ PAPER     := main
 REPO      := $(abspath ..)
 # Released snapshots live in paper/<VERSION>/main.pdf — bump VERSION to cut a
 # new one rather than overwriting the last.
-VERSION   := v0
+VERSION   := v1
 RELEASE   := $(VERSION)/main.pdf
 
 # Override if your interpreter is named differently: make PYTHON=python3.12
