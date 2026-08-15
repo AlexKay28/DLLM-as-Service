@@ -1,0 +1,58 @@
+================================================================================
+Issue #39: Why is DM more perturbation-sensitive than AR?
+================================================================================
+
+=== T1: Normalized F1 drop (M3: weaker model?) ===
+  AR clean F1: 0.827  DM clean F1: 0.739
+  AR is 1.12x better on clean data
+
+                    perturbation   AR drop   DM drop   DM/AR   AR norm%   DM norm%
+  --------------------------------------------------------------------------------
+               abbreviation_i1.0  -0.002  +0.005   -2.88      -0.2%       0.7%
+             case_variation_i1.0  +0.113  +0.132    1.17      13.6%      17.8%
+             encoding_noise_i1.0  +0.006  +0.035    5.78       0.7%       4.7%
+              field_reorder_i1.0  +0.045  +0.124    2.76       5.5%      16.8%
+              missing_field_i1.0  +0.018  +0.067    3.74       2.2%       9.0%
+           separator_change_i1.0  +0.011  +0.093    8.17       1.4%      12.6%
+       synonym_substitution_i1.0  +0.020  +0.025    1.26       2.4%       3.4%
+           timestamp_format_i1.0  +0.080  +0.104    1.30       9.7%      14.1%
+                 whitespace_i1.0  -0.000  +0.081  -201.25      -0.0%      10.9%
+             wrapping_noise_i1.0  +0.010  +0.041    4.08       1.2%       5.5%
+
+  If M3 holds (DM is just weaker), normalized drops should converge.
+  If M3 is refuted, DM drops remain larger even after normalization.
+
+=== T2: Per-field F1 drop (M1/M4: which fields are most affected?) ===
+
+                      field  AR clean  DM clean   AR drop   DM drop   DM/AR
+  ---------------------------------------------------------------------------
+
+=== T3/T4: Copy-breaking vs Semantic perturbations ===
+
+  Copy-breaking perturbations (avg DM/AR ratio): 4.80x
+    separator_change_i1.0                8.17x
+    encoding_noise_i1.0                  5.78x
+    wrapping_noise_i1.0                  4.08x
+    case_variation_i1.0                  1.17x
+
+  Semantic perturbations (avg DM/AR ratio): 2.27x
+    missing_field_i1.0                   3.74x
+    field_reorder_i1.0                   2.76x
+    timestamp_format_i1.0                1.30x
+    synonym_substitution_i1.0            1.26x
+
+  If M2 holds (inpainting regression), semantic perturbations
+  should hurt DM MORE than copy-breaking ones.
+  Copy-breaking avg: 4.80x  Semantic avg: 2.27x
+  → Copy-breaking perturbations hurt DM more → M2 REFUTED
+
+================================================================================
+DIAGNOSIS
+================================================================================
+
+  Average DM/AR drop ratio: 3.53x
+  Clean F1 ratio (AR/DM): 1.12x
+  AR is 1.12x better on clean, DM drops 3.53x more
+
+  M3 REFUTED: DM's sensitivity is NOT explained by lower clean F1.
+  The drop ratio (3.53x) exceeds the clean gap (1.12x).
