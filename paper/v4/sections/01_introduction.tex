@@ -9,7 +9,8 @@ parallel through iterative denoising, then step to the next block.
 The cost is a subway: flat fare per station, no matter how many
 tokens board. We call this second class \emph{block-diffusion} because
 the block structure --- not the diffusion process --- is what
-determines its cost shape.
+determines its cost shape. Figure~\ref{fig:schematic} illustrates
+the two decoding patterns.
 
 We pinned both architectures to an identical vLLM serving stack on an
 NVIDIA A100 80GB to eliminate runtime noise. The task is structured
