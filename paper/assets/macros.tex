@@ -12,7 +12,6 @@
 
 % --- Pinned stack -------------------------------------------------- (#57) --
 \newcommand{\gpuModel}{NVIDIA A100 80GB PCIe}
-\newcommand{\nPerCell}{300}
 \newcommand{\refPrompt}{1{,}047}
 
 % --- Quality, 9-field vs 12-field ----- results/issue43_nine_field_f1.json --
@@ -30,8 +29,6 @@
 \newcommand{\canvasLength}{256}   % tokens per canvas
 
 % Anchors, five repeats each -------- results/anchors/anchor_remeasure.json --
-\newcommand{\arCV}{0.1}
-\newcommand{\dgCV}{0.3}
 % Per-event dispersion within one run -- results/anchors/*_L256_r1_preds.jsonl
 \newcommand{\arEventCV}{0.2}     % % CV over 300 per-event latencies (AR-3B dense)
 \newcommand{\dgEventCV}{20.9}
@@ -43,9 +40,7 @@
 \newcommand{\crossoverLambda}{2.6} % ev/s: 1000 / dgBase (unchanged — DG base same)
 
 % --- Input length, the second variable ------ results/issue44_*_sweep.json --
-\newcommand{\arInputSlope}{0.038}  % ms per prompt token
-\newcommand{\dgInputSlope}{0.1}  % ms per prompt token
-\newcommand{\inputSlopeRatio}{2.6} % dgInputSlope / arInputSlope
+\newcommand{\inputSlopeRatio}{2.6} % dgInputSlope / arInputSlope (0.1/0.038)
 
 % --- Base decomposition ------------------- results/issue44_dg_ksweep_K*.json --
 \newcommand{\kfitBase}{296.1}      % ms, K-independent term (NOT interpretable as a floor; see #70)
@@ -61,8 +56,6 @@
 % --- Batching ------------------- results/issue42_batching.json, appD, dInfer --
 \newcommand{\cacheOnMult}{42.8}    % AR-30B, prefix caching on   (#42)
 \newcommand{\cacheOffMult}{26.8}   % AR-30B, prefix caching off  (#42)
-\newcommand{\dgBatchMult}{1.2}    % LLaDA-8B under dInfer, flat to batch 64
-\newcommand{\dgBatchVllmLo}{1.5}   % DG under vLLM, L=512 (lower bound)
 \newcommand{\dgBatchVllmHi}{1.7}   % DG under vLLM, L=128 (lower bound)
 
 % --- Energy -------------------------- results/issue_energy_measurement.json --
