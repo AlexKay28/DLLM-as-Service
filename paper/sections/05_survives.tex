@@ -21,22 +21,28 @@ diffusion is the right choice are:
 receives an alert, looks up threat intelligence, cross-references
 internal logs, and drills into the next layer. Each hop blocks on the
 previous; concurrency is 1 by construction. DG's per-hop p50 is
-$\sim$410\,ms against AR-30B's $\sim$130\,ms at natural record length,
-but at chain depth $D \geq 8$ the cumulative output exceeds 1000 tokens
-and DG's staircase advantage emerges.
+$\sim$410\,ms (Figure~\ref{fig:chains}, recorded against the dense
+AR-3B baseline, not AR-30B). Against AR-30B the per-hop cost projected
+from the cost law (Eq.~\ref{eq:ar}) is $\sim$117\,ms at natural record
+length, so DG is slower per hop; but at chain depth $D \geq 8$ the
+cumulative output exceeds 1000 tokens and DG's staircase advantage
+emerges.
 
 \begin{figure}[t]
 \centering
 \includegraphics[width=\linewidth]{figures/fig10_usecase_chains.pdf}
-\caption{Serial investigation chains (BGL, $n{=}300$, $K{=}8$).
+\caption{Serial investigation chains (BGL, $n{=}300$, $K{=}8$; AR arm
+is the dense AR-3B baseline).
 \textbf{A:} per-hop p50 is constant across depth. \textbf{B:} DG's
 p99.9/p50 ratio converges to AR's mean as depth increases.}
 \label{fig:chains}
 \end{figure}
 
 \textit{Critical-alert preemption.} A FATAL log line arrives
-mid-stream. DG's lower service time at long output ($\sim$420\,ms at
-$L{=}256$) is available on demand via priority preemption.
+mid-stream. DG's bounded service time ($\sim$379\,ms at $L{=}256$,
+$K{=}8$) and complete-canvas guarantee make it suitable for priority
+preemption: a preempted request returns a valid record, not a
+truncated one.
 
 \textit{Autonomous driving.} One vehicle, one scene, one decision:
 batch-1 by construction. Output is long (multi-object scene

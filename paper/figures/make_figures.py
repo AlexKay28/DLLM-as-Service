@@ -26,14 +26,18 @@ OUT = REPO / "paper" / "figures"
 
 # --- Fitted laws (macros.tex is the authority; these must match it) ---------
 LAWS = {
-    "ar_a": 7.27,        # ms, AR intercept
-    "ar_b": 6.29,        # ms/token, AR decode slope
+    "ar_a": -5.8,       # ms, AR-30B MoE intercept (Qwen3-30B-A3B)
+    "ar_b": 1.0,        # ms/token, AR-30B MoE decode slope (Qwen3-30B-A3B)
     "dg_base": 378.8,    # ms, DG base at K=8
     "dg_step": 119.5,    # ms per extra canvas (median of 7)
     "canvas": 256,       # tokens
-    "l_star": 59.1,      # token crossover
-    "lam_star": 2.64,    # ev/s rate crossover
+    "l_star": 385,       # token crossover, (dg_base - ar_a) / ar_b
+    "lam_star": 2.64,    # ev/s rate crossover, 1000 / dg_base
     "nat_l_dg": 176,     # DG natural output length
+    # Dense AR-3B baseline (Qwen2.5-3B), retained for figures whose measured
+    # data is the dense baseline (fig3 input sweep, fig5 quality).
+    "dense_ar_a": 7.27,  # ms, dense AR-3B intercept
+    "dense_ar_b": 6.29,  # ms/token, dense AR-3B slope
 }
 
 
@@ -90,27 +94,21 @@ def staircase(lmax, lmin=1.0):
 
 def fig1_cost_shapes():
     """The two cost shapes: grouped bar chart of p50 latency at key output lengths."""
-    ar_pts = {}
-    for L in (32, 64, 128, 256, 512):
-        p = RESULTS / f"p2_ar3b_L{L}.json"
-        if p.exists():
-            ar_pts[L] = _p50(p)
-    for L in (1024, 2048):
-        p = RESULTS / f"appD_ar3b_L{L}.json"
-        if p.exists():
-            ar_pts[L] = _p50(p)
+    # AR-30B MoE values come from the fitted cost law (Eq. 2); the dense AR-3B
+    # was not measured at forced lengths, and the AR-30B forced-length sweep
+    # did not pin min_tokens, so the fitted law is the operative AR series.
+    key_Ls = [256, 512, 1024, 2048]
+    ar_pts = {L: t_ar(L) for L in key_Ls}
 
     dg_pts = {}
-    for L in (256, 512, 768, 1024, 1280, 1536, 1792, 2048):
+    for L in key_Ls:
         p = RESULTS / f"issue68_dg_L{L}.json"
         if p.exists():
             dg_pts[L] = _p50(p)
 
-    print("fig1 AR:", {k: round(v, 1) for k, v in ar_pts.items()})
-    print("fig1 DG:", {k: round(v, 1) for k, v in dg_pts.items()})
+    print("fig1 AR (AR-30B cost law):", {k: round(v, 1) for k, v in ar_pts.items()})
+    print("fig1 DG (measured):", {k: round(v, 1) for k, v in dg_pts.items()})
 
-    # Select key output lengths where both arms have data
-    key_Ls = [128, 256, 512, 1024, 2048]
     ar_vals = [ar_pts.get(L, 0) for L in key_Ls]
     dg_vals = [dg_pts.get(L, 0) for L in key_Ls]
 
@@ -119,8 +117,8 @@ def fig1_cost_shapes():
     x = np.arange(len(key_Ls))
     width = 0.35
 
-    bars_ar = ax.bar(x - width/2, ar_vals, width, color=S.AR, label="AR-30B", zorder=3)
-    bars_dg = ax.bar(x + width/2, dg_vals, width, color=S.DG, label="DG-26B-A4B", zorder=3)
+    bars_ar = ax.bar(x - width/2, ar_vals, width, color=S.AR, label="AR-30B (cost law)", zorder=3)
+    bars_dg = ax.bar(x + width/2, dg_vals, width, color=S.DG, label="DG-26B-A4B (measured)", zorder=3)
 
     # Add value labels on bars
     for bar, val in zip(bars_ar, ar_vals):
@@ -134,12 +132,13 @@ def fig1_cost_shapes():
                     f"{val:,.0f}", ha="center", va="bottom", fontsize=7.0,
                     color=S.DG, fontweight="medium")
 
-    # Add ratio annotations
+    # Add ratio annotations (max/min, with the faster arm labelled)
     for i, L in enumerate(key_Ls):
         if ar_vals[i] > 0 and dg_vals[i] > 0:
-            ratio = ar_vals[i] / dg_vals[i]
+            ratio = max(ar_vals[i], dg_vals[i]) / min(ar_vals[i], dg_vals[i])
+            who = "AR" if ar_vals[i] < dg_vals[i] else "DG"
             ymax = max(ar_vals[i], dg_vals[i])
-            ax.text(i, ymax + 1200, f"{ratio:.1f}×", ha="center", va="bottom",
+            ax.text(i, ymax + 1200, f"{who} {ratio:.1f}×", ha="center", va="bottom",
                     fontsize=8.2, color=S.INK2, fontweight="medium")
 
     ax.set_xticks(x)
@@ -261,14 +260,14 @@ def fig3_input_sweep():
     S.title(axA, "A  Cost vs prompt length", "$L_{\\mathrm{out}}$ fixed at 256 tokens")
     S.despine(axA)
     axA.grid(axis="x", visible=False)
-    S.label_end(axA, axr[-1], ayr[-1], "AR-30B", S.AR, dx=7)
+    S.label_end(axA, axr[-1], ayr[-1], "AR-3B (dense)", S.AR, dx=7)
     S.label_end(axA, dxr[-1], dyr[-1], "DG", S.DG, dx=7)
 
     # ---- Panel B: the slopes, which is the actual finding -----------------
     axB.barh([1, 0], [ar_slope, dg_slope], height=0.30,
              color=[S.AR, S.DG], zorder=3)
     axB.set_yticks([1, 0])
-    axB.set_yticklabels(["AR-30B", "DG"])
+    axB.set_yticklabels(["AR-3B (dense)", "DG"])
     axB.set_ylim(-0.55, 1.55)
     axB.set_xlim(0, 0.165)
     axB.set_xlabel("prefill slope  (ms per prompt token)")
@@ -421,12 +420,12 @@ def fig5_quality_vs_length():
     axB.annotate("1.0%", xy=(1, dgv[1]), xytext=(-7, 0),
                  textcoords="offset points", fontsize=7.4, color=S.DG,
                  ha="right", va="center")
-    S.label_end(axB, x[-1], arv[-1], "AR-30B", S.AR, dx=6, dy=-7)
+    S.label_end(axB, x[-1], arv[-1], "AR-3B (dense)", S.AR, dx=6, dy=-7)
     S.label_end(axB, x[-1], dgv[-1], "DG", S.DG, dx=6, dy=7)
 
     handles = [
         Line2D([], [], color=S.AR, lw=1.6, marker=S.MARK["ar"], ms=4.2,
-               label="AR-30B"),
+               label="AR-3B (dense)"),
         Line2D([], [], color=S.DG, lw=1.6, marker=S.MARK["dg"], ms=4.2,
                ls=S.DASH["dg"], label="DG-26B-A4B ($K\\!=\\!8$)"),
     ]
@@ -453,8 +452,8 @@ def fig6_batching():
     rows = [
         ("AR-30B  vLLM, $L\\!=\\!512$",        86.0, S.AR,    False),
         ("AR-30B  vLLM, $L\\!=\\!128$",        77.1, S.AR,    False),
-        ("AR-30B  prefix cache on",  on["multiplier"],  S.AR,    False),
-        ("AR-30B  prefix cache off", off["multiplier"], S.AR,    False),
+        ("AR-3B (dense)  prefix cache on",  on["multiplier"],  S.AR,    False),
+        ("AR-3B (dense)  prefix cache off", off["multiplier"], S.AR,    False),
         ("DG-26B  vLLM, $L\\!=\\!128$",        1.7,  S.DG,    True),
         ("DG-26B  vLLM, $L\\!=\\!512$",        1.5,  S.DG,    True),
         ("LLaDA-8B  dInfer",             lla_mult,   S.LLADA, False),

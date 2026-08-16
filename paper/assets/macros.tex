@@ -16,7 +16,7 @@
 \newcommand{\refPrompt}{1{,}047}
 
 % --- Quality, 9-field vs 12-field ----- results/issue43_nine_field_f1.json --
-\newcommand{\arThreeBFnine}{0.852}     % AR-30B MoE, L=256, 9-field (97.3% schema valid)
+\newcommand{\arThreeBFnine}{0.852}     % dense AR-3B (Qwen2.5-3B), L=256, 9-field, re-scored (#43)
 \newcommand{\dgNineF}{0.852}           % DG,     L=256, 9-field
 \newcommand{\arThreeBFtwelve}{0.826}   % AR-30B,  L=256, 12-field
 \newcommand{\dgTwelveF}{0.786}         % DG,     L=256, 12-field
@@ -37,8 +37,8 @@
 \newcommand{\marginalRatio}{13.5} % arSlope / dgMarginal
 
 % Anchors, five repeats each -------- results/anchors/anchor_remeasure.json --
-\newcommand{\arAnchorTwoFive}{6148.1}   % AR-30B MoE L=256 p50, serial (batch-1)
-\newcommand{\arAnchorFiveOne}{3225.1}   % AR-30B  L=512 p50, CV 0.01%
+\newcommand{\arAnchorTwoFive}{6148.1}   % AR-30B MoE L=256 batch-1 p50 (issue111 batch sweep)
+\newcommand{\arAnchorFiveOne}{3225.1}   % dense AR-3B L=512 p50, CV 0.01% (anchor remeasure)
 \newcommand{\dgAnchorTwoFive}{379.0}    % DG     L=256 p50, CV 0.25%
 \newcommand{\dgAnchorFiveOne}{500.7}    % DG     L=512 p50, CV 0.12%
 \newcommand{\arCV}{0.1}
@@ -85,7 +85,7 @@
 \newcommand{\arThreeEnergy}{10.1}  % J/event, net of idle, AR-30B MoE (Qwen3-30B-A3B)
 \newcommand{\dgEnergy}{4.2}        % J/event, net of idle, forced L=256
 \newcommand{\arOneFiveEnergy}{5.1} % J/event, net of idle, forced L=256
-\newcommand{\energyRatio}{4.3}     % arThreeEnergy / dgEnergy
+\newcommand{\energyRatio}{2.4}     % arThreeEnergy / dgEnergy = 10.1 / 4.2
 
 % --- Deployment pair ------ results/issue_evidence_ar1b_*.json, issue68_*.json --
 \newcommand{\arOneFiveTwoFive}{1007}   % ms, AR-1.5B forced L=256
@@ -137,4 +137,4 @@
 
 % --- Superseded values, cited only when discussing the discrepancy ----------
 \newcommand{\dgOldBase}{418.2}    % ms, DG base at K=32
-\newcommand{\arOldPfifty}{1617.6} % ms, AR-30B L=256, Campaign B
+\newcommand{\arOldPfifty}{1617.6} % ms, dense AR-3B L=256, Campaign B (superseded)

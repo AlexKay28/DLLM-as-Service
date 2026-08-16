@@ -9,8 +9,10 @@ experiment, by applying the fitted cost laws.
 
 \paragraph{The cost laws are length-dependent, not forcing-dependent.}
 
-AR-30B's latency is linear in output length, fitted from four measured
-points ($L \in \{138, 256, 512, 1024\}$, $R^2 > 0.999$):
+AR-30B's latency is linear in output length, fitted from a five-point
+output-length sweep ($R^2 = 0.63$; the model generates ${\sim}123$
+tokens naturally, so the slope is carried by the $L{=}32$ point and
+per-event throughput variation across the sweep):
 \begin{equation}
 T_{\textsc{ar}}(L) = a_{\textsc{ar}} + b_{\textsc{ar}} \cdot L
 = -5.8 + 1.0 \cdot L \quad\text{(ms)}
@@ -18,16 +20,16 @@ T_{\textsc{ar}}(L) = a_{\textsc{ar}} + b_{\textsc{ar}} \cdot L
 where $T_{\textsc{ar}}$ is the p50 latency, $L$ is the output length in
 tokens, $a_{\textsc{ar}} = -5.8$\,ms is the prompt prefill cost, and
 $b_{\textsc{ar}} = 1.0$\,ms/token is the per-token decode cost of AR-30B MoE.
-AR-30B. DG's latency is the staircase:
+DG's latency is the staircase:
 \begin{equation}
 T_{\textsc{dg}}(L) = a_{\textsc{dg}} + b_{\textsc{dg}} \cdot
 \Bigl(\bigl\lceil \tfrac{L}{C} \bigr\rceil - 1\Bigr)
-= 378.3 + 119.5 \cdot
-\Bigl(\bigl\lceil \tfrac{L}{256} \bigr\rceil - 1\Bigr) \quad\text{(ms)}
+= \dgBase + \dgStep \cdot
+\Bigl(\bigl\lceil \tfrac{L}{\canvasLength} \bigr\rceil - 1\Bigr) \quad\text{(ms)}
 \end{equation}
-where $a_{\textsc{dg}} = 378.3$\,ms is the first-canvas cost (prefill +
-$K{=}8$ denoising steps over $C = 256$ tokens), $b_{\textsc{dg}} =
-119.5$\,ms is the marginal cost per additional canvas, and
+where $a_{\textsc{dg}} = \dgBase$\,ms is the first-canvas cost (prefill +
+$K{=}8$ denoising steps over $C = \canvasLength$ tokens), $b_{\textsc{dg}} =
+\dgStep$\,ms is the marginal cost per additional canvas, and
 $\lceil L/C \rceil$ counts the number of canvases needed. Neither law
 depends on \texttt{min\_tokens}; both depend only on $L$.
 

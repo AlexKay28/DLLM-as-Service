@@ -13,7 +13,7 @@ AR-30B at its natural output length of $\sim$123 tokens.
 \begin{table}[h]
 \centering
 \caption{Latency at the MoE-matched pair (AR-30B vs DG, batch-1, BGL,
-$n{=}100$--$300$). DG wins above L*=385$.}
+$n{=}100$--$300$). DG wins above $L^{*}=385$.}
 \label{tab:niche}
 \begin{tabular}{@{}lrrr@{}}
 \toprule
@@ -33,7 +33,7 @@ $L_{\mathrm{out}}$ & AR-30B (ms) & DG (ms) & Advantage \\
 Below 385 tokens, AR-30B is faster. Above it, DG is faster. The margin
 grows steadily: at $L{=}512$ the two are equal; at $L{=}1024$ DG wins
 $1.4\times$; at $L{=}2048$ $1.7\times$. Against the dense AR-3B
-baseline (slope 6.3\,ms/token), DG won $5.4\times$ at $L{=}1024$.
+baseline (slope 6.3\,ms/token), DG won $8.7\times$ at $L{=}1024$.
 The six-fold improvement in per-token cost from dense-to-MoE AR is
 the reason the advantage narrowed.
 
@@ -47,13 +47,15 @@ R_{\mathrm{energy}} = \frac{E_{\mathrm{AR}}}{E_{\mathrm{DG}}}
 where $E_{\mathrm{AR}}$ and $E_{\mathrm{DG}}$ are the net energy per
 event (joules, idle-subtracted) for each arm. Measured values:
 \begin{align}
-\text{Dense AR-1.5B:} \quad & R_{\mathrm{energy}} =
+\text{AR-30B MoE:} \quad & R_{\mathrm{energy}} =
 \frac{10.1}{4.2} = 2.4 \quad \text{(idle 92.7\,W)} \\
 \text{Dense AR-1.5B:} \quad & R_{\mathrm{energy}} =
 \frac{5.1}{4.2} = 1.2 \quad \text{(idle 58.6\,W)}
 \end{align}
-Energy was not measured for AR-30B MoE; the above values are from the
-dense baselines. A ratio > 1 means AR uses more energy. The two runs had different idle baselines (92.7W vs 52.6W); the comparison is indicative.
+A ratio > 1 means AR uses more energy. The three runs used different idle
+baselines (AR-30B MoE 92.7\,W, AR-1.5B 58.6\,W, DG 52.6\,W); the DG
+energy was not re-measured at the AR-30B idle point, so the AR-30B vs DG
+ratio (2.4) is indicative rather than directly controlled.
 
 \paragraph{Graceful degradation under deadline pressure.}
 
@@ -77,7 +79,7 @@ the outcome.}
 Long output, batch-1 & 1.0\,ms/token & Staircase, 119\,ms/canvas & Crossover at $L{=}385$ \\
 Deadline pressure & Truncates output & Drops $K$; complete canvas & Per-request quality knob \\
 High arrival rate & Batches $77\times$ & Caps at $\leq$1.7$\times$ & KV-cache reuse \\
-Tail-sensitive SLA & CV 0.2%, max/med 1.03\times, energy 10.1J & CV 20.9\%, max/med 3.21$\times$ & MoE routing variability \\
+Tail-sensitive SLA & CV 0.2\%, max/med $1.03\times$, energy 10.1\,J & CV 20.9\%, max/med $3.21\times$ & MoE routing variability \\
 Long prompt & Prefill paid once & Prefill paid $K$ times & Re-attention per step \\
 \bottomrule
 \end{tabularx}
