@@ -1,0 +1,10 @@
+{
+  "model": "Qwen/Qwen3-30B-A3B",
+  "n_events": 100,
+  "wall_time_s": 14.7,
+  "avg_power_w": 161.7,
+  "idle_power_w": 92.7,
+  "net_power_w": 69.1,
+  "energy_per_event_j": 23.7,
+  "net_energy_per_event_j": 10.1
+}

@@ -1,0 +1,140 @@
+% =============================================================================
+%  macros.tex — every number the paper cites, in one place.
+%
+%  Rule: no numeral is typed into a section file. If it is a measurement, it
+%  is a macro here, and the comment on its line names the artifact it was read
+%  from. paper/verify_numbers.py re-reads those artifacts; the figure builder
+%  (paper/figures/make_figures.py) prints what it plotted so the two can be
+%  diffed.
+% =============================================================================
+
+% --- Pinned stack -------------------------------------------------- (#57) --
+\newcommand{\vllmVersion}{0.25.1}
+\newcommand{\torchVersion}{2.11.0+cu130}
+\newcommand{\gpuModel}{NVIDIA A100 80GB PCIe}
+\newcommand{\nPerCell}{300}
+\newcommand{\refPrompt}{1{,}047}
+
+% --- Quality, 9-field vs 12-field ----- results/issue43_nine_field_f1.json --
+\newcommand{\arThreeBFnine}{0.852}     % AR-30B MoE, L=256, 9-field (97.3% schema valid)
+\newcommand{\dgNineF}{0.852}           % DG,     L=256, 9-field
+\newcommand{\arThreeBFtwelve}{0.826}   % AR-30B,  L=256, 12-field
+\newcommand{\dgTwelveF}{0.786}         % DG,     L=256, 12-field
+\newcommand{\qualityGap}{0.000}        % |9-field difference|
+\newcommand{\twelveGap}{0.041}         % 12-field difference, AR-favoured
+% AR-1.5B: results/issue_evidence_ar1b_{L512,L1024,energy}.json (pinned stack)
+\newcommand{\arOneFiveFnine}{0.868}
+
+% --- Cost laws ------------- results/anchors/*.json, results/issue68_*.json --
+\newcommand{\arBase}{-5.8}        % ms, AR-30B MoE fitted intercept (Qwen3-30B-A3B)
+\newcommand{\arSlope}{1.0}       % ms/token, AR-30B MoE decode slope (Qwen3-30B-A3B)
+\newcommand{\dgBase}{378.8}       % ms, DG base at K=8
+\newcommand{\dgStep}{119.5}       % ms, median of the 7 measured canvas steps
+\newcommand{\dgStepLo}{113.1}     % ms, smallest measured step (1536->1792 in)
+\newcommand{\dgStepHi}{122.6}     % ms, largest measured step (256->512)
+\newcommand{\canvasLength}{256}   % tokens per canvas
+\newcommand{\dgMarginal}{0.47}    % ms/token at the margin: step / canvas
+\newcommand{\marginalRatio}{13.5} % arSlope / dgMarginal
+
+% Anchors, five repeats each -------- results/anchors/anchor_remeasure.json --
+\newcommand{\arAnchorTwoFive}{6148.1}   % AR-30B MoE L=256 p50, serial (batch-1)
+\newcommand{\arAnchorFiveOne}{3225.1}   % AR-30B  L=512 p50, CV 0.01%
+\newcommand{\dgAnchorTwoFive}{379.0}    % DG     L=256 p50, CV 0.25%
+\newcommand{\dgAnchorFiveOne}{500.7}    % DG     L=512 p50, CV 0.12%
+\newcommand{\arCV}{0.1}
+\newcommand{\dgCV}{0.3}
+% Per-event dispersion within one run -- results/anchors/*_L256_r1_preds.jsonl
+\newcommand{\arEventCV}{0.2}     % % CV over 300 per-event latencies
+\newcommand{\dgEventCV}{20.9}
+\newcommand{\arMaxMed}{1.03}      % max / median per-event latency
+\newcommand{\dgMaxMed}{3.21}
+
+% --- Crossovers ------------------------- models/decision/procedure.py --------
+\newcommand{\crossoverL}{368}      % tokens: (dgBase - arBase) / arSlope, with MoE AR
+\newcommand{\crossoverLambda}{2.6} % ev/s: 1000 / dgBase (unchanged — DG base same)
+\newcommand{\naturalLdg}{176}      % DG natural output length (tokens)
+\newcommand{\naturalLar}{123}      % AR natural output length (tokens)
+
+% --- Input length, the second variable ------ results/issue44_*_sweep.json --
+\newcommand{\arInputSlope}{0.0}  % ms per prompt token
+\newcommand{\dgInputSlope}{0.1}  % ms per prompt token
+\newcommand{\inputSlopeRatio}{2.6} % dgInputSlope / arInputSlope
+
+% --- Base decomposition ------------------- results/issue44_dg_ksweep_K*.json --
+\newcommand{\kfitBase}{296.1}      % ms, K-independent term (NOT interpretable as a floor; see #70)
+\newcommand{\kfitSlope}{2.6}      % ms per denoising step
+\newcommand{\kfitRsq}{0.49}
+% Superseded: the fitted intercept (296.1) is not a measured floor. R^2=0.49
+% and the curve saturates above K=16, so the linear term is a poor description.
+% The 93.5%/6.5% split it produced over-attributes to the floor by ~5x.
+% Replaced by two measurement-based bounds (issue #70):
+\newcommand{\dgFloorHiPct}{53}      % upper bound on floor share, from T(2)=201.7ms (#44 K=2)
+\newcommand{\dgDenoiseLoPct}{32}    % lower bound on denoising share, from canvas step 119.5ms (#68)
+
+% --- Batching ------------------- results/issue42_batching.json, appD, dInfer --
+\newcommand{\arBatchMult}{77}      % typical AR-30B MoE multiplier
+\newcommand{\arBatchLo}{76.9}      % AR-30B MoE, batch-300 measurement
+\newcommand{\arBatchHi}{86.0}      % AR-30B MoE, upper bound
+\newcommand{\cacheOnMult}{42.8}    % AR-30B, prefix caching on   (#42)
+\newcommand{\cacheOffMult}{26.8}   % AR-30B, prefix caching off  (#42)
+\newcommand{\dgBatchMult}{1.2}    % LLaDA-8B under dInfer, flat to batch 64
+\newcommand{\dgBatchVllmLo}{1.5}   % DG under vLLM, L=512 (lower bound)
+\newcommand{\dgBatchVllmHi}{1.7}   % DG under vLLM, L=128 (lower bound)
+
+% --- Energy -------------------------- results/issue_energy_measurement.json --
+\newcommand{\arThreeEnergy}{10.1}  % J/event, net of idle, AR-30B MoE (Qwen3-30B-A3B)
+\newcommand{\dgEnergy}{4.2}        % J/event, net of idle, forced L=256
+\newcommand{\arOneFiveEnergy}{5.1} % J/event, net of idle, forced L=256
+\newcommand{\energyRatio}{4.3}     % arThreeEnergy / dgEnergy
+
+% --- Deployment pair ------ results/issue_evidence_ar1b_*.json, issue68_*.json --
+\newcommand{\arOneFiveTwoFive}{1007}   % ms, AR-1.5B forced L=256
+\newcommand{\arOneFiveFiveOne}{2005}   % ms, AR-1.5B forced L=512
+\newcommand{\arOneFiveTenTwoFour}{4026}% ms, AR-1.5B forced L=1024
+\newcommand{\dgTwoFive}{378}           % ms, DG forced L=256
+\newcommand{\dgFiveOne}{501}           % ms, DG forced L=512
+\newcommand{\dgTenTwoFour}{739}        % ms, DG forced L=1024
+\newcommand{\arOneFiveWeights}{3.0}    % GB, bf16
+\newcommand{\dgWeights}{52.0}          % GB, bf16
+\newcommand{\footprintRatio}{17}       % dgWeights / arOneFiveWeights
+
+% --- Defect magnitudes ------------------------------ CHECKLIST.md, #65 -----
+\newcommand{\defectOneFBefore}{0.779}
+\newcommand{\defectOneFAfter}{0.844}
+\newcommand{\defectTwoBefore}{1841.6}
+\newcommand{\defectTwoAfter}{413.3}
+\newcommand{\defectTwoRatio}{4.5}
+\newcommand{\defectThreeBefore}{0.599}
+\newcommand{\defectThreeAfter}{0.826}
+\newcommand{\defectFourBefore}{0}
+\newcommand{\defectFourAfter}{100}
+\newcommand{\rambleRate}{96}      % % of AR outputs with >1 JSON object at L=512
+
+% --- Truncation regime -------------------------- results/issue43/*.json -----
+\newcommand{\arFOneTwentyEight}{0.669}   % AR-30B 9-field F1 at L=128
+\newcommand{\dgFOneTwentyEight}{0.311}   % DG    9-field F1 at L=128
+\newcommand{\arValidTwentyEight}{66.7}   % AR schema-valid % at L=128
+\newcommand{\dgValidTwentyEight}{1.0}    % DG schema-valid % at L=128
+
+% --- Generalisation to HDFS ---------------------- results/issue67_*.json ----
+\newcommand{\hdfsStep}{120.5}     % ms, DG canvas step on HDFS
+\newcommand{\bglStep}{118.5}      % ms, DG canvas step on BGL (same cells)
+\newcommand{\arHdfs}{1616.5}      % ms, AR-30B L=256 on HDFS
+\newcommand{\arBgl}{1616.0}       % ms, AR-30B L=256 on BGL
+
+% --- Canvas tuning -------------------------- results/issue66_canvas_*.json --
+\newcommand{\canvasOneTwentyEightBase}{368.5}  % ms at canvas=128
+\newcommand{\canvasOneTwentyEightFone}{0.864} % 9-field F1 at canvas=128
+
+% --- K as a runtime quality knob --------- results/issue44_dg_ksweep_K*.json --
+\newcommand{\kFourPfifty}{292}    % ms
+\newcommand{\kFourPninetynine}{394.3} % ms
+\newcommand{\kFourFone}{0.790}
+\newcommand{\kEightPfifty}{379}   % ms
+\newcommand{\kEightFone}{0.853}
+\newcommand{\kTwoPfifty}{202}     % ms
+\newcommand{\kTwoFone}{0.485}
+
+% --- Superseded values, cited only when discussing the discrepancy ----------
+\newcommand{\dgOldBase}{418.2}    % ms, DG base at K=32
+\newcommand{\arOldPfifty}{1617.6} % ms, AR-30B L=256, Campaign B

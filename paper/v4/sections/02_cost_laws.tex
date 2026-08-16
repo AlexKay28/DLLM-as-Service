@@ -38,9 +38,12 @@ T_{\textsc{ar}}(L_{\mathrm{out}}) &= \arBase + \arSlope \cdot L_{\mathrm{out}} &
 T_{\textsc{dg}}(L_{\mathrm{out}}) &= \dgBase + \dgStep \cdot \Bigl(\bigl\lceil \tfrac{L_{\mathrm{out}}}{\canvasLength}\bigr\rceil - 1\Bigr) && \text{(ms, staircase)}
 \end{align}
 
-For AR: $a = \arBase$\,ms (prompt prefill, amortised by prefix
-caching), $b = \arSlope$\,ms (per-token decode cost --- one KV cache
-forward pass per token). Every output token costs exactly $b$,
+For AR: $a = \arBase$\,ms is the prompt prefill cost (amortised by prefix
+caching). The near-zero value reflects the MoE architecture's efficient
+prefill: only 3\,B of 30\,B parameters are active per token, so the
+prefill computation is much cheaper than for a dense model of comparable
+total size. $b = \arSlope$\,ms is the per-token decode cost --- one KV
+cache forward pass per token. Every output token costs exactly $b$,
 regardless of position.
 
 For DG: $a = \dgBase$\,ms (first-canvas cost: prompt prefill paid $K$

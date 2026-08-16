@@ -48,7 +48,7 @@ where $E_{\mathrm{AR}}$ and $E_{\mathrm{DG}}$ are the net energy per
 event (joules, idle-subtracted) for each arm. Measured values:
 \begin{align}
 \text{AR-3B dense:} \quad & R_{\mathrm{energy}} =
-\frac{22.3}{4.2} = 5.3 \quad \text{(idle 52.6\,W)} \\
+\frac{10.1}{4.2} = 2.4 \quad \text{(idle 92.7\,W)} \\
 \text{Dense AR-1.5B:} \quad & R_{\mathrm{energy}} =
 \frac{5.1}{4.2} = 1.2 \quad \text{(idle 58.6\,W)}
 \end{align}
@@ -77,7 +77,7 @@ the outcome.}
 Long output, batch-1 & 1.0\,ms/token & Staircase, 119\,ms/canvas & Crossover at $L{=}368$ \\
 Deadline pressure & Truncates output & Drops $K$; complete canvas & Per-request quality knob \\
 High arrival rate & Batches $77\times$ & Caps at $\leq$1.7$\times$ & KV-cache reuse \\
-Tail-sensitive SLA & CV 0.2\%, max/med 1.03$\times$ & CV 20.9\%, max/med 3.21$\times$ & MoE routing variability \\
+Tail-sensitive SLA & CV 0.2%, max/med 1.03\times, energy 10.1J$\times$ & CV 20.9\%, max/med 3.21$\times$ & MoE routing variability \\
 Long prompt & Prefill paid once & Prefill paid $K$ times & Re-attention per step \\
 \bottomrule
 \end{tabularx}
