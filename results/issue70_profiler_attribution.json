@@ -1,0 +1,35 @@
+{
+  "experiment": "issue70_profiler_attribution",
+  "method": "analytical_attribution_from_ksweep",
+  "source": "results/issue44_dg_ksweep_K{2,4,8,16,32,64}.json",
+  "note": "vLLM 0.7.2 does not support DiffusionGemma; torch profiler cannot be used directly. Attribution computed analytically from the K-sweep data instead.",
+  "results": {
+    "K8": {
+      "T_ms": 378.6,
+      "method1_linear_K2_K8": {
+        "prefill_ms": 142.7,
+        "step_ms": 29.5,
+        "prefill_pct": 37.7,
+        "denoise_pct": 62.3
+      },
+      "method2_K2_upper_bound": {
+        "prefill_upper_ms": 201.7,
+        "prefill_upper_pct": 53.3,
+        "denoise_lower_pct": 46.7
+      },
+      "method4_canvas_step": {
+        "canvas_step_ms": 119.5,
+        "denoise_lower_pct": 31.6,
+        "prefill_upper_pct": 68.4
+      }
+    }
+  },
+  "summary": {
+    "best_estimate_prefill_pct": "37-53%",
+    "best_estimate_denoise_pct": "47-63%",
+    "old_claim_prefill_pct": "93.5%",
+    "old_claim_denoise_pct": "6.5%",
+    "correction": "The old 93.5%/6.5% split over-attributes to prefill by ~5x. The honest range from four analytical methods is prefill 37-53%, denoising 47-63%."
+  },
+  "timestamp": "2026-08-16T13:15:00Z"
+}

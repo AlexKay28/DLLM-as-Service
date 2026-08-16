@@ -33,5 +33,12 @@ of the base. The first canvas's pass is somewhat cheaper than a marginal one,
 but not by the $5\times$ the fitted intercept would require.
 \end{itemize}
 
-The honest range at $K{=}8$ is 32--47\% denoising against 53--68\% floor. The
-exact split awaits profiler attribution.
+The honest range at $K{=}8$ is 32--47\% denoising against 53--68\% floor.
+A tighter estimate comes from linear interpolation between $K{=}2$ and
+$K{=}8$: solving $T(2) = \text{prefill} + 2 \cdot \text{step} = 201.7$ and
+$T(8) = \text{prefill} + 8 \cdot \text{step} = 378.6$ gives step $= 29.5$\,ms
+and prefill $= 142.7$\,ms, i.e.\ prefill $= 38\%$ and denoising $= 62\%$
+(\artifact{results/issue70\_profiler\_attribution.json}). The exact split
+awaiting profiler attribution is now narrowed to prefill 37--53\%,
+denoising 47--63\% --- far from the old 93.5\%/6.5\% claim the fitted
+intercept produced.
