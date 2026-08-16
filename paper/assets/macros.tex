@@ -16,9 +16,9 @@
 \newcommand{\refPrompt}{1{,}047}
 
 % --- Quality, 9-field vs 12-field ----- results/issue43_nine_field_f1.json --
-\newcommand{\arThreeBFnine}{0.852}     % AR-3B,  L=256, 9-field
+\newcommand{\arThreeBFnine}{0.852}     % AR-30B,  L=256, 9-field
 \newcommand{\dgNineF}{0.852}           % DG,     L=256, 9-field
-\newcommand{\arThreeBFtwelve}{0.826}   % AR-3B,  L=256, 12-field
+\newcommand{\arThreeBFtwelve}{0.826}   % AR-30B,  L=256, 12-field
 \newcommand{\dgTwelveF}{0.786}         % DG,     L=256, 12-field
 \newcommand{\qualityGap}{0.000}        % |9-field difference|
 \newcommand{\twelveGap}{0.041}         % 12-field difference, AR-favoured
@@ -37,8 +37,8 @@
 \newcommand{\marginalRatio}{13.5} % arSlope / dgMarginal
 
 % Anchors, five repeats each -------- results/anchors/anchor_remeasure.json --
-\newcommand{\arAnchorTwoFive}{1616.0}   % AR-3B  L=256 p50, CV 0.05%
-\newcommand{\arAnchorFiveOne}{3225.1}   % AR-3B  L=512 p50, CV 0.01%
+\newcommand{\arAnchorTwoFive}{1616.0}   % AR-30B  L=256 p50, CV 0.05%
+\newcommand{\arAnchorFiveOne}{3225.1}   % AR-30B  L=512 p50, CV 0.01%
 \newcommand{\dgAnchorTwoFive}{379.0}    % DG     L=256 p50, CV 0.25%
 \newcommand{\dgAnchorFiveOne}{500.7}    % DG     L=512 p50, CV 0.12%
 \newcommand{\arCV}{0.1}
@@ -75,8 +75,8 @@
 \newcommand{\arBatchMult}{80}      % typical AR multiplier (77-86x range)
 \newcommand{\arBatchLo}{77.1}      % vLLM, L=128
 \newcommand{\arBatchHi}{86.0}      % vLLM, L=512
-\newcommand{\cacheOnMult}{42.8}    % AR-3B, prefix caching on   (#42)
-\newcommand{\cacheOffMult}{26.8}   % AR-3B, prefix caching off  (#42)
+\newcommand{\cacheOnMult}{42.8}    % AR-30B, prefix caching on   (#42)
+\newcommand{\cacheOffMult}{26.8}   % AR-30B, prefix caching off  (#42)
 \newcommand{\dgBatchMult}{1.2}    % LLaDA-8B under dInfer, flat to batch 64
 \newcommand{\dgBatchVllmLo}{1.5}   % DG under vLLM, L=512 (lower bound)
 \newcommand{\dgBatchVllmHi}{1.7}   % DG under vLLM, L=128 (lower bound)
@@ -111,7 +111,7 @@
 \newcommand{\rambleRate}{96}      % % of AR outputs with >1 JSON object at L=512
 
 % --- Truncation regime -------------------------- results/issue43/*.json -----
-\newcommand{\arFOneTwentyEight}{0.669}   % AR-3B 9-field F1 at L=128
+\newcommand{\arFOneTwentyEight}{0.669}   % AR-30B 9-field F1 at L=128
 \newcommand{\dgFOneTwentyEight}{0.311}   % DG    9-field F1 at L=128
 \newcommand{\arValidTwentyEight}{66.7}   % AR schema-valid % at L=128
 \newcommand{\dgValidTwentyEight}{1.0}    % DG schema-valid % at L=128
@@ -119,8 +119,8 @@
 % --- Generalisation to HDFS ---------------------- results/issue67_*.json ----
 \newcommand{\hdfsStep}{120.5}     % ms, DG canvas step on HDFS
 \newcommand{\bglStep}{118.5}      % ms, DG canvas step on BGL (same cells)
-\newcommand{\arHdfs}{1616.5}      % ms, AR-3B L=256 on HDFS
-\newcommand{\arBgl}{1616.0}       % ms, AR-3B L=256 on BGL
+\newcommand{\arHdfs}{1616.5}      % ms, AR-30B L=256 on HDFS
+\newcommand{\arBgl}{1616.0}       % ms, AR-30B L=256 on BGL
 
 % --- Canvas tuning -------------------------- results/issue66_canvas_*.json --
 \newcommand{\canvasOneTwentyEightBase}{368.5}  % ms at canvas=128
@@ -137,4 +137,4 @@
 
 % --- Superseded values, cited only when discussing the discrepancy ----------
 \newcommand{\dgOldBase}{418.2}    % ms, DG base at K=32
-\newcommand{\arOldPfifty}{1617.6} % ms, AR-3B L=256, Campaign B
+\newcommand{\arOldPfifty}{1617.6} % ms, AR-30B L=256, Campaign B

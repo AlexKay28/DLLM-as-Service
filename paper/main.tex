@@ -68,7 +68,7 @@
 ]{hyperref}
 
 % --- Model shorthands ---
-\newcommand{\ARthree}{\textsc{ar-3b}}
+\newcommand{\ARthree}{\textsc{ar-30b}}
 \newcommand{\ARoneb}{\textsc{ar-1.5b}}
 \newcommand{\DG}{\textsc{dg}}
 \newcommand{\LLaDA}{\textsc{llada-8b}}
@@ -113,10 +113,11 @@ $3.7\times$ at naturally-long multi-record output ($L \approx 560$).
 It degrades under deadline pressure by losing quality rather than
 completeness --- a property AR decoding has no equivalent for.
 
-The advantage is narrowedin practice by deployment constraints: the AR
-model is \footprintRatio$\times$ smaller, batches more than an order of
-magnitude better, and under tenant-isolated batch-1 can run 16
-co-resident copies in the same GPU for $9\times$ lower cost per event.
+The advantage is narrowed in practice by deployment constraints: the AR
+model batches more than an order of magnitude better, and under
+tenant-isolated batch-1 can run 16 co-resident copies of the
+quality-matched 3\,GB model in the same GPU for $9\times$ lower cost
+per event.
 We state five conditions under which block diffusion is the right choice
 and ground them in concrete workloads: security investigation chains,
 autonomous driving, and algorithmic trading.

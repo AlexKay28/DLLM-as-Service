@@ -8,11 +8,11 @@ shape --- a staircase that is flat inside each block --- not from the
 diffusion process itself. The floor is mostly prefill, and any decoder
 emitting fixed-size blocks would inherit the same shape.
 
-The advantage does not survive deployment. The AR model is $17\times$
-smaller, batches more than an order of magnitude better, and --- under
-tenant-isolated batch-1 --- can run 16 co-resident copies in the GPU
-space \DG\ occupies alone, making it $9\times$ cheaper per event. A
-$3.21\times$ tail latency further narrows the niche.
+The advantage does not survive deployment. The AR model batches more
+than an order of magnitude better, and --- under tenant-isolated batch-1
+--- can run 16 co-resident copies of the quality-matched \ARoneb\ (3\,GB)
+in the GPU space \DG\ occupies alone (52\,GB), making it $9\times$
+cheaper per event. A $3.21\times$ tail latency further narrows the niche.
 
 What survives is a narrow regime: long output, batch-1 by requirement,
 schema validation, and a data-centre footprint. We have named five

@@ -2,16 +2,20 @@
 \label{sec:limits}
 
 A $1.8\times$ per-event advantage is not a deployment argument when it
-comes with a $17\times$ larger footprint and a tail that breaks SLAs.
+comes with a comparable footprint (60\,GB vs 52\,GB for the
+active-parameter-matched pair) and a tail that breaks SLAs.
 This section collects the four factors that close the niche, plus a
 fifth --- co-residency --- that narrows it further.
 
 \paragraph{1. Footprint.}
 
 The quality-comparable AR model (\ARoneb, F1 \arOneFiveFnine) is
-\arOneFiveWeights\,GB; the diffusion model is \dgWeights\,GB --- a
-\footprintRatio$\times$ difference. A 3\,GB model can be co-resident
-with many others; a 52\,GB model consumes the entire GPU.
+\arOneFiveWeights\,GB; the diffusion model is \dgWeights\,GB. But even
+the active-parameter-matched
+pair is close: \ARthree\ at 60\,GB vs \DG\ at 52\,GB. The deployment
+asymmetry comes from the quality-comparable pair, not from the
+architecture. A 3\,GB model can be co-resident with many others; a
+52\,GB model consumes the entire GPU.
 
 \paragraph{2. Batching.}
 

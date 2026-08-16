@@ -22,9 +22,10 @@ compute is comparable to a 3--4\,B dense model, not a 26\,B one.
 
 Two AR models serve as baselines:
 \begin{itemize}[nosep]
-\item \ARthree\ (Qwen2.5-3B-Instruct, 3.0\,B active, 6.0\,GB) ---
-  matched to DG on active parameters. This is the pair used to derive
-  the cost laws.
+\item \ARthree\ (Qwen3-30B-A3B, 3.0\,B active of 30\,B total, 60\,GB) ---
+  matched to DG on active parameters. Both are MoE: AR-30B has 3.0\,B
+  active of 30\,B; DG has 4.0\,B active of 26\,B. This is the pair
+  used to derive the cost laws.
 \item \ARoneb\ (Qwen2.5-1.5B-Instruct, 1.5\,B active, 3.0\,GB) ---
   matched to DG on quality (F1 0.868 vs 0.852). This is the pair used
   for deployment claims.
@@ -56,9 +57,9 @@ naturally-long output without forcing (\S\ref{sec:wins},
 Appendix~\ref{app:forced}).
 
 \item \textbf{What limits the diffusion model's advantage in practice?}
-The AR model is $17\times$ smaller (3.0\,GB vs 52\,GB), batches
-$26$--$43\times$ better, and under tenant-isolated batch-1 can run 16
-co-resident copies in the same GPU for $9\times$ lower cost per event.
+The AR model batches $26$--$43\times$ better, and under tenant-isolated
+batch-1 can run 16 co-resident copies of the quality-matched 3\,GB model
+in the same GPU for $9\times$ lower cost per event.
 A $3.21\times$ tail latency further narrows the niche (\S\ref{sec:limits}).
 
 \item \textbf{When is block diffusion the right choice?}
@@ -79,12 +80,14 @@ column and loses the deployment comparison behind it.}
 \midrule
 \tabfont 9-field macro F1 ($L{=}\canvasLength$)      & \arThreeBFnine & \dgNineF \\
 \tabfont Active parameters                            & 3.0\,B & 4.0\,B \\
+\tabfont Total parameters                             & 30\,B & 26\,B \\
+\tabfont Weights (bf16)                                & 60\,GB & 52\,GB \\
 \tabfont p50 latency at $L{=}\canvasLength$, batch-1  & \arAnchorTwoFive\,ms & \dgAnchorTwoFive\,ms \\
 \tabfont Within-block marginal cost per token          & \arSlope\,ms & 0.0\,ms \\
 \tabfont Block boundary cost (per \canvasLength\ tokens) & n/a & \dgStep\,ms \\
 \tabfont Marginal cost per prompt token               & \arInputSlope\,ms & \dgInputSlope\,ms \\
 \tabfont Batch-1 $\to$ peak throughput multiplier     & \arBatchLo--\arBatchHi$\times$ & $\leq$\dgBatchVllmHi$\times$ \\
-\tabfont Energy per event, net of idle (AR-3B / DG)     & \arThreeEnergy\,J ($5.3\times$) & \dgEnergy\,J \\
+\tabfont Energy per event, net of idle (AR-30B / DG)     & \arThreeEnergy\,J ($5.3\times$) & \dgEnergy\,J \\
 \bottomrule
 \end{tabularx}
 \end{table}
