@@ -8,5 +8,16 @@ author-built AR baselines. Constrained decoding
 llguidance~\cite{llguidance}) is the standard answer to the structured-output
 problem and is not measured here; it is a limitation. Speculative decoding
 (Medusa~\cite{medusa2024}, EAGLE~\cite{eagle2024}) attacks the same per-token
-slope the AR cost law turns on. Harness bias in systems benchmarking is
-discussed by~\cite{hoefler2021}.
+slope the AR cost law turns on.
+
+Harness bias in systems benchmarking has a long history.
+\cite{hoefler2021} surveys reproducibility pitfalls in parallel and
+distributed systems measurement, including the confounds that arise when
+baseline and contender are measured under different stacks. The
+asymmetric-failure pattern we report --- where defects cluster on the arm
+the experimenter is not rooting for --- is related to confirmation bias in
+ML evaluation~\cite{hoefler2021}, but our contribution is narrower: a
+checklist that catches the specific failure mode (checkpoint defaults, parser
+policy, serving-engine parity, metric semantics, provenance) in under five
+minutes per check, using only committed artifacts. We do not claim
+generality beyond the structured-output serving setting we measured.

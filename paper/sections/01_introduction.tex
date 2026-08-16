@@ -18,15 +18,32 @@ parameters. At $L{=}256$ output tokens they reach quality equivalence:
 95\% CI $[-0.012, +0.011]$, $n=300$).
 
 Eight corrections --- five harness defects and three withdrawn claims --- were
-made before any result was reported. Five of the eight biased against the AR
+made before this version. Five of the eight biased against the AR
 arm (Appendix~\ref{app:defects}). All were found by re-reading committed
 artifacts, not by running new experiments.
+
+\paragraph{Numeric precision}
+Every number in this paper is quoted to a precision its measurement error
+supports. Latency is quoted to 0.1\,ms: the run-to-run CV on the pinned
+stack is \arCV--\dgCV\%, so 0.1\,ms is real resolution at the p50. F1 scores
+are quoted to three decimals: at $n = \nPerCell$ events the standard error of
+a nine-field macro F1 is roughly 0.006, so three decimals is the defensible
+resolution. Ratios and multipliers are quoted to one decimal. Fitted
+coefficients are quoted only to the precision the residuals support --- the
+K-sweep fit at $R^2 = \kfitRsq$ (Appendix~\ref{app:decomp}) is cited as a
+shape, not a measurement.
 
 \begin{figure}[t]
 \centering
 \includegraphics[width=\linewidth]{figures/fig8_defects.pdf}
 \caption{Eight priced errors in our own comparison harness, each found by
-re-reading committed artifacts. Five of eight biased against the
+re-reading committed artifacts
+(\artifact{results/issue43\_nine\_field\_f1.json},
+\artifact{results/issue44\_dg\_ksweep\_K*.json},
+\artifact{results/issue66\_canvas\_*.json},
+\artifact{results/issue68\_dg\_L*.json},
+\artifact{results/issue49\_ar1b.json};
+BGL, $n{=}300$ per cell). Five of eight biased against the
 autoregressive arm. The clustering on one arm is the finding: a comparison
 harness written by someone hoping the new architecture wins fails
 asymmetrically.}

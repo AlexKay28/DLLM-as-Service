@@ -34,19 +34,22 @@ costs 121.7\,ms.
 \begin{figure}[t]
 \centering
 \includegraphics[width=\linewidth]{figures/fig1_cost_shapes.pdf}
-\caption{The two cost shapes. AR is a line with no floor; DG is a staircase
-with a prefill-dominated floor. The shapes cross at $L^{*} = \crossoverL$
-output tokens.}
+\caption{The two cost shapes
+(\artifact{results/anchors/anchor\_remeasure.json},
+\artifact{results/issue68\_dg\_L*.json}, BGL, $n{=}200$ per point, $K{=}8$).
+AR is a line with no floor; DG is a staircase with a prefill-dominated floor.
+The shapes cross at $L^{*} = \crossoverL$ output tokens.}
 \label{fig:shapes}
 \end{figure}
 
 \begin{figure}[t]
 \centering
 \includegraphics[width=\linewidth]{figures/fig2_canvas_edges.pdf}
-\caption{The staircase probed. \textbf{A:} latency is flat inside a canvas
-and jumps at the boundary. \textbf{B:} all seven canvas transitions out to
-$L{=}2048$ cost the same within run-to-run noise (range
-\dgStepLo--\dgStepHi\,ms, median \dgStep\,ms).}
+\caption{The staircase probed
+(\artifact{results/issue68\_dg\_L*.json}, $K{=}8$, BGL, $n{=}200$ per point).
+\textbf{A:} latency is flat inside a canvas and jumps at the boundary.
+\textbf{B:} all seven canvas transitions out to $L{=}2048$ cost the same
+within run-to-run noise (range \dgStepLo--\dgStepHi\,ms, median \dgStep\,ms).}
 \label{fig:edges}
 \end{figure}
 

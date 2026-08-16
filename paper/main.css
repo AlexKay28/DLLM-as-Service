@@ -43,6 +43,7 @@
 .XCharter-Bold-tlf-t1-x-x-90{font-weight: bold; font-name: 'XCharter', serif}
 .XCharter-Bold-tlf-sc-t1-x-x-90{font-size:81%;font-weight: bold; font-variant: small-caps; font-name: 'XCharter', serif}
 .t1-zi4r-5-{font-size:90%;}
+.t1-zi4r-5-x-x-73{font-size:66%;}
 .XCharter-Bold-tlf-t1-{font-size:90%;font-weight: bold; font-name: 'XCharter', serif}
 .XCharter-Bold-tlf-t1-{font-weight: bold; font-name: 'XCharter', serif}
 .XCharter-Bold-tlf-t1-{font-weight: bold; font-name: 'XCharter', serif}
@@ -219,15 +220,42 @@ tr#TBL-3-1- {border-top:0.12193em solid #000;}
 span#textcolor6{color:#52514E}
 span#textcolor7{color:#52514E}
 tr#TBL-3-1- {border-bottom:0.07622em solid #000}
-tr#TBL-3-8- {border-bottom:0.12193em solid #000}
+tr#TBL-3-9- {border-bottom:0.12193em solid #000}
 span#textcolor8{color:#52514E}
+span#textcolor14{color:#898781}
+span#textcolor15{color:#898781}
+span#textcolor16{color:#898781}
+span#textcolor17{color:#898781}
+span#textcolor18{color:#898781}
+span#textcolor21{color:#898781}
+span#textcolor22{color:#898781}
+span#textcolor24{color:#898781}
+span#textcolor28{color:#898781}
+span#textcolor29{color:#898781}
+span#textcolor30{color:#898781}
 tr#TBL-4-1- {border-top:0.12193em solid #000;} 
 tr#TBL-4-1- {border-bottom:0.07622em solid #000}
 tr#TBL-4-5- {border-bottom:0.12193em solid #000}
+span#textcolor33{color:#898781}
+span#textcolor34{color:#898781}
+span#textcolor35{color:#898781}
+span#textcolor36{color:#898781}
+span#textcolor38{color:#898781}
+span#textcolor40{color:#898781}
+span#textcolor44{color:#898781}
+span#textcolor45{color:#898781}
+span#textcolor46{color:#898781}
 tr#TBL-7-1- {border-top:0.12193em solid #000;} 
-span#textcolor13{color:#52514E}
-span#textcolor14{color:#52514E}
+span#textcolor51{color:#52514E}
+span#textcolor52{color:#52514E}
 tr#TBL-7-1- {border-bottom:0.07622em solid #000}
 tr#TBL-7-7- {border-bottom:0.12193em solid #000}
+span#textcolor54{color:#898781}
+span#textcolor55{color:#898781}
+span#textcolor56{color:#898781}
+span#textcolor58{color:#898781}
+span#textcolor59{color:#898781}
+span#textcolor60{color:#898781}
+span#textcolor61{color:#898781}
 /* end css.sty */
 

@@ -4,16 +4,18 @@
 Sweeping $K \in \{2,4,8,16,32,64\}$ at fixed output length fits
 $T(K) = \kfitBase + \kfitSlope \cdot K$ with $R^2 = \kfitRsq$. The low $R^2$ is
 itself informative: latency saturates above $K{=}16$, so the linear term is a
-poor descriptions at the top of the range and the fit is carried by the bottom.
+poor description at the top of the range and the fit is carried by the bottom.
 The intercept is therefore not interpretable as a floor.
 
 \begin{figure}[h]
 \centering
 \includegraphics[width=0.85\linewidth]{figures/fig4_ksweep.pdf}
-\caption{Denoising-step sweep. Latency saturates above $K{=}16$; quality is
-flat above $K{=}8$. Halving $K$ from 8 to 4 saves $\sim$87\,ms because the
-saving comes out of the small slice, while F1 falls from \kEightFone\ to
-\kFourFone\ because the loss comes out of the whole.}
+\caption{Denoising-step sweep at $L_{\mathrm{out}}{=}\canvasLength$
+(\artifact{results/issue44\_dg\_ksweep\_K*.json}, BGL, $n{=}200$ per point).
+Latency saturates above $K{=}16$; quality is flat above $K{=}8$. Halving $K$
+from 8 to 4 saves $\sim$87\,ms because the saving comes out of the small
+slice, while F1 falls from \kEightFone\ to \kFourFone\ because the loss comes
+out of the whole.}
 \label{fig:ksweep}
 \end{figure}
 

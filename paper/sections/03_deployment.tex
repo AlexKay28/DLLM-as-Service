@@ -11,15 +11,18 @@ the diffusion model pays per canvas.
 
 \begin{table}[h]
 \centering
-\caption{Latency at matched quality (AR-1.5B vs DG-26B-A4B, batch-1). AR
-cells are \emph{forced} (\texttt{min\_tokens}\,$=$\,$L$); unforced AR-1.5B
-completes in 665.7\,ms at 138 tokens.}
+\caption{Latency at matched quality (AR-1.5B vs DG-26B-A4B, batch-1, BGL).
+AR cells are \emph{forced} (\texttt{min\_tokens}\,$=$\,$L$); unforced AR-1.5B
+completes in 665.7\,ms at 138 tokens. Sources:
+\artifact{results/issue49\_ar1b.json} (unforced),
+\artifact{results/issue\_evidence\_ar1b\_\{L512,L1024,energy\}.json} (forced),
+\artifact{results/issue68\_dg\_L\{256,512,1024\}.json} (DG), $n{=}100$--$300$.}
 \label{tab:niche}
 \begin{tabular}{@{}lrrrr@{}}
 \toprule
 $L_{\mathrm{out}}$ & AR-1.5B forced (ms) & AR-1.5B unforced & DG (ms) & DG advantage \\
 \midrule
-138 (natural) & --- & 665.7 & \dgTwoFive{} & $0.6\times$ \\
+138 (natural) & --- & 665.7 & \dgTwoFive{} & $1.8\times$ \\
 256  & \arOneFiveTwoFive{} & --- & \dgTwoFive{}   & $2.7\times$ \\
 512  & \arOneFiveFiveOne{} & --- & \dgFiveOne{}   & $4.0\times$ \\
 1024 & \arOneFiveTenTwoFour{} & --- & \dgTenTwoFour{} & $5.4\times$ \\
@@ -27,24 +30,45 @@ $L_{\mathrm{out}}$ & AR-1.5B forced (ms) & AR-1.5B unforced & DG (ms) & DG advan
 \end{tabular}
 \end{table}
 
-The forced comparison charges the AR arm for tokens it does not use:
-first-object-wins parsing (\S\ref{app:defects}, defect 3) discards the
-rambled continuation past the first JSON object. At $L{=}1024$ the AR arm is
-charged \arOneFiveTenTwoFour\,ms for output the scorer deletes. The
+The diffusion model is faster even unforced: at AR-1.5B's natural output
+length of 138 tokens, DG completes in \dgTwoFive\,ms against AR's 665.7\,ms
+--- a $1.8\times$ advantage. Forcing the AR arm to emit $L{=}1024$ tokens
+inflates that to $5.4\times$, because first-object-wins parsing
+(\S\ref{app:defects}, defect 3) discards the rambled continuation past the
+first JSON object. At $L{=}1024$ the AR arm is charged
+\arOneFiveTenTwoFour\,ms for output the scorer deletes. The
 $4.0$--$5.4\times$ advantage therefore measures the cost of
 \texttt{min\_tokens}, not the cost of autoregression --- it is an upper bound
-on AR cost, not a measurement of it.
+on AR cost, not a measurement of it. The real advantage is $1.8\times$, and
+a $1.8\times$ gap on a model \footprintRatio$\times$ larger is not a
+deployment argument.
 
 \begin{figure}[t]
 \centering
 \includegraphics[width=\linewidth]{figures/fig9_deployment.pdf}
-\caption{The quality-matched deployment pair. \textbf{A:} at forced output
-lengths the diffusion model's advantage is real and grows, because the AR
-model rambles well past its natural length ($\sim$\naturalLar\ tokens) and
-vLLM still processes every forced token. \textbf{B:} the standing cost of
-keeping each model resident.}
+\caption{The quality-matched deployment pair
+(\artifact{results/issue\_evidence\_ar1b\_*.json},
+\artifact{results/issue68\_dg\_L*.json}, BGL, $n{=}100$). \textbf{A:} at
+forced output lengths the diffusion model's advantage is real and grows,
+because the AR model rambles well past its natural length
+($\sim$138 tokens) and vLLM still processes every forced token.
+\textbf{B:} the standing cost of keeping each model resident. Energy per
+event is net of idle draw; the two energy runs recorded different idle
+baselines (52.6\,W and 58.6\,W), so treat the energy comparison as
+indicative.}
 \label{fig:deploy}
 \end{figure}
+
+The diffusion model uses less energy: at the compute-matched pair, \dgEnergy\,J
+per event against \arThreeEnergy\,J for AR-3B ($5.3\times$,
+\artifact{results/issue\_energy\_measurement.json}, idle 52.6\,W, $n{=}100$,
+BGL). At the quality-matched pair, AR-1.5B uses \arOneFiveEnergy\,J against
+\dgEnergy\,J ($1.2\times$,
+\artifact{results/issue\_evidence\_ar1b\_energy.json}, idle 58.6\,W, $n{=}100$).
+The two energy runs had different idle baselines, so the quality-matched
+comparison is indicative rather than tight. The advantage tracks latency
+rather than adding to it --- both models draw comparable power, and the
+diffusion model is simply busy for less time.
 
 The diffusion model also degrades gracefully under deadline pressure: it
 returns a complete canvas at lower quality, while the AR model returns a
@@ -54,7 +78,7 @@ from \kEightFone\ to \kFourFone.
 
 \subsection{Why the advantage usually doesn't survive}
 
-Three factors close the niche:
+Three factors close the niche, and a fourth narrows it:
 
 \paragraph{Footprint.} The quality-matched AR model (Qwen2.5-1.5B, F1
 \arOneFiveFnine) is \arOneFiveWeights\,GB; the diffusion model is
@@ -71,12 +95,19 @@ the gap is more than an order of magnitude (Appendix~\ref{app:batching}).
 \inputSlopeRatio$\times$ steeper, because each denoising step re-attends the
 full prompt. At longer inputs the base rises and $L^{*}$ moves upward.
 
+\paragraph{Tail latency.} The diffusion arm's per-event CV is \dgEventCV\%
+with a max/median of \dgMaxMed$\times$, against the AR arm's \arEventCV\% and
+\arMaxMed$\times$ (Appendix~\ref{app:distributions}). A 3.21$\times$ tail is
+what breaks a batch-1 SLA --- exactly the regime the surviving niche
+occupies.
+
 \begin{figure}[t]
 \centering
 \includegraphics[width=\linewidth]{figures/fig6_batching.pdf}
-\caption{Batch-1 to peak throughput multipliers. The split runs along
-architecture, not runtime: two diffusion models on two different engines sit
-at $\leq$\dgBatchVllmHi$\times$, while the AR model on vLLM ranges from
+\caption{Batch-1 to peak throughput multipliers
+(\artifact{results/issue42\_batching.json}, BGL, $n{=}300$). The split runs
+along architecture, not runtime: two diffusion models on two different engines
+sit at $\leq$\dgBatchVllmHi$\times$, while the AR model on vLLM ranges from
 \cacheOffMult$\times$ to \arBatchHi$\times$.}
 \label{fig:batching}
 \end{figure}

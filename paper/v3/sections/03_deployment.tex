@@ -78,7 +78,7 @@ from \kEightFone\ to \kFourFone.
 
 \subsection{Why the advantage usually doesn't survive}
 
-Three factors close the niche:
+Three factors close the niche, and a fourth narrows it:
 
 \paragraph{Footprint.} The quality-matched AR model (Qwen2.5-1.5B, F1
 \arOneFiveFnine) is \arOneFiveWeights\,GB; the diffusion model is
@@ -94,6 +94,12 @@ the gap is more than an order of magnitude (Appendix~\ref{app:batching}).
 \paragraph{Input length.} The diffusion prefill slope is
 \inputSlopeRatio$\times$ steeper, because each denoising step re-attends the
 full prompt. At longer inputs the base rises and $L^{*}$ moves upward.
+
+\paragraph{Tail latency.} The diffusion arm's per-event CV is \dgEventCV\%
+with a max/median of \dgMaxMed$\times$, against the AR arm's \arEventCV\% and
+\arMaxMed$\times$ (Appendix~\ref{app:distributions}). A 3.21$\times$ tail is
+what breaks a batch-1 SLA --- exactly the regime the surviving niche
+occupies.
 
 \begin{figure}[t]
 \centering

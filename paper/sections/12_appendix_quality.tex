@@ -1,16 +1,6 @@
 \section{Quality vs Output Length}
 \label{app:quality}
 
-\begin{figure}[h]
-\centering
-\includegraphics[width=\linewidth]{figures/fig5_quality_vs_length.pdf}
-\caption{Quality and schema validity as a function of forced output length.
-AR-3B F1 is flat from $L{=}256$ to $L{=}512$ because first-object-wins
-parsing discards the rambled continuation. The diffusion model's quality
-rises with $L$ and then plateaus.}
-\label{fig:quality}
-\end{figure}
-
 Figure~\ref{fig:quality} shows what happens to quality when output length is
 forced. The AR model's 9-field F1 is flat at \arThreeBFnine{} from
 $L{=}\canvasLength$ to $L{=}512$ --- not because the model is invariant, but
@@ -19,6 +9,17 @@ discards the tokens past the first JSON object. At $L{=}128$ the AR model
 retains \arFOneTwentyEight{} F1 and \arValidTwentyEight\% schema validity,
 while the diffusion model falls to \dgFOneTwentyEight{} and
 \dgValidTwentyEight\%.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\linewidth]{figures/fig5_quality_vs_length.pdf}
+\caption{Quality and schema validity as a function of forced output length
+(\artifact{results/issue43\_nine\_field\_f1.json}, BGL, $n{=}300$ per cell).
+AR-3B F1 is flat from $L{=}256$ to $L{=}512$ because first-object-wins
+parsing discards the rambled continuation. The diffusion model's quality
+rises with $L$ and then plateaus.}
+\label{fig:quality}
+\end{figure}
 
 The diffusion model degrades gracefully against a \emph{time} budget and
 catastrophically against an \emph{output-length} budget. Which one an
