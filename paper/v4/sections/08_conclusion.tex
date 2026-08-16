@@ -6,12 +6,13 @@ structurally different from the linear cost of autoregressive decoding.
 The shapes cross at $L^{*} = \crossoverL$ output tokens, above which
 diffusion is faster. The advantage is large: $15.6\times$
 at natural output, $8.0\times$
-at $L{=}2048$.
+at $L{=}1024$.
 
 Against a MoE-matched AR model (Qwen3-30B-A3B, 3\,B active of 30\,B),
-this is a fair comparison. The six-fold improvement in AR per-token
-cost from dense-to-MoE serial (6.3 to 47.7\,ms/token) pushed the crossover
-from 59 to 6 tokens. DG wins at every practical output length in serial mode.
+this is a fair comparison. Moving from the dense AR-3B to the MoE AR-30B
+raised the serial per-token cost from 6.3 to 47.7\,ms/token ($7.6\times$),
+pushing the crossover from 59 to 6 tokens. DG wins at every practical
+output length in serial mode.
 
 The advantage is limited where batching is available (AR batches
 $77\times$ better) and where tail SLAs are tight (DG's max/median is

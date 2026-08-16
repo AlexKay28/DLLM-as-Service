@@ -15,16 +15,18 @@ AR-30B MoE cost law, so the quality and latency arms are not the same
 model.
 
 The surviving niche has not been tested on a task whose natural output
-length is $\geq 512$ tokens. The comparison in
-Table~\ref{tab:niche} charges the AR arm at forced lengths for tokens that the parser
-discards; the advantage in serial mode (15.6x at natural output) is a lower bound on the forced-output
-comparison. Separately, the AR-30B cost law (Eq.~\ref{eq:ar}) is fitted from
-batched per-event throughput, not batch-1 serial latency; the measured
-batch-1 p50 at $L{=}256$ is 6148\,ms, well above the cost law's 250\,ms, so
-at true batch-1 DG is faster at all measured output lengths. A task with
-genuinely long natural output --- multi-record extraction, incident
-reports --- would test the niche without this artifact
-(Appendix~\ref{app:forced} provides an analytical projection).
+length is $\geq 512$ tokens. The AR-30B cost law (Eq.~\ref{eq:ar}) is
+fitted from a five-point serial (batch-1) sweep with $R^2 = 1.0$, but the
+model stops at $\sim$123 tokens (EOS), so the slope is carried by the
+$L{=}32$ point and the cluster at natural output. The measured serial p50
+at $L{=}256$ is 5899\,ms, matching the cost law evaluated at the actual
+output of 123 tokens (5946\,ms). The advantage in serial mode (15.6$\times$
+at natural output) is the realized comparison; forcing AR to generate
+longer output would increase its latency per the cost law, making DG's
+advantage larger. A task with genuinely long natural output --- multi-record
+extraction, incident reports --- would test the niche without this
+EOS-stop artifact (Appendix~\ref{app:forced} provides an analytical
+projection).
 
 The niche has not been tested against grammar-constrained AR decoding
 (outlines, xgrammar, llguidance), which would eliminate over-generation,

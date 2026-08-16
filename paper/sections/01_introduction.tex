@@ -60,9 +60,9 @@ a fixed-size block and stepping at each boundary. The shapes cross at
 $L^{*} = \crossoverL$ output tokens (\S\ref{sec:laws}).
 
 \item \textbf{Where is the diffusion model faster?}
-Above $L^{*} = \crossoverL$ tokens, DG is faster. The advantage grows
-with output length: $15.6\times$ at natural output, $8.0\times$ at
-$L{=}2048$. The advantage holds at naturally-long output (multi-record
+Above $L^{*} = \crossoverL$ tokens, DG is faster. The advantage remains
+large: $15.6\times$ at natural output, $8.0\times$ at
+$L{=}1024$. The advantage holds at naturally-long output (multi-record
 extraction) without forcing (\S\ref{sec:wins}).
 
 \item \textbf{What limits the diffusion model's advantage in practice?}
@@ -89,7 +89,7 @@ advantage is real; deployment factors limit it in practice.}
 \tabfont Active parameters                            & 3.0\,B & 4.0\,B \\
 \tabfont Total parameters                             & 30\,B & 26\,B \\
 \tabfont Weights (bf16)                                & 60\,GB & 52\,GB \\
-\tabfont Cost law slope (ms/token, serial)  \\tabfont Cost law slope (ms/token)                    & 1.0 47.7 & --- \\
+\tabfont Cost law slope (ms/token, serial) & 47.7 & --- \\
 \tabfont Batch-1 $\to$ peak throughput multiplier     & 77$\times$ & $\leq$1.7$\times$ \\
 \tabfont Tail latency (max/median)                    & 1.03$\times$ & 3.21$\times$ \\
 \bottomrule

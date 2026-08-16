@@ -10,9 +10,9 @@ experiment, by applying the fitted cost laws.
 \paragraph{The cost laws are length-dependent, not forcing-dependent.}
 
 AR-30B's latency is linear in output length, fitted from a five-point
-output-length sweep ($R^2 = 0.63$; the model generates ${\sim}123$
-tokens naturally, so the slope is carried by the $L{=}32$ point and
-per-event throughput variation across the sweep):
+serial (batch-1) output-length sweep ($R^2 = 1.0$; the model generates ${\sim}123$
+tokens naturally, so four of the five points cluster at the plateau and
+the slope is carried by the $L{=}32$ point):
 \begin{equation}
 T_{\textsc{ar}}(L) = a_{\textsc{ar}} + b_{\textsc{ar}} \cdot L
 = 79.1 + 47.7 \cdot L \quad\text{(ms)}

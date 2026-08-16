@@ -39,7 +39,7 @@ T_{\textsc{dg}}(L_{\mathrm{out}}) &= \dgBase + \dgStep \cdot \Bigl(\bigl\lceil \
 \end{align}
 
 For AR: $a = \arBase$\,ms is the prompt prefill cost (amortised by prefix
-caching). The near-zero value reflects the MoE architecture's efficient
+caching). The low value reflects the MoE architecture's efficient
 prefill: only 3\,B of 30\,B parameters are active per token, so the
 prefill computation is much cheaper than for a dense model of comparable
 total size. $b = \arSlope$\,ms is the per-token decode cost --- one KV
@@ -85,10 +85,12 @@ until the next canvas edge, where the gap widens again.
 \centering
 \includegraphics[width=\linewidth]{figures/fig1_cost_shapes.pdf}
 \caption{The two cost shapes as a grouped bar chart (BGL, $n{=}200$,
-$K{=}8$; AR values from the fitted AR-30B cost law, Eq.~\ref{eq:ar}; DG
+$K{=}8$; AR values from the fitted AR-30B cost law, Eq.~\ref{eq:ar},
+extrapolated beyond the model's natural EOS at $\sim$123 tokens; DG
 measured). AR latency grows linearly;
-DG latency grows as a staircase. The gap widens from AR $1.5\times$
-to DG $15.6\times$ faster at $L{=}256$ (serial mode).}
+DG latency grows as a staircase. The cost-law gap widens with $L$; the
+measured ratio (AR stops at EOS) is $15.6\times$ at $L{=}256$
+(Table~\ref{tab:niche}).}
 \label{fig:shapes}
 \end{figure}
 
