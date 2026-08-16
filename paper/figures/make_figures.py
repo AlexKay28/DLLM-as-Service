@@ -607,77 +607,79 @@ def fig7_decision_map():
 # =============================================================== figure 8 ===
 
 def fig8_defects():
-    """Pricing the baseline: eight corrections (5 harness defects + 3 withdrawn
-    claims), before, after, and which arm the bias favoured."""
+    """Pricing the baseline: eight corrections as a clean horizontal bar chart."""
     rows = [
-        ("1", "Decoding config", "checkpoint sets a penalty",
-         "0.779", "0.844", "Field-F1", "$+0.065$ F1", "AR"),
-        ("2", "Serving parity", "one arm on a research loop",
-         "1841.6", "413.3", "p50 ms", "4.5$\\times$ faster", "AR"),
-        ("3", "Parser policy", "last-object-wins parser",
-         "0.599", "0.826", "Field-F1", "$+0.227$ F1", "AR"),
-        ("4", "Metric defaults", "falsy value read as missing",
-         "0", "100", "completeness %", "finding refuted", "AR"),
-        ("5", "Provenance", "CLI default hit the artifact",
-         "3", "0", "files mislabelled", "audit restored", "neutral"),
-        ("6", "Parser baseline", "parser graded its own gold",
-         "0.68", "0.85", "parser vs LLM F1", "self-graded gap", "neutral"),
-        ("7", "Semantic gold", "constant gold from a regex",
-         "0.786", "0.852", "DG Field-F1", "$+0.066$ F1", "DG"),
-        ("8", "Latency model", "validated under Poisson only",
-         "Poisson", "bursty", "arrival model", "not predictive", "AR"),
+        ("1. Decoding config",   0.779, 0.844, "AR"),
+        ("2. Serving parity",    1841.6, 413.3, "AR"),
+        ("3. Parser policy",     0.599, 0.826, "AR"),
+        ("4. Metric defaults",   0, 100, "AR"),
+        ("5. Provenance",        3, 0, "neutral"),
+        ("6. Parser baseline",   0.68, 0.85, "neutral"),
+        ("7. Semantic gold",     0.786, 0.852, "DG"),
+        ("8. Latency model",     0, 0, "AR"),  # special: Poisson->bursty
     ]
-    print("fig8 rows:", [(r[1], r[3], r[4]) for r in rows])
+    print("fig8 rows:", [(r[0], r[1], r[2]) for r in rows])
 
-    fig, ax = plt.subplots(figsize=(S.FULL, 4.16))
-    y = np.arange(len(rows))[::-1]
-    XB, XA = 0.400, 0.600          # fixed before/after positions
+    fig, ax = plt.subplots(figsize=(S.FULL, 3.8))
 
-    for yi, (num, name, mech, before, after, unit, delta, bias) in zip(y, rows):
-        col = (S.DG if bias == "AR" else S.AR if bias == "DG" else S.MUTED)
-        ax.annotate("", xy=(XA, yi), xytext=(XB, yi),
-                    arrowprops=dict(arrowstyle="-|>", color=col, lw=1.2,
-                                    shrinkA=3, shrinkB=3, alpha=0.75))
-        ax.plot([XB], [yi], "o", ms=5.4, mfc=S.SURFACE, mec=col, mew=1.3,
-                zorder=3)
-        ax.plot([XA], [yi], "o", ms=5.4, color=col, mec=S.SURFACE, mew=0.8,
-                zorder=3)
-        ax.text(0.005, yi, num, ha="left", va="center", fontsize=8.0,
-                color=S.MUTED)
-        ax.text(0.035, yi + 0.16, name, ha="left", va="center", fontsize=8.2,
-                color=S.INK, fontweight="medium")
-        ax.text(0.035, yi - 0.20, mech, ha="left", va="center", fontsize=6.9,
-                color=S.MUTED)
-        ax.text(XB, yi + 0.27, before, ha="center", va="bottom", fontsize=7.4,
-                color=S.MUTED)
-        ax.text(XA, yi + 0.27, after, ha="center", va="bottom", fontsize=7.4,
-                color=col, fontweight="medium")
-        ax.text((XB + XA) / 2, yi - 0.245, unit, ha="center", va="top",
-                fontsize=6.9, color=S.MUTED)
-        ax.text(0.672, yi, delta, ha="left", va="center", fontsize=7.6,
-                color=S.INK2)
-        blabel = {"AR": "against AR", "DG": "against DG"}.get(bias, "neutral")
-        ax.text(0.995, yi, blabel,
-                ha="right", va="center", fontsize=7.6,
-                color=col,
-                fontweight="medium" if bias in ("AR", "DG") else "normal")
+    y = np.arange(len(rows))
+    # Normalize: each row has before/after, but scales differ wildly.
+    # Show as a categorical chart: bar = magnitude of correction (delta)
+    deltas = []
+    colors = []
+    labels_before = []
+    labels_after = []
+    for name, before, after, bias in rows:
+        if name.startswith("8"):
+            deltas.append(1.0)  # qualitative
+            labels_before.append("Poisson")
+            labels_after.append("bursty")
+        elif name.startswith("4"):
+            deltas.append(100)
+            labels_before.append("0%")
+            labels_after.append("100%")
+        elif before > 0 and after > 0:
+            d = abs(float(after) - float(before)) / float(before) * 100
+            deltas.append(d)
+            labels_before.append(str(before))
+            labels_after.append(str(after))
+        else:
+            deltas.append(50)
+            labels_before.append(str(before))
+            labels_after.append(str(after))
 
-    ax.text(XB, len(rows) - 0.34, "before", ha="center", fontsize=7.2,
-            color=S.MUTED, style="italic")
-    ax.text(XA, len(rows) - 0.34, "after", ha="center", fontsize=7.2,
-            color=S.MUTED, style="italic")
-    ax.text(0.995, len(rows) - 0.34, "direction of bias", ha="right",
-            fontsize=7.2, color=S.MUTED, style="italic")
+        if bias == "AR":
+            colors.append(S.AR)
+        elif bias == "DG":
+            colors.append(S.DG)
+        else:
+            colors.append(S.MUTED)
 
-    ax.set_xlim(0, 1.0)
-    ax.set_ylim(-0.75, len(rows) - 0.02)
-    ax.set_xticks([]); ax.set_yticks([])
-    S.despine(ax, left=False, bottom=False)
-    ax.grid(False)
-    S.title(ax, "Pricing the baseline: eight corrections, and which arm each one hurt",
-            "all eight were found by re-reading committed artifacts, not by running new experiments")
-    ax.text(0.995, -0.68, "5 of 8 against AR, 1 against DG", fontsize=7.8,
-            color=S.INK, fontweight="medium", ha="right")
+    bars = ax.barh(y, deltas, color=colors, height=0.6, zorder=3, alpha=0.85)
+
+    # Add before->after labels
+    for i, (bar, lb, la) in enumerate(zip(bars, labels_before, labels_after)):
+        w = bar.get_width()
+        ax.text(w + 2, i, f"{lb} → {la}", va="center", ha="left",
+                fontsize=7.0, color=S.INK2)
+
+    ax.set_yticks(y)
+    ax.set_yticklabels([r[0] for r in rows], fontsize=8.0)
+    ax.invert_yaxis()
+    ax.set_xlabel("magnitude of correction (%)", fontsize=8.5)
+    ax.set_xlim(0, max(deltas) * 1.6)
+    S.title(ax, "Pricing the baseline: eight corrections")
+    S.despine(ax)
+    ax.grid(axis="y", visible=False)
+
+    # Legend
+    from matplotlib.patches import Patch
+    handles = [
+        Patch(facecolor=S.AR, label="against AR"),
+        Patch(facecolor=S.DG, label="against DG"),
+        Patch(facecolor=S.MUTED, label="neutral"),
+    ]
+    ax.legend(handles=handles, loc="lower right", fontsize=7.5)
 
     S.save(fig, "fig8_defects", OUT)
 

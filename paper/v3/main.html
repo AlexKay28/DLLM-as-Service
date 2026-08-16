@@ -79,40 +79,41 @@ class="ec-lmr-10">state the five conditions it requires.</span>
  id="x1-2r1"></a>
    <h3 class="sectionHead"><span class="titlemark">1   </span> <a 
  id="x1-10001"></a>Introduction</h3>
-<!--l. 2--><p class="noindent" >Autoregressive (AR) language models generate text one token at a time; each token requires a
-forward pass over the growing KV cache. Block-diffusion models generate an entire
-block of tokens in parallel through iterative denoising, then step to the next block.
-The structural difference produces different cost shapes, and the shapes determine
-which architecture is faster for a given workload. We measure both on a pinned stack
+<!--l. 4--><p class="noindent" >Autoregressive (AR) language models generate text one token at a time; each token requires a
+forward pass over the growing KV cache. Block-diffusion models generate an entire block of tokens
+in parallel through iterative denoising, then step to the next block. The structural difference
+produces different cost shapes, and the shapes determine which architecture is faster for a given
+workload.
                                                                                    
                                                                                    
-&#8212; vLLM 0.25.1, NVIDIA A100 80GB PCIe, BF16 &#8212; for structured log extraction
-from the LOGHUB BGL corpus. The task is 12-field JSON extraction from log lines,
-scored on a 9-field macro F1. The models are Qwen2.5-3B-Instruct (AR, 3.0 B active)
-and DiffusionGemma-26B-A4B (DG, 4.0 B active of 26 B total), matched on active
-parameters. At \(L{=}256\) output tokens they reach quality equivalence: 0.852 vs 0.852 on the 9-field
-metric (\(\Delta = \qualityGap \), 95% CI \([-0.012, +0.011]\), \(n=300\)). Eight corrections &#8212; five harness defects and three withdrawn
-claims &#8212; were made before this version. Five of the eight biased against the AR arm
-(Appendix&#x00A0;<a 
-href="#x1-310001">A<!--tex4ht:ref: app:defects --></a>). All were found by re-reading committed artifacts, not by running new
-experiments.
+</p><!--l. 11--><p class="indent" >   We measure both on a pinned stack &#8212; vLLM 0.25.1, NVIDIA A100 80GB PCIe,
+BF16 &#8212; for structured log extraction from the LOGHUB BGL corpus. The task is
+12-field JSON extraction from log lines, scored on a 9-field macro F1. The models are
+Qwen2.5-3B-Instruct (AR, 3.0 B active) and DiffusionGemma-26B-A4B (DG, 4.0 B active of 26 B
+total), matched on active parameters. At \(L{=}256\) output tokens they reach quality equivalence: \begin {equation}  \Delta _{\mathrm {F1}} = |\arThreeBFnine - \dgNineF | = \qualityGap , \quad \text {95\% CI } [-0.012, +0.011], \quad n = 300  \end {equation}
+</p><!--l. 23--><p class="indent" >   Eight corrections &#8212; five harness defects and three withdrawn claims &#8212; were made before this
+version. Five of the eight biased against the AR arm (Appendix&#x00A0;<a 
+href="#x1-310001">A<!--tex4ht:ref: app:defects --></a>). All were found by re-reading
+committed artifacts, not by running new experiments.
 </p>
-<!--l. 17--><p class="noindent" ><span class="likeparagraphHead"><a 
+<!--l. 28--><p class="noindent" ><span class="likeparagraphHead"><a 
  id="x1-20001"></a>Numeric precision</span>
    Every number in this paper is quoted to a precision its measurement error supports. Latency
 is quoted to 0.1 ms: the run-to-run CV on the pinned stack is 0.1&#8211;0.3%, so 0.1 ms is real resolution
 at the p50. F1 scores are quoted to three decimals: at \(n = \nPerCell \) events the standard error of a nine-field
-macro F1 is roughly 0.006, so three decimals is the defensible resolution. Ratios and multipliers
-are quoted to one decimal. Fitted coefficients are quoted only to the precision the residuals
-support &#8212; the K-sweep fit at \(R^2 = \kfitRsq \) (Appendix&#x00A0;<a 
-href="#x1-320002">B<!--tex4ht:ref: app:decomp --></a>) is cited as a shape, not a measurement.
-</p><hr class="figure" /><div class="figure" 
+macro F1 is roughly 0.006, so three decimals is the defensible resolution. Ratios and
+multipliers are quoted to one decimal. Fitted coefficients are quoted only to the precision
+the residuals support &#8212; the K-sweep fit at \(R^2 = \kfitRsq \) (Appendix&#x00A0;<a 
+href="#x1-320002">B<!--tex4ht:ref: app:decomp --></a>) is cited as a shape, not a
+measurement.
+</p>
+   <hr class="figure" /><div class="figure" 
 >
                                                                                    
                                                                                    
                                                                                    
                                                                                    
-<!--l. 28--><p class="noindent" > <img 
+<!--l. 42--><p class="noindent" > <img 
 src="..//figures/fig8_defects-.png" alt="PIC"  
 width="433" height="433"  /> <a 
  id="x1-2001r1"></a>
@@ -126,21 +127,18 @@ class="ec-lmbx-10">&#x00A0;1. </span></span><span
 class="content"><span 
 class="ec-lmr-10">Eight priced errors in our own comparison harness, each found by re-reading committed</span>
 <span 
-class="ec-lmr-10">artifacts (, , ; BGL,</span> \(n{=}300\) <span 
-class="ec-lmr-10">per cell). Five of eight biased against the autoregressive arm. The clustering</span>
+class="ec-lmr-10">artifacts (BGL,</span> \(n{=}300\) <span 
+class="ec-lmr-10">per cell). Five of eight biased against the autoregressive arm. The clustering on one</span>
 <span 
-class="ec-lmr-10">on one arm is suggestive, though the sample (n=8) is too small for a statistical claim: a comparison</span>
-<span 
-class="ec-lmr-10">harness written by someone hoping the new architecture wins fails asymmetrically. The sample is</span>
-<span 
-class="ec-lmr-10">too small (n=8) to distinguish from chance.</span>                                              </span></div><!--tex4ht:label?: x1-2001r -->
+class="ec-lmr-10">arm is suggestive, though the sample (</span>\(n{=}8\)<span 
+class="ec-lmr-10">) is too small for a statistical claim.</span>                     </span></div><!--tex4ht:label?: x1-2001r -->
                                                                                    
                                                                                    
    </div><hr class="endfigure" />
    <div class="table">
                                                                                    
                                                                                    
-<!--l. 39--><p class="indent" >   </p><hr class="float" /><div class="float" 
+<!--l. 51--><p class="indent" >   </p><hr class="float" /><div class="float" 
 >
                                                                                    
                                                                                    
@@ -165,7 +163,7 @@ id="TBL-3-1" /><col
 id="TBL-3-2" /><col 
 id="TBL-3-3" /></colgroup><tr  
  style="vertical-align:baseline;" id="TBL-3-1-"><td  style="white-space:normal; text-align:left;" id="TBL-3-1-1"  
-class="td01"><!--l. 57--><p class="noindent" >                                       </p></td><td  style="white-space:nowrap; text-align:right;" id="TBL-3-1-2"  
+class="td01"><!--l. 69--><p class="noindent" >                                       </p></td><td  style="white-space:nowrap; text-align:right;" id="TBL-3-1-2"  
 class="td11"> <span 
 class="ec-lmbx-9">ar-3b (active-param.)  </span></td><td  style="white-space:nowrap; text-align:right;" id="TBL-3-1-3"  
 class="td10"> <span 
@@ -173,7 +171,7 @@ class="ec-lmbx-9">dg-26B-A4B</span></td>
 
 </tr><tr  
  style="vertical-align:baseline;" id="TBL-3-2-"><td  style="white-space:normal; text-align:left;" id="TBL-3-2-1"  
-class="td01"><!--l. 57--><p class="noindent" ><span 
+class="td01"><!--l. 69--><p class="noindent" ><span 
 class="ec-lmr-9">9-field</span>
 <span 
 class="ec-lmr-9">macro</span>
@@ -186,7 +184,7 @@ class="td11">              0.852  </td><td  style="white-space:nowrap; text-alig
 class="td10">       0.852</td>
 </tr><tr  
  style="vertical-align:baseline;" id="TBL-3-3-"><td  style="white-space:normal; text-align:left;" id="TBL-3-3-1"  
-class="td01"><!--l. 57--><p class="noindent" ><span 
+class="td01"><!--l. 69--><p class="noindent" ><span 
 class="ec-lmr-9">Active</span>
 <span 
 class="ec-lmr-9">parameters</span>                                                           </p></td><td  style="white-space:nowrap; text-align:right;" id="TBL-3-3-2"  
@@ -194,7 +192,7 @@ class="td11">              3.0 B  </td><td  style="white-space:nowrap; text-alig
 class="td10">       4.0 B</td>
 </tr><tr  
  style="vertical-align:baseline;" id="TBL-3-4-"><td  style="white-space:normal; text-align:left;" id="TBL-3-4-1"  
-class="td01"><!--l. 57--><p class="noindent" ><span 
+class="td01"><!--l. 69--><p class="noindent" ><span 
 class="ec-lmr-9">p50</span>
 <span 
 class="ec-lmr-9">latency</span>
@@ -208,7 +206,7 @@ class="td11">          1616.0 ms  </td><td  style="white-space:nowrap; text-alig
 class="td10">    379.0 ms</td>
 </tr><tr  
  style="vertical-align:baseline;" id="TBL-3-5-"><td  style="white-space:normal; text-align:left;" id="TBL-3-5-1"  
-class="td01"><!--l. 57--><p class="noindent" ><span 
+class="td01"><!--l. 69--><p class="noindent" ><span 
 class="ec-lmr-9">Within-block</span>
 <span 
 class="ec-lmr-9">marginal</span>
@@ -222,7 +220,7 @@ class="td11">             6.3 ms  </td><td  style="white-space:nowrap; text-alig
 class="td10">      0.0 ms</td>
 </tr><tr  
  style="vertical-align:baseline;" id="TBL-3-6-"><td  style="white-space:normal; text-align:left;" id="TBL-3-6-1"  
-class="td01"><!--l. 57--><p class="noindent" ><span 
+class="td01"><!--l. 69--><p class="noindent" ><span 
 class="ec-lmr-9">Block</span>
 <span 
 class="ec-lmr-9">boundary</span>
@@ -237,7 +235,7 @@ class="td11">               n/a  </td><td  style="white-space:nowrap; text-align
 class="td10">    119.5 ms</td>
 </tr><tr  
  style="vertical-align:baseline;" id="TBL-3-7-"><td  style="white-space:normal; text-align:left;" id="TBL-3-7-1"  
-class="td01"><!--l. 57--><p class="noindent" ><span 
+class="td01"><!--l. 69--><p class="noindent" ><span 
 class="ec-lmr-9">Marginal</span>
 <span 
 class="ec-lmr-9">cost</span>
@@ -251,7 +249,7 @@ class="td11">             0.0 ms  </td><td  style="white-space:nowrap; text-alig
 class="td10">      0.1 ms</td>
 </tr><tr  
  style="vertical-align:baseline;" id="TBL-3-8-"><td  style="white-space:normal; text-align:left;" id="TBL-3-8-1"  
-class="td01"><!--l. 57--><p class="noindent" ><span 
+class="td01"><!--l. 69--><p class="noindent" ><span 
 class="ec-lmr-9">Batch-1</span>
 \(\to \)
 <span 
@@ -264,7 +262,7 @@ class="td11">          77.1&#8211;86.0\(\times \)  </td><td  style="white-space:
 class="td10">         \(\leq \)1.7\(\times \)</td>
 </tr><tr  
  style="vertical-align:baseline;" id="TBL-3-9-"><td  style="white-space:normal; text-align:left;" id="TBL-3-9-1"  
-class="td01"><!--l. 57--><p class="noindent" ><span 
+class="td01"><!--l. 69--><p class="noindent" ><span 
 class="ec-lmr-9">Energy</span>
 <span 
 class="ec-lmr-9">per</span>
@@ -287,7 +285,7 @@ class="td10">       4.2 J</td>
 
 </tr><tr  
  style="vertical-align:baseline;" id="TBL-3-10-"><td  style="white-space:normal; text-align:left;" id="TBL-3-10-1"  
-class="td01"><!--l. 57--><p class="noindent" >                                       </p></td></tr></table>
+class="td01"><!--l. 69--><p class="noindent" >                                       </p></td></tr></table>
                                                                                    
                                                                                    
    </div><hr class="endfloat" />
@@ -691,34 +689,36 @@ measured.
                                                                                    
    <h3 class="sectionHead"><span class="titlemark">5   </span> <a 
  id="x1-190005"></a>Threats to Validity</h3>
-<!--l. 2--><p class="noindent" >All measurements are on one GPU (NVIDIA A100 80GB PCIe); the fitted constants are
+<!--l. 4--><p class="noindent" >All measurements are on one GPU (NVIDIA A100 80GB PCIe); the fitted constants are
 A100-specific but the shapes should transfer. The batching ceiling reproduces across two runtimes
 and two model families, but both measurements are engine-bounded (Appendix&#x00A0;<a 
 href="#x1-330003">C<!--tex4ht:ref: app:batching --></a>). The crossover
 is calibrated at a \(\sim \)1,047-token prompt and shifts with input length. The AR&#8211;DG quality difference
-(\(\Delta = \qualityGap \)) has a 95% CI of \([-0.012, +0.011]\) at \(n=300\); the two are equivalent at a \(\pm 0.015\) margin, which is the smallest F1
-difference that would change a deployment decision. The surviving niche has not been
-tested on a task whose natural output length is \(\geq 512\) tokens. The forced comparison in
-Table&#x00A0;<a 
-href="#x1-10001r2">2<!--tex4ht:ref: tab:niche --></a> charges the AR arm for tokens that first-object-wins parsing discards, so the \(5.4\times \)
-advantage is an upper bound on AR cost rather than a measurement of it. A task
-with genuinely long natural output &#8212; multi-record extraction, incident reports &#8212;
-would test the niche without this artifact. The niche has also not been tested against
-grammar-constrained AR decoding (outlines, xgrammar, llguidance), which would eliminate the
-over-generation the forced comparison charges for, guarantee 100% schema validity, and remove
-the diffusion model&#8217;s completeness advantage. Constrained decoding is the standard
-answer to the structured-output problem and is a stated limitation of this paper. The
-cost-shape generalisation (&#8220;any decoder emitting fixed-size blocks would inherit the
-same shape&#8221;) is inferred from one block-diffusion model (DiffusionGemma-26B-A4B)
-measured against one AR family (Qwen2.5). The LLaDA-8B arm was measured under
-dInfer but is inconclusive due to the cache bug (Appendix&#x00A0;<a 
-href="#x1-330003">C<!--tex4ht:ref: app:batching --></a>). The shape claim is
-structural and should hold for any canvas-bound decoder, but it is not tested on a second
-diffusion family on a working serving stack. DiffusionGemma-26B-A4B-it is available at
-<a 
+is: \begin {equation}  \Delta = \qualityGap , \quad \text {95\% CI } [-0.012, +0.011], \quad n = 300  \end {equation}
+The two are equivalent at a \(\pm 0.015\) margin, which is the smallest F1 difference that would change a
+deployment decision.
+</p><!--l. 16--><p class="indent" >   The surviving niche has not been tested on a task whose natural output length is \(\geq 512\) tokens. The
+forced comparison in Table&#x00A0;<a 
+href="#x1-10001r2">2<!--tex4ht:ref: tab:niche --></a> charges the AR arm for tokens that first-object-wins parsing
+discards, so the \(5.4\times \) advantage is an upper bound on AR cost rather than a measurement of it. A task
+with genuinely long natural output &#8212; multi-record extraction, incident reports &#8212; would test the
+niche without this artifact.
+</p><!--l. 24--><p class="indent" >   The niche has also not been tested against grammar-constrained AR decoding (outlines,
+xgrammar, llguidance), which would eliminate the over-generation the forced comparison charges
+for, guarantee 100% schema validity, and remove the diffusion model&#8217;s completeness advantage.
+Constrained decoding is the standard answer to the structured-output problem and is a stated
+limitation of this paper.
+</p><!--l. 31--><p class="indent" >   The cost-shape generalisation (&#8220;any decoder emitting fixed-size blocks would inherit the same
+shape&#8221;) is inferred from one block-diffusion model (DiffusionGemma-26B-A4B) measured against
+one AR family (Qwen2.5). The LLaDA-8B arm was measured under dInfer but is inconclusive due
+to the cache bug (Appendix&#x00A0;<a 
+href="#x1-330003">C<!--tex4ht:ref: app:batching --></a>). The shape claim is structural and should hold for any
+canvas-bound decoder, but it is not tested on a second diffusion family on a working serving
+stack.
+</p><!--l. 39--><p class="indent" >   DiffusionGemma-26B-A4B-it is available at <a 
 href="https://huggingface.co/google/diffusiongemma-26b-a4b-it" class="url" ><span 
-class="ec-lmtt-10x-x-109">https://huggingface.co/google/diffusiongemma-26b-a4b-it</span></a>. All DG measurements are
-reproducible from this checkpoint.
+class="ec-lmtt-10x-x-109">https://huggingface.co/google/diffusiongemma-26b-a4b-it</span></a>.
+All DG measurements are reproducible from this checkpoint.
 <a 
  id="x1-19001r26"></a>
 </p>
@@ -741,6 +741,8 @@ is \(\sim \)410 ms against AR&#8217;s \(\sim \)825 ms &#8212; a \(2.0\times \) a
 (the 3.21\(\times \) max/median from Appendix&#x00A0;<a 
 href="#x1-420007">G<!--tex4ht:ref: app:distributions --></a>) washes out under sequential composition: the
 p99.9/median ratio converges from 1.04\(\times \) at \(D{=}1\) to 1.77&#8211;2.07\(\times \) at \(D{=}10\)&#8211;\(20\), against AR&#8217;s 1.93\(\times \) mean.
+                                                                                   
+                                                                                   
 </p><hr class="figure" /><div class="figure" 
 >
                                                                                    
@@ -1070,13 +1072,15 @@ exists.
 </p>
    <h3 class="sectionHead"><span class="titlemark">8   </span> <a 
  id="x1-300008"></a>Conclusion</h3>
-<!--l. 2--><p class="noindent" >Diffusion language models have a real latency advantage for structured output: \(1.8\times \) faster than the
-quality-comparable AR model even at natural output length, inflated to \(5.4\times \) at forced output \(L{=}1024\). The
-advantage comes from the cost shape &#8212; a staircase that is flat inside each block &#8212; not from the
-diffusion process itself. The floor is mostly prefill, and any decoder emitting fixed-size blocks
-would inherit the same shape. The advantage does not survive deployment. A \(1.8\times \) gap on a model 17\(\times \)
-larger is not a deployment argument, and at matched quality the AR model batches more than an
-order of magnitude better. What survives is a narrow regime: long forced output, batch-1,
+<!--l. 4--><p class="noindent" >Diffusion language models have a real latency advantage for structured output. The
+advantage is \(1.8\times \) faster than the quality-comparable AR model even at natural output
+length, inflated to \(5.4\times \) at forced output \(L{=}1024\). The advantage comes from the cost shape &#8212; a
+staircase that is flat inside each block &#8212; not from the diffusion process itself. The floor
+is mostly prefill, and any decoder emitting fixed-size blocks would inherit the same
+shape.
+</p><!--l. 12--><p class="indent" >   The advantage does not survive deployment. A \(1.8\times \) gap on a model 17\(\times \) larger is not a
+deployment argument, and at matched quality the AR model batches more than an order
+of magnitude better. What survives is a narrow regime: long forced output, batch-1,
 schema validation, and a data-centre footprint. Outside that regime, the line beats the
 staircase.
 <a 
@@ -1089,13 +1093,13 @@ experiments. Items 1&#8211;5 were harness defects &#8212; the measurement itself
 Items 6&#8211;8 were claims withdrawn after correction &#8212; the measurement was sound, but
 the claim drawn from it was not. Five of the eight biased against the autoregressive
 arm.
+                                                                                   
+                                                                                   
     </p><dl class="enumerate-enumitem"><dt class="enumerate-enumitem">
  1. </dt><dd 
 class="enumerate-enumitem"><span 
 class="ec-lmbx-10x-x-109">Decoding configuration. </span>Qwen2.5&#8217;s checkpoint sets <span 
 class="ec-lmtt-10x-x-109">repetition_penalty</span>\(=\) 1.1, which
-                                                                                   
-                                                                                   
     suppresses span-copying and empties the <span 
 class="ec-lmtt-10x-x-109">host </span>field. Correcting to 1.0 moved AR 9-field
     F1 from 0.779 to 0.844. <span 
@@ -1162,10 +1166,10 @@ class="ec-lmri-10x-x-109">Against AR </span>(overstated how well DG&#8217;s
     load behaviour is modelled).</dd></dl>
 <!--l. 40--><p class="noindent" >The clustering on one arm is not a coincidence: a comparison harness written by someone hoping the
 new architecture wins fails asymmetrically, because the arm the experimenter is not rooting for
+                                                                                   
+                                                                                   
 inherits the checkpoint defaults, the naive serving path, and the mature production
 infrastructure.
-                                                                                   
-                                                                                   
 <a 
  id="x1-31009r41"></a>
 </p>
