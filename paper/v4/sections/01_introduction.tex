@@ -9,13 +9,13 @@ block of tokens in
 parallel through iterative denoising, then step to the next block.
 The cost is a subway: flat fare per station, no matter how many
 tokens board. We call this second class \emph{block-diffusion} because
-the block structure --- not the diffusion process --- is what
+the block structure, not the diffusion process, is what
 determines its cost shape. Figure~\ref{fig:schematic} illustrates
 the two decoding patterns.
 
 We ran both architectures on vLLM~\cite{vllm2023} on a single
 \gpuModel{} to remove the serving-path asymmetry that dominates naive
-comparisons --- though not on identical engine versions, which we
+comparisons, though not on identical engine versions, which we
 return to in \S\ref{sec:threats}. The task is structured log
 extraction: each raw log line describes a hardware or software event,
 and the model must emit a JSON record with twelve fields spanning
@@ -25,7 +25,7 @@ inference, and anomaly fields require binary classification.
 
 \paragraph{Data.}
 
-The corpus is BGL from LOGHUB~\cite{loghub} --- 4{,}747{,}963 lines of
+The corpus is BGL from LOGHUB~\cite{loghub}, 4{,}747{,}963 lines of
 console log from the BlueGene/L supercomputer at Lawrence Livermore
 National Laboratory, whose first column tags each line as an alert or
 non-alert. We sample 600{,}000 lines uniformly (reservoir sampling,
@@ -37,15 +37,15 @@ by parsing each line with Drain~\cite{drain} and carrying the native
 alert tags through as \texttt{is\_anomaly} and \texttt{anomaly\_score}.
 
 Quality is macro-averaged token-level F1 over 9 of the 12 fields. The
-three excluded --- \texttt{event\_type}, \texttt{affected\_entity} and
-\texttt{remediation\_hint} --- are the semantic fields whose gold
-labels are parser placeholders rather than ground truth, so scoring
+three excluded, \texttt{event\_type}, \texttt{affected\_entity} and
+\texttt{remediation\_hint}, are the semantic fields whose gold
+labels are parser placeholders instead of ground truth, so scoring
 them measures agreement with Drain, not extraction quality; this was
 one of the eight corrections priced in Appendix~\ref{app:defects}.
 A record is \emph{schema-valid} if it parses as JSON and carries all
 twelve keys; schema completeness is the fraction of keys present, which
-is what separates a truncated record from a complete one. Latencies are
-reported as percentiles over per-event wall time --- p50 is the median,
+separates a truncated record from a complete one. Latencies are
+reported as percentiles over per-event wall time, p50 is the median,
 p99 and p99.9 the tail. Every evaluation cell draws $n = 300$ events
 from the test split unless stated otherwise. For the generalisation check in \S\ref{sec:laws} we
 additionally use the LOGHUB HDFS sample (2{,}000 lines, evaluation
@@ -54,10 +54,10 @@ only).
 Both arms are Mixture-of-Experts models:
 \begin{itemize}[nosep]
 \item \DG\ (DiffusionGemma-26B-A4B~\cite{diffusiongemma}, 4.0\,B active
-  of 26\,B total, 52\,GB) --- the block-diffusion arm. Top-8 of 128
+  of 26\,B total, 52\,GB), the block-diffusion (DG) arm. Top-8 of 128
   experts.
 \item \ARthree\ (Qwen3-30B-A3B~\cite{qwen25}, 3.0\,B active of 30\,B
-  total, 60\,GB) --- the autoregressive arm. Matched to DG on
+  total, 60\,GB), the autoregressive (AR) arm. Matched to DG on
   architecture class and active parameters.
 \end{itemize}
 The cost shapes we derive are properties of the \emph{decoding
@@ -68,7 +68,7 @@ higher floor but the same staircase.
 \paragraph{The plot twist.}
 
 When we first compared the two architectures, diffusion looked four
-times \emph{faster} than AR. It was not. The AR model was running on a
+times \emph{faster} than AR. It was not. AR was running on a
 naive HuggingFace generate loop while the diffusion model ran on vLLM
 with continuous batching; the harness was silently crippling the
 baseline. Moving that baseline onto the same serving stack cut its p50
@@ -79,7 +79,7 @@ that took the most-drifted JSON object, a metric that counted falsy
 values as missing keys. Five of the eight biased against the AR arm,
 because the arm we were not rooting for inherited every default. The
 fifteenfold advantage reported below is not what that flattering
-harness produced --- it is what survived all eight corrections
+harness produced, it's what survived all eight corrections
 \emph{and} a switch to an architecture-matched AR baseline. The
 corrections are priced in Appendix~\ref{app:defects}; they are the
 methodological backbone of every number that follows.
@@ -93,15 +93,15 @@ a fixed-size block and stepping at each boundary. The shapes cross at
 $L^{*} = \crossoverL$ output tokens (\S\ref{sec:laws}).
 
 \item \textbf{Where is the diffusion model faster?}
-Above $L^{*}$, DG is faster --- fifteen times at natural output, eight
-times at a thousand tokens. In cost terms, that is the difference
+Above $L^{*}$, DG is faster, fifteen times at natural output, eight
+times at a thousand tokens. In cost terms, that's the difference
 between \$0.0076 and \$0.0005 per event on an A100, a gap that
 compounds to thousands of dollars at million-event scale
 (\S\ref{sec:wins}).
 
-\item \textbf{What limits the diffusion model's advantage in practice?}
-The AR model batches far better and has a tighter tail. But in the
-batch-1 regime --- serial chains, autonomous driving, trading ---
+\item \textbf{What limits the diffusion model's advantage operationally?}
+AR batches far better and has a tighter tail. But in the
+batch-1 regime, serial chains, autonomous driving, trading ,
 batching is unavailable and the staircase shape dominates
 (\S\ref{sec:limits}).
 
@@ -117,8 +117,8 @@ line after it either explains one of these rows or bounds it.
 
 \begin{table}[h]
 \centering
-\caption{The paper in one table. The diffusion model's latency
-advantage is real; deployment factors limit it in practice.
+\caption{The paper in one table. DG's latency
+advantage is real; deployment factors limit it operationally.
 Max/median is the largest per-event latency over its median, across
 300 events at $L{=}\canvasLength$; the AR entry for that row is the
 dense AR-3B baseline, which was the arm measured per-event, while

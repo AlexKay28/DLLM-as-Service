@@ -6,7 +6,7 @@ serial mode. DG wins at every practical output length. The five
 conditions that define the regime where block diffusion is the right
 choice are:
 \begin{enumerate}[nosep]
-  \item Output length $\geq 7$ tokens (DG crossover in serial mode).
+  \item Output length $\geq 7$ tokens (DG crossover in serial).
   \item Batch-1 by requirement: tenant isolation, interactivity, or
     serial chain structure.
   \item Completeness is validated against a schema.
@@ -14,22 +14,22 @@ choice are:
   \item A \dgWeights\,GB resident footprint is acceptable.
 \end{enumerate}
 
-\paragraph{Why serial investigation chains are the natural habitat of the staircase.}
+\paragraph{Why serial investigation chains are where the staircase wins.}
 
 A security operations centre receives an alert, looks up threat
 intelligence, cross-references internal logs, and drills into the next
 layer. Each hop blocks on the previous; concurrency is 1 by
 construction. Against AR-30B, DG is roughly fourteen times faster per
-hop. The chain harness measures DG at 419\,ms per hop rather than the
+hop. The chain harness measures DG at 419\,ms per hop instead of the
 379\,ms anchor, because each hop re-prefills a longer accumulated
-prompt. The AR-30B side is its 5{,}899\,ms single-shot anchor rather
-than a chain run --- only the dense AR-3B was run through the chain
+prompt. AR-30B side is its 5{,}899\,ms single-shot anchor rather
+than a chain run, only the dense AR-3B was run through the chain
 harness, at 808\,ms per hop. So the $14\times$ is a cross-harness
 figure. Figure~\ref{fig:chains} plots the measured AR-3B chain and
 shows the $1.9\times$ ratio of that pairing. What the figure
 establishes is the \emph{shape}: neither the per-hop cost nor DG's tail
 penalty grows with depth. The gap widens in absolute terms as hops
-accumulate --- at eight hops, the difference between three seconds and
+accumulate, at eight hops, the difference between three seconds and
 forty-seven seconds is the difference between catching an intruder in
 the act and finding the trail gone cold.
 
@@ -37,7 +37,7 @@ the act and finding the trail gone cold.
 \centering
 \includegraphics[width=\linewidth]{figures/fig10_usecase_chains.png}
 \caption{Serial investigation chains. \textbf{A:} per-hop p50 is
-constant across depth --- the staircase does not steepen. \textbf{B:}
+constant across depth, the staircase doesn't steepen. \textbf{B:}
 the AR/DG latency ratio at p99.9 climbs from $1.04\times$ at one hop to
 $2.07\times$ at five, settling near the median ratio
 ($1.77$--$1.89\times$) by 10--20 hops. DG's fat tail almost erases its
@@ -53,17 +53,17 @@ $n{=}100$ chains per depth, $K{=}8$).}
 
 A FATAL log line arrives mid-stream. DG's bounded service time and
 complete-canvas guarantee make it suitable for priority preemption: a
-preempted request returns a valid record, not a truncated one. The AR
-model, interrupted mid-generation, returns half a JSON object ---
+preempted request returns a valid record, not a truncated one. AR
+model, interrupted mid-generation, returns half a JSON object,
 syntactically invalid, unusable downstream. In a system that must
 decide whether to page an on-call engineer at 3\,a.m., the difference
 between a complete record and a truncated one is the difference
 between an actionable alert and a false negative.
 
 The $K$ knob is DG's emergency brake: when a deadline tightens, drop
-$K$ from 8 to 4 and the model still fills every field --- just with
-slightly less precision --- instead of cutting the JSON in half
-mid-key. AR has no equivalent; its only response to a deadline is
+$K$ from 8 to 4 and the model still fills every field, just with
+slightly less precision, instead of cutting the JSON in half
+mid-key. AR has no counterpart; its only response to a deadline is
 truncation. The completeness guarantee holds only above the canvas
 length; below $L{=}128$ DG's schema validity collapses to
 \dgValidTwentyEight\% against AR's \arValidTwentyEight\%
@@ -73,17 +73,17 @@ the \emph{time} budget, not the output-length budget.
 \paragraph{Why autonomous driving is batch-1 by construction.}
 
 One vehicle, one scene, one decision. There is no batching a braking
-decision --- the car either processes the scene or it does not. The
+decision, the car either processes the scene or it doesn't. The
 $K$ knob is a per-request quality slider: drop $K$ to meet a tightened
-deadline without truncating output. Output is long --- multi-object
-scene description, predicted trajectories --- which is exactly where
+deadline without truncating output. Output is long, multi-object
+scene description, predicted trajectories, which is exactly where
 the staircase advantage is largest.
 
 \paragraph{Why algorithmic trading rewards long chains.}
 
 A serial chain with a 1--5\,s market reaction window. At eight or more
 hops, DG's staircase advantage provides faster end-to-end analysis.
-The taxi fare compounds; the subway fare does not.
+The taxi fare compounds; the subway fare doesn't.
 
 \paragraph{Why wide schemas favour joint denoising.}
 
@@ -99,7 +99,7 @@ not AR-30B).
 \caption{Latency vs schema width (BGL, $n{=}200$; AR arm is the dense
 AR-3B). DG's advantage \emph{rises} with width, from $1.8\times$ at 12
 fields to $2.9$--$3.0\times$ at 50--100 fields, because AR pays per
-field while DG pays per canvas --- though at 100 fields the output no
+field while DG pays per canvas, though at 100 fields the output no
 longer fits one canvas, so DG climbs to $\sim$2{,}140\,ms too and the
 ratio stops growing.}
 \label{fig:schema}
@@ -115,8 +115,8 @@ regardless of output length.
 \paragraph{Where diffusion fails.}
 
 Six hypotheses about diffusion's structural advantages were tested and
-refuted; see Appendix~\ref{app:refuted}. Three of the six --- the
-perturbation, refinement and bounded-deadline probes --- were run on a
+refuted; see Appendix~\ref{app:refuted}. Three of the six, the
+perturbation, refinement and bounded-deadline probes, were run on a
 second diffusion model, \LLaDA\ (LLaDA-8B-Instruct), against the dense
 AR-3B, because they predate the DiffusionGemma arm. We report them
 because the hypotheses concern block diffusion as a class, but they
@@ -125,10 +125,10 @@ attention propagates input noise in both directions, making the
 diffusion arm \emph{less} robust to perturbation than AR in all ten
 tested categories. Joint denoising should preserve suffix tokens by
 construction, but AR trivially regenerates the whole record from the
-prompt --- that probe is DG (Appendix~\ref{app:refuted}). And selective
+prompt, that probe is DG (Appendix~\ref{app:refuted}). And selective
 re-masking gains a small F1 improvement over three rounds, but still
 trails AR after a single pass. These failures
-define the operational boundary: block diffusion's advantage is in
+define where it stops working: block diffusion's advantage is in
 \emph{latency shape at long output}, not in robustness, infilling, or
 iterative refinement.
 

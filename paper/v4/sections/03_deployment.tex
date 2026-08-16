@@ -1,27 +1,27 @@
 \section{Results}
 \label{sec:wins}
 
-The diffusion model's latency advantage is dramatic in serial
-mode. The AR-30B model takes roughly six seconds to produce a
+DG's latency advantage is dramatic in serial
+mode. AR-30B model takes roughly six seconds to produce a
 123-token JSON record; DG completes the same task in under 400\,ms.
 To make this concrete: if both models serve a security operations
 centre processing alerts one at a time, DG handles \crossoverLambda{}
 alerts per second per GPU; the AR-30B handles fewer than one in five
 seconds. Or, in human terms: DG finishes before you can blink; AR-30B
-finishes before you finish reading this sentence. The AR model stops
+finishes before you finish reading this sentence. AR stops
 at its natural end-of-sequence token (EOS), so latency plateaus regardless of
 \texttt{max\_tokens}.
 
-Table~\ref{tab:niche} shows the serial comparison --- AR-30B measured,
+Table~\ref{tab:niche} shows the serial comparison, AR-30B measured,
 DG from the staircase law of Eq.~\ref{eq:dg}. The
 pattern reveals two things: first, AR latency is flat from 128 tokens
-onward because the model hits EOS --- setting \texttt{max\_tokens}
+onward because the model hits EOS, setting \texttt{max\_tokens}
 higher does nothing. Second, DG latency stays flat for the first
 canvas and then steps up per additional canvas. The advantage is
 therefore non-monotonic: it climbs to $15.6\times$ once AR reaches its
 natural length, then narrows to $8.0\times$ by $L{=}1024$ as DG starts
 paying for canvases while AR sits at its plateau. The $4.2\times$ in
-the first row is not a like-for-like comparison --- at
+the first row is not a like-for-like comparison, at
 \texttt{max\_tokens}${=}32$ AR is truncated mid-record while DG still
 emits a full canvas. Extending the same accounting past the table, the
 ratio keeps falling ($6.9\times$ at $L{=}1280$, $4.9\times$ at
@@ -31,14 +31,14 @@ here, not universally.
 \begin{table}[h]
 \centering
 \caption{Serial latency at the MoE-matched pair (AR-30B vs DG,
-batch-1, BGL). The AR-30B column is measured ($n{=}50$) and plateaus
+batch-1, BGL). AR-30B column is measured ($n{=}50$) and plateaus
 because the model stops at $\sim$123 tokens (EOS), so raising
 \texttt{max\_tokens} buys nothing. The DG column is Eq.~\ref{eq:dg}
 evaluated at the canvas count each budget implies, anchored on the
 measured base ($n{=}300$) and canvas step ($n{=}200$); forcing DG to
 fill those canvases measures 501\,ms at $L{=}512$ and 739\,ms at
 $L{=}1024$, within 1\% of the law. The two columns therefore compare
-AR at its natural output against DG at a full canvas budget --- a
+AR at its natural output against DG at a full canvas budget, a
 conservative reading for DG, which emits four times more tokens at the
 last row.}
 \label{tab:niche}
@@ -57,9 +57,9 @@ max\_tokens & AR-30B (ms) & AR actual out & DG (ms) & DG advantage \\
 
 \paragraph{DG wins at every practical output length.}
 
-The serial cost law gives crossover $L^{*} = \crossoverL$ tokens --- DG
+The serial cost law gives crossover $L^{*} = \crossoverL$ tokens, DG
 is faster at any output length above $L^{*}$ (integer-safe: $L \geq 7$).
-The AR-30B serial slope (\arSlope\,ms/token) is $73\times$ steeper than
+AR-30B serial slope (\arSlope\,ms/token) is $73\times$ steeper than
 its batch-throughput slope (0.65\,ms/token at batch 300, from
 80.0\,ms/event over 123 tokens), because serial mode pays full prefill
 and decode overhead per request while batch mode amortises across
@@ -69,10 +69,10 @@ seventy.
 
 \paragraph{Energy.}
 
-The diffusion model uses less energy per event because it draws far
+DG uses less energy per event because it draws far
 less power above idle: 10.8\,W net against the AR-30B's 69.1\,W. It is
-not that DG is busy for less time --- in these two runs it was busy
-longer per event --- but that denoising a canvas keeps fewer units fed
+not that DG is busy for less time, in these two runs it was busy
+longer per event, but that denoising a canvas keeps fewer units fed
 than driving a token-at-a-time decode loop. Over a million events the
 gap is 1.6\,kWh, about an hour of a space heater. The energy ratio is:
 \begin{equation}
@@ -87,7 +87,7 @@ event (joules, idle-subtracted) for each arm. Measured values:
 \frac{5.1}{4.2} = 1.2 \quad \text{(idle 58.6\,W)}
 \end{align}
 A ratio above 1 means AR uses more energy. Two caveats make this
-indicative rather than controlled: the three runs used different idle
+indicative instead of controlled: the three runs used different idle
 baselines and the DG energy was never re-measured at the AR-30B idle
 point; and the AR-30B energy run was served in batch (147\,ms/event
 wall time) while the DG run was serial (386\,ms/event), so the two
@@ -98,8 +98,8 @@ arms were not in the same serving regime.
 Under a tightened deadline the diffusion model returns a complete canvas
 at lower quality, while the AR model returns a truncated record that
 fails schema validation. The $K$ knob is the difference: drop $K$ from
-8 to 4 and the model still fills every field --- just with slightly
-less precision --- instead of cutting the JSON in half mid-key. At a
+8 to 4 and the model still fills every field, just with slightly
+less precision, instead of cutting the JSON in half mid-key. At a
 p99 budget of 400\,ms, this meets it at \kFourPninetynine\,ms p99 with
 F1 falling from \kEightFone\ to \kFourFone. Table~\ref{tab:contrast}
 summarises the contrast across practical challenges.
@@ -109,9 +109,9 @@ summarises the contrast across practical challenges.
 \caption{Practical challenge contrast. Each row is a deployment
 scenario; the right column names the architectural property that drives
 the outcome. Every AR cell is the AR-30B MoE except the tail-latency
-statistics, which are the dense AR-3B --- the only arm measured
-per-event. Because that arm is dense, the tail asymmetry cannot be
-attributed to MoE routing; it is DG's denoising-step variance that
+statistics, which are the dense AR-3B, the only arm measured
+per-event. Because that arm is dense, the tail asymmetry can't be
+attributed to MoE routing; it's DG's denoising-step variance that
 drives it, and the AR-30B MoE's own tail is unmeasured.}
 \label{tab:contrast}
 \begin{tabularx}{\linewidth}{@{}L L L L@{}}
@@ -127,258 +127,4 @@ Long prompt & Prefill paid once & Prefill paid $K$ times & Re-attention per step
 \bottomrule
 \end{tabularx}
 \end{table}
-
-\subsection{What limits the advantage in practice}
-\label{sec:limits}
-
-The diffusion model's serial advantage is large, but five deployment
-factors constrain it in practice.
-
-\paragraph{1. Footprint.}
-
-Both models are MoE with comparable footprints. Neither can share a GPU
-with another large model. The asymmetry that matters is against the
-quality-similar dense AR-1.5B at 3\,GB: sixteen copies fit in the
-space either MoE model occupies.
-
-\paragraph{2. Batching.}
-
-Continuous batching converts arrival concurrency into throughput at
-$77\times$ for AR-30B against $\leq 1.7\times$ for DG. We measured
-both DG multipliers on engine-bounded stacks, so the true ceiling is
-unknown but lies at or above $1.7\times$. Even so, the gap is more
-than an order of magnitude (Figure~\ref{fig:batching}); see
-Appendix~\ref{app:batching}.
-
-\begin{figure}[ht!]
-\centering
-\includegraphics[width=\linewidth]{figures/fig6_batching.png}
-\caption{Batch-1 to peak throughput multipliers. \textbf{A:} the AR-30B
-MoE reaches $77\times$ via KV-cache reuse, while DG caps at
-$\leq 1.7\times$ and LLaDA-8B on dInfer at $1.2\times$ --- two
-diffusion families, two runtimes, the same ceiling --- because
-changing attention masks invalidate KV persistence across denoising
-steps. \textbf{B:} turning the prefix cache off drops the dense AR-3B
-only from \cacheOnMult$\times$ to \cacheOffMult$\times$, so prefix
-sharing is not what creates the gap; KV persistence is. The cache
-on/off and $L$-swept AR bars are the dense AR-3B, not the AR-30B MoE
-(BGL, $n{=}300$).}
-\label{fig:batching}
-\end{figure}
-
-\paragraph{3. Tail latency.}
-
-The diffusion arm's per-event coefficient of variation is \dgEventCV\%
-with a max/median ratio of \dgMaxMed$\times$, against
-\arEventCV\% and \arMaxMed$\times$ for the dense AR-3B --- the only arm
-measured per-event, since the AR-30B MoE was not re-run at that
-granularity; see Appendix~\ref{app:distributions}.
-A $3.21\times$ tail is what breaks a batch-1 SLA --- exactly the
-regime where DG's per-event advantage applies.
-
-\paragraph{4. Input length.}
-
-The diffusion prefill slope is \inputSlopeRatio$\times$ steeper than
-the dense AR-3B's (0.123 against 0.047\,ms per prompt token), because
-each denoising step re-attends the full prompt. At
-longer inputs the base rises and $L^{*}$ moves further upward; see
-Appendix~\ref{app:input_canvas}, which also reports a canvas setting
-that improves latency and quality at once.
-
-\paragraph{5. Co-residency.}
-
-If batch-1 is imposed by tenant isolation, the relevant alternative is
-not the MoE AR-30B but sixteen copies of the smaller dense AR-1.5B,
-whose weights fit sixteen times over in the same 52\,GB. Per-tenant
-latency is unchanged; throughput is $16\times$; isolation is preserved.
-We did not measure sixteen co-resident copies, so the $16\times$ is a
-capacity argument assuming linear scaling and no contention, not a
-throughput measurement.
-
-\paragraph{Cost per event.}
-
-Table~\ref{tab:cost} prices the comparison at a published on-demand
-rate. The headline: at full duty, DG processes events at less than a
-twentieth of a cent each. The AR-30B costs fifteen times more. For a
-B2B log-processing service handling ten thousand events per day, that
-is five dollars a day on DG versus seventy-six on AR-30B --- a
-\$26{,}000 annual gap on a single GPU.
-
-\begin{table}[h]
-\centering
-\caption{Cost per event for three deployment arms at two duty cycles.
-DG is fifteen times cheaper per event than the AR-30B, because it
-finishes an event in 379\,ms against 5{,}899\,ms. Each row prices a
-single instance holding the whole GPU; sixteen co-resident AR-1.5B
-copies would divide that rent sixteen ways, which is the comparison
-the text draws below. GPU: A100 80GB PCIe at \$4.62/hr (AWS
-p4de.24xlarge, August 2026).}
-\label{tab:cost}
-\begin{tabular}{@{}lrrrr@{}}
-\toprule
-Arm & Weights & Duty & Events/hr & \$/event \\
-\midrule
-AR-30B MoE (serial) & 60\,GB & 100\% & 610 & \$0.0076 \\
-AR-30B MoE           & 60\,GB & 25\%  & 153 & \$0.030 \\
-\midrule
-AR-1.5B dense (one copy)    & 3.0\,GB & 100\% & 5{,}408 & \$0.0009 \\
-AR-1.5B dense (one copy)     & 3.0\,GB & 25\%  & 1{,}352 & \$0.003 \\
-\midrule
-DG-26B-A4B (serial)  & 52\,GB & 100\% & 9{,}504 & \$0.0005 \\
-DG-26B-A4B            & 52\,GB & 25\%  & 2{,}376 & \$0.002 \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-Against the small dense arm rather than the MoE, that fifteenfold
-advantage nearly vanishes:
-\begin{equation}
-R_{\mathrm{cost}} = \frac{\$ / \mathrm{event}_{\text{AR-1.5B}}}
-{\$ / \mathrm{event}_{\textsc{dg}}}
-= \frac{0.0009}{0.0005} = 1.8
-\end{equation}
-where both terms are the 100\%-duty single-copy rows of
-Table~\ref{tab:cost}; the same ratio against the AR-30B is
-$15.6\times$. Why does the much slower AR-1.5B nearly match DG on
-cost? Because at 3\,GB it fits sixteen copies in one GPU, and
-co-residency is parallelism by another name. Sixteen AR-1.5B instances
-would produce $16 \times 5{,}408 = 86{,}528$ events/hr against DG's
-9{,}504 --- a projection from the single-copy rate, not a measurement
---- making the co-resident deployment $9\times$ cheaper per event while
-preserving tenant isolation. The honest reading: if you can batch, AR
-wins on economics; if you cannot, DG wins on latency.
-
-\subsection{What survives}
-\label{sec:survives}
-
-The MoE-matched comparison shows DG's advantage is concentrated at
-serial mode. DG wins at every practical output length. The five
-conditions that define the regime where block diffusion is the right
-choice are:
-\begin{enumerate}[nosep]
-  \item Output length $\geq 7$ tokens (DG crossover in serial mode).
-  \item Batch-1 by requirement: tenant isolation, interactivity, or
-    serial chain structure.
-  \item Completeness is validated against a schema.
-  \item The quality floor exceeds what the AR model delivers.
-  \item A \dgWeights\,GB resident footprint is acceptable.
-\end{enumerate}
-
-\paragraph{Why serial investigation chains are the natural habitat of the staircase.}
-
-A security operations centre receives an alert, looks up threat
-intelligence, cross-references internal logs, and drills into the next
-layer. Each hop blocks on the previous; concurrency is 1 by
-construction. Against AR-30B, DG is roughly fourteen times faster per
-hop. The chain harness measures DG at 419\,ms per hop rather than the
-379\,ms anchor, because each hop re-prefills a longer accumulated
-prompt. The AR-30B side is its 5{,}899\,ms single-shot anchor rather
-than a chain run --- only the dense AR-3B was run through the chain
-harness, at 808\,ms per hop. So the $14\times$ is a cross-harness
-figure. Figure~\ref{fig:chains} plots the measured AR-3B chain and
-shows the $1.9\times$ ratio of that pairing. What the figure
-establishes is the \emph{shape}: neither the per-hop cost nor DG's tail
-penalty grows with depth. The gap widens in absolute terms as hops
-accumulate --- at eight hops, the difference between three seconds and
-forty-seven seconds is the difference between catching an intruder in
-the act and finding the trail gone cold.
-
-\begin{figure}[ht!]
-\centering
-\includegraphics[width=\linewidth]{figures/fig10_usecase_chains.png}
-\caption{Serial investigation chains. \textbf{A:} per-hop p50 is
-constant across depth --- the staircase does not steepen. \textbf{B:}
-the AR/DG latency ratio at p99.9 climbs from $1.04\times$ at one hop to
-$2.07\times$ at five, settling near the median ratio
-($1.77$--$1.89\times$) by 10--20 hops. DG's fat tail almost erases its
-advantage on a single hop, but independent hops average out, so the
-longer the chain the more of its median advantage DG keeps. Note the
-arm: this is the dense AR-3B at 808\,ms/hop, hence $1.9\times$ here
-against the $14\times$ in the text, which is the AR-30B anchor (BGL,
-$n{=}100$ chains per depth, $K{=}8$).}
-\label{fig:chains}
-\end{figure}
-
-\paragraph{What happens when a deadline expires mid-generation?}
-
-A FATAL log line arrives mid-stream. DG's bounded service time and
-complete-canvas guarantee make it suitable for priority preemption: a
-preempted request returns a valid record, not a truncated one. The AR
-model, interrupted mid-generation, returns half a JSON object ---
-syntactically invalid, unusable downstream. In a system that must
-decide whether to page an on-call engineer at 3\,a.m., the difference
-between a complete record and a truncated one is the difference
-between an actionable alert and a false negative.
-
-The $K$ knob is DG's emergency brake: when a deadline tightens, drop
-$K$ from 8 to 4 and the model still fills every field --- just with
-slightly less precision --- instead of cutting the JSON in half
-mid-key. AR has no equivalent; its only response to a deadline is
-truncation. The completeness guarantee holds only above the canvas
-length; below $L{=}128$ DG's schema validity collapses to
-\dgValidTwentyEight\% against AR's \arValidTwentyEight\%
-(Appendix~\ref{app:quality}). Graceful degradation is a property of
-the \emph{time} budget, not the output-length budget.
-
-\paragraph{Why autonomous driving is batch-1 by construction.}
-
-One vehicle, one scene, one decision. There is no batching a braking
-decision --- the car either processes the scene or it does not. The
-$K$ knob is a per-request quality slider: drop $K$ to meet a tightened
-deadline without truncating output. Output is long --- multi-object
-scene description, predicted trajectories --- which is exactly where
-the staircase advantage is largest.
-
-\paragraph{Why algorithmic trading rewards long chains.}
-
-A serial chain with a 1--5\,s market reaction window. At eight or more
-hops, DG's staircase advantage provides faster end-to-end analysis.
-The taxi fare compounds; the subway fare does not.
-
-\paragraph{Why wide schemas favour joint denoising.}
-
-DG's joint-canvas denoising treats all fields as one structured
-object. Across schema widths from 12 to 100 fields, DG's latency
-advantage held between $1.8\times$ and $3.0\times$
-(Figure~\ref{fig:schema}; measured against the dense AR-3B baseline,
-not AR-30B).
-
-\begin{figure}[ht!]
-\centering
-\includegraphics[width=0.85\linewidth]{figures/fig11_usecase_schema.png}
-\caption{Latency vs schema width (BGL, $n{=}200$; AR arm is the dense
-AR-3B). DG's advantage \emph{rises} with width, from $1.8\times$ at 12
-fields to $2.9$--$3.0\times$ at 50--100 fields, because AR pays per
-field while DG pays per canvas --- though at 100 fields the output no
-longer fits one canvas, so DG climbs to $\sim$2{,}140\,ms too and the
-ratio stops growing.}
-\label{fig:schema}
-\end{figure}
-
-\paragraph{Where diffusion does not win.}
-
-High-rate log streams favour AR's batching advantage. Tail-sensitive
-single-stream workloads with strict p99 SLAs are hurt by DG's
-max/median ratio. And any workload that can batch favours AR
-regardless of output length.
-
-\paragraph{Where diffusion fails.}
-
-Six hypotheses about diffusion's structural advantages were tested and
-refuted; see Appendix~\ref{app:refuted}. Three of the six --- the
-perturbation, refinement and bounded-deadline probes --- were run on a
-second diffusion model, \LLaDA\ (LLaDA-8B-Instruct), against the dense
-AR-3B, because they predate the DiffusionGemma arm. We report them
-because the hypotheses concern block diffusion as a class, but they
-are not measurements of DG. The most instructive failures: bidirectional
-attention propagates input noise in both directions, making the
-diffusion arm \emph{less} robust to perturbation than AR in all ten
-tested categories. Joint denoising should preserve suffix tokens by
-construction, but AR trivially regenerates the whole record from the
-prompt --- that probe is DG (Appendix~\ref{app:refuted}). And selective
-re-masking gains a small F1 improvement over three rounds, but still
-trails AR after a single pass. These failures
-define the operational boundary: block diffusion's advantage is in
-\emph{latency shape at long output}, not in robustness, infilling, or
-iterative refinement.
 
