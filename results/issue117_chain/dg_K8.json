@@ -1,0 +1,3215 @@
+{
+  "experiment": "issue117_code_chain",
+  "arm": "dg",
+  "model": "google/diffusiongemma-26B-A4B-it",
+  "model_type": "dg",
+  "benchmark": "HumanEval",
+  "n_problems": 164,
+  "max_rounds": 5,
+  "k_steps": 8,
+  "canvas_length": 256,
+  "max_new_tokens": 512,
+  "serving": "serial (batch-1)",
+  "pass_at_1_round1": 0.8537,
+  "pass_at_1_cumulative": 0.9573,
+  "cumulative_by_round": [
+    0.8537,
+    0.9451,
+    0.9573,
+    0.9573,
+    0.9573
+  ],
+  "r1_latency_ms": {
+    "p50": 287.0,
+    "p99": 760.1,
+    "mean": 322.4
+  },
+  "total_latency_ms": {
+    "p50": 304.6,
+    "p99": 3316.8,
+    "mean": 452.2
+  },
+  "predictions": [
+    {
+      "task_id": "HumanEval/0",
+      "rounds": [
+        {
+          "round": 1,
+          "latency_ms": 1127.4,
+          "cumulative_ms": 1127.4,
+          "token_count": 192,
+          "code_validity": true,
+          "pass_at_1": true
+        }
+      ],
+      "n_rounds": 1,
+      "solved": true,
+      "solve_round": 1,
+      "total_latency_ms": 1127.4
+    },
+    {
+      "task_id": "HumanEval/1",
+      "rounds": [
+        {
+          "round": 1,
+          "latency_ms": 339.9,
+          "cumulative_ms": 339.9,
+          "token_count": 242,
+          "code_validity": true,
+          "pass_at_1": false
+        },
+        {
+          "round": 2,
+          "latency_ms": 306.1,
+          "cumulative_ms": 646.0,
+          "token_count": 247,
+          "code_validity": true,
+          "pass_at_1": true
+        }
+      ],
+      "n_rounds": 2,
+      "solved": true,
+      "solve_round": 2,
+      "total_latency_ms": 646.0
+    },
+    {
+      "task_id": "HumanEval/2",
+      "rounds": [
+        {
+          "round": 1,
+          "latency_ms": 230.0,
+          "cumulative_ms": 230.0,
+          "token_count": 102,
+          "code_validity": true,
+          "pass_at_1": true
+        }
+      ],
+      "n_rounds": 1,
+      "solved": true,
+      "solve_round": 1,
+      "total_latency_ms": 230.0
+    },
+    {
+      "task_id": "HumanEval/3",
+      "rounds": [
+        {
+          "round": 1,
+          "latency_ms": 234.3,
+          "cumulative_ms": 234.3,
+          "token_count": 166,
+          "code_validity": true,
+          "pass_at_1": true
+        }
+      ],
+      "n_rounds": 1,
+      "solved": true,
+      "solve_round": 1,
+      "total_latency_ms": 234.3
+    },
+    {
+      "task_id": "HumanEval/4",
+      "rounds": [
+        {
+          "round": 1,
+          "latency_ms": 338.5,
+          "cumulative_ms": 338.5,
+          "token_count": 177,
+          "code_validity": true,
+          "pass_at_1": false
+        },
+        {
+          "round": 2,
+          "latency_ms": 221.9,
+          "cumulative_ms": 560.5,
+          "token_count": 182,
+          "code_validity": true,
+          "pass_at_1": true
+        }
+      ],
+      "n_rounds": 2,
+      "solved": true,
+      "solve_round": 2,
+      "total_latency_ms": 560.4
+    },
+    {
+      "task_id": "HumanEval/5",
+      "rounds": [
+        {
+          "round": 1,
+          "latency_ms": 220.1,
+          "cumulative_ms": 220.1,
+          "token_count": 154,
+          "code_validity": true,
+          "pass_at_1": false
+        },
+        {
+          "round": 2,
+          "latency_ms": 213.8,
+          "cumulative_ms": 433.9,
+          "token_count": 159,
+          "code_validity": true,
+          "pass_at_1": true
+        }
+      ],
+      "n_rounds": 2,
+      "solved": true,
+      "solve_round": 2,
+      "total_latency_ms": 433.9
+    },
+    {
+      "task_id": "HumanEval/6",
+      "rounds": [
+        {
+          "round": 1,
+          "latency_ms": 378.8,
+          "cumulative_ms": 378.8,
+          "token_count": 231,
+          "code_validity": true,
+          "pass_at_1": true
+        }
+      ],
+      "n_rounds": 1,
+      "solved": true,
+      "solve_round": 1,
+      "total_latency_ms": 378.8
+    },
+    {
+      "task_id": "HumanEval/7",
+      "rounds": [
+        {
+          "round": 1,
+          "latency_ms": 213.9,
+          "cumulative_ms": 213.9,
+          "token_count": 117,
+          "code_validity": true,
+          "pass_at_1": false
+        },
+        {
+          "round": 2,
+          "latency_ms": 209.6,
+          "cumulative_ms": 423.5,
+          "token_count": 122,
+          "code_validity": true,
+          "pass_at_1": true
+        }
+      ],
+      "n_rounds": 2,
+      "solved": true,
+      "solve_round": 2,
+      "total_latency_ms": 423.5
+    },
+    {
+      "task_id": "HumanEval/8",
+      "rounds": [
+        {
+          "round": 1,
+          "latency_ms": 261.4,
+          "cumulative_ms": 261.4,
+          "token_count": 157,
+          "code_validity": true,
+          "pass_at_1": false
+        },
+        {
+          "round": 2,
+          "latency_ms": 295.5,
+          "cumulative_ms": 556.9,
+          "token_count": 164,
+          "code_validity": true,
+          "pass_at_1": true
+        }
+      ],
+      "n_rounds": 2,
+      "solved": true,
+      "solve_round": 2,
+      "total_latency_ms": 556.9
+    },
+    {
+      "task_id": "HumanEval/9",
+      "rounds": [
+        {
+          "round": 1,
+          "latency_ms": 298.6,
+          "cumulative_ms": 298.6,
+          "token_count": 177,
+          "code_validity": true,
+          "pass_at_1": true
+        }
+      ],
+      "n_rounds": 1,
+      "solved": true,
+      "solve_round": 1,
+      "total_latency_ms": 298.6
+    },
+    {
+      "task_id": "HumanEval/10",
+      "rounds": [
+        {
+          "round": 1,
+          "latency_ms": 351.8,
+          "cumulative_ms": 351.8,
+          "token_count": 196,
+          "code_validity": true,
+          "pass_at_1": false
+        },
+        {
+          "round": 2,
+          "latency_ms": 318.7,
+          "cumulative_ms": 670.5,
+          "token_count": 229,
+          "code_validity": true,
+          "pass_at_1": true
+        }
+      ],
+      "n_rounds": 2,
+      "solved": true,
+      "solve_round": 2,
+      "total_latency_ms": 670.5
+    },
+    {
+      "task_id": "HumanEval/11",
+      "rounds": [
+        {
+          "round": 1,
+          "latency_ms": 227.5,
+          "cumulative_ms": 227.5,
+          "token_count": 150,
+          "code_validity": true,
+          "pass_at_1": true
+        }
+      ],
+      "n_rounds": 1,
+      "solved": true,
+      "solve_round": 1,
+      "total_latency_ms": 227.5
+    },
+    {
+      "task_id": "HumanEval/12",
+      "rounds": [
+        {
+          "round": 1,
+          "latency_ms": 225.2,
+          "cumulative_ms": 225.2,
+          "token_count": 136,
+          "code_validity": true,
+          "pass_at_1": true
+        }
+      ],
+      "n_rounds": 1,
+      "solved": true,
+      "solve_round": 1,
+      "total_latency_ms": 225.2
+    },
+    {
+      "task_id": "HumanEval/13",
+      "rounds": [
+        {
+          "round": 1,
+          "latency_ms": 180.4,
+          "cumulative_ms": 180.4,
+          "token_count": 104,
+          "code_validity": true,
+          "pass_at_1": true
+        }
+      ],
+      "n_rounds": 1,
+      "solved": true,
+      "solve_round": 1,
+      "total_latency_ms": 180.4
+    },
+    {
+      "task_id": "HumanEval/14",
+      "rounds": [
+        {
+          "round": 1,
+          "latency_ms": 179.5,
+          "cumulative_ms": 179.5,
+          "token_count": 86,
+          "code_validity": true,
+          "pass_at_1": false
+        },
+        {
+          "round": 2,
+          "latency_ms": 204.3,
+          "cumulative_ms": 383.9,
+          "token_count": 91,
+          "code_validity": true,
+          "pass_at_1": true
+        }
+      ],
+      "n_rounds": 2,
+      "solved": true,
+      "solve_round": 2,
+      "total_latency_ms": 383.8
+    },
+    {
+      "task_id": "HumanEval/15",
+      "rounds": [
+        {
+          "round": 1,
+          "latency_ms": 184.1,
+          "cumulative_ms": 184.1,
+          "token_count": 101,
+          "code_validity": true,
+          "pass_at_1": true
+        }
+      ],
+      "n_rounds": 1,
+      "solved": true,
+      "solve_round": 1,
+      "total_latency_ms": 184.1
+    },
+    {
+      "task_id": "HumanEval/16",
+      "rounds": [
+        {
+          "round": 1,
+          "latency_ms": 193.9,
+          "cumulative_ms": 193.9,
+          "token_count": 89,
+          "code_validity": true,
+          "pass_at_1": true
+        }
+      ],
+      "n_rounds": 1,
+      "solved": true,
+      "solve_round": 1,
+      "total_latency_ms": 193.9
+    },
+    {
+      "task_id": "HumanEval/17",
+      "rounds": [
+        {
+          "round": 1,
+          "latency_ms": 377.7,
+          "cumulative_ms": 377.7,
+          "token_count": 221,
+          "code_validity": true,
+          "pass_at_1": false
+        },
+        {
+          "round": 2,
+          "latency_ms": 735.5,
+          "cumulative_ms": 1113.3,
+          "token_count": 370,
+          "code_validity": true,
+          "pass_at_1": true
+        }
+      ],
+      "n_rounds": 2,
+      "solved": true,
+      "solve_round": 2,
+      "total_latency_ms": 1113.2
+    },
+    {
+      "task_id": "HumanEval/18",
+      "rounds": [
+        {
+          "round": 1,
+          "latency_ms": 231.2,
+          "cumulative_ms": 231.2,
+          "token_count": 166,
+          "code_validity": true,
+          "pass_at_1": true
+        }
+      ],
+      "n_rounds": 1,
+      "solved": true,
+      "solve_round": 1,
+      "total_latency_ms": 231.2
+    },
+    {
+      "task_id": "HumanEval/19",
+      "rounds": [
+        {
+          "round": 1,
+          "latency_ms": 305.3,
+          "cumulative_ms": 305.3,
+          "token_count": 227,
+          "code_validity": true,
+          "pass_at_1": true
+        }
+      ],
+      "n_rounds": 1,
+      "solved": true,
+      "solve_round": 1,
+      "total_latency_ms": 305.3
+    },
+    {
+      "task_id": "HumanEval/20",
+      "rounds": [
+        {
+          "round": 1,
+          "latency_ms": 623.5,
+          "cumulative_ms": 623.5,
+          "token_count": 459,
+          "code_validity": false,
+          "pass_at_1": false
+        },
+        {
+          "round": 2,
+          "latency_ms": 407.9,
+          "cumulative_ms": 1031.4,
+          "token_count": 297,
+          "code_validity": true,
+          "pass_at_1": true
+        }
+      ],
+      "n_rounds": 2,
+      "solved": true,
+      "solve_round": 2,
+      "total_latency_ms": 1031.4
+    },
+    {
+      "task_id": "HumanEval/21",
+      "rounds": [
+        {
+          "round": 1,
+          "latency_ms": 268.7,
+          "cumulative_ms": 268.7,
+          "token_count": 208,
+          "code_validity": true,
+          "pass_at_1": true
+        }
+      ],
+      "n_rounds": 1,
+      "solved": true,
+      "solve_round": 1,
+      "total_latency_ms": 268.7
+    },
+    {
+      "task_id": "HumanEval/22",
+      "rounds": [
+        {
+          "round": 1,
+          "latency_ms": 182.5,
+          "cumulative_ms": 182.5,
+          "token_count": 131,
+          "code_validity": true,
+          "pass_at_1": true
+        }
+      ],
+      "n_rounds": 1,
+      "solved": true,
+      "solve_round": 1,
+      "total_latency_ms": 182.5
+    },
+    {
+      "task_id": "HumanEval/23",
+      "rounds": [
+        {
+          "round": 1,
+          "latency_ms": 175.1,
+          "cumulative_ms": 175.1,
+          "token_count": 56,
+          "code_validity": true,
+          "pass_at_1": true
+        }
+      ],
+      "n_rounds": 1,
+      "solved": true,
+      "solve_round": 1,
+      "total_latency_ms": 175.1
+    },
+    {
+      "task_id": "HumanEval/24",
+      "rounds": [
+        {
+          "round": 1,
+          "latency_ms": 226.7,
+          "cumulative_ms": 226.7,
+          "token_count": 91,
+          "code_validity": true,
+          "pass_at_1": true
+        }
+      ],
+      "n_rounds": 1,
+      "solved": true,
+      "solve_round": 1,
+      "total_latency_ms": 226.7
+    },
+    {
+      "task_id": "HumanEval/25",
+      "rounds": [
+        {
+          "round": 1,
+          "latency_ms": 312.6,
+          "cumulative_ms": 312.6,
+          "token_count": 212,
+          "code_validity": true,
+          "pass_at_1": false
+        },
+        {
+          "round": 2,
+          "latency_ms": 265.2,
+          "cumulative_ms": 577.8,
+          "token_count": 217,
+          "code_validity": true,
+          "pass_at_1": true
+        }
+      ],
+      "n_rounds": 2,
+      "solved": true,
+      "solve_round": 2,
+      "total_latency_ms": 577.8
+    },
+    {
+      "task_id": "HumanEval/26",
+      "rounds": [
+        {
+          "round": 1,
+          "latency_ms": 218.3,
+          "cumulative_ms": 218.3,
+          "token_count": 129,
+          "code_validity": true,
+          "pass_at_1": true
+        }
+      ],
+      "n_rounds": 1,
+      "solved": true,
+      "solve_round": 1,
+      "total_latency_ms": 218.3
+    },
+    {
+      "task_id": "HumanEval/27",
+      "rounds": [
+        {
+          "round": 1,
+          "latency_ms": 145.2,
+          "cumulative_ms": 145.2,
+          "token_count": 67,
+          "code_validity": true,
+          "pass_at_1": true
+        }
+      ],
+      "n_rounds": 1,
+      "solved": true,
+      "solve_round": 1,
+      "total_latency_ms": 145.2
+    },
+    {
+      "task_id": "HumanEval/28",
+      "rounds": [
+        {
+          "round": 1,
+          "latency_ms": 180.3,
+          "cumulative_ms": 180.3,
+          "token_count": 71,
+          "code_validity": true,
+          "pass_at_1": false
+        },
+        {
+          "round": 2,
+          "latency_ms": 199.6,
+          "cumulative_ms": 379.9,
+          "token_count": 76,
+          "code_validity": true,
+          "pass_at_1": true
+        }
+      ],
+      "n_rounds": 2,
+      "solved": true,
+      "solve_round": 2,
+      "total_latency_ms": 379.9
+    },
+    {
+      "task_id": "HumanEval/29",
+      "rounds": [
+        {
+          "round": 1,
+          "latency_ms": 255.1,
+          "cumulative_ms": 255.1,
+          "token_count": 117,
+          "code_validity": true,
+          "pass_at_1": false
+        },
+        {
+          "round": 2,
+          "latency_ms": 365.1,
+          "cumulative_ms": 620.1,
+          "token_count": 122,
+          "code_validity": true,
+          "pass_at_1": true
+        }
+      ],
+      "n_rounds": 2,
+      "solved": true,
+      "solve_round": 2,
+      "total_latency_ms": 620.2
+    },
+    {
+      "task_id": "HumanEval/30",
+      "rounds": [
+        {
+          "round": 1,
+          "latency_ms": 185.6,
+          "cumulative_ms": 185.6,
+          "token_count": 147,
+          "code_validity": true,
+          "pass_at_1": true
+        }
+      ],
+      "n_rounds": 1,
+      "solved": true,
+      "solve_round": 1,
+      "total_latency_ms": 185.6
+    },
+    {
+      "task_id": "HumanEval/31",
+      "rounds": [
+        {
+          "round": 1,
+          "latency_ms": 259.7,
+          "cumulative_ms": 259.7,
+          "token_count": 209,
+          "code_validity": true,
+          "pass_at_1": true
+        }
+      ],
+      "n_rounds": 1,
+      "solved": true,
+      "solve_round": 1,
+      "total_latency_ms": 259.7
+    },
+    {
+      "task_id": "HumanEval/32",
+      "rounds": [
+        {
+          "round": 1,
+          "latency_ms": 729.4,
+          "cumulative_ms": 729.4,
+          "token_count": 361,
+          "code_validity": false,
+          "pass_at_1": false
+        },
+        {
+          "round": 2,
+          "latency_ms": 766.6,
+          "cumulative_ms": 1496.0,
+          "token_count": 441,
+          "code_validity": true,
+          "pass_at_1": false
+        },
+        {
+          "round": 3,
+          "latency_ms": 688.4,
+          "cumulative_ms": 2184.4,
+          "token_count": 497,
+          "code_validity": true,
+          "pass_at_1": true
+        }
+      ],
+      "n_rounds": 3,
+      "solved": true,
+      "solve_round": 3,
+      "total_latency_ms": 2184.4
+    },
+    {
+      "task_id": "HumanEval/33",
+      "rounds": [
+        {
+          "round": 1,
+          "latency_ms": 411.4,
+          "cumulative_ms": 411.4,
+          "token_count": 263,
+          "code_validity": true,
+          "pass_at_1": true
+        }
+      ],
+      "n_rounds": 1,
+      "solved": true,
+      "solve_round": 1,
+      "total_latency_ms": 411.4
+    },
+    {
+      "task_id": "HumanEval/34",
+      "rounds": [
+        {
+          "round": 1,
+          "latency_ms": 229.1,
+          "cumulative_ms": 229.1,
+          "token_count": 96,
+          "code_validity": true,
+          "pass_at_1": true
+        }
+      ],
+      "n_rounds": 1,
+      "solved": true,
+      "solve_round": 1,
+      "total_latency_ms": 229.1
+    },
+    {
+      "task_id": "HumanEval/35",
+      "rounds": [
+        {
+          "round": 1,
+          "latency_ms": 259.5,
+          "cumulative_ms": 259.5,
+          "token_count": 114,
+          "code_validity": true,
+          "pass_at_1": true
+        }
+      ],
+      "n_rounds": 1,
+      "solved": true,
+      "solve_round": 1,
+      "total_latency_ms": 259.5
+    },
+    {
+      "task_id": "HumanEval/36",
+      "rounds": [
+        {
+          "round": 1,
+          "latency_ms": 268.8,
+          "cumulative_ms": 268.8,
+          "token_count": 143,
+          "code_validity": true,
+          "pass_at_1": true
+        }
+      ],
+      "n_rounds": 1,
+      "solved": true,
+      "solve_round": 1,
+      "total_latency_ms": 268.8
+    },
+    {
+      "task_id": "HumanEval/37",
+      "rounds": [
+        {
+          "round": 1,
+          "latency_ms": 342.4,
+          "cumulative_ms": 342.4,
+          "token_count": 199,
+          "code_validity": true,
+          "pass_at_1": true
+        }
+      ],
+      "n_rounds": 1,
+      "solved": true,
+      "solve_round": 1,
+      "total_latency_ms": 342.4
+    },
+    {
+      "task_id": "HumanEval/38",
+      "rounds": [
+        {
+          "round": 1,
+          "latency_ms": 284.2,
+          "cumulative_ms": 284.2,
+          "token_count": 152,
+          "code_validity": true,
+          "pass_at_1": false
+        },
+        {
+          "round": 2,
+          "latency_ms": 436.5,
+          "cumulative_ms": 720.7,
+          "token_count": 177,
+          "code_validity": true,
+          "pass_at_1": false
+        },
+        {
+          "round": 3,
+          "latency_ms": 339.0,
+          "cumulative_ms": 1059.7,
+          "token_count": 199,
+          "code_validity": true,
+          "pass_at_1": false
+        },
+        {
+          "round": 4,
+          "latency_ms": 253.4,
+          "cumulative_ms": 1313.1,
+          "token_count": 199,
+          "code_validity": true,
+          "pass_at_1": false
+        },
+        {
+          "round": 5,
+          "latency_ms": 298.5,
+          "cumulative_ms": 1611.6,
+          "token_count": 199,
+          "code_validity": true,
+          "pass_at_1": false
+        }
+      ],
+      "n_rounds": 5,
+      "solved": false,
+      "solve_round": 0,
+      "total_latency_ms": 1611.6
+    },
+    {
+      "task_id": "HumanEval/39",
+      "rounds": [
+        {
+          "round": 1,
+          "latency_ms": 379.1,
+          "cumulative_ms": 379.1,
+          "token_count": 230,
+          "code_validity": true,
+          "pass_at_1": true
+        }
+      ],
+      "n_rounds": 1,
+      "solved": true,
+      "solve_round": 1,
+      "total_latency_ms": 379.1
+    },
+    {
+      "task_id": "HumanEval/40",
+      "rounds": [
+        {
+          "round": 1,
+          "latency_ms": 381.7,
+          "cumulative_ms": 381.7,
+          "token_count": 269,
+          "code_validity": true,
+          "pass_at_1": true
+        }
+      ],
+      "n_rounds": 1,
+      "solved": true,
+      "solve_round": 1,
+      "total_latency_ms": 381.7
+    },
+    {
+      "task_id": "HumanEval/41",
+      "rounds": [
+        {
+          "round": 1,
+          "latency_ms": 423.5,
+          "cumulative_ms": 423.5,
+          "token_count": 238,
+          "code_validity": true,
+          "pass_at_1": true
+        }
+      ],
+      "n_rounds": 1,
+      "solved": true,
+      "solve_round": 1,
+      "total_latency_ms": 423.5
+    },
+    {
+      "task_id": "HumanEval/42",
+      "rounds": [
+        {
+          "round": 1,
+          "latency_ms": 265.1,
+          "cumulative_ms": 265.1,
+          "token_count": 141,
+          "code_validity": true,
+          "pass_at_1": true
+        }
+      ],
+      "n_rounds": 1,
+      "solved": true,
+      "solve_round": 1,
+      "total_latency_ms": 265.1
+    },
+    {
+      "task_id": "HumanEval/43",
+      "rounds": [
+        {
+          "round": 1,
+          "latency_ms": 355.3,
+          "cumulative_ms": 355.3,
+          "token_count": 229,
+          "code_validity": true,
+          "pass_at_1": true
+        }
+      ],
+      "n_rounds": 1,
+      "solved": true,
+      "solve_round": 1,
+      "total_latency_ms": 355.3
+    },
+    {
+      "task_id": "HumanEval/44",
+      "rounds": [
+        {
+          "round": 1,
+          "latency_ms": 233.0,
+          "cumulative_ms": 233.0,
+          "token_count": 171,
+          "code_validity": true,
+          "pass_at_1": true
+        }
+      ],
+      "n_rounds": 1,
+      "solved": true,
+      "solve_round": 1,
+      "total_latency_ms": 233.0
+    },
+    {
+      "task_id": "HumanEval/45",
+      "rounds": [
+        {
+          "round": 1,
+          "latency_ms": 190.7,
+          "cumulative_ms": 190.7,
+          "token_count": 66,
+          "code_validity": true,
+          "pass_at_1": true
+        }
+      ],
+      "n_rounds": 1,
+      "solved": true,
+      "solve_round": 1,
+      "total_latency_ms": 190.7
+    },
+    {
+      "task_id": "HumanEval/46",
+      "rounds": [
+        {
+          "round": 1,
+          "latency_ms": 429.8,
+          "cumulative_ms": 429.8,
+          "token_count": 305,
+          "code_validity": true,
+          "pass_at_1": true
+        }
+      ],
+      "n_rounds": 1,
+      "solved": true,
+      "solve_round": 1,
+      "total_latency_ms": 429.8
+    },
+    {
+      "task_id": "HumanEval/47",
+      "rounds": [
+        {
+          "round": 1,
+          "latency_ms": 301.8,
+          "cumulative_ms": 301.8,
+          "token_count": 163,
+          "code_validity": true,
+          "pass_at_1": true
+        }
+      ],
+      "n_rounds": 1,
+      "solved": true,
+      "solve_round": 1,
+      "total_latency_ms": 301.8
+    },
+    {
+      "task_id": "HumanEval/48",
+      "rounds": [
+        {
+          "round": 1,
+          "latency_ms": 182.4,
+          "cumulative_ms": 182.4,
+          "token_count": 91,
+          "code_validity": true,
+          "pass_at_1": true
+        }
+      ],
+      "n_rounds": 1,
+      "solved": true,
+      "solve_round": 1,
+      "total_latency_ms": 182.4
+    },
+    {
+      "task_id": "HumanEval/49",
+      "rounds": [
+        {
+          "round": 1,
+          "latency_ms": 192.1,
+          "cumulative_ms": 192.1,
+          "token_count": 135,
+          "code_validity": true,
+          "pass_at_1": true
+        }
+      ],
+      "n_rounds": 1,
+      "solved": true,
+      "solve_round": 1,
+      "total_latency_ms": 192.1
+    },
+    {
+      "task_id": "HumanEval/50",
+      "rounds": [
+        {
+          "round": 1,
+          "latency_ms": 267.7,
+          "cumulative_ms": 267.7,
+          "token_count": 77,
+          "code_validity": true,
+          "pass_at_1": false
+        },
+        {
+          "round": 2,
+          "latency_ms": 205.6,
+          "cumulative_ms": 473.3,
+          "token_count": 77,
+          "code_validity": true,
+          "pass_at_1": false
+        },
+        {
+          "round": 3,
+          "latency_ms": 193.6,
+          "cumulative_ms": 666.9,
+          "token_count": 77,
+          "code_validity": true,
+          "pass_at_1": false
+        },
+        {
+          "round": 4,
+          "latency_ms": 195.5,
+          "cumulative_ms": 862.5,
+          "token_count": 77,
+          "code_validity": true,
+          "pass_at_1": false
+        },
+        {
+          "round": 5,
+          "latency_ms": 194.9,
+          "cumulative_ms": 1057.3,
+          "token_count": 77,
+          "code_validity": true,
+          "pass_at_1": false
+        }
+      ],
+      "n_rounds": 5,
+      "solved": false,
+      "solve_round": 0,
+      "total_latency_ms": 1057.3
+    },
+    {
+      "task_id": "HumanEval/51",
+      "rounds": [
+        {
+          "round": 1,
+          "latency_ms": 229.9,
+          "cumulative_ms": 229.9,
+          "token_count": 172,
+          "code_validity": true,
+          "pass_at_1": true
+        }
+      ],
+      "n_rounds": 1,
+      "solved": true,
+      "solve_round": 1,
+      "total_latency_ms": 229.9
+    },
+    {
+      "task_id": "HumanEval/52",
+      "rounds": [
+        {
+          "round": 1,
+          "latency_ms": 191.0,
+          "cumulative_ms": 191.0,
+          "token_count": 109,
+          "code_validity": true,
+          "pass_at_1": true
+        }
+      ],
+      "n_rounds": 1,
+      "solved": true,
+      "solve_round": 1,
+      "total_latency_ms": 191.0
+    },
+    {
+      "task_id": "HumanEval/53",
+      "rounds": [
+        {
+          "round": 1,
+          "latency_ms": 249.6,
+          "cumulative_ms": 249.6,
+          "token_count": 66,
+          "code_validity": true,
+          "pass_at_1": true
+        }
+      ],
+      "n_rounds": 1,
+      "solved": true,
+      "solve_round": 1,
+      "total_latency_ms": 249.6
+    },
+    {
+      "task_id": "HumanEval/54",
+      "rounds": [
+        {
+          "round": 1,
+          "latency_ms": 232.1,
+          "cumulative_ms": 232.1,
+          "token_count": 178,
+          "code_validity": true,
+          "pass_at_1": true
+        }
+      ],
+      "n_rounds": 1,
+      "solved": true,
+      "solve_round": 1,
+      "total_latency_ms": 232.1
+    },
+    {
+      "task_id": "HumanEval/55",
+      "rounds": [
+        {
+          "round": 1,
+          "latency_ms": 222.6,
+          "cumulative_ms": 222.6,
+          "token_count": 111,
+          "code_validity": true,
+          "pass_at_1": true
+        }
+      ],
+      "n_rounds": 1,
+      "solved": true,
+      "solve_round": 1,
+      "total_latency_ms": 222.6
+    },
+    {
+      "task_id": "HumanEval/56",
+      "rounds": [
+        {
+          "round": 1,
+          "latency_ms": 229.5,
+          "cumulative_ms": 229.5,
+          "token_count": 156,
+          "code_validity": true,
+          "pass_at_1": true
+        }
+      ],
+      "n_rounds": 1,
+      "solved": true,
+      "solve_round": 1,
+      "total_latency_ms": 229.5
+    },
+    {
+      "task_id": "HumanEval/57",
+      "rounds": [
+        {
+          "round": 1,
+          "latency_ms": 303.8,
+          "cumulative_ms": 303.8,
+          "token_count": 150,
+          "code_validity": true,
+          "pass_at_1": true
+        }
+      ],
+      "n_rounds": 1,
+      "solved": true,
+      "solve_round": 1,
+      "total_latency_ms": 303.8
+    },
+    {
+      "task_id": "HumanEval/58",
+      "rounds": [
+        {
+          "round": 1,
+          "latency_ms": 197.5,
+          "cumulative_ms": 197.5,
+          "token_count": 152,
+          "code_validity": true,
+          "pass_at_1": true
+        }
+      ],
+      "n_rounds": 1,
+      "solved": true,
+      "solve_round": 1,
+      "total_latency_ms": 197.5
+    },
+    {
+      "task_id": "HumanEval/59",
+      "rounds": [
+        {
+          "round": 1,
+          "latency_ms": 301.3,
+          "cumulative_ms": 301.3,
+          "token_count": 124,
+          "code_validity": true,
+          "pass_at_1": true
+        }
+      ],
+      "n_rounds": 1,
+      "solved": true,
+      "solve_round": 1,
+      "total_latency_ms": 301.3
+    },
+    {
+      "task_id": "HumanEval/60",
+      "rounds": [
+        {
+          "round": 1,
+          "latency_ms": 194.6,
+          "cumulative_ms": 194.6,
+          "token_count": 139,
+          "code_validity": true,
+          "pass_at_1": true
+        }
+      ],
+      "n_rounds": 1,
+      "solved": true,
+      "solve_round": 1,
+      "total_latency_ms": 194.6
+    },
+    {
+      "task_id": "HumanEval/61",
+      "rounds": [
+        {
+          "round": 1,
+          "latency_ms": 266.2,
+          "cumulative_ms": 266.2,
+          "token_count": 153,
+          "code_validity": true,
+          "pass_at_1": true
+        }
+      ],
+      "n_rounds": 1,
+      "solved": true,
+      "solve_round": 1,
+      "total_latency_ms": 266.2
+    },
+    {
+      "task_id": "HumanEval/62",
+      "rounds": [
+        {
+          "round": 1,
+          "latency_ms": 268.1,
+          "cumulative_ms": 268.1,
+          "token_count": 143,
+          "code_validity": true,
+          "pass_at_1": true
+        }
+      ],
+      "n_rounds": 1,
+      "solved": true,
+      "solve_round": 1,
+      "total_latency_ms": 268.1
+    },
+    {
+      "task_id": "HumanEval/63",
+      "rounds": [
+        {
+          "round": 1,
+          "latency_ms": 281.6,
+          "cumulative_ms": 281.6,
+          "token_count": 256,
+          "code_validity": true,
+          "pass_at_1": true
+        }
+      ],
+      "n_rounds": 1,
+      "solved": true,
+      "solve_round": 1,
+      "total_latency_ms": 281.6
+    },
+    {
+      "task_id": "HumanEval/64",
+      "rounds": [
+        {
+          "round": 1,
+          "latency_ms": 361.1,
+          "cumulative_ms": 361.1,
+          "token_count": 203,
+          "code_validity": true,
+          "pass_at_1": true
+        }
+      ],
+      "n_rounds": 1,
+      "solved": true,
+      "solve_round": 1,
+      "total_latency_ms": 361.1
+    },
+    {
+      "task_id": "HumanEval/65",
+      "rounds": [
+        {
+          "round": 1,
+          "latency_ms": 235.9,
+          "cumulative_ms": 235.9,
+          "token_count": 150,
+          "code_validity": true,
+          "pass_at_1": true
+        }
+      ],
+      "n_rounds": 1,
+      "solved": true,
+      "solve_round": 1,
+      "total_latency_ms": 235.9
+    },
+    {
+      "task_id": "HumanEval/66",
+      "rounds": [
+        {
+          "round": 1,
+          "latency_ms": 200.6,
+          "cumulative_ms": 200.6,
+          "token_count": 147,
+          "code_validity": true,
+          "pass_at_1": true
+        }
+      ],
+      "n_rounds": 1,
+      "solved": true,
+      "solve_round": 1,
+      "total_latency_ms": 200.6
+    },
+    {
+      "task_id": "HumanEval/67",
+      "rounds": [
+        {
+          "round": 1,
+          "latency_ms": 409.8,
+          "cumulative_ms": 409.8,
+          "token_count": 100,
+          "code_validity": true,
+          "pass_at_1": true
+        }
+      ],
+      "n_rounds": 1,
+      "solved": true,
+      "solve_round": 1,
+      "total_latency_ms": 409.8
+    },
+    {
+      "task_id": "HumanEval/68",
+      "rounds": [
+        {
+          "round": 1,
+          "latency_ms": 282.3,
+          "cumulative_ms": 282.3,
+          "token_count": 112,
+          "code_validity": true,
+          "pass_at_1": true
+        }
+      ],
+      "n_rounds": 1,
+      "solved": true,
+      "solve_round": 1,
+      "total_latency_ms": 282.3
+    },
+    {
+      "task_id": "HumanEval/69",
+      "rounds": [
+        {
+          "round": 1,
+          "latency_ms": 397.3,
+          "cumulative_ms": 397.3,
+          "token_count": 240,
+          "code_validity": true,
+          "pass_at_1": true
+        }
+      ],
+      "n_rounds": 1,
+      "solved": true,
+      "solve_round": 1,
+      "total_latency_ms": 397.3
+    },
+    {
+      "task_id": "HumanEval/70",
+      "rounds": [
+        {
+          "round": 1,
+          "latency_ms": 354.0,
+          "cumulative_ms": 354.0,
+          "token_count": 229,
+          "code_validity": true,
+          "pass_at_1": true
+        }
+      ],
+      "n_rounds": 1,
+      "solved": true,
+      "solve_round": 1,
+      "total_latency_ms": 354.0
+    },
+    {
+      "task_id": "HumanEval/71",
+      "rounds": [
+        {
+          "round": 1,
+          "latency_ms": 357.5,
+          "cumulative_ms": 357.5,
+          "token_count": 222,
+          "code_validity": true,
+          "pass_at_1": true
+        }
+      ],
+      "n_rounds": 1,
+      "solved": true,
+      "solve_round": 1,
+      "total_latency_ms": 357.5
+    },
+    {
+      "task_id": "HumanEval/72",
+      "rounds": [
+        {
+          "round": 1,
+          "latency_ms": 203.7,
+          "cumulative_ms": 203.7,
+          "token_count": 37,
+          "code_validity": true,
+          "pass_at_1": true
+        }
+      ],
+      "n_rounds": 1,
+      "solved": true,
+      "solve_round": 1,
+      "total_latency_ms": 203.7
+    },
+    {
+      "task_id": "HumanEval/73",
+      "rounds": [
+        {
+          "round": 1,
+          "latency_ms": 289.8,
+          "cumulative_ms": 289.8,
+          "token_count": 221,
+          "code_validity": true,
+          "pass_at_1": true
+        }
+      ],
+      "n_rounds": 1,
+      "solved": true,
+      "solve_round": 1,
+      "total_latency_ms": 289.8
+    },
+    {
+      "task_id": "HumanEval/74",
+      "rounds": [
+        {
+          "round": 1,
+          "latency_ms": 240.9,
+          "cumulative_ms": 240.9,
+          "token_count": 80,
+          "code_validity": true,
+          "pass_at_1": true
+        }
+      ],
+      "n_rounds": 1,
+      "solved": true,
+      "solve_round": 1,
+      "total_latency_ms": 240.9
+    },
+    {
+      "task_id": "HumanEval/75",
+      "rounds": [
+        {
+          "round": 1,
+          "latency_ms": 393.3,
+          "cumulative_ms": 393.3,
+          "token_count": 239,
+          "code_validity": true,
+          "pass_at_1": true
+        }
+      ],
+      "n_rounds": 1,
+      "solved": true,
+      "solve_round": 1,
+      "total_latency_ms": 393.3
+    },
+    {
+      "task_id": "HumanEval/76",
+      "rounds": [
+        {
+          "round": 1,
+          "latency_ms": 391.6,
+          "cumulative_ms": 391.6,
+          "token_count": 134,
+          "code_validity": true,
+          "pass_at_1": true
+        }
+      ],
+      "n_rounds": 1,
+      "solved": true,
+      "solve_round": 1,
+      "total_latency_ms": 391.6
+    },
+    {
+      "task_id": "HumanEval/77",
+      "rounds": [
+        {
+          "round": 1,
+          "latency_ms": 350.7,
+          "cumulative_ms": 350.7,
+          "token_count": 103,
+          "code_validity": true,
+          "pass_at_1": true
+        }
+      ],
+      "n_rounds": 1,
+      "solved": true,
+      "solve_round": 1,
+      "total_latency_ms": 350.7
+    },
+    {
+      "task_id": "HumanEval/78",
+      "rounds": [
+        {
+          "round": 1,
+          "latency_ms": 211.5,
+          "cumulative_ms": 211.5,
+          "token_count": 69,
+          "code_validity": true,
+          "pass_at_1": true
+        }
+      ],
+      "n_rounds": 1,
+      "solved": true,
+      "solve_round": 1,
+      "total_latency_ms": 211.5
+    },
+    {
+      "task_id": "HumanEval/79",
+      "rounds": [
+        {
+          "round": 1,
+          "latency_ms": 291.9,
+          "cumulative_ms": 291.9,
+          "token_count": 182,
+          "code_validity": true,
+          "pass_at_1": true
+        }
+      ],
+      "n_rounds": 1,
+      "solved": true,
+      "solve_round": 1,
+      "total_latency_ms": 291.9
+    },
+    {
+      "task_id": "HumanEval/80",
+      "rounds": [
+        {
+          "round": 1,
+          "latency_ms": 317.5,
+          "cumulative_ms": 317.5,
+          "token_count": 130,
+          "code_validity": true,
+          "pass_at_1": true
+        }
+      ],
+      "n_rounds": 1,
+      "solved": true,
+      "solve_round": 1,
+      "total_latency_ms": 317.5
+    },
+    {
+      "task_id": "HumanEval/81",
+      "rounds": [
+        {
+          "round": 1,
+          "latency_ms": 396.2,
+          "cumulative_ms": 396.2,
+          "token_count": 280,
+          "code_validity": true,
+          "pass_at_1": true
+        }
+      ],
+      "n_rounds": 1,
+      "solved": true,
+      "solve_round": 1,
+      "total_latency_ms": 396.2
+    },
+    {
+      "task_id": "HumanEval/82",
+      "rounds": [
+        {
+          "round": 1,
+          "latency_ms": 199.0,
+          "cumulative_ms": 199.0,
+          "token_count": 151,
+          "code_validity": true,
+          "pass_at_1": true
+        }
+      ],
+      "n_rounds": 1,
+      "solved": true,
+      "solve_round": 1,
+      "total_latency_ms": 199.0
+    },
+    {
+      "task_id": "HumanEval/83",
+      "rounds": [
+        {
+          "round": 1,
+          "latency_ms": 528.2,
+          "cumulative_ms": 528.2,
+          "token_count": 279,
+          "code_validity": true,
+          "pass_at_1": false
+        },
+        {
+          "round": 2,
+          "latency_ms": 749.1,
+          "cumulative_ms": 1277.3,
+          "token_count": 274,
+          "code_validity": true,
+          "pass_at_1": true
+        }
+      ],
+      "n_rounds": 2,
+      "solved": true,
+      "solve_round": 2,
+      "total_latency_ms": 1277.3
+    },
+    {
+      "task_id": "HumanEval/84",
+      "rounds": [
+        {
+          "round": 1,
+          "latency_ms": 361.8,
+          "cumulative_ms": 361.8,
+          "token_count": 204,
+          "code_validity": true,
+          "pass_at_1": false
+        },
+        {
+          "round": 2,
+          "latency_ms": 272.2,
+          "cumulative_ms": 633.9,
+          "token_count": 204,
+          "code_validity": true,
+          "pass_at_1": false
+        },
+        {
+          "round": 3,
+          "latency_ms": 334.2,
+          "cumulative_ms": 968.2,
+          "token_count": 204,
+          "code_validity": true,
+          "pass_at_1": false
+        },
+        {
+          "round": 4,
+          "latency_ms": 295.5,
+          "cumulative_ms": 1263.7,
+          "token_count": 204,
+          "code_validity": true,
+          "pass_at_1": false
+        },
+        {
+          "round": 5,
+          "latency_ms": 398.9,
+          "cumulative_ms": 1662.6,
+          "token_count": 202,
+          "code_validity": true,
+          "pass_at_1": false
+        }
+      ],
+      "n_rounds": 5,
+      "solved": false,
+      "solve_round": 0,
+      "total_latency_ms": 1662.6
+    },
+    {
+      "task_id": "HumanEval/85",
+      "rounds": [
+        {
+          "round": 1,
+          "latency_ms": 255.5,
+          "cumulative_ms": 255.5,
+          "token_count": 112,
+          "code_validity": true,
+          "pass_at_1": true
+        }
+      ],
+      "n_rounds": 1,
+      "solved": true,
+      "solve_round": 1,
+      "total_latency_ms": 255.5
+    },
+    {
+      "task_id": "HumanEval/86",
+      "rounds": [
+        {
+          "round": 1,
+          "latency_ms": 315.6,
+          "cumulative_ms": 315.6,
+          "token_count": 186,
+          "code_validity": true,
+          "pass_at_1": true
+        }
+      ],
+      "n_rounds": 1,
+      "solved": true,
+      "solve_round": 1,
+      "total_latency_ms": 315.6
+    },
+    {
+      "task_id": "HumanEval/87",
+      "rounds": [
+        {
+          "round": 1,
+          "latency_ms": 417.2,
+          "cumulative_ms": 417.2,
+          "token_count": 243,
+          "code_validity": true,
+          "pass_at_1": true
+        }
+      ],
+      "n_rounds": 1,
+      "solved": true,
+      "solve_round": 1,
+      "total_latency_ms": 417.2
+    },
+    {
+      "task_id": "HumanEval/88",
+      "rounds": [
+        {
+          "round": 1,
+          "latency_ms": 324.1,
+          "cumulative_ms": 324.1,
+          "token_count": 170,
+          "code_validity": true,
+          "pass_at_1": true
+        }
+      ],
+      "n_rounds": 1,
+      "solved": true,
+      "solve_round": 1,
+      "total_latency_ms": 324.1
+    },
+    {
+      "task_id": "HumanEval/89",
+      "rounds": [
+        {
+          "round": 1,
+          "latency_ms": 320.4,
+          "cumulative_ms": 320.4,
+          "token_count": 222,
+          "code_validity": true,
+          "pass_at_1": true
+        }
+      ],
+      "n_rounds": 1,
+      "solved": true,
+      "solve_round": 1,
+      "total_latency_ms": 320.4
+    },
+    {
+      "task_id": "HumanEval/90",
+      "rounds": [
+        {
+          "round": 1,
+          "latency_ms": 238.8,
+          "cumulative_ms": 238.8,
+          "token_count": 174,
+          "code_validity": true,
+          "pass_at_1": true
+        }
+      ],
+      "n_rounds": 1,
+      "solved": true,
+      "solve_round": 1,
+      "total_latency_ms": 238.8
+    },
+    {
+      "task_id": "HumanEval/91",
+      "rounds": [
+        {
+          "round": 1,
+          "latency_ms": 399.5,
+          "cumulative_ms": 399.5,
+          "token_count": 225,
+          "code_validity": true,
+          "pass_at_1": true
+        }
+      ],
+      "n_rounds": 1,
+      "solved": true,
+      "solve_round": 1,
+      "total_latency_ms": 399.5
+    },
+    {
+      "task_id": "HumanEval/92",
+      "rounds": [
+        {
+          "round": 1,
+          "latency_ms": 312.7,
+          "cumulative_ms": 312.7,
+          "token_count": 209,
+          "code_validity": true,
+          "pass_at_1": true
+        }
+      ],
+      "n_rounds": 1,
+      "solved": true,
+      "solve_round": 1,
+      "total_latency_ms": 312.7
+    },
+    {
+      "task_id": "HumanEval/93",
+      "rounds": [
+        {
+          "round": 1,
+          "latency_ms": 395.2,
+          "cumulative_ms": 395.2,
+          "token_count": 117,
+          "code_validity": true,
+          "pass_at_1": true
+        }
+      ],
+      "n_rounds": 1,
+      "solved": true,
+      "solve_round": 1,
+      "total_latency_ms": 395.2
+    },
+    {
+      "task_id": "HumanEval/94",
+      "rounds": [
+        {
+          "round": 1,
+          "latency_ms": 249.4,
+          "cumulative_ms": 249.4,
+          "token_count": 155,
+          "code_validity": true,
+          "pass_at_1": true
+        }
+      ],
+      "n_rounds": 1,
+      "solved": true,
+      "solve_round": 1,
+      "total_latency_ms": 249.4
+    },
+    {
+      "task_id": "HumanEval/95",
+      "rounds": [
+        {
+          "round": 1,
+          "latency_ms": 278.1,
+          "cumulative_ms": 278.1,
+          "token_count": 123,
+          "code_validity": true,
+          "pass_at_1": true
+        }
+      ],
+      "n_rounds": 1,
+      "solved": true,
+      "solve_round": 1,
+      "total_latency_ms": 278.1
+    },
+    {
+      "task_id": "HumanEval/96",
+      "rounds": [
+        {
+          "round": 1,
+          "latency_ms": 246.9,
+          "cumulative_ms": 246.9,
+          "token_count": 139,
+          "code_validity": true,
+          "pass_at_1": true
+        }
+      ],
+      "n_rounds": 1,
+      "solved": true,
+      "solve_round": 1,
+      "total_latency_ms": 246.9
+    },
+    {
+      "task_id": "HumanEval/97",
+      "rounds": [
+        {
+          "round": 1,
+          "latency_ms": 391.2,
+          "cumulative_ms": 391.2,
+          "token_count": 151,
+          "code_validity": true,
+          "pass_at_1": true
+        }
+      ],
+      "n_rounds": 1,
+      "solved": true,
+      "solve_round": 1,
+      "total_latency_ms": 391.2
+    },
+    {
+      "task_id": "HumanEval/98",
+      "rounds": [
+        {
+          "round": 1,
+          "latency_ms": 191.8,
+          "cumulative_ms": 191.8,
+          "token_count": 137,
+          "code_validity": true,
+          "pass_at_1": true
+        }
+      ],
+      "n_rounds": 1,
+      "solved": true,
+      "solve_round": 1,
+      "total_latency_ms": 191.8
+    },
+    {
+      "task_id": "HumanEval/99",
+      "rounds": [
+        {
+          "round": 1,
+          "latency_ms": 369.8,
+          "cumulative_ms": 369.8,
+          "token_count": 219,
+          "code_validity": true,
+          "pass_at_1": true
+        }
+      ],
+      "n_rounds": 1,
+      "solved": true,
+      "solve_round": 1,
+      "total_latency_ms": 369.8
+    },
+    {
+      "task_id": "HumanEval/100",
+      "rounds": [
+        {
+          "round": 1,
+          "latency_ms": 245.3,
+          "cumulative_ms": 245.3,
+          "token_count": 187,
+          "code_validity": true,
+          "pass_at_1": true
+        }
+      ],
+      "n_rounds": 1,
+      "solved": true,
+      "solve_round": 1,
+      "total_latency_ms": 245.3
+    },
+    {
+      "task_id": "HumanEval/101",
+      "rounds": [
+        {
+          "round": 1,
+          "latency_ms": 313.5,
+          "cumulative_ms": 313.5,
+          "token_count": 151,
+          "code_validity": true,
+          "pass_at_1": false
+        },
+        {
+          "round": 2,
+          "latency_ms": 300.2,
+          "cumulative_ms": 613.7,
+          "token_count": 147,
+          "code_validity": true,
+          "pass_at_1": true
+        }
+      ],
+      "n_rounds": 2,
+      "solved": true,
+      "solve_round": 2,
+      "total_latency_ms": 613.7
+    },
+    {
+      "task_id": "HumanEval/102",
+      "rounds": [
+        {
+          "round": 1,
+          "latency_ms": 403.5,
+          "cumulative_ms": 403.5,
+          "token_count": 213,
+          "code_validity": true,
+          "pass_at_1": true
+        }
+      ],
+      "n_rounds": 1,
+      "solved": true,
+      "solve_round": 1,
+      "total_latency_ms": 403.5
+    },
+    {
+      "task_id": "HumanEval/103",
+      "rounds": [
+        {
+          "round": 1,
+          "latency_ms": 597.7,
+          "cumulative_ms": 597.7,
+          "token_count": 287,
+          "code_validity": true,
+          "pass_at_1": true
+        }
+      ],
+      "n_rounds": 1,
+      "solved": true,
+      "solve_round": 1,
+      "total_latency_ms": 597.7
+    },
+    {
+      "task_id": "HumanEval/104",
+      "rounds": [
+        {
+          "round": 1,
+          "latency_ms": 244.0,
+          "cumulative_ms": 244.0,
+          "token_count": 168,
+          "code_validity": true,
+          "pass_at_1": true
+        }
+      ],
+      "n_rounds": 1,
+      "solved": true,
+      "solve_round": 1,
+      "total_latency_ms": 244.0
+    },
+    {
+      "task_id": "HumanEval/105",
+      "rounds": [
+        {
+          "round": 1,
+          "latency_ms": 375.6,
+          "cumulative_ms": 375.6,
+          "token_count": 176,
+          "code_validity": true,
+          "pass_at_1": true
+        }
+      ],
+      "n_rounds": 1,
+      "solved": true,
+      "solve_round": 1,
+      "total_latency_ms": 375.6
+    },
+    {
+      "task_id": "HumanEval/106",
+      "rounds": [
+        {
+          "round": 1,
+          "latency_ms": 355.8,
+          "cumulative_ms": 355.8,
+          "token_count": 255,
+          "code_validity": true,
+          "pass_at_1": true
+        }
+      ],
+      "n_rounds": 1,
+      "solved": true,
+      "solve_round": 1,
+      "total_latency_ms": 355.8
+    },
+    {
+      "task_id": "HumanEval/107",
+      "rounds": [
+        {
+          "round": 1,
+          "latency_ms": 244.9,
+          "cumulative_ms": 244.9,
+          "token_count": 155,
+          "code_validity": true,
+          "pass_at_1": true
+        }
+      ],
+      "n_rounds": 1,
+      "solved": true,
+      "solve_round": 1,
+      "total_latency_ms": 244.9
+    },
+    {
+      "task_id": "HumanEval/108",
+      "rounds": [
+        {
+          "round": 1,
+          "latency_ms": 506.0,
+          "cumulative_ms": 506.0,
+          "token_count": 271,
+          "code_validity": true,
+          "pass_at_1": true
+        }
+      ],
+      "n_rounds": 1,
+      "solved": true,
+      "solve_round": 1,
+      "total_latency_ms": 506.0
+    },
+    {
+      "task_id": "HumanEval/109",
+      "rounds": [
+        {
+          "round": 1,
+          "latency_ms": 384.9,
+          "cumulative_ms": 384.9,
+          "token_count": 135,
+          "code_validity": true,
+          "pass_at_1": true
+        }
+      ],
+      "n_rounds": 1,
+      "solved": true,
+      "solve_round": 1,
+      "total_latency_ms": 384.9
+    },
+    {
+      "task_id": "HumanEval/110",
+      "rounds": [
+        {
+          "round": 1,
+          "latency_ms": 623.0,
+          "cumulative_ms": 623.0,
+          "token_count": 355,
+          "code_validity": true,
+          "pass_at_1": true
+        }
+      ],
+      "n_rounds": 1,
+      "solved": true,
+      "solve_round": 1,
+      "total_latency_ms": 623.0
+    },
+    {
+      "task_id": "HumanEval/111",
+      "rounds": [
+        {
+          "round": 1,
+          "latency_ms": 272.5,
+          "cumulative_ms": 272.5,
+          "token_count": 103,
+          "code_validity": true,
+          "pass_at_1": true
+        }
+      ],
+      "n_rounds": 1,
+      "solved": true,
+      "solve_round": 1,
+      "total_latency_ms": 272.5
+    },
+    {
+      "task_id": "HumanEval/112",
+      "rounds": [
+        {
+          "round": 1,
+          "latency_ms": 319.3,
+          "cumulative_ms": 319.3,
+          "token_count": 156,
+          "code_validity": true,
+          "pass_at_1": true
+        }
+      ],
+      "n_rounds": 1,
+      "solved": true,
+      "solve_round": 1,
+      "total_latency_ms": 319.3
+    },
+    {
+      "task_id": "HumanEval/113",
+      "rounds": [
+        {
+          "round": 1,
+          "latency_ms": 582.1,
+          "cumulative_ms": 582.1,
+          "token_count": 272,
+          "code_validity": true,
+          "pass_at_1": true
+        }
+      ],
+      "n_rounds": 1,
+      "solved": true,
+      "solve_round": 1,
+      "total_latency_ms": 582.1
+    },
+    {
+      "task_id": "HumanEval/114",
+      "rounds": [
+        {
+          "round": 1,
+          "latency_ms": 273.8,
+          "cumulative_ms": 273.8,
+          "token_count": 185,
+          "code_validity": true,
+          "pass_at_1": true
+        }
+      ],
+      "n_rounds": 1,
+      "solved": true,
+      "solve_round": 1,
+      "total_latency_ms": 273.8
+    },
+    {
+      "task_id": "HumanEval/115",
+      "rounds": [
+        {
+          "round": 1,
+          "latency_ms": 302.2,
+          "cumulative_ms": 302.2,
+          "token_count": 80,
+          "code_validity": true,
+          "pass_at_1": true
+        }
+      ],
+      "n_rounds": 1,
+      "solved": true,
+      "solve_round": 1,
+      "total_latency_ms": 302.2
+    },
+    {
+      "task_id": "HumanEval/116",
+      "rounds": [
+        {
+          "round": 1,
+          "latency_ms": 203.0,
+          "cumulative_ms": 203.0,
+          "token_count": 92,
+          "code_validity": true,
+          "pass_at_1": true
+        }
+      ],
+      "n_rounds": 1,
+      "solved": true,
+      "solve_round": 1,
+      "total_latency_ms": 203.0
+    },
+    {
+      "task_id": "HumanEval/117",
+      "rounds": [
+        {
+          "round": 1,
+          "latency_ms": 281.5,
+          "cumulative_ms": 281.5,
+          "token_count": 116,
+          "code_validity": true,
+          "pass_at_1": true
+        }
+      ],
+      "n_rounds": 1,
+      "solved": true,
+      "solve_round": 1,
+      "total_latency_ms": 281.5
+    },
+    {
+      "task_id": "HumanEval/118",
+      "rounds": [
+        {
+          "round": 1,
+          "latency_ms": 363.2,
+          "cumulative_ms": 363.2,
+          "token_count": 121,
+          "code_validity": true,
+          "pass_at_1": true
+        }
+      ],
+      "n_rounds": 1,
+      "solved": true,
+      "solve_round": 1,
+      "total_latency_ms": 363.2
+    },
+    {
+      "task_id": "HumanEval/119",
+      "rounds": [
+        {
+          "round": 1,
+          "latency_ms": 238.6,
+          "cumulative_ms": 238.6,
+          "token_count": 128,
+          "code_validity": true,
+          "pass_at_1": true
+        }
+      ],
+      "n_rounds": 1,
+      "solved": true,
+      "solve_round": 1,
+      "total_latency_ms": 238.6
+    },
+    {
+      "task_id": "HumanEval/120",
+      "rounds": [
+        {
+          "round": 1,
+          "latency_ms": 343.5,
+          "cumulative_ms": 343.5,
+          "token_count": 33,
+          "code_validity": true,
+          "pass_at_1": true
+        }
+      ],
+      "n_rounds": 1,
+      "solved": true,
+      "solve_round": 1,
+      "total_latency_ms": 343.5
+    },
+    {
+      "task_id": "HumanEval/121",
+      "rounds": [
+        {
+          "round": 1,
+          "latency_ms": 315.3,
+          "cumulative_ms": 315.3,
+          "token_count": 144,
+          "code_validity": true,
+          "pass_at_1": true
+        }
+      ],
+      "n_rounds": 1,
+      "solved": true,
+      "solve_round": 1,
+      "total_latency_ms": 315.3
+    },
+    {
+      "task_id": "HumanEval/122",
+      "rounds": [
+        {
+          "round": 1,
+          "latency_ms": 318.3,
+          "cumulative_ms": 318.3,
+          "token_count": 201,
+          "code_validity": true,
+          "pass_at_1": true
+        }
+      ],
+      "n_rounds": 1,
+      "solved": true,
+      "solve_round": 1,
+      "total_latency_ms": 318.3
+    },
+    {
+      "task_id": "HumanEval/123",
+      "rounds": [
+        {
+          "round": 1,
+          "latency_ms": 277.6,
+          "cumulative_ms": 277.6,
+          "token_count": 99,
+          "code_validity": true,
+          "pass_at_1": true
+        }
+      ],
+      "n_rounds": 1,
+      "solved": true,
+      "solve_round": 1,
+      "total_latency_ms": 277.6
+    },
+    {
+      "task_id": "HumanEval/124",
+      "rounds": [
+        {
+          "round": 1,
+          "latency_ms": 516.4,
+          "cumulative_ms": 516.4,
+          "token_count": 269,
+          "code_validity": true,
+          "pass_at_1": true
+        }
+      ],
+      "n_rounds": 1,
+      "solved": true,
+      "solve_round": 1,
+      "total_latency_ms": 516.4
+    },
+    {
+      "task_id": "HumanEval/125",
+      "rounds": [
+        {
+          "round": 1,
+          "latency_ms": 303.2,
+          "cumulative_ms": 303.2,
+          "token_count": 109,
+          "code_validity": true,
+          "pass_at_1": true
+        }
+      ],
+      "n_rounds": 1,
+      "solved": true,
+      "solve_round": 1,
+      "total_latency_ms": 303.2
+    },
+    {
+      "task_id": "HumanEval/126",
+      "rounds": [
+        {
+          "round": 1,
+          "latency_ms": 417.5,
+          "cumulative_ms": 417.5,
+          "token_count": 169,
+          "code_validity": true,
+          "pass_at_1": true
+        }
+      ],
+      "n_rounds": 1,
+      "solved": true,
+      "solve_round": 1,
+      "total_latency_ms": 417.5
+    },
+    {
+      "task_id": "HumanEval/127",
+      "rounds": [
+        {
+          "round": 1,
+          "latency_ms": 405.3,
+          "cumulative_ms": 405.3,
+          "token_count": 185,
+          "code_validity": true,
+          "pass_at_1": true
+        }
+      ],
+      "n_rounds": 1,
+      "solved": true,
+      "solve_round": 1,
+      "total_latency_ms": 405.3
+    },
+    {
+      "task_id": "HumanEval/128",
+      "rounds": [
+        {
+          "round": 1,
+          "latency_ms": 264.3,
+          "cumulative_ms": 264.3,
+          "token_count": 123,
+          "code_validity": true,
+          "pass_at_1": true
+        }
+      ],
+      "n_rounds": 1,
+      "solved": true,
+      "solve_round": 1,
+      "total_latency_ms": 264.3
+    },
+    {
+      "task_id": "HumanEval/129",
+      "rounds": [
+        {
+          "round": 1,
+          "latency_ms": 759.7,
+          "cumulative_ms": 759.7,
+          "token_count": 512,
+          "code_validity": false,
+          "pass_at_1": false
+        },
+        {
+          "round": 2,
+          "latency_ms": 843.8,
+          "cumulative_ms": 1603.4,
+          "token_count": 512,
+          "code_validity": false,
+          "pass_at_1": false
+        },
+        {
+          "round": 3,
+          "latency_ms": 733.8,
+          "cumulative_ms": 2337.2,
+          "token_count": 422,
+          "code_validity": true,
+          "pass_at_1": true
+        }
+      ],
+      "n_rounds": 3,
+      "solved": true,
+      "solve_round": 3,
+      "total_latency_ms": 2337.3
+    },
+    {
+      "task_id": "HumanEval/130",
+      "rounds": [
+        {
+          "round": 1,
+          "latency_ms": 677.8,
+          "cumulative_ms": 677.8,
+          "token_count": 494,
+          "code_validity": false,
+          "pass_at_1": false
+        },
+        {
+          "round": 2,
+          "latency_ms": 764.9,
+          "cumulative_ms": 1442.8,
+          "token_count": 512,
+          "code_validity": false,
+          "pass_at_1": false
+        },
+        {
+          "round": 3,
+          "latency_ms": 785.6,
+          "cumulative_ms": 2228.4,
+          "token_count": 512,
+          "code_validity": false,
+          "pass_at_1": false
+        },
+        {
+          "round": 4,
+          "latency_ms": 743.9,
+          "cumulative_ms": 2972.3,
+          "token_count": 512,
+          "code_validity": false,
+          "pass_at_1": false
+        },
+        {
+          "round": 5,
+          "latency_ms": 696.9,
+          "cumulative_ms": 3669.3,
+          "token_count": 512,
+          "code_validity": false,
+          "pass_at_1": false
+        }
+      ],
+      "n_rounds": 5,
+      "solved": false,
+      "solve_round": 0,
+      "total_latency_ms": 3669.1
+    },
+    {
+      "task_id": "HumanEval/131",
+      "rounds": [
+        {
+          "round": 1,
+          "latency_ms": 253.4,
+          "cumulative_ms": 253.4,
+          "token_count": 147,
+          "code_validity": true,
+          "pass_at_1": true
+        }
+      ],
+      "n_rounds": 1,
+      "solved": true,
+      "solve_round": 1,
+      "total_latency_ms": 253.4
+    },
+    {
+      "task_id": "HumanEval/132",
+      "rounds": [
+        {
+          "round": 1,
+          "latency_ms": 669.2,
+          "cumulative_ms": 669.2,
+          "token_count": 512,
+          "code_validity": false,
+          "pass_at_1": false
+        },
+        {
+          "round": 2,
+          "latency_ms": 463.8,
+          "cumulative_ms": 1133.0,
+          "token_count": 207,
+          "code_validity": false,
+          "pass_at_1": false
+        },
+        {
+          "round": 3,
+          "latency_ms": 443.1,
+          "cumulative_ms": 1576.2,
+          "token_count": 246,
+          "code_validity": false,
+          "pass_at_1": false
+        },
+        {
+          "round": 4,
+          "latency_ms": 449.3,
+          "cumulative_ms": 2025.5,
+          "token_count": 240,
+          "code_validity": false,
+          "pass_at_1": false
+        },
+        {
+          "round": 5,
+          "latency_ms": 748.7,
+          "cumulative_ms": 2774.2,
+          "token_count": 512,
+          "code_validity": false,
+          "pass_at_1": false
+        }
+      ],
+      "n_rounds": 5,
+      "solved": false,
+      "solve_round": 0,
+      "total_latency_ms": 2774.1
+    },
+    {
+      "task_id": "HumanEval/133",
+      "rounds": [
+        {
+          "round": 1,
+          "latency_ms": 417.2,
+          "cumulative_ms": 417.2,
+          "token_count": 191,
+          "code_validity": true,
+          "pass_at_1": true
+        }
+      ],
+      "n_rounds": 1,
+      "solved": true,
+      "solve_round": 1,
+      "total_latency_ms": 417.2
+    },
+    {
+      "task_id": "HumanEval/134",
+      "rounds": [
+        {
+          "round": 1,
+          "latency_ms": 359.2,
+          "cumulative_ms": 359.2,
+          "token_count": 151,
+          "code_validity": true,
+          "pass_at_1": true
+        }
+      ],
+      "n_rounds": 1,
+      "solved": true,
+      "solve_round": 1,
+      "total_latency_ms": 359.2
+    },
+    {
+      "task_id": "HumanEval/135",
+      "rounds": [
+        {
+          "round": 1,
+          "latency_ms": 280.6,
+          "cumulative_ms": 280.6,
+          "token_count": 159,
+          "code_validity": true,
+          "pass_at_1": true
+        }
+      ],
+      "n_rounds": 1,
+      "solved": true,
+      "solve_round": 1,
+      "total_latency_ms": 280.6
+    },
+    {
+      "task_id": "HumanEval/136",
+      "rounds": [
+        {
+          "round": 1,
+          "latency_ms": 229.8,
+          "cumulative_ms": 229.8,
+          "token_count": 100,
+          "code_validity": true,
+          "pass_at_1": true
+        }
+      ],
+      "n_rounds": 1,
+      "solved": true,
+      "solve_round": 1,
+      "total_latency_ms": 229.8
+    },
+    {
+      "task_id": "HumanEval/137",
+      "rounds": [
+        {
+          "round": 1,
+          "latency_ms": 358.1,
+          "cumulative_ms": 358.1,
+          "token_count": 178,
+          "code_validity": true,
+          "pass_at_1": true
+        }
+      ],
+      "n_rounds": 1,
+      "solved": true,
+      "solve_round": 1,
+      "total_latency_ms": 358.1
+    },
+    {
+      "task_id": "HumanEval/138",
+      "rounds": [
+        {
+          "round": 1,
+          "latency_ms": 314.2,
+          "cumulative_ms": 314.2,
+          "token_count": 168,
+          "code_validity": true,
+          "pass_at_1": true
+        }
+      ],
+      "n_rounds": 1,
+      "solved": true,
+      "solve_round": 1,
+      "total_latency_ms": 314.2
+    },
+    {
+      "task_id": "HumanEval/139",
+      "rounds": [
+        {
+          "round": 1,
+          "latency_ms": 206.3,
+          "cumulative_ms": 206.3,
+          "token_count": 146,
+          "code_validity": true,
+          "pass_at_1": true
+        }
+      ],
+      "n_rounds": 1,
+      "solved": true,
+      "solve_round": 1,
+      "total_latency_ms": 206.3
+    },
+    {
+      "task_id": "HumanEval/140",
+      "rounds": [
+        {
+          "round": 1,
+          "latency_ms": 264.1,
+          "cumulative_ms": 264.1,
+          "token_count": 67,
+          "code_validity": true,
+          "pass_at_1": true
+        }
+      ],
+      "n_rounds": 1,
+      "solved": true,
+      "solve_round": 1,
+      "total_latency_ms": 264.1
+    },
+    {
+      "task_id": "HumanEval/141",
+      "rounds": [
+        {
+          "round": 1,
+          "latency_ms": 330.9,
+          "cumulative_ms": 330.9,
+          "token_count": 177,
+          "code_validity": true,
+          "pass_at_1": true
+        }
+      ],
+      "n_rounds": 1,
+      "solved": true,
+      "solve_round": 1,
+      "total_latency_ms": 330.9
+    },
+    {
+      "task_id": "HumanEval/142",
+      "rounds": [
+        {
+          "round": 1,
+          "latency_ms": 283.4,
+          "cumulative_ms": 283.4,
+          "token_count": 250,
+          "code_validity": true,
+          "pass_at_1": true
+        }
+      ],
+      "n_rounds": 1,
+      "solved": true,
+      "solve_round": 1,
+      "total_latency_ms": 283.4
+    },
+    {
+      "task_id": "HumanEval/143",
+      "rounds": [
+        {
+          "round": 1,
+          "latency_ms": 231.6,
+          "cumulative_ms": 231.6,
+          "token_count": 115,
+          "code_validity": true,
+          "pass_at_1": true
+        }
+      ],
+      "n_rounds": 1,
+      "solved": true,
+      "solve_round": 1,
+      "total_latency_ms": 231.6
+    },
+    {
+      "task_id": "HumanEval/144",
+      "rounds": [
+        {
+          "round": 1,
+          "latency_ms": 479.9,
+          "cumulative_ms": 479.9,
+          "token_count": 271,
+          "code_validity": true,
+          "pass_at_1": true
+        }
+      ],
+      "n_rounds": 1,
+      "solved": true,
+      "solve_round": 1,
+      "total_latency_ms": 479.9
+    },
+    {
+      "task_id": "HumanEval/145",
+      "rounds": [
+        {
+          "round": 1,
+          "latency_ms": 279.7,
+          "cumulative_ms": 279.7,
+          "token_count": 184,
+          "code_validity": true,
+          "pass_at_1": false
+        },
+        {
+          "round": 2,
+          "latency_ms": 403.1,
+          "cumulative_ms": 682.8,
+          "token_count": 206,
+          "code_validity": true,
+          "pass_at_1": false
+        },
+        {
+          "round": 3,
+          "latency_ms": 800.3,
+          "cumulative_ms": 1483.1,
+          "token_count": 316,
+          "code_validity": true,
+          "pass_at_1": false
+        },
+        {
+          "round": 4,
+          "latency_ms": 451.3,
+          "cumulative_ms": 1934.3,
+          "token_count": 226,
+          "code_validity": true,
+          "pass_at_1": false
+        },
+        {
+          "round": 5,
+          "latency_ms": 307.2,
+          "cumulative_ms": 2241.6,
+          "token_count": 227,
+          "code_validity": true,
+          "pass_at_1": false
+        }
+      ],
+      "n_rounds": 5,
+      "solved": false,
+      "solve_round": 0,
+      "total_latency_ms": 2241.6
+    },
+    {
+      "task_id": "HumanEval/146",
+      "rounds": [
+        {
+          "round": 1,
+          "latency_ms": 397.2,
+          "cumulative_ms": 397.2,
+          "token_count": 235,
+          "code_validity": true,
+          "pass_at_1": true
+        }
+      ],
+      "n_rounds": 1,
+      "solved": true,
+      "solve_round": 1,
+      "total_latency_ms": 397.2
+    },
+    {
+      "task_id": "HumanEval/147",
+      "rounds": [
+        {
+          "round": 1,
+          "latency_ms": 705.6,
+          "cumulative_ms": 705.6,
+          "token_count": 512,
+          "code_validity": false,
+          "pass_at_1": false
+        },
+        {
+          "round": 2,
+          "latency_ms": 709.8,
+          "cumulative_ms": 1415.4,
+          "token_count": 512,
+          "code_validity": false,
+          "pass_at_1": false
+        },
+        {
+          "round": 3,
+          "latency_ms": 673.0,
+          "cumulative_ms": 2088.4,
+          "token_count": 512,
+          "code_validity": false,
+          "pass_at_1": false
+        },
+        {
+          "round": 4,
+          "latency_ms": 639.7,
+          "cumulative_ms": 2728.1,
+          "token_count": 512,
+          "code_validity": false,
+          "pass_at_1": false
+        },
+        {
+          "round": 5,
+          "latency_ms": 588.7,
+          "cumulative_ms": 3316.9,
+          "token_count": 512,
+          "code_validity": false,
+          "pass_at_1": false
+        }
+      ],
+      "n_rounds": 5,
+      "solved": false,
+      "solve_round": 0,
+      "total_latency_ms": 3316.8
+    },
+    {
+      "task_id": "HumanEval/148",
+      "rounds": [
+        {
+          "round": 1,
+          "latency_ms": 308.1,
+          "cumulative_ms": 308.1,
+          "token_count": 134,
+          "code_validity": true,
+          "pass_at_1": true
+        }
+      ],
+      "n_rounds": 1,
+      "solved": true,
+      "solve_round": 1,
+      "total_latency_ms": 308.1
+    },
+    {
+      "task_id": "HumanEval/149",
+      "rounds": [
+        {
+          "round": 1,
+          "latency_ms": 352.7,
+          "cumulative_ms": 352.7,
+          "token_count": 69,
+          "code_validity": true,
+          "pass_at_1": true
+        }
+      ],
+      "n_rounds": 1,
+      "solved": true,
+      "solve_round": 1,
+      "total_latency_ms": 352.7
+    },
+    {
+      "task_id": "HumanEval/150",
+      "rounds": [
+        {
+          "round": 1,
+          "latency_ms": 200.6,
+          "cumulative_ms": 200.6,
+          "token_count": 158,
+          "code_validity": true,
+          "pass_at_1": true
+        }
+      ],
+      "n_rounds": 1,
+      "solved": true,
+      "solve_round": 1,
+      "total_latency_ms": 200.6
+    },
+    {
+      "task_id": "HumanEval/151",
+      "rounds": [
+        {
+          "round": 1,
+          "latency_ms": 760.1,
+          "cumulative_ms": 760.1,
+          "token_count": 354,
+          "code_validity": true,
+          "pass_at_1": false
+        },
+        {
+          "round": 2,
+          "latency_ms": 383.1,
+          "cumulative_ms": 1143.1,
+          "token_count": 208,
+          "code_validity": true,
+          "pass_at_1": true
+        }
+      ],
+      "n_rounds": 2,
+      "solved": true,
+      "solve_round": 2,
+      "total_latency_ms": 1143.2
+    },
+    {
+      "task_id": "HumanEval/152",
+      "rounds": [
+        {
+          "round": 1,
+          "latency_ms": 314.6,
+          "cumulative_ms": 314.6,
+          "token_count": 38,
+          "code_validity": true,
+          "pass_at_1": true
+        }
+      ],
+      "n_rounds": 1,
+      "solved": true,
+      "solve_round": 1,
+      "total_latency_ms": 314.6
+    },
+    {
+      "task_id": "HumanEval/153",
+      "rounds": [
+        {
+          "round": 1,
+          "latency_ms": 290.3,
+          "cumulative_ms": 290.3,
+          "token_count": 129,
+          "code_validity": true,
+          "pass_at_1": true
+        }
+      ],
+      "n_rounds": 1,
+      "solved": true,
+      "solve_round": 1,
+      "total_latency_ms": 290.3
+    },
+    {
+      "task_id": "HumanEval/154",
+      "rounds": [
+        {
+          "round": 1,
+          "latency_ms": 242.0,
+          "cumulative_ms": 242.0,
+          "token_count": 192,
+          "code_validity": true,
+          "pass_at_1": true
+        }
+      ],
+      "n_rounds": 1,
+      "solved": true,
+      "solve_round": 1,
+      "total_latency_ms": 242.0
+    },
+    {
+      "task_id": "HumanEval/155",
+      "rounds": [
+        {
+          "round": 1,
+          "latency_ms": 226.6,
+          "cumulative_ms": 226.6,
+          "token_count": 148,
+          "code_validity": true,
+          "pass_at_1": true
+        }
+      ],
+      "n_rounds": 1,
+      "solved": true,
+      "solve_round": 1,
+      "total_latency_ms": 226.6
+    },
+    {
+      "task_id": "HumanEval/156",
+      "rounds": [
+        {
+          "round": 1,
+          "latency_ms": 459.8,
+          "cumulative_ms": 459.8,
+          "token_count": 281,
+          "code_validity": true,
+          "pass_at_1": true
+        }
+      ],
+      "n_rounds": 1,
+      "solved": true,
+      "solve_round": 1,
+      "total_latency_ms": 459.8
+    },
+    {
+      "task_id": "HumanEval/157",
+      "rounds": [
+        {
+          "round": 1,
+          "latency_ms": 245.3,
+          "cumulative_ms": 245.3,
+          "token_count": 160,
+          "code_validity": true,
+          "pass_at_1": true
+        }
+      ],
+      "n_rounds": 1,
+      "solved": true,
+      "solve_round": 1,
+      "total_latency_ms": 245.3
+    },
+    {
+      "task_id": "HumanEval/158",
+      "rounds": [
+        {
+          "round": 1,
+          "latency_ms": 404.8,
+          "cumulative_ms": 404.8,
+          "token_count": 193,
+          "code_validity": true,
+          "pass_at_1": true
+        }
+      ],
+      "n_rounds": 1,
+      "solved": true,
+      "solve_round": 1,
+      "total_latency_ms": 404.8
+    },
+    {
+      "task_id": "HumanEval/159",
+      "rounds": [
+        {
+          "round": 1,
+          "latency_ms": 370.1,
+          "cumulative_ms": 370.1,
+          "token_count": 59,
+          "code_validity": true,
+          "pass_at_1": true
+        }
+      ],
+      "n_rounds": 1,
+      "solved": true,
+      "solve_round": 1,
+      "total_latency_ms": 370.1
+    },
+    {
+      "task_id": "HumanEval/160",
+      "rounds": [
+        {
+          "round": 1,
+          "latency_ms": 270.8,
+          "cumulative_ms": 270.8,
+          "token_count": 65,
+          "code_validity": true,
+          "pass_at_1": true
+        }
+      ],
+      "n_rounds": 1,
+      "solved": true,
+      "solve_round": 1,
+      "total_latency_ms": 270.8
+    },
+    {
+      "task_id": "HumanEval/161",
+      "rounds": [
+        {
+          "round": 1,
+          "latency_ms": 260.8,
+          "cumulative_ms": 260.8,
+          "token_count": 53,
+          "code_validity": true,
+          "pass_at_1": true
+        }
+      ],
+      "n_rounds": 1,
+      "solved": true,
+      "solve_round": 1,
+      "total_latency_ms": 260.8
+    },
+    {
+      "task_id": "HumanEval/162",
+      "rounds": [
+        {
+          "round": 1,
+          "latency_ms": 195.4,
+          "cumulative_ms": 195.4,
+          "token_count": 133,
+          "code_validity": true,
+          "pass_at_1": true
+        }
+      ],
+      "n_rounds": 1,
+      "solved": true,
+      "solve_round": 1,
+      "total_latency_ms": 195.4
+    },
+    {
+      "task_id": "HumanEval/163",
+      "rounds": [
+        {
+          "round": 1,
+          "latency_ms": 269.7,
+          "cumulative_ms": 269.7,
+          "token_count": 192,
+          "code_validity": true,
+          "pass_at_1": true
+        }
+      ],
+      "n_rounds": 1,
+      "solved": true,
+      "solve_round": 1,
+      "total_latency_ms": 269.7
+    }
+  ],
+  "provenance": {
+    "model_name": "google/diffusiongemma-26B-A4B-it",
+    "model_type": "dg",
+    "backend": "vllm",
+    "max_new_tokens": 512,
+    "parser_policy": "ast_parse",
+    "scoring_fields": "pass_at_1_cumulative",
+    "vllm_version": "0.25.1",
+    "torch_version": "2.11.0+cu130",
+    "transformers_version": "5.15.0",
+    "cuda_version": "13.0",
+    "gpu_model": "NVIDIA A100 80GB PCIe",
+    "python_version": "3.10.12",
+    "platform": "Linux-5.15.179-15.mofed2407ya-x86_64-with-glibc2.35",
+    "timestamp": "2026-08-16T19:53:47Z",
+    "repo_commit": "afb24c1"
+  }
+}
