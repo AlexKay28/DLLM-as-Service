@@ -97,30 +97,29 @@ The Cost Shape of Block-Structured Decoding}}
 
 \begin{abstract}
 Block-diffusion language models decode entire blocks of tokens in
-parallel through iterative denoising, breaking the linear
-per-token latency scaling that governs autoregressive (AR) decoding.
-We show that this produces a fundamentally different cost shape:
-AR latency is a line in output length with no floor;
-block-diffusion latency is a staircase --- flat inside a fixed-size
-block, stepping at each boundary. The shapes cross at \crossoverL{}
-output tokens, above which diffusion is faster.
+parallel through iterative denoising, breaking the linear per-token
+latency scaling that governs autoregressive (AR) decoding. We show that
+this produces a fundamentally different cost shape: AR latency is a
+line in output length with no floor; block-diffusion latency is a
+staircase --- flat inside a fixed-size block, stepping at each
+boundary. The shapes cross at \crossoverL{} output tokens, above which
+diffusion is faster.
 
-We measure both architectures on a pinned serving stack (vLLM, A100 80GB)
-for structured log extraction, where they reach quality equivalence at
-9-field macro F1. The diffusion model's advantage grows with output
-length: $1.8\times$ faster at the AR model's natural output length,
-$3.7\times$ at naturally-long multi-record output ($L \approx 560$).
-It degrades under deadline pressure by losing quality rather than
-completeness --- a property AR decoding has no equivalent for.
+We measure both architectures on a pinned serving stack (vLLM, A100
+80GB) for structured log extraction. Crucially, both arms are
+Mixture-of-Experts: DiffusionGemma-26B-A4B (4\,B active of 26\,B) and
+Qwen3-30B-A3B (3\,B active of 30\,B). Against this fair MoE-vs-MoE
+baseline, the diffusion model's advantage is modest: $1.4\times$ at
+$L{=}1024$, and only above $L^{*} = 368$ tokens. Below 368, AR is
+faster.
 
-The advantage is narrowed in practice by deployment constraints: the AR
-model batches more than an order of magnitude better, and under
-tenant-isolated batch-1 can run 16 co-resident copies of the
-quality-matched 3\,GB model in the same GPU for $9\times$ lower cost
-per event.
-We state five conditions under which block diffusion is the right choice
-and ground them in concrete workloads: security investigation chains,
-autonomous driving, and algorithmic trading.
+The advantage does not survive deployment. The AR model batches
+$77\times$ better, has a comparable footprint, and a $3.21\times$
+tighter tail latency. Under tenant-isolated batch-1, sixteen
+co-resident copies of the quality-similar 3\,GB dense AR model fit in
+the same GPU for $9\times$ lower cost per event. The surviving niche
+is extremely narrow: long output, batch-1, schema validation, and a
+data-centre footprint.
 \end{abstract}
 
 \input{sections/01_introduction}

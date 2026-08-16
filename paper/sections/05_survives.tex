@@ -1,12 +1,12 @@
 \section{What survives}
 \label{sec:survives}
 
-Despite the deployment disadvantages, there is a narrow regime where
-block diffusion is the right choice. The following five conditions must
-all hold:
+The MoE-matched comparison shrinks the niche dramatically. DG only
+wins above $L^{*} = 368$ tokens, and the margin is thin: $1.4\times$
+at $L{=}1024$, $2.4\times$ at $L{=}2048$. The five conditions that
+must all hold are:
 \begin{enumerate}[nosep]
-  \item Output length $\geq 512$ tokens (forced or naturally long; see
-    Appendix~\ref{app:forced} for the analytical case).
+  \item Output length $\geq 1000$ tokens (naturally long, not forced).
   \item Batch-1 by requirement (tenant isolation, interactivity, or
     serial chain structure).
   \item Completeness is validated against a schema.
@@ -16,69 +16,58 @@ all hold:
 
 \paragraph{Concrete workloads.}
 
-Each condition maps to a real deployment:
-
 \textit{Serial investigation chains.} A security operations centre
 receives an alert, looks up threat intelligence, cross-references
 internal logs, and drills into the next layer. Each hop blocks on the
-previous; concurrency is 1 by construction. We measured chain depths
-$D \in \{1,3,5,10,20\}$ (BGL, $n{=}300$, $K{=}8$). DG's per-hop p50 is
-$\sim$410\,ms against AR's $\sim$825\,ms --- a $2.0\times$ advantage
-that is constant across depth. DG's tail penalty washes out under
-sequential composition: the p99.9/p50 ratio converges to the AR mean at
-depth 10+.
+previous; concurrency is 1 by construction. DG's per-hop p50 is
+$\sim$410\,ms against AR-30B's $\sim$130\,ms at natural record length
+--- AR wins per hop. DG's advantage only emerges at chain depth
+$D \geq 8$, where the cumulative output exceeds 1000 tokens.
 
 \begin{figure}[t]
 \centering
 \includegraphics[width=\linewidth]{figures/fig10_usecase_chains.pdf}
 \caption{Serial investigation chains (BGL, $n{=}300$, $K{=}8$).
-\textbf{A:} per-hop p50 is constant across depth; DG is $2.0\times$
-faster. \textbf{B:} DG's p99.9/p50 ratio converges to AR's mean as
-depth increases.}
+\textbf{A:} per-hop p50 is constant across depth. \textbf{B:} DG's
+p99.9/p50 ratio converges to AR's mean as depth increases.}
 \label{fig:chains}
 \end{figure}
 
-\textit{Critical-alert preemption.} A FATAL log line arrives mid-stream
-while batch work is in flight; the structured record must be fresh within
-1\,s. DG's lower service time ($\sim$420\,ms vs AR's $\sim$660--800\,ms)
-is available on demand via priority preemption.
+\textit{Critical-alert preemption.} A FATAL log line arrives
+mid-stream. DG's lower service time ($\sim$420\,ms) is available on
+demand via priority preemption, but AR-30B is faster ($\sim$130\,ms
+per event at natural length).
 
-\textit{Autonomous driving and safety-critical perception.} One vehicle,
-one scene, one decision: batch-1 by construction. Output is long
-(multi-object scene description, predicted trajectories). The $K$ knob
-is a per-request quality slider with two usable positions ($K{=}8$ and
-$K{=}4$): drop $K$ to meet a tightened deadline without truncating
-output. The completeness guarantee holds only at or above the canvas
-length; below $L{=}128$ DG's schema validity collapses (1.0\%, see
-Appendix~\ref{app:quality}).
+\textit{Autonomous driving.} One vehicle, one scene, one decision:
+batch-1 by construction. Output is long (multi-object scene
+description). The $K$ knob is a per-request quality slider with two
+usable positions ($K{=}8$ and $K{=}4$). The completeness guarantee
+holds only above the canvas length; below $L{=}128$ DG's schema
+validity collapses (1.0\%, see Appendix~\ref{app:quality}).
 
-\textit{Algorithmic trading.} A serial chain (detect anomaly $\to$ pull
-order-book history $\to$ cross-reference news $\to$ structured
-hypothesis) with a 1--5\,s market reaction window. A 5-hop chain
-completes in $\sim$2.1\,s on DG vs $\sim$4.1\,s on AR. At 10 hops:
-4.1\,s vs 8.3\,s.
+\textit{Algorithmic trading.} A serial chain with a 1--5\,s market
+reaction window. At 8 hops (L$\approx$1120), DG is $1.3\times$ faster
+than AR-30B. At fewer hops, AR wins.
 
-\textit{Wide-schema normalisation.} Financial records with 50--100
-fields where pairwise constraints grow as $O(F^2)$. DG's joint-canvas
-denoising treats all fields as one structured object. We measured
-schema widths $F \in \{12, 25, 50, 100\}$ (BGL, $n{=}300$): DG's latency
-advantage holds at $1.8$--$3.0\times$ across widths.
+\textit{Wide-schema normalisation.} DG's joint-canvas denoising
+treats all fields as one structured object. We measured schema widths
+$F \in \{12, 25, 50, 100\}$: DG's latency advantage holds at
+$1.8$--$3.0\times$ against the dense AR baselines, but has not been
+measured against AR-30B MoE.
 
 \begin{figure}[t]
 \centering
 \includegraphics[width=0.85\linewidth]{figures/fig11_usecase_schema.pdf}
-\caption{Latency vs schema width (BGL, $n{=}300$). The gap widens with
-field count: AR pays per field, DG's joint denoising treats all fields
-as one object.}
+\caption{Latency vs schema width (BGL, $n{=}300$).}
 \label{fig:schema}
 \end{figure}
 
 \paragraph{Where diffusion does not win.}
 
-High-rate log streams ($\lambda \gg \crossoverLambda$ ev/s) favour AR's
-batching by 50--80$\times$. Tail-sensitive single-stream workloads with
-strict p99 SLAs are hurt by DG's $3.21\times$ max/median ratio. And any
-workload that can batch favours AR regardless of output length.
+High-rate log streams ($\lambda \gg 2.6$ ev/s) favour AR's batching
+by $45\times$ or more. Tail-sensitive single-stream workloads with
+strict p99 SLAs are hurt by DG's $3.21\times$ max/median ratio. And
+any workload that can batch favours AR regardless of output length.
 
 \paragraph{Where diffusion fails.}
 
@@ -89,15 +78,14 @@ refuted (Appendix~\ref{app:refuted}). The most instructive failures:
 \item \textbf{Input perturbation robustness:} bidirectional attention
   propagates input noise in both directions. DG degraded more than AR
   in \emph{all 10} perturbation categories, by up to $8.2\times$ the AR
-  drop. Left-to-right conditioning propagates noise forward only.
+  drop.
 \item \textbf{Infilling:} DG's joint denoising should preserve suffix
   tokens by construction. In practice, AR trivially regenerates the
-  whole record from the prompt (F1 0.99--1.0); the structural argument
-  may hold for long-suffix code infilling but not for short JSON fields.
+  whole record from the prompt (F1 0.99--1.0).
 \item \textbf{Iterative refinement:} selective re-masking gains
   $+0.023$ F1 over three rounds, but after three rounds DG still trails
   AR after one pass. The mechanism is real; the win is not.
 \end{itemize}
 These failures define the operational boundary: block diffusion's
-advantage is in \emph{latency shape}, not in robustness, infilling, or
-iterative refinement.
+advantage is in \emph{latency shape at long output}, not in robustness,
+infilling, or iterative refinement.

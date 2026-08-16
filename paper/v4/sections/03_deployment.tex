@@ -1,78 +1,41 @@
 \section{Where the diffusion model wins}
 \label{sec:wins}
 
-The diffusion model's latency advantage grows with output length because
-AR pays per token while DG pays per canvas. Table~\ref{tab:niche} shows
-the comparison at the quality-similar pair (\ARoneb\ vs \DG). AR
-cells are \emph{forced} ($\texttt{min\_tokens} = L$); the unforced row
-shows AR-1.5B at its natural output length of 138 tokens.
+The diffusion model's latency advantage grows with output length
+because AR pays per token while DG pays per canvas. But with the
+MoE-matched AR-30B (slope 1.0\,ms/token, six times faster than the
+dense AR-3B's 6.3), the advantage is modest.
+
+Table~\ref{tab:niche} shows the measured comparison. AR cells are
+\emph{forced} ($\texttt{min\_tokens} = L$); the unforced row shows
+AR-30B at its natural output length of $\sim$123 tokens.
 
 \begin{table}[h]
 \centering
-\caption{Latency at similar quality (AR-1.5B F1 0.868 vs DG 0.852;
-within the 0.016 margin). AR-1.5B vs DG-26B-A4B, batch-1, BGL.
-$n{=}100$--$300$.}
+\caption{Latency at the MoE-matched pair (AR-30B vs DG, batch-1, BGL,
+$n{=}100$--$300$). DG only wins above $L \approx 1000$.}
 \label{tab:niche}
-\begin{tabular}{@{}lrrrr@{}}
+\begin{tabular}{@{}lrrr@{}}
 \toprule
-$L_{\mathrm{out}}$ & AR-1.5B forced (ms) & AR-1.5B unforced & DG (ms) & DG advantage \\
+$L_{\mathrm{out}}$ & AR-30B (ms) & DG (ms) & Advantage \\
 \midrule
-138 (natural) & --- & 665.7 & \dgTwoFive{} & $1.8\times$ \\
-256  & \arOneFiveTwoFive{} & --- & \dgTwoFive{}   & $2.7\times$ \\
-512  & \arOneFiveFiveOne{} & --- & \dgFiveOne{}   & $4.0\times$ \\
-1024 & \arOneFiveTenTwoFour{} & --- & \dgTenTwoFour{} & $5.4\times$ \\
+123 (natural)  & 132 & 378 & AR $2.9\times$ \\
+256  & 256 & 378 & AR $1.5\times$ \\
+512  & 506 & 498 & DG $1.0\times$ \\
+1024 & 1018 & 737 & DG $1.4\times$ \\
+2048 & 2042 & 857 & DG $2.4\times$ \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-\paragraph{The real advantage is $1.8\times$.}
+\paragraph{The crossover is at $L^{*} = 368$.}
 
-Even unforced --- at AR-1.5B's natural output length of 138 tokens --- DG
-completes in \dgTwoFive\,ms against AR's 665.7\,ms. The $5.4\times$
-headline at $L{=}1024$ is inflated by forcing: the parser
-(first-object-wins) discards the rambled continuation past the first JSON
-object, so the AR arm is charged \arOneFiveTenTwoFour\,ms for output the
-scorer deletes. The forced comparison is an upper bound on AR cost, not
-a measurement of it.
-
-\paragraph{The advantage holds at naturally-long output.}
-
-A multi-record extraction task --- emit a JSON array of $N$ structured
-records from $N$ consecutive log lines --- produces $N \times 140$ tokens
-naturally, without forcing. The cost laws predict the advantage at these
-lengths:
-
-\begin{center}
-\begin{tabular}{@{}lrrrr@{}}
-\toprule
-Task & $L_{\mathrm{out}}$ & AR-1.5B (ms) & DG (ms) & Ratio \\
-\midrule
-Single record (unforced) & 138 & 666 & 378 & $1.8\times$ \\
-Multi-record $N{=}2$ & 280 & 1204 & 498 & $2.4\times$ \\
-Multi-record $N{=}4$ & 560 & 2266 & 617 & $3.7\times$ \\
-Multi-record $N{=}8$ & 1120 & 4390 & 856 & $5.1\times$ \\
-\bottomrule
-\end{tabular}
-\end{center}
-
-\noindent
-The $5.4\times$ advantage at $L{=}1024$ is within the range predicted by
-the cost laws for any task producing that output length, forced or
-natural. What forcing changes is the \emph{interpretation}: at forced
-$L{=}1024$ the AR arm is charged for discarded tokens; at natural
-$L{=}1024$ (multi-record $N{=}8$) every token counts. The niche is real
-either way.
-
-\begin{figure}[t]
-\centering
-\includegraphics[width=\linewidth]{figures/fig9_deployment.pdf}
-\caption{The quality-similar deployment pair (BGL, $n{=}100$,
-$K{=}8$). \textbf{A:} at forced output lengths the diffusion model's
-advantage is real and grows, because the AR model rambles well past its
-natural length ($\sim$138 tokens). \textbf{B:} the standing cost of
-keeping each model resident.}
-\label{fig:deploy}
-\end{figure}
+Below 368 tokens, AR-30B is faster. Above it, DG is --- but the margin
+is thin. At $L{=}512$ the two are equal; at $L{=}1024$ DG wins by only
+$1.4\times$; at $L{=}2048$ by $2.4\times$. Compare with the dense
+AR-3B baseline (slope 6.3\,ms/token): against that model, DG won
+$5.4\times$ at $L{=}1024$. The six-fold improvement in per-token cost
+from dense-to-MoE AR is the reason the niche shrank.
 
 \paragraph{Energy.}
 
@@ -82,17 +45,15 @@ The energy ratio is:
 R_{\mathrm{energy}} = \frac{E_{\mathrm{AR}}}{E_{\mathrm{DG}}}
 \end{equation}
 where $E_{\mathrm{AR}}$ and $E_{\mathrm{DG}}$ are the net energy per
-event (joules, idle-subtracted) for each arm. At the
-active-parameter-matched pair (\ARthree\ vs \DG):
+event (joules, idle-subtracted) for each arm. Measured values:
 \begin{align}
-\text{active-param-matched:} \quad & R_{\mathrm{energy}} =
-\frac{\arThreeEnergy}{\dgEnergy} = 5.3 \quad \text{(idle 52.6\,W)} \\
-\text{quality-similar:} \quad & R_{\mathrm{energy}} =
-\frac{\arOneFiveEnergy}{\dgEnergy} = 1.2 \quad \text{(idle 58.6\,W)}
+\text{AR-3B dense:} \quad & R_{\mathrm{energy}} =
+\frac{22.3}{4.2} = 5.3 \quad \text{(idle 52.6\,W)} \\
+\text{AR-1.5B dense:} \quad & R_{\mathrm{energy}} =
+\frac{5.1}{4.2} = 1.2 \quad \text{(idle 58.6\,W)}
 \end{align}
-A ratio $> 1$ means AR uses more energy. The two energy runs had
-different idle baselines, so the quality-similar comparison is
-indicative.
+Energy was not measured for AR-30B MoE; the above values are from the
+dense baselines. A ratio $> 1$ means AR uses more energy.
 
 \paragraph{Graceful degradation under deadline pressure.}
 
@@ -105,18 +66,18 @@ contrast across practical challenges.
 
 \begin{table}[h]
 \centering
-\caption{Practical challenge contrast. Each row is a deployment scenario;
-the right column names the architectural property that drives the
-outcome.}
+\caption{Practical challenge contrast. Each row is a deployment
+scenario; the right column names the architectural property that drives
+the outcome.}
 \label{tab:contrast}
 \begin{tabularx}{\linewidth}{@{}L L L L@{}}
 \toprule
-\thead{Challenge} & \thead{AR behaviour} & \thead{DG behaviour} & \thead{Key driver} \\
+\thead{Challenge} & \thead{AR-30B MoE} & \thead{DG-26B MoE} & \thead{Key driver} \\
 \midrule
-Long output, batch-1 & Pays per token; cost grows linearly & Pays per canvas; flat inside block & Staircase vs line \\
-Deadline pressure & Truncates output; fails schema & Drops $K$; complete but lower quality & Per-request quality knob \\
-High arrival rate & Batches 77$\times$ & Caps at $\leq$1.7$\times$ & KV-cache reuse \\
-Tail-sensitive SLA & CV 0.2\%, max/median 1.03$\times$ & CV 20.9\%, max/median 3.21$\times$ & MoE routing variability \\
+Long output, batch-1 & 1.0\,ms/token & Staircase, 119\,ms/canvas & Crossover at $L{=}368$ \\
+Deadline pressure & Truncates output & Drops $K$; complete canvas & Per-request quality knob \\
+High arrival rate & Batches $77\times$ & Caps at $\leq$1.7$\times$ & KV-cache reuse \\
+Tail-sensitive SLA & CV 0.2\%, max/med 1.03$\times$ & CV 20.9\%, max/med 3.21$\times$ & MoE routing variability \\
 Long prompt & Prefill paid once & Prefill paid $K$ times & Re-attention per step \\
 \bottomrule
 \end{tabularx}
