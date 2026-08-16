@@ -1,0 +1,40 @@
+\section{Threats to validity}
+\label{sec:threats}
+
+All measurements are on one GPU (\gpuModel{}); the fitted constants are
+A100-specific but the shapes should transfer. The crossover is
+calibrated at a $\sim$\refPrompt-token prompt and shifts with input
+length. The AR--DG quality difference ($\Delta = \qualityGap$, 95\% CI
+$[-0.012, +0.011]$, $n = 300$) is equivalent at a $\pm 0.015$ margin.
+
+The surviving niche has not been tested on a task whose natural output
+length is $\geq 512$ tokens. The forced comparison in
+Table~\ref{tab:niche} charges the AR arm for tokens that the parser
+discards; the $5.4\times$ advantage is an upper bound. A task with
+genuinely long natural output --- multi-record extraction, incident
+reports --- would test the niche without this artifact
+(Appendix~\ref{app:forced} provides an analytical projection).
+
+The niche has not been tested against grammar-constrained AR decoding
+(outlines, xgrammar, llguidance), which would eliminate over-generation,
+guarantee 100\% schema validity, and remove the diffusion model's
+completeness advantage. An attempt to run grammar-constrained
+\ARoneb\ on vLLM 0.10.2 produced 1.0\% schema-valid output --- the
+grammar enforced JSON structure but the model padded string fields it
+could not answer, preventing the JSON from closing. This is a stated
+limitation.
+
+The batching ceiling reproduces across two runtimes and two model
+families, but both measurements are engine-bounded
+(Appendix~\ref{app:batching}). A structural argument for why the ceiling
+is likely architectural --- not an engine bug --- is in
+Appendix~\ref{app:batching_architectural}.
+
+The cost-shape generalisation (``any decoder emitting fixed-size blocks
+would inherit the same shape'') is inferred from one block-diffusion
+model measured against one AR family. The shape claim is structural but
+not tested on a second diffusion family.
+
+DiffusionGemma-26B-A4B-it is available at
+\url{https://huggingface.co/google/}\\\url{diffusiongemma-26b-a4b-it}.
+All DG measurements are reproducible from this checkpoint.

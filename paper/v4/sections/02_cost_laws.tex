@@ -3,9 +3,9 @@
 
 \subsection{Autoregressive: a line with no floor}
 
-AR latency is linear in output length, with no floor. The intercept absorbs
-prompt prefill (amortised by prefix caching); the slope is the per-token
-decode cost:
+AR latency is linear in output length. The intercept absorbs prompt
+prefill (amortised by prefix caching across requests); the slope is the
+per-token decode cost:
 \begin{equation}
 \label{eq:ar}
 T_{\textsc{ar}}(L_{\mathrm{out}}) = \arBase + \arSlope \cdot L_{\mathrm{out}}
@@ -30,19 +30,20 @@ quality is flat above $K{=}8$ (0.853 at $K{=}8$, 0.858 at $K{=}32$) while
 latency saturates above $K{=}16$. Below $K{=}4$ quality collapses
 (0.485 at $K{=}2$).
 
-The \dgBase\,ms base at $K{=}8$ denoising steps is mostly prefill (bounded
-at 37--53\% by linear interpolation between $K{=}2$ and $K{=}8$; see
-Appendix~\ref{app:decomp}). Each additional canvas costs \dgStep\,ms
-(median of 7 measured transitions, range \dgStepLo--\dgStepHi). The
-staircase has sharp edges: growing output from 240 to \canvasLength{}
-tokens costs 0.2\,ms; growing from \canvasLength{} to 264 costs 121.7\,ms.
+The \dgBase\,ms base at $K{=}8$ is 37--53\% prefill (by linear
+interpolation between $K{=}2$ and $K{=}8$; see
+Appendix~\ref{app:decomp} for the full derivation). Each additional
+canvas costs \dgStep\,ms (median of 7 measured transitions, range
+\dgStepLo--\dgStepHi). The staircase has sharp edges: growing output
+from 240 to \canvasLength{} tokens costs 0.2\,ms; growing from
+\canvasLength{} to 264 costs 121.7\,ms.
 
 \begin{figure}[t]
 \centering
 \includegraphics[width=\linewidth]{figures/fig1_cost_shapes.pdf}
-\caption{The two cost shapes as a grouped bar chart (BGL, $n{=}200$ per
-point, $K{=}8$). AR latency grows linearly with output length; DG latency
-grows as a staircase. The gap widens from $4.3\times$ at $L{=}256$ to
+\caption{The two cost shapes as a grouped bar chart (BGL, $n{=}200$,
+$K{=}8$). AR latency grows linearly with output length; DG latency grows
+as a staircase. The gap widens from $4.3\times$ at $L{=}256$ to
 $10.6\times$ at $L{=}2048$.}
 \label{fig:shapes}
 \end{figure}
@@ -50,7 +51,7 @@ $10.6\times$ at $L{=}2048$.}
 \begin{figure}[t]
 \centering
 \includegraphics[width=\linewidth]{figures/fig2_canvas_edges.pdf}
-\caption{The staircase probed ($K{=}8$, BGL, $n{=}200$ per point).
+\caption{The staircase probed ($K{=}8$, BGL, $n{=}200$).
 \textbf{A:} latency is flat inside a canvas and jumps at the boundary.
 \textbf{B:} all seven canvas transitions out to $L{=}2048$ cost the same
 within run-to-run noise (range \dgStepLo--\dgStepHi\,ms, median \dgStep\,ms).}
@@ -68,24 +69,16 @@ L^{*} = \frac{\dgBase - \arBase}{\arSlope} = \crossoverL \text{ tokens},
 \end{equation}
 Below $L^{*}$ the AR model is cheaper per event; above it the diffusion
 model is, until the next canvas edge. The parameter $\lambda^{*}$ is the
-other boundary: with one event in flight, the reciprocal of the diffusion
-base is the ceiling on its serial throughput, and above that rate a queue
-forms.
+serial throughput ceiling: with one event in flight, the reciprocal of
+the diffusion base is the maximum event rate before a queue forms.
 
-\paragraph{Caveat: the base may be inflated by the serving stack.}
-
-The \dgBase\,ms base is 37--53\% prefill (by linear interpolation; see
-Appendix~\ref{app:decomp} for the full derivation). Each denoising step re-attends
-the full prompt, so prefill is paid $K$ times. Whether the prompt KV could
-be cached across denoising steps is a property of the serving
-implementation (vLLM's DiffusionGemma path), not obviously a property of
-masked diffusion itself. If it were cached, the base could fall toward
-$\sim$150\,ms and $L^{*}$ would move downward, widening the region where
-diffusion wins. We treat the measured base as the operative number --- it
-is what the pinned stack produces --- but note the asymmetry: in
-Appendix~\ref{app:batching} we decline to treat engine-bounded batching as
-a ceiling; here we absorb an engine-bounded prefill cost into the
-crossover without the same scrutiny.
+\paragraph{Caveat.}
+The base may be inflated by the serving stack: each denoising step
+re-attends the full prompt, so prefill is paid $K$ times. If the prompt
+KV were cached across denoising steps, the base could fall toward
+$\sim$150\,ms and $L^{*}$ would move downward. We treat the measured
+base as the operative number; see Appendix~\ref{app:forced} for the
+asymmetry with the batching caveat.
 
 \subsection{Generalisation}
 

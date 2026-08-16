@@ -1,0 +1,21 @@
+\section{Conclusion}
+\label{sec:conclusion}
+
+Block-diffusion language models have a real latency advantage for
+structured output: $1.8\times$ faster than the quality-comparable AR
+model even at natural output length. The advantage comes from the cost
+shape --- a staircase that is flat inside each block --- not from the
+diffusion process itself. The floor is mostly prefill, and any decoder
+emitting fixed-size blocks would inherit the same shape.
+
+The advantage does not survive deployment. The AR model is $17\times$
+smaller, batches more than an order of magnitude better, and --- under
+tenant-isolated batch-1 --- can run 16 co-resident copies in the GPU
+space \DG\ occupies alone, making it $9\times$ cheaper per event. A
+$3.21\times$ tail latency further narrows the niche.
+
+What survives is a narrow regime: long output, batch-1 by requirement,
+schema validation, and a data-centre footprint. We have named five
+conditions and grounded them in concrete workloads --- security
+investigation chains, autonomous driving, algorithmic trading. Outside
+that regime, the line beats the staircase.

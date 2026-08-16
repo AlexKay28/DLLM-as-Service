@@ -41,3 +41,23 @@ modelled).
 someone hoping the new architecture wins fails asymmetrically, because the
 arm the experimenter is not rooting for inherits the checkpoint defaults, the
 naive serving path, and the mature production infrastructure.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\linewidth]{figures/fig8_defects.pdf}
+\caption{Eight priced errors in our own comparison harness, each found by
+re-reading committed artifacts (BGL, $n{=}300$ per cell, $K{=}8$). Five
+of eight biased against the autoregressive arm. The clustering on one
+arm is suggestive, though the sample ($n{=}8$) is too small for a
+statistical claim.}
+\label{fig:defects}
+\end{figure}
+
+\paragraph{Numeric precision.}
+Every number in this paper is quoted to a precision its measurement error
+supports. Latency is quoted to 0.1\,ms: the run-to-run CV on the pinned
+stack is \arCV--\dgCV\%. F1 scores are quoted to three decimals: at
+$n = \nPerCell$ events the standard error is roughly 0.006, so three
+decimals is the defensible resolution; differences below 0.006 are not
+statistically significant. Ratios and multipliers are quoted to one
+decimal.

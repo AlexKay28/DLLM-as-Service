@@ -36,8 +36,14 @@
 \setlist[itemize]{leftmargin=1.5em,itemsep=2pt,topsep=4pt,parsep=0pt}
 \setlist[enumerate]{leftmargin=1.8em,itemsep=2pt,topsep=4pt,parsep=0pt}
 
-% --- Boxes ---
+% --- Colors ---
 \usepackage[table,dvipsnames]{xcolor}
+\definecolor{arblue}{HTML}{2A78D6}
+\definecolor{dgorange}{HTML}{EB6834}
+\definecolor{llaqua}{HTML}{1BAF7A}
+\definecolor{linkc}{HTML}{1B3A5C}
+
+% --- Boxes ---
 \usepackage[most]{tcolorbox}
 \newtcolorbox{keybox}[1][]{
   enhanced, breakable,
@@ -48,11 +54,6 @@
   fontupper=\small, #1
 }
 \newcommand{\boxhead}[1]{\textbf{\footnotesize\MakeUppercase{#1}}\par\vspace{2pt}}
-
-% --- Colors (for figure palette consistency) ---
-\definecolor{dgorange}{HTML}{EB6834}
-\definecolor{llaqua}{HTML}{1BAF7A}
-\definecolor{linkc}{HTML}{1B3A5C}
 
 % --- Hyperlinks & Metadata ---
 \usepackage[
@@ -113,24 +114,21 @@ for an analytical resolution of the forced-vs-natural question). It uses
 less energy and degrades under deadline pressure by losing quality rather
 than completeness. But the advantage does not survive deployment: at
 comparable quality the autoregressive model is \footprintRatio$\times$
-smaller and converts concurrency into throughput far better. What survives
-is one narrow regime --- long structured output under a batch-1 constraint
---- and we state the five conditions it requires.
+smaller, batches more than an order of magnitude better, and under
+tenant-isolated batch-1 can run 16 co-resident copies in the same GPU for
+$9\times$ lower cost per event. What survives is one narrow regime ---
+long structured output under a batch-1 constraint --- and we state five
+conditions it requires.
 \end{abstract}
 
 \input{sections/01_introduction}
 \input{sections/02_cost_laws}
 \input{sections/03_deployment}
-\input{sections/04_related_work}
-\input{sections/05_threats}
-
-% ========================================================== use cases ==
-\input{sections/14_usecases}
-
-% ========================================================== cost ==
-\input{sections/15_cost}
-
-\input{sections/06_conclusion}
+\input{sections/04_deployment_losses}
+\input{sections/05_survives}
+\input{sections/06_related_work}
+\input{sections/07_threats}
+\input{sections/08_conclusion}
 
 % ======================================================================
 %                          APPENDICES
@@ -141,13 +139,13 @@ is one narrow regime --- long structured output under a batch-1 constraint
 
 \appendix
 
-\input{sections/07_appendix_defects}
-\input{sections/08_appendix_decomp}
-\input{sections/09_appendix_batching}
-\input{sections/10_appendix_refuted}
-\input{sections/11_appendix_input_canvas}
-\input{sections/12_appendix_quality}
-\input{sections/13_appendix_distributions}
+\input{sections/09_appendix_defects}
+\input{sections/10_appendix_decomp}
+\input{sections/11_appendix_batching}
+\input{sections/12_appendix_refuted}
+\input{sections/13_appendix_input_canvas}
+\input{sections/14_appendix_quality}
+\input{sections/15_appendix_distributions}
 \input{sections/16_appendix_forced}
 \input{sections/17_appendix_batching_arch}
 
