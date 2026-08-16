@@ -12,7 +12,14 @@ before you can blink; AR-30B finishes before you finish reading
 this sentence. The AR model stops at $\sim$123 tokens (EOS), so
 latency plateaus regardless of max\_tokens.
 
-Table~\ref{tab:niche} shows the measured serial comparison.
+Table~\ref{tab:niche} shows the measured serial comparison. The
+pattern reveals two things: (1) AR latency is flat from 128 tokens
+onward because the model hits EOS at $\sim$123 tokens --- setting
+\texttt{max\_tokens} higher does nothing --- and (2) DG latency
+stays at 379\,ms for the first canvas (256 tokens) because tokens
+inside a canvas are free, then steps up by $\sim$120\,ms per
+additional canvas. The advantage narrows with output length because
+DG starts paying for canvases, but never drops below $8\times$.
 
 \begin{table}[h]
 \centering

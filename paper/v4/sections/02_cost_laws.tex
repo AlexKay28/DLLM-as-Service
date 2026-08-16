@@ -3,11 +3,14 @@
 
 \subsection{Parallel formulation}
 
-Both architectures decode output tokens from the same prompt, but their
-costs accumulate differently. For autoregressive decoding, each token
-requires one forward pass over the growing KV cache. For block-diffusion
-decoding, each canvas of $C$ tokens is denoised in parallel through $K$
-steps, then the model steps to the next canvas.
+The intuition is simple: AR pays per token, DG pays per block. Every
+output token on an AR model triggers a fresh forward pass over a
+growing KV cache --- the cost is strictly linear. A block-diffusion
+model denoises an entire canvas of $C$ tokens in parallel through $K$
+steps, then steps to the next canvas --- the cost is flat inside a
+block and jumps only at the boundary. Both architectures decode
+output tokens from the same prompt, but their costs accumulate
+differently.
 
 In general form, both cost laws share the structure:
 \begin{equation}
@@ -86,23 +89,27 @@ until the next canvas edge, where the gap widens again.
 \begin{figure}[t]
 \centering
 \includegraphics[width=\linewidth]{figures/fig1_cost_shapes.pdf}
-\caption{The two cost shapes as a grouped bar chart (BGL, $n{=}200$,
-$K{=}8$; AR values from the fitted AR-30B cost law, Eq.~\ref{eq:ar},
-extrapolated beyond the model's natural EOS at $\sim$123 tokens; DG
-measured). AR latency grows linearly;
-DG latency grows as a staircase. The cost-law gap widens with $L$; the
-measured ratio (AR stops at EOS) is $15.6\times$ at $L{=}256$
-(Table~\ref{tab:niche}).}
+\caption{The two cost shapes. AR latency grows linearly with output
+length (each token costs $\arSlope$\,ms); DG latency is a staircase
+that steps by $\dgStep$\,ms at every 256-token canvas boundary and is
+flat inside. The gap widens with $L$ because AR's line has no floor
+while DG's staircase is bounded. AR values from the fitted cost law
+(Eq.~\ref{eq:ar}), extrapolated beyond natural EOS at $\sim$123
+tokens; DG measured (BGL, $n{=}200$, $K{=}8$). The measured ratio
+at $L{=}256$ is $15.6\times$ (Table~\ref{tab:niche}).}
 \label{fig:shapes}
 \end{figure}
 
 \begin{figure}[t]
 \centering
 \includegraphics[width=\linewidth]{figures/fig2_canvas_edges.pdf}
-\caption{The staircase probed ($K{=}8$, BGL, $n{=}200$).
-\textbf{A:} latency is flat inside a canvas and jumps at the boundary.
-\textbf{B:} all seven canvas transitions out to $L{=}2048$ cost the same
-within run-to-run noise (range \dgStepLo--\dgStepHi\,ms, median \dgStep\,ms).}
+\caption{The staircase probed at canvas boundaries ($K{=}8$, BGL,
+$n{=}200$). \textbf{A:} latency is flat inside a canvas and jumps
+$\sim$120\,ms at the boundary --- tokens within a canvas are free.
+\textbf{B:} all seven canvas transitions out to $L{=}2048$ cost the
+same within noise (range \dgStepLo--\dgStepHi\,ms, median \dgStep\,ms),
+confirming the staircase is regular: every canvas costs the same
+regardless of position.}
 \label{fig:edges}
 \end{figure}
 
