@@ -1,27 +1,99 @@
-% !TEX TS-program = pdflatex
-\documentclass[11pt]{article}
+\documentclass[11pt,a4paper]{article}
 
-\input{../assets/style.tex}
+% --- Page Geometry & Layout ---
+\usepackage[margin=1in]{geometry}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+
+% --- Core Math & Symbols ---
+\usepackage{amsmath,amssymb,amsfonts,amsthm}
+
+% --- Graphics, Tables & Formatting ---
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{microtype}
+\usepackage{setspace}
+\onehalfspacing
+
+% --- Tables ---
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{tabularx}
+\renewcommand{\arraystretch}{1.15}
+\setlength{\tabcolsep}{6pt}
+\newcolumntype{R}{>{\raggedleft\arraybackslash}X}
+\newcolumntype{L}{>{\raggedright\arraybackslash}X}
+\newcommand{\tabfont}{\footnotesize}
+\newcommand{\thead}[1]{\footnotesize\textbf{#1}}
+
+% --- Captions ---
+\usepackage{caption}
+\captionsetup{font=small, labelfont=bf}
+
+% --- Lists ---
+\usepackage{enumitem}
+\setlist[itemize]{leftmargin=1.5em,itemsep=2pt,topsep=4pt,parsep=0pt}
+\setlist[enumerate]{leftmargin=1.8em,itemsep=2pt,topsep=4pt,parsep=0pt}
+
+% --- Boxes ---
+\usepackage[table,dvipsnames]{xcolor}
+\usepackage[most]{tcolorbox}
+\newtcolorbox{keybox}[1][]{
+  enhanced, breakable,
+  colback=black!3, colframe=black!40,
+  boxrule=0.5pt, arc=1pt,
+  left=8pt, right=8pt, top=5pt, bottom=5pt,
+  before skip=8pt, after skip=8pt,
+  fontupper=\small, #1
+}
+\newcommand{\boxhead}[1]{\textbf{\footnotesize\MakeUppercase{#1}}\par\vspace{2pt}}
+
+% --- Colors (for figure palette consistency) ---
+\definecolor{dgorange}{HTML}{EB6834}
+\definecolor{llaqua}{HTML}{1BAF7A}
+\definecolor{linkc}{HTML}{1B3A5C}
+
+% --- Hyperlinks & Metadata ---
+\usepackage[
+    colorlinks=true,
+    linkcolor=linkc,
+    citecolor=linkc,
+    urlcolor=linkc,
+    pdfauthor={Aleksandr Kaigorodov},
+    pdftitle={Diffusion LLMs as Fast Models for Specific Tasks},
+    pdfsubject={Block-structured decoding cost analysis},
+    pdfkeywords={diffusion LLM, block decoding, latency, structured output}
+]{hyperref}
+
+% --- Model shorthands ---
+\newcommand{\ARthree}{\textsc{ar-3b}}
+\newcommand{\ARoneb}{\textsc{ar-1.5b}}
+\newcommand{\DG}{\textsc{dg}}
+\newcommand{\LLaDA}{\textsc{llada-8b}}
+\newcommand{\artag}{\textsc{ar}}
+\newcommand{\dgtag}{\textsc{dg}}
+
+% --- Macros (numbers from results/) ---
 \input{../assets/macros.tex}
+
 \graphicspath{{../}}
 
-\hypersetup{
-  pdftitle={Diffusion LLMs as Fast Models for Specific Tasks},
-  pdfauthor={Aleksandr Kaigorodov},
-  pdfsubject={Block-structured decoding cost analysis},
-  pdfkeywords={diffusion LLM, block decoding, latency, structured output}
+\title{\textbf{Diffusion LLMs as Fast Models for Specific Tasks:\\
+The Cost Shape of Block-Structured Decoding}}
+
+\author{
+  \textbf{Aleksandr Kaigorodov} \\
+  \small Yandex \\
+  \small August 2026
 }
+
+\date{}
 
 \begin{document}
 
-\papertitle
-  {Diffusion LLMs as Fast Models for Specific Tasks: The Cost Shape of Block-Structured Decoding}
-  {When diffusion language models win on latency, and why they usually don't}
-  {Aleksandr Kaigorodov}
-  {Yandex}
-  {Preprint, August 2026, v4}
+\maketitle
 
-% ---------------------------------------------------------------- abstract --
 \begin{abstract}
 Diffusion language models can be faster than autoregressive ones for
 structured output --- but only in a narrow regime, and only after the
@@ -46,15 +118,18 @@ is one narrow regime --- long structured output under a batch-1 constraint
 --- and we state the five conditions it requires.
 \end{abstract}
 
-\vspace{6pt}
-
 \input{sections/01_introduction}
 \input{sections/02_cost_laws}
 \input{sections/03_deployment}
 \input{sections/04_related_work}
-\input{sections/05_threats} % ========================================================== use cases ==
-\input{sections/14_usecases} % ========================================================== cost ==
+\input{sections/05_threats}
+
+% ========================================================== use cases ==
+\input{sections/14_usecases}
+
+% ========================================================== cost ==
 \input{sections/15_cost}
+
 \input{sections/06_conclusion}
 
 % ======================================================================
