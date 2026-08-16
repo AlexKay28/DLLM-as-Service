@@ -2,9 +2,8 @@
 \documentclass[11pt]{article} \input{assets/style.tex}
 \input{assets/macros.tex}
 \graphicspath{{}} \hypersetup{pdftitle={Diffusion LLMs as Fast Models for Specific Tasks}, pdfauthor={Aleksandr Kaigorodov}, pdfsubject={Block-structured decoding cost analysis}, pdfkeywords={diffusion LLM, block decoding, latency, structured output}}
-\begin{document} \papertitle {Diffusion LLMs as Fast Models for Specific Tasks: The Cost Shape of Block-Structured Decoding} {When diffusion language models win on latency, and why they usually don't} {Aleksandr Kaigorodov} {Yandex} {Preprint \textperiodcentered\ August 2026 \textperiodcentered\ v3} % ---------------------------------------------------------------- abstract --
+\begin{document} \papertitle {Diffusion LLMs as Fast Models for Specific Tasks: The Cost Shape of Block-Structured Decoding} {When diffusion language models win on latency, and why they usually don't} {Aleksandr Kaigorodov} {Yandex} {Preprint \textperiodcentered\ August 2026 \textperiodcentered\ v4} % ---------------------------------------------------------------- abstract --
 \begin{abstract}
-\noindent
 Diffusion language models can be faster than autoregressive ones for
 structured output --- but only in a narrow regime, and only after the
 comparison is done fairly. We measure both architectures on a pinned serving
@@ -21,16 +20,29 @@ not survive deployment: at comparable quality the autoregressive model is
 \footprintRatio$\times$ smaller and converts concurrency into throughput far
 better. What survives is one narrow regime --- long structured output under a
 batch-1 constraint --- and we state the five conditions it requires.
-\end{abstract} \vspace{6pt} \input{sections/01_introduction}
+\end{abstract}
+
+\vspace{6pt}
+
+\input{sections/01_introduction}
 \input{sections/02_cost_laws}
 \input{sections/03_deployment}
 \input{sections/04_related_work}
 \input{sections/05_threats} % ========================================================== use cases ==
 \input{sections/14_usecases} % ========================================================== cost ==
-\input{sections/15_cost} \input{sections/06_conclusion} % ======================================================================
-% APPENDICES
-% ====================================================================== \bibliographystyle{plain}
-\bibliography{assets/references} \appendix \input{sections/07_appendix_defects}
+\input{sections/15_cost}
+\input{sections/06_conclusion}
+
+% ======================================================================
+%                          APPENDICES
+% ======================================================================
+
+\bibliographystyle{plain}
+\bibliography{assets/references}
+
+\appendix
+
+\input{sections/07_appendix_defects}
 \input{sections/08_appendix_decomp}
 \input{sections/09_appendix_batching}
 \input{sections/10_appendix_refuted}
@@ -38,4 +50,6 @@ batch-1 constraint --- and we state the five conditions it requires.
 \input{sections/12_appendix_quality}
 \input{sections/13_appendix_distributions}
 \input{sections/16_appendix_forced}
-\input{sections/17_appendix_batching_arch} \end{document}
+\input{sections/17_appendix_batching_arch}
+
+\end{document}

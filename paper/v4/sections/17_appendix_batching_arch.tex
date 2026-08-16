@@ -1,0 +1,43 @@
+\section{Why the Batching Ceiling Is Likely Architectural}
+\label{app:batching_architectural} The diffusion batching ceiling ($\leq 1.7\times$) is measured on two
+engine-bounded stacks (Appendix~\ref{app:batching}). We argue here that
+the ceiling is likely architectural, not an engine bug, by reasoning
+about the mechanism rather than measuring it. \paragraph{The KV-cache reuse argument.}
+Autoregressive batching is cheap because of KV-cache reuse: when two
+requests share a prompt prefix, the prefill is computed once and the KV
+cache is shared. Even without prefix sharing, each request's KV cache
+persists across decode steps, so the GPU alternates between requests at
+low marginal cost per token. Block-diffusion invalidates both forms of reuse: \begin{enumerate}[nosep]
+\item \textbf{Cross-request prefix sharing} requires that both requests
+are at the same denoising step. vLLM's mixed-phase crash is an engine
+bug, but even if it were fixed, requests at different $K$ steps cannot
+share a KV cache because the attention mask differs per step.
+\item \textbf{Within-request KV persistence} across denoising steps
+requires that the keys and values for prompt tokens are identical across
+steps. They are --- prompt tokens are never masked --- so in principle
+the prompt KV \emph{could} be cached. But the denoising tokens' KV changes
+at every step (the mask changes), so the per-step computation cannot
+reuse the previous step's activations for the denoising positions.
+\end{enumerate} The net effect: each denoising step is a fresh forward pass over the full
+sequence (prompt + denoising positions), with a different attention mask.
+The GPU does the same FLOPs whether batching or not, because the
+attention pattern is request-specific and step-specific. This is
+structurally different from AR decoding, where the attention pattern is
+causal and the KV cache grows monotonically. \paragraph{The cache-off test confirms the direction.}
+Disabling prefix caching on the AR arm drops its multiplier from
+$42.8\times$ to $26.8\times$ --- still $20\times$ above the DG ceiling.
+Cache reuse accounts for part of the AR advantage but not all of it; the
+remainder is the bandwidth-bound decode loop, which DG also lacks because
+each step is a full forward pass. \paragraph{What a fixed engine would change.}
+If vLLM's mixed-phase crash were fixed (phase-segregated batching), the
+DG multiplier might rise above $1.7\times$ --- but only to the extent that
+requests at the same $K$ step can share prompt prefill. The per-step
+denoising computation remains request-specific. The ceiling would likely
+move from $\sim 1\times$ to $\sim 2$--$3\times$, still an order of
+magnitude below AR's $26$--$43\times$. The ``true ceiling is unknown''
+framing in Appendix~\ref{app:batching} is honest; this appendix adds the
+structural argument for why it is unlikely to be high. \paragraph{Caveat.}
+This is a structural argument, not a measurement. A patched vLLM or a
+third diffusion serving stack could produce a different number. The
+argument says the ceiling is unlikely to reach AR's level, not that it
+cannot improve at all.

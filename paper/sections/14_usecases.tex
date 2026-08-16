@@ -6,7 +6,7 @@ intelligence, cross-references internal logs, generates a hypothesis, and
 drills into the next layer. Each hop blocks on the previous one;
 concurrency is 1 by construction. This is the workflow for SOC analysts,
 forensic investigators, and multi-hop debugging pipelines. We measured chain depths $D \in \{1,3,5,10,20\}$ on both arms
-(, BGL, $n{=}300$). Both models are
+(BGL, $n{=}300$). Both models are
 linear in depth (slope CV 1.1\% for DG, 1.2\% for AR). DG's per-hop p50 is
 $\sim$410\,ms against AR's $\sim$825\,ms --- a $2.0\times$ advantage that is
 constant across depth. DG's tail penalty (the 3.21$\times$ max/median from
@@ -42,7 +42,7 @@ budget is sub-second, and the system is strictly batch-1: there is one
 vehicle, one scene, one decision. There is no queue to batch against. DG's properties map directly onto this workload. The staircase cost law
 means the p50 is flat whether the scene report is 128 or 512 tokens ---
 the model does not pay per token the way an autoregressive decoder does.
-The $K$ knob (Appendix~\ref{app:decomp}) is a per-request quality knob with two usable positions (K=8 and K=4):
+The $K$ knob (Appendix~\ref{app:decomp}) is a per-request quality knob with two usable positions ($K{=}8$ and $K{=}4$):
 drop $K$ from 8 to 4 and the record arrives in \kFourPfifty\,ms at
 \kFourFone\ F1, meeting a tightened deadline without truncating the output.
 An AR model under the same deadline returns a truncated record that fails

@@ -32,7 +32,7 @@ The diffusion model is faster even unforced: at AR-1.5B's natural output
 length of 138 tokens, DG completes in \dgTwoFive\,ms against AR's
 665.7\,ms --- a $1.8\times$ advantage. Forcing the AR arm to emit
 $L{=}1024$ tokens inflates that to $5.4\times$, because first-object-wins
-parsing (\S\ref{app:defects}, defect 3) discards the rambled continuation
+parsing (Appendix~\ref{app:defects}, defect 3) discards the rambled continuation
 past the first JSON object. At $L{=}1024$ the AR arm is charged
 \arOneFiveTenTwoFour\,ms for output the scorer deletes. The
 $4.0$--$5.4\times$ advantage therefore measures the cost of
@@ -133,5 +133,5 @@ but ``sixteen copies of AR-1.5B serving sixteen isolated tenants'' --- at
 latency is unchanged; throughput is 16$\times$; isolation is preserved.
 This co-residency argument is the natural response to ``batch-1 by tenant
 isolation'' and is not covered by the batching measurement in
-\S\ref{app:batching}, which measures cross-request batching within one
+Appendix~\ref{app:batching}, which measures cross-request batching within one
 model.

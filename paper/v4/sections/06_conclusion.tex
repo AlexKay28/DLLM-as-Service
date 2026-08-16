@@ -1,0 +1,17 @@
+\section{Conclusion}
+\label{sec:conclusion}
+
+Diffusion language models have a real latency advantage for structured
+output. The advantage is $1.8\times$ faster than the quality-comparable
+AR model even at natural output length, inflated to $5.4\times$ at forced
+output $L{=}1024$. The advantage comes from the cost shape --- a staircase
+that is flat inside each block --- not from the diffusion process itself.
+The floor is mostly prefill, and any decoder emitting fixed-size blocks
+would inherit the same shape.
+
+The advantage does not survive deployment. A $1.8\times$ gap on a model
+\footprintRatio$\times$ larger is not a deployment argument, and at matched
+quality the AR model batches more than an order of magnitude better. What
+survives is a narrow regime: long forced output, batch-1, schema
+validation, and a data-centre footprint. Outside that regime, the line
+beats the staircase.

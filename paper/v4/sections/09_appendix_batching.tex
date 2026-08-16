@@ -1,0 +1,17 @@
+\section{The Batching Ceiling and Its Engine Defects}
+\label{app:batching} The diffusion batching ceiling ($\leq$\dgBatchVllmHi$\times$) reproduces across
+two runtimes and two model families, but both measurements are bounded by
+known engine defects: \begin{itemize}
+\item \textbf{vLLM} caps the batch at 8 when two requests mix denoising
+phases, so the DiffusionGemma multipliers
+(\dgBatchVllmLo--\dgBatchVllmHi$\times$) are lower bounds, not ceiling
+measurements. \item \textbf{dInfer} (LLaDA-8B) errors on prompts of 632 tokens or more,
+forcing a cache-less mode that inflates absolute latency by $\sim$30$\times$.
+The multiplier (\dgBatchMult$\times$) is unaffected as a ratio, but the
+claim that this is a cache-enabled measurement is not defensible.
+\end{itemize} The standing explanation --- that bidirectional attention invalidates KV-cache
+reuse --- is partly falsified: disabling prefix caching on the AR arm drops
+its multiplier from \cacheOnMult$\times$ to \cacheOffMult$\times$, still more
+than twenty times the diffusion ceiling. Remaining candidates include
+mixture-of-experts routing variability and kernel maturity. The true ceiling
+on an uncrippled stack is unknown but lies at or above \dgBatchVllmHi$\times$.
