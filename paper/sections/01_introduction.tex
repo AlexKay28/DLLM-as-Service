@@ -9,11 +9,35 @@ second class \emph{block-diffusion} because the block structure --- not
 the diffusion process --- is what determines its cost shape.
 
 We compare the two on a pinned serving stack: vLLM, NVIDIA A100 80GB
-PCIe, BF16. The task is structured log extraction --- given a raw log
-line from the LOGHUB BGL corpus, emit a JSON record with 12 fields
-(timestamp, host, component, severity, etc.). Quality is measured as
-macro-averaged token-level F1 across 9 of the 12 fields (the other 3
-have degenerate gold labels).
+PCIe, BF16. The task is structured log extraction from the LOGHUB BGL
+corpus --- a collection of system logs from the BlueGene/L
+supercomputer at Lawrence Livermore National Laboratory. Each raw log
+line describes a hardware or software event (e.g., \textit{``kernel:
+RAS-MODULE: data storage interrupt on node R21-M0-NF-C:J11-U11''}).
+The model must extract a structured JSON record with 12 fields:
+
+\begin{itemize}[nosep]
+\item \emph{Structural} (7): \texttt{timestamp\_norm}, \texttt{host},
+  \texttt{component}, \texttt{severity}, \texttt{message\_template},
+  \texttt{error\_code}, \texttt{metric\_value}
+\item \emph{Semantic} (2): \texttt{event\_type},
+  \texttt{affected\_entity}
+\item \emph{Anomaly} (2): \texttt{is\_anomaly} (boolean),
+  \texttt{anomaly\_score} (float)
+\item \emph{Action} (1): \texttt{remediation\_hint}
+\end{itemize}
+
+The structural fields require span-copying from the input (the model
+must locate and transcribe substrings like hostnames and timestamps).
+The semantic fields require inference (classifying the event type from
+free-text descriptions). The anomaly fields require binary
+classification. Quality is measured as macro-averaged token-level F1
+across 9 of the 12 fields; the other 3 (\texttt{event\_type},
+\texttt{affected\_entity}, \texttt{remediation\_hint}) have degenerate
+gold labels on BGL (2, 1, and 1 unique values across 2,000 events
+respectively), so a model that emits an empty object scores $1.000$ on
+two of them by trivially matching a constant. All experiments use
+$n = 300$ BGL test events per cell unless stated otherwise.
 
 The diffusion arm is \DG\ (DiffusionGemma-26B-A4B, 4.0\,B active of
 26\,B total, 52\,GB). It is a Mixture-of-Experts model: only 4.0\,B
