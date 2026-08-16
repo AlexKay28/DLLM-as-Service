@@ -6,35 +6,6 @@ but the shapes should transfer. The crossover is calibrated at a
 reference prompt of $\sim$\refPrompt\,tokens and shifts with input
 length.
 
-\paragraph{AR-30B arm: corrected and re-measured.}
-
-An earlier draft of this paper reported AR-30B numbers from a harness
-that differed from every other arm in three ways at once, all three
-slowing the AR side. First, engine version: every DG, AR-3B and AR-1.5B
-cell ran on vLLM 0.25.1 (torch 2.11.0, CUDA 13.0), but the AR-30B ran
-on vLLM 0.11.0 (torch 2.8.0, CUDA 12.8). Second, CUDA graphs: the
-AR-30B harness set \texttt{enforce\_eager}, which the anchor harnesses
-don't, so the AR-30B decoded without graph capture. Third, and most
-seriously, the AR-30B harness read its inputs from the gold record file
-instead of the raw log file: the model was prompted with the answer it
-was supposed to extract, which is why its 9-field F1 was exactly $1.0$
-in every cell and its outputs were near-copies of the gold. The harness
-has been corrected (raw input, graphs on, the paper's 9-field subset,
-serial per-event timing, a provenance block, and a guard in
-\texttt{build\_chat\_messages} that rejects any input that parses as a
-gold JSON record) and all four AR-30B artifacts have been re-measured
-on the pinned stack. The corrected AR-30B decodes at
-\arSlope\,ms/token, close to the dense AR-3B's 6.3\,ms/token, which is
-plausible for a MoE with the same active parameter count. The cost law
-(Eq.~\ref{eq:ar}), Table~\ref{tab:niche}, the headline figures, the
-batching multiplier and the cost-per-event table now all carry
-provenance blocks verified by \texttt{paper/verify\_numbers.py}. This
-is the same class of defect as correction~2 in
-Appendix~\ref{app:defects}, a harness asymmetry flattering the
-architecture we hoped would win, found, as those eight were, by
-re-reading committed artifacts. Correction~9 in
-Appendix~\ref{app:defects} prices the impact.
-
 The AR--DG quality difference is equivalent at a $\pm 0.015$ margin
 ($\Delta = \qualityGap$, 95\% CI $[-0.012, +0.011]$, $n = 300$).
 This is looser than the $\pm 0.010$ we pre-registered. At that
@@ -90,11 +61,9 @@ The cost-shape generalisation is inferred from one block-diffusion
 model measured against one AR family. The shape claim is structural but
 not tested on a second diffusion family.
 
-The energy comparison uses three different idle baselines (49.7\,W for
-AR-30B, 52.6\,W for DG, 58.6\,W for AR-1.5B); both the AR-30B and DG
-energy runs are now serial, but the DG energy was not re-measured at
-the AR-30B idle point, so the ratio is indicative instead of directly
-controlled.
+The energy comparison uses three different idle baselines, and the DG
+energy was not re-measured at the AR-30B idle point, so the ratio is
+indicative rather than directly controlled.
 
 DiffusionGemma-26B-A4B-it's available at
 \url{https://huggingface.co/google/}\\\url{diffusiongemma-26b-a4b-it}.

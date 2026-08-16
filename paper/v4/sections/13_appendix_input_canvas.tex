@@ -27,8 +27,8 @@ simultaneously. At canvas $=64$ the base rises $48\%$ because the
 per-canvas fixed overhead is paid twice as often; that setting is not
 viable. Block size, not denoising schedule, is the interesting design
 variable. Canvas $=128$ barely moves the crossover, $L^{*}$ falls
-from $6.2$ to $6.1$ tokens, because the base drops only $2\%$, but
-canvas $=64$ pushes it to $L^{*}\approx10$, since $L^{*}$ scales with
+from $48$ to $46$ tokens, because the base drops only $2\%$, but
+canvas $=64$ pushes it to $L^{*}\approx73$, since $L^{*}$ scales with
 the base and that base is $48\%$ higher. Shrinking the canvas doesn't
 shrink the prefill it must re-attend, so a smaller canvas buys
 finer-grained output at the cost of paying the fixed overhead more

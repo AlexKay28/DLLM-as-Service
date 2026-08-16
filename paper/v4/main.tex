@@ -80,21 +80,19 @@ The Cost Shape of Block-Structured Decoding}}
 \maketitle
 
 \begin{abstract}
-Autoregressive decoding has linear latency in output length;
-block-diffusion decoding has a staircase latency --- flat inside a
-fixed 256-token canvas, stepping at each boundary. On a pinned vLLM
-stack with a Mixture-of-Experts-matched pair
-(DiffusionGemma-26B-A4B vs Qwen3-30B-A3B) on structured log
-extraction, the shapes cross at a short output length, above which
-block diffusion is two and a half times faster at the natural output length
-and narrows to just over parity at a thousand tokens. The autoregressive model
-wins under high throughput (better batching, tighter tail); block
-diffusion wins where requests arrive serially --- investigation
+Autoregressive decoding gets slower with every token it generates.
+Block-diffusion decoding has a staircase cost: flat inside a fixed
+canvas, stepping at each boundary. On a pinned vLLM stack with a
+Mixture-of-Experts-matched pair on structured log extraction, the
+shapes cross at a short output length. Above it, block diffusion is
+two and a half times faster at the natural output length, narrowing
+to just over parity at a thousand tokens. The autoregressive model
+wins under high throughput, with better batching and a tighter tail.
+Block diffusion wins where requests arrive serially: investigation
 chains, autonomous driving, algorithmic trading. Under a tightening
 deadline, block diffusion lowers quality rather than truncating
-output; the autoregressive model does the reverse. We state five
-conditions defining the regime where block diffusion is the right
-choice.
+output. We state five conditions defining the regime where block
+diffusion is the right choice.
 \end{abstract}
 
 \begin{figure}[ht!]

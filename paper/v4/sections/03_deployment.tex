@@ -59,7 +59,7 @@ max\_tokens & AR-30B (ms) & AR actual out & DG (ms) & DG advantage \\
 \paragraph{DG wins at every practical output length.}
 
 The serial cost law gives crossover $L^{*} = \crossoverL$ tokens, DG
-is faster at any output length above $L^{*}$ (integer-safe: $L \geq 49$).
+is faster at any output length above $L^{*}$ (integer-safe: $L \geq 48$).
 AR-30B serial slope (\arSlope\,ms/token) is $23\times$ steeper than
 its batch-throughput slope (0.32\,ms/token at batch 300, from
 40.3\,ms/event over 127 tokens), because serial mode pays full prefill
@@ -116,7 +116,7 @@ drives it, and the AR-30B MoE's own tail is unmeasured.}
 \toprule
 \thead{Challenge} & \thead{AR-30B MoE} & \thead{DG-26B MoE} & \thead{Key driver} \\
 \midrule
-Long output, batch-1 & \arSlope\,ms/token (serial) & Staircase, \dgStep\,ms/canvas & Crossover at $L^{*}\!\approx\!\crossoverL$ ($L\geq49$) \\
+Long output, batch-1 & \arSlope\,ms/token (serial) & Staircase, \dgStep\,ms/canvas & Crossover at $L^{*}\!\approx\!\crossoverL$ ($L\geq48$) \\
 Deadline pressure & Truncates output & Drops $K$; complete canvas & Per-request quality knob \\
 High arrival rate & Batches $25\times$ & Caps at $\leq$1.7$\times$ & KV-cache reuse \\
 Tail-sensitive service-level agreement (SLA) & Coefficient of variation (CV) \arEventCV\%, max/med \arMaxMed$\times$ (dense AR-3B) & CV \dgEventCV\%, max/med \dgMaxMed$\times$ & Denoising-step variance \\
