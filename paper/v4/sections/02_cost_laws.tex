@@ -1,58 +1,46 @@
 \section{The two cost laws: a line and a staircase}
 \label{sec:laws}
 
-\subsection{Parallel formulation}
+\subsection{How the two architectures decode}
 
-\paragraph{How the two architectures decode.}
-An autoregressive model generates output one token at a time. Each
-token requires a forward pass over the full model and the growing KV
-cache; the model cannot begin token $t_{i+1}$ until it has finished
-$t_i$. The cost is strictly sequential --- one forward pass per token,
-no parallelism within the sequence.
+\paragraph{Autoregressive (AR).}
+The model generates output one token at a time. Each token requires a
+forward pass over the full model and the growing KV cache; the model
+cannot begin token $t_{i+1}$ until it has finished $t_i$. The cost is
+strictly sequential --- one forward pass per token, no parallelism
+within the sequence.
 
-A block-diffusion model generates an entire canvas of $C$ tokens in
-parallel through $K$ iterative denoising passes. On each pass, the
-model refines all $C$ token positions simultaneously: it starts from
-noise, predicts cleaner tokens at every position, and repeats. After
-$K$ passes the canvas is fully decoded and the model steps to the
-next canvas. Within a canvas, tokens are free --- they are denoised
-in parallel, so adding more tokens up to $C$ costs nothing. The cost
+\paragraph{Block-diffusion (DG).}
+The model generates an entire canvas of $C$ tokens in parallel
+through $K$ iterative denoising passes. On each pass, the model
+refines all $C$ token positions simultaneously: it starts from noise,
+predicts cleaner tokens at every position, and repeats. After $K$
+passes the canvas is fully decoded and the model steps to the next
+canvas. Within a canvas, tokens are free --- they are denoised in
+parallel, so adding more tokens up to $C$ costs nothing. The cost
 jumps only at the canvas boundary, when a fresh block of $K$ denoising
 passes begins.
 
-Figure~\ref{fig:schematic} contrasts the two decoding patterns.
+Figure~\ref{fig:schematic} contrasts the two patterns. The taxi fare
+climbs with every token; the subway charges per station.
 
 \begin{figure}[t]
 \centering
 \includegraphics[width=\linewidth]{figures/fig0_decoding_schematic.pdf}
 \caption{Decoding schematics. \textbf{A:} Autoregressive decoding
-generates tokens one at a time; each token costs one forward pass
-($\arSlope$\,ms), so cost grows linearly. \textbf{B:} Block-diffusion
-decoding generates a canvas of $C$ tokens in parallel through $K$
-denoising passes; within a canvas, tokens are free. Cost is flat
-inside a canvas and steps up at the boundary.}
+generates tokens one at a time; each token costs one forward pass, so
+cost grows linearly. \textbf{B:} Block-diffusion decoding generates a
+canvas of $C$ tokens in parallel through $K$ denoising passes; within
+a canvas, tokens are free. Cost is flat inside a canvas and steps up
+at the boundary.}
 \label{fig:schematic}
 \end{figure}
 
-The intuition is simple: AR pays per token, DG pays per block. Every
-output token on an AR model triggers a fresh forward pass over a
-growing KV cache --- the cost is strictly linear. A block-diffusion
-model denoises an entire canvas of $C$ tokens in parallel through $K$
-steps, then steps to the next canvas --- the cost is flat inside a
-block and jumps only at the boundary.
+\subsection{The cost laws}
 
-In general form, both cost laws share the structure:
-\begin{equation}
-\label{eq:general}
-T = a + b \cdot f(L_{\mathrm{out}})
-\end{equation}
-where $T$ is per-event latency, $L_{\mathrm{out}}$ is output length,
-$a$ is the fixed cost, $b$ is the marginal cost per unit of output,
-and $f$ is linear for AR but a staircase for DG. The canvas size $C$
-and denoising step count $K$ are the two structural parameters of the
-staircase.
-
-The measured cost laws are:
+Both laws share the structure $T = a + b \cdot f(L)$, where $a$ is the
+fixed cost, $b$ is the marginal cost, and $f$ is linear for AR but a
+staircase for DG. The measured forms are:
 \begin{align}
 \label{eq:ar}
 T_{\textsc{ar}}(L_{\mathrm{out}}) &= \arBase + \arSlope \cdot L_{\mathrm{out}} && \text{(ms, linear)} \\
@@ -61,21 +49,16 @@ T_{\textsc{dg}}(L_{\mathrm{out}}) &= \dgBase + \dgStep \cdot \Bigl(\bigl\lceil \
 \end{align}
 
 For AR, the intercept is the prompt prefill cost, amortised by prefix
-caching; the slope is one KV-cache forward pass per token. The MoE
-architecture keeps prefill cheap --- only a fraction of parameters are
-active per token. For DG, the intercept is the first-canvas cost: the
-prompt is re-attended $K$ times, once per denoising step. The slope is
-the cost of one additional canvas. Within a canvas, the marginal cost
-is zero --- tokens are denoised in parallel, so they are free.
+caching; the slope is one KV-cache forward pass per token. For DG, the
+intercept is the first-canvas cost: the prompt is re-attended $K$
+times, once per denoising step. The slope is the cost of one additional
+canvas. The operating point $K{=}8$ was selected as the latency/quality
+knee: quality is approximately flat above $K{=}8$ while latency
+saturates above $K{=}16$.
 
-The operating point $K{=}8$ was selected as the latency/quality knee:
-quality is approximately flat above $K{=}8$ while latency saturates
-above $K{=}16$. Each additional canvas costs the same regardless of
-position, confirmed across seven measured transitions.
-
-AR is a metered taxi: the fare climbs with every block.
-DG is a subway: flat fare per station, no matter how many tokens board.
-The line has no floor, but the staircase is bounded. The shapes cross
+AR is a metered taxi: the fare climbs with every block. DG is a
+subway: flat fare per station, no matter how many tokens board. The
+line has no floor, but the staircase is bounded. The shapes cross
 where the two costs are equal. Solving for $L_{\mathrm{out}}$:
 \begin{equation}
 \label{eq:lcross}
