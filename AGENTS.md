@@ -74,9 +74,9 @@ python models/experiments/run_ablation_table5.py \
 - `extract_with_k()` — K-sweep (K=8 knee)
 - `MockMDMModel` for dry-runs (simulates paper's 23ms p50 @ K=8)
 
-**BLOCKER:** `MDMModel.load()` and `_denoise()` raise `NotImplementedError`.
-Need to implement LLaDA's denoising loop (see `mdm_wrapper.py` integration notes).
-`MockMDMModel` works for pipeline testing.
+`MDMModel._denoise()` is implemented (`mdm_wrapper.py:227`). `MDMModel.load()`
+still raises `NotImplementedError` — needs LLaDA weight loading + the
+denoising loop wired to the model. `MockMDMModel` works for pipeline testing.
 
 ### Energy measurement
 

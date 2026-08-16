@@ -14,8 +14,8 @@ os.environ['TRANSFORMERS_OFFLINE'] = '1'
 
 from metrics.schema import FIELD_NAMES
 from models.baselines.ar_model import build_chat_messages, parse_json_output
-from metrics.schema import Record
-from metrics.quality_metrics import field_f1
+from models.baselines.ar_wrapper import _dict_to_record
+from metrics.quality_metrics import field_f1, NINE_FIELD_NAMES
 
 # Simplified schema: ALL strings (xgrammar struggles with mixed types)
 JSON_SCHEMA = {
@@ -52,7 +52,6 @@ def run_experiment(n_events=300):
     tokenizer = AutoTokenizer.from_pretrained(model_name, trust_remote_code=True)
 
     events = load_bgl_events(n_events)
-    print(f"Loaded {len(events)} BGL events")
 
     prompts = []
     for line in events:
@@ -81,38 +80,18 @@ def run_experiment(n_events=300):
     grammar_tokens = [len(out.outputs[0].token_ids) for out in outputs_grammar]
     grammar_valid = sum(1 for t in grammar_texts if _is_valid(t))
 
-    # Score both
-    gold_records = []
-    for line in events:
-        try:
-            gold = json.loads(line)
-            gold_records.append(Record(**{k: gold.get(k, "") for k in FIELD_NAMES}))
-        except:
-            gold_records.append(Record())
+    # Score both — use _dict_to_record (Record(**kwargs) raises TypeError, #112)
+    gold_records = [_dict_to_record(json.loads(line)) for line in events]
 
-    nine_fields = FIELD_NAMES[:9]
-    
-    # Plain scoring
-    plain_records = []
-    for text in plain_texts:
-        try:
-            d = parse_json_output(text)
-            plain_records.append(Record(**{k: d.get(k, "") for k in FIELD_NAMES}))
-        except:
-            plain_records.append(Record())
-    plain_f1 = field_f1(plain_records, gold_records, fields_to_eval=nine_fields)
-    plain_f1_9 = sum(plain_f1.values()) / len(plain_f1) if plain_f1 else 0.0
+    # Plain scoring — 9-field macro from field_f1 (not FIELD_NAMES[:9], #113)
+    plain_records = [_dict_to_record(parse_json_output(text)) for text in plain_texts]
+    plain_f1 = field_f1(plain_records, gold_records, fields_to_eval=NINE_FIELD_NAMES)
+    plain_f1_9 = plain_f1["macro_field_f1_9"]
 
     # Grammar scoring
-    grammar_records = []
-    for text in grammar_texts:
-        try:
-            d = parse_json_output(text)
-            grammar_records.append(Record(**{k: d.get(k, "") for k in FIELD_NAMES}))
-        except:
-            grammar_records.append(Record())
-    grammar_f1 = field_f1(grammar_records, gold_records, fields_to_eval=nine_fields)
-    grammar_f1_9 = sum(grammar_f1.values()) / len(grammar_f1) if grammar_f1 else 0.0
+    grammar_records = [_dict_to_record(parse_json_output(text)) for text in grammar_texts]
+    grammar_f1 = field_f1(grammar_records, gold_records, fields_to_eval=NINE_FIELD_NAMES)
+    grammar_f1_9 = grammar_f1["macro_field_f1_9"]
 
     # Sample outputs for debugging
     print("\n=== Sample outputs (first 3) ===")

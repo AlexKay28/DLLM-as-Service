@@ -2,7 +2,7 @@
 """Build every figure in the paper from committed artifacts.
 
 Each function prints the values it plotted so they can be diffed against
-paper/NUMBERS.md and macros.tex. Nothing here hardcodes a number that is not
+docs/legacy/paper/NUMBERS.md and macros.tex. Nothing here hardcodes a number that is not
 either (a) read from results/*.json or (b) a fitted constant declared in
 LAWS below and traceable to an artifact.
 

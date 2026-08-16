@@ -27,12 +27,11 @@ from models.decision.procedure import (
 
 
 def test_l_cross():
-    """L_cross should be ~65 tokens."""
+    """L_cross should be ~48 tokens (AR-30B MoE, issue #112)."""
     l_cross = compute_l_cross()
-    # With K=8 base (378.8): (378.8 - 7.27) / 6.29 = 59.1
-    # With K=32 base (418.24): (418.24 - 7.27) / 6.29 = 65.3
+    # With AR-30B: (378.8 - 34.6) / 7.2 = 47.8
     print(f"  L_cross = {l_cross:.1f} tokens")
-    assert 55 < l_cross < 75, f"L_cross={l_cross} outside expected range 55-75"
+    assert 40 < l_cross < 55, f"L_cross={l_cross} outside expected range 40-55"
     print("  PASS")
 
 
@@ -48,12 +47,12 @@ def test_lambda_cross():
 
 def test_fitted_vs_measured():
     """Fitted latency should match measured within published tolerances."""
-    # AR-3B at L=256: fitted = 7.27 + 6.29*256 = 1617.5 ms
-    # Measured (Campaign B): 1617.6 ms
-    fitted = t_ar(256)
-    measured = 1617.6
+    # AR-30B at L=126 (natural output): fitted = 34.6 + 7.2*126 = 944.2 ms
+    # Measured (issue #112 re-measurement): 945.2 ms
+    fitted = t_ar(126)
+    measured = 945.2
     err = abs(fitted - measured) / measured * 100
-    print(f"  AR-3B L=256: fitted={fitted:.1f} ms, measured={measured:.1f} ms, "
+    print(f"  AR-30B L=126: fitted={fitted:.1f} ms, measured={measured:.1f} ms, "
           f"err={err:.2f}%")
     assert err < 0.4, f"AR fit error {err:.2f}% exceeds 0.4%"
     print("  PASS")

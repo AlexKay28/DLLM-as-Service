@@ -20,27 +20,29 @@ from dataclasses import dataclass, field
 from typing import Optional, Callable
 
 
-# ---- Constants (all trace to paper/NUMBERS.md and results/*.json) ----
+# ---- Constants (trace to paper/assets/macros.tex and results/*.json) ----
+# AR constants are the AR-30B MoE (Qwen3-30B-A3B), matching macros.tex.
+# Updated by issue #113 0.5e (was AR-3B-era, stale since #112 re-measurement).
 
 CONSTANTS = {
     "ar_intercept_ms": {
-        "value": 7.27,
-        "source": "NUMBERS.md §2.1, results/appD_ar3b_L1024.json fit",
-        "issue": "#44 P4 (intercept absorbs prefill inconsistently)",
+        "value": 34.6,
+        "source": "macros.tex \\arBase, results/issue111_qwen3_serial_sweep.json",
+        "issue": "#112 (re-measured on pinned stack, was 7.27 AR-3B era)",
     },
     "ar_slope_ms_per_token": {
-        "value": 6.29,
-        "source": "NUMBERS.md §2.1, results/p2_ar3b_*.json",
-        "issue": None,
+        "value": 7.2,
+        "source": "macros.tex \\arSlope, results/issue111_qwen3_serial_sweep.json",
+        "issue": "#112 (re-measured, was 6.29 AR-3B era)",
     },
     "dg_base_ms": {
-        "value": 418.24,
-        "source": "NUMBERS.md §2.1, mean of p2_dg_L32..256 (K=32)",
-        "issue": "#57 (K=32; K=8 base is ~378.8 ms)",
+        "value": 378.8,
+        "source": "macros.tex \\dgBase, results/anchors/anchor_remeasure.json",
+        "issue": "#57 (K=8 base confirmed, was 418.24 K=32)",
     },
     "dg_base_k8_ms": {
         "value": 378.8,
-        "source": "NUMBERS.md §0, results/dg_steps_8.json",
+        "source": "docs/legacy/paper/NUMBERS.md §0, results/dg_steps_8.json",
         "issue": "#57 discrepancy analysis",
     },
     "dg_step_min_ms": {
@@ -64,48 +66,48 @@ CONSTANTS = {
         "issue": "#66 step 0 (tunable)",
     },
     "l_cross_tokens": {
-        "value": 65,
-        "source": "NUMBERS.md §2.2, T_AR = T_DG solve",
-        "issue": "#64 acceptance gate",
+        "value": 48,
+        "source": "macros.tex \\crossoverL, results/issue111_qwen3_serial_sweep.json",
+        "issue": "#112 (was 65 AR-3B era)",
     },
     "lambda_cross_ev_s": {
-        "value": 1.8,
-        "source": "NUMBERS.md §4.1, rate_lag curves",
-        "issue": "#64 acceptance gate",
+        "value": 2.6,
+        "source": "macros.tex \\crossoverLambda, 1000/dg_base_ms",
+        "issue": "#112 (was 1.8 AR-3B era)",
     },
     "natural_l_ar": {
-        "value": 123,
-        "source": "NUMBERS.md §2.2, AR mean output tokens at L=256",
-        "issue": None,
+        "value": 126,
+        "source": "results/issue111_qwen3_30b_a3b.json mean_output_tokens",
+        "issue": "#112 (was 123 AR-3B era)",
     },
     "natural_l_dg": {
         "value": 176,
-        "source": "NUMBERS.md §2.2, DG mean output tokens at L=256",
+        "source": "docs/legacy/paper/NUMBERS.md §2.2, DG mean output tokens at L=256",
         "issue": None,
     },
     "mult_dg": {
         "value": 1.18,
-        "source": "NUMBERS.md §5, results/llada_dinfer/ (cache='')",
+        "source": "docs/legacy/paper/NUMBERS.md §5, results/llada_dinfer/ (cache='')",
         "issue": "#42 (retitle, not mechanism)",
     },
     "mult_ar": {
-        "value": 80.0,
-        "source": "NUMBERS.md §5, results/vllm_serving_3b.json (77-86x range)",
-        "issue": None,
+        "value": 24.7,
+        "source": "results/issue111_qwen3_batch_sweep.json multiplier",
+        "issue": "#112 (was 80.0 AR-3B era)",
     },
     "knee_dg_ev_s": {
         "value": 2.25,
-        "source": "NUMBERS.md §4.1 (2.0-2.5 range)",
+        "source": "docs/legacy/paper/NUMBERS.md §4.1 (2.0-2.5 range)",
         "issue": None,
     },
     "knee_ar_ev_s": {
         "value": 80.0,
-        "source": "NUMBERS.md §4.1 (64-96 range)",
+        "source": "docs/legacy/paper/NUMBERS.md §4.1 (64-96 range)",
         "issue": None,
     },
     "price_f1_12field": {
         "value": 0.039,
-        "source": "NUMBERS.md §3, 0.826 - 0.787 at L=256",
+        "source": "docs/legacy/paper/NUMBERS.md §3, 0.826 - 0.787 at L=256",
         "issue": "#57 R4 (12-field contaminated; 9-field price pending)",
     },
     "price_f1_9field": {
@@ -169,7 +171,7 @@ def t_dg_two_variable(l_in, l_out, base=None, step=None, canvas=None,
     if canvas is None:
         canvas = CONSTANTS["canvas_length"]["value"]
     if prefill_ms_per_token is None:
-        prefill_ms_per_token = 0.123  # from #44 input-length sweep
+        prefill_ms_per_token = CONSTANTS.get("dg_input_slope_ms_per_token", {}).get("value", 0.123)
     n_canvases = max(1, math.ceil(l_out / canvas))
     return base + prefill_ms_per_token * l_in + step * (n_canvases - 1)
 
@@ -269,7 +271,7 @@ def decide(
     # One-variable law warning
     if t_dg_fn.__name__ == "t_dg_two_variable":
         warnings.append(
-            "Two-variable law uses a placeholder prefill slope (0.15 ms/token). "
+            "Two-variable law uses a placeholder prefill slope. "
             "Calibrate from #44 input-length sweep results before relying on "
             "this mode."
         )

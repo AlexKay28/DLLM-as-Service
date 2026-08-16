@@ -3,12 +3,13 @@ name = "dllm-as-service"
 version = "0.1.0"
 description = "Validating FlowFill paper claims: masked-diffusion LMs as a bounded-latency monitoring engine for streaming logs"
 readme = "README.md"
-requires-python = ">=3.10"
+requires-python = ">=3.10,<3.11"
 
 dependencies = [
-    "huggingface_hub>=1.0",
-    "tqdm>=4.60",
-    "matplotlib>=3.5",
+    "huggingface-hub==1.27.0",
+    "tqdm==4.70.0",
+    "matplotlib==3.10.9",
+    "numpy==2.2.6",
 ]
 
 [project.optional-dependencies]
@@ -17,36 +18,34 @@ baselines = [
     "logparser3>=0.1.0",
 ]
 
-# GPU experiments: AR model inference (Qwen2.5-1.5B/7B)
-gpu-ar = [
-    "torch>=2.0",
-    "transformers>=4.40",
-    "accelerate>=0.20",
-    "sentencepiece>=0.1.99",
-]
-
-# GPU experiments: MDM/DLLM inference (LLaDA-8B, Dream)
-gpu-mdm = [
-    "torch>=2.0",
-    "transformers>=4.40",
-    "accelerate>=0.20",
-    "sentencepiece>=0.1.99",
-]
-
-# All GPU dependencies (AR + MDM)
+# GPU experiments: pinned stack (issue #113)
+# vLLM 0.25.1 / torch 2.11.0+cu130 / transformers 5.15.0 / A100 80GB PCIe
 gpu = [
-    "dllm-as-service[gpu-ar]",
-    "dllm-as-service[gpu-mdm]",
+    "vllm==0.25.1",
+    "torch==2.11.0",
+    "transformers==5.15.0",
+    "sentencepiece==0.2.2",
+    "ninja==1.13.0",
 ]
 
 # Grammar-constrained decoding (XGrammar) for AR+grammar baseline
 grammar = [
-    "xgrammar>=0.1",
+    "xgrammar==0.2.3",
 ]
 
 [tool.uv]
 # Pre-download models to local cache (not installed as packages)
 # Models are fetched via huggingface_hub.snapshot_download
+
+[tool.uv.sources]
+# torch 2.11.0+cu130 is served from the PyTorch CUDA 13.0 wheel index
+# (issue #113 P0.1: exact pin to reproduce .venv-dg / the pinned stack)
+torch = { index = "pytorch-cu130" }
+
+[[tool.uv.index]]
+name = "pytorch-cu130"
+url = "https://download.pytorch.org/whl/cu130"
+explicit = true
 
 [dependency-groups]
 dev = []

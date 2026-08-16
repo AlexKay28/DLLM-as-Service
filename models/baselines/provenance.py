@@ -252,35 +252,9 @@ def stack_label(prov: Provenance | dict) -> str:
 # Per #57 R4: score on 9 fields (7 structural + 2 anomaly).
 # Drop event_type, affected_entity, remediation_hint until #53's gold
 # problem is fixed. Emit the 12-field macro alongside for continuity.
-
-NINE_FIELD_NAMES = [
-    # 7 structural
-    "timestamp_norm",
-    "host",
-    "component",
-    "severity",
-    "message_template",
-    "error_code",
-    "metric_value",
-    # 2 anomaly
-    "is_anomaly",
-    "anomaly_score",
-]
-
-TWELVE_FIELD_NAMES = [
-    "timestamp_norm",
-    "host",
-    "component",
-    "severity",
-    "event_type",
-    "message_template",
-    "error_code",
-    "affected_entity",
-    "metric_value",
-    "is_anomaly",
-    "anomaly_score",
-    "remediation_hint",
-]
+#
+# NINE_FIELD_NAMES is defined in metrics/quality_metrics.py (the canonical
+# source). Import from there — do not duplicate (#113 0.5a).
 
 # Fields dropped from the 9-field score and why
 DROPPED_FIELDS = {

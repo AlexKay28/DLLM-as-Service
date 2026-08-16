@@ -55,7 +55,7 @@ The 0.7.2 stack is retained for provenance but not cited in tables.
 
 - Every subsequent experiment inherits the pinned stack and the provenance
   helper.
-- The 18% AR gap is documented in `paper/NUMBERS.md` §0 — it is a stack
+- The 18% AR gap is documented in `docs/legacy/paper/NUMBERS.md` §0 — it is a stack
   property, not a model property.
 - K=8 is pinned for all DG cost-law measurements. K=32 is retained for the
   ablation (Table 5) only.

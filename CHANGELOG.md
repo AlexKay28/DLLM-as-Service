@@ -132,7 +132,7 @@ the model as input, (b) disabled CUDA graphs (`enforce_eager`), (c) ran vLLM
 - `paper/main.tex` — 15 pages, 9 sections, 7 figures, compiles cleanly
 - `paper/macros.tex` — all numbers shared between paper and CHECKLIST.md
 - `paper/BACKBONE.md` — 16 green, 2 amber, 0 red claims
-- `paper/CHARTS.md`, `paper/NUMBERS.md` §0
+- `paper/CHARTS.md`, `docs/legacy/paper/NUMBERS.md` §0
 
 ### EDRs (Experimental Decision Records)
 - `docs/edr/` — 16 records, all 19 claims covered, all 9 sections backed
