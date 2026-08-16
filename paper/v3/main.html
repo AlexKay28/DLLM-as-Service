@@ -300,31 +300,34 @@ class="td01"><!--l. 57--><p class="noindent" >                                  
  id="x1-3001r1"></a>
    <h4 class="subsectionHead"><span class="titlemark">2.1   </span> <a 
  id="x1-40001"></a>Autoregressive: a line with no floor</h4>
-<!--l. 2--><p class="noindent" >AR latency is linear in output length, with no floor: \begin {equation}  \label {eq:ar} T_{\textsc {ar}}(L_{\mathrm {out}}) = \arBase + \arSlope \cdot L_{\mathrm {out}} \quad \text {(ms)}  \end {equation}
-The intercept absorbs prompt prefill (amortised by prefix caching); the slope is the per-token
-decode cost. Five repeats at \(L{=}\canvasLength \) give p50 \(=\) 1616.0 ms (CV 0.1%).
+<!--l. 6--><p class="noindent" >AR latency is linear in output length, with no floor. The intercept absorbs prompt prefill
+(amortised by prefix caching); the slope is the per-token decode cost: \begin {equation}  \label {eq:ar} T_{\textsc {ar}}(L_{\mathrm {out}}) = \arBase + \arSlope \cdot L_{\mathrm {out}} \quad \text {(ms)}  \end {equation}
+Five repeats at \(L{=}\canvasLength \) give p50 \(=\) 1616.0 ms (CV 0.1%).
 <a 
  id="x1-4001r6"></a>
 </p>
    <h4 class="subsectionHead"><span class="titlemark">2.2   </span> <a 
  id="x1-50002"></a>Block diffusion: a staircase</h4>
-<!--l. 10--><p class="noindent" >DiffusionGemma writes onto fixed-size canvases of 256 tokens. Within one canvas every position is
+<!--l. 19--><p class="noindent" >DiffusionGemma writes onto fixed-size canvases of 256 tokens. Within one canvas every position is
 denoised in parallel; crossing a boundary triggers a fresh denoising pass. Cost is stepwise:
 \begin {equation}  \label {eq:dg} T_{\textsc {dg}}(L_{\mathrm {out}}) = \dgBase + \dgStep \cdot \Bigl (\bigl \lceil \tfrac {L_{\mathrm {out}}}{\canvasLength }\bigr \rceil - 1\Bigr ) \quad \text {(ms)}  \end {equation}
-The operating point \(K{=}8\) was selected as the latency/quality knee: quality is flat above \(K{=}8\) (0.853 at \(K{=}8\),
-0.858 at \(K{=}32\)) while latency saturates above \(K{=}16\). Below \(K{=}4\) quality collapses (0.485 at \(K{=}2\)). The
-378.8 ms base at \(K{=}8\) denoising steps is mostly prefill (bounded at 53&#8211;68% by two independent
-measurements; see Appendix&#x00A0;<a 
-href="#x1-320002">B<!--tex4ht:ref: app:decomp --></a>). Each additional canvas costs 119.5 ms (median of
-7 measured transitions, range 113.1&#8211;122.6). The staircase has sharp edges: growing
-output from 240 to 256 tokens costs 0.2 ms; growing from 256 to 264 costs 121.7 ms.
-</p><hr class="figure" /><div class="figure" 
+The operating point \(K{=}8\) was selected as the latency/quality knee: quality is flat above \(K{=}8\)
+(0.853 at \(K{=}8\), 0.858 at \(K{=}32\)) while latency saturates above \(K{=}16\). Below \(K{=}4\) quality collapses (0.485 at
+\(K{=}2\)).
+</p><!--l. 33--><p class="indent" >   The 378.8 ms base at \(K{=}8\) denoising steps is mostly prefill (bounded at 53&#8211;68% by two
+independent measurements; see Appendix&#x00A0;<a 
+href="#x1-320002">B<!--tex4ht:ref: app:decomp --></a>). Each additional canvas costs 119.5 ms
+(median of 7 measured transitions, range 113.1&#8211;122.6). The staircase has sharp edges:
+growing output from 240 to 256 tokens costs 0.2 ms; growing from 256 to 264 costs
+121.7 ms.
+</p>
+   <hr class="figure" /><div class="figure" 
 >
                                                                                    
                                                                                    
                                                                                    
                                                                                    
-<!--l. 27--><p class="noindent" > <img 
+<!--l. 42--><p class="noindent" > <img 
 src="..//figures/fig1_cost_shapes-.png" alt="PIC"  
 width="433" height="433"  /> <a 
  id="x1-5001r2"></a>
@@ -336,7 +339,7 @@ width="433" height="433"  /> <a
 class="ec-lmbx-10">Figure</span><span 
 class="ec-lmbx-10">&#x00A0;2. </span></span><span  
 class="content"><span 
-class="ec-lmr-10">The two cost shapes as a grouped bar chart (, BGL,</span> \(n{=}200\) <span 
+class="ec-lmr-10">The two cost shapes as a grouped bar chart (BGL,</span> \(n{=}200\) <span 
 class="ec-lmr-10">per point,</span> \(K{=}8\)<span 
 class="ec-lmr-10">). AR latency grows</span>
 <span 
@@ -354,7 +357,7 @@ class="ec-lmr-10">.</span>   </span></div><!--tex4ht:label?: x1-5001r -->
                                                                                    
                                                                                    
                                                                                    
-<!--l. 37--><p class="noindent" > <img 
+<!--l. 52--><p class="noindent" > <img 
 src="..//figures/fig2_canvas_edges-.png" alt="PIC"  
 width="433" height="433"  /> <a 
  id="x1-5003r3"></a>
@@ -385,13 +388,13 @@ class="ec-lmr-10">113.1&#8211;122.6 ms, median 119.5 ms).</span>                
  id="x1-5005r7"></a>
    <h4 class="subsectionHead"><span class="titlemark">2.3   </span> <a 
  id="x1-60003"></a>The crossover</h4>
-<!--l. 44--><p class="noindent" >At the reference prompt the crossing point is analytic: \begin {equation}  \label {eq:lcross} L^{*} = \frac {\dgBase - \arBase }{\arSlope } = \crossoverL \text { tokens}, \qquad \lambda ^{*} = \frac {1000}{\dgBase } = \crossoverLambda \text { events/s}  \end {equation}
-Below \(L^{*}\) the AR model is cheaper per event; above it the diffusion model is, until the
-next canvas edge. \(\lambda ^{*}\) is the other boundary: with one event in flight, the reciprocal of
+<!--l. 62--><p class="noindent" >At the reference prompt the crossing point is analytic: \begin {equation}  \label {eq:lcross} L^{*} = \frac {\dgBase - \arBase }{\arSlope } = \crossoverL \text { tokens}, \qquad \lambda ^{*} = \frac {1000}{\dgBase } = \crossoverLambda \text { events/s}  \end {equation}
+Below \(L^{*}\) the AR model is cheaper per event; above it the diffusion model is, until the next canvas
+edge. The parameter \(\lambda ^{*}\) is the other boundary: with one event in flight, the reciprocal of
 the diffusion base is the ceiling on its serial throughput, and above that rate a queue
 forms.
 </p>
-<!--l. 54--><p class="noindent" ><span class="likeparagraphHead"><a 
+<!--l. 75--><p class="noindent" ><span class="likeparagraphHead"><a 
  id="x1-70003"></a>Caveat: the base may be inflated by the serving stack.</span>
    The 378.8 ms base is 53&#8211;68% prefill. Each denoising step re-attends the full prompt, so prefill
 is paid \(K\) times. Whether the prompt KV could be cached across denoising steps is a property of
@@ -408,7 +411,7 @@ scrutiny.
 </p>
    <h4 class="subsectionHead"><span class="titlemark">2.4   </span> <a 
  id="x1-80004"></a>Generalisation</h4>
-<!--l. 64--><p class="noindent" >Both laws generalise from BGL to HDFS within 1.7%. The AR p50 at \(L{=}\canvasLength \) moves from
+<!--l. 91--><p class="noindent" >Both laws generalise from BGL to HDFS within 1.7%. The AR p50 at \(L{=}\canvasLength \) moves from
 1616.0 ms to 1616.5 ms (\(+0.03\%\)); the diffusion canvas step moves from 118.5 ms to 120.5 ms
 (\(+1.7\%\)).
 <a 
@@ -420,14 +423,16 @@ scrutiny.
  id="x1-9001r12"></a>
    <h4 class="subsectionHead"><span class="titlemark">3.1   </span> <a 
  id="x1-100001"></a>The surviving advantage, and what it is measured against</h4>
-<!--l. 2--><p class="noindent" >At its natural output length, AR-1.5B completes a record in 665.7 ms at 138 output tokens
+<!--l. 6--><p class="noindent" >At its natural output length, AR-1.5B completes a record in 665.7 ms at 138 output tokens
 (unforced, <span 
 class="ec-lmtt-10x-x-109">min_tokens</span>\(=\) 0). At forced output \(L \geq 512\) tokens, the diffusion model is faster at comparable
 quality. The advantage grows with output length because the AR model pays per token while the
-diffusion model pays per canvas. </p><div class="table">
+diffusion model pays per canvas.
+</p>
+   <div class="table">
                                                                                    
                                                                                    
-<!--l. 6--><p class="indent" >   </p><hr class="float" /><div class="float" 
+<!--l. 12--><p class="indent" >   </p><hr class="float" /><div class="float" 
 >
                                                                                    
                                                                                    
@@ -441,17 +446,17 @@ diffusion model pays per canvas. </p><div class="table">
 class="ec-lmbx-10">Table</span><span 
 class="ec-lmbx-10">&#x00A0;2. </span></span><span  
 class="content"><span 
-class="ec-lmr-10">Latency at comparable quality (AR-1.5B F1 0.868 vs DG 0.852; within the 0.016 margin)</span>
+class="ec-lmr-10">Latency at comparable quality (AR-1.5B F1 0.868 vs DG 0.852; within the 0.016 margin).</span>
 <span 
-class="ec-lmr-10">(AR-1.5B vs DG-26B-A4B, batch-1, BGL). AR cells are </span><span 
-class="ec-lmri-10">forced </span><span 
+class="ec-lmr-10">AR-1.5B vs DG-26B-A4B, batch-1, BGL. AR cells are </span><span 
+class="ec-lmri-10">forced  </span><span 
 class="ec-lmr-10">(</span><span 
 class="ec-lmtt-10">min_tokens</span>\(=\)\(L\)<span 
 class="ec-lmr-10">); unforced AR-1.5B</span>
 <span 
-class="ec-lmr-10">completes in 665.7 ms at 138 tokens. Sources: (unforced), (forced), (DG),</span> \(n{=}100\)<span 
+class="ec-lmr-10">completes in 665.7 ms at 138 tokens.</span> \(n{=}100\)<span 
 class="ec-lmr-10">&#8211;</span>\(300\)<span 
-class="ec-lmr-10">.</span>                    </span></div><!--tex4ht:label?: x1-10001r -->
+class="ec-lmr-10">.</span>                                                  </span></div><!--tex4ht:label?: x1-10001r -->
 <div class="tabular">
  <table id="TBL-4" class="tabular" 
  
@@ -502,22 +507,24 @@ class="td01">            </td></tr></table></div>
                                                                                    
    </div><hr class="endfloat" />
    </div>
-<!--l. 22--><p class="indent" >   The diffusion model is faster even unforced: at AR-1.5B&#8217;s natural output length of 138 tokens,
+<!--l. 31--><p class="indent" >   The diffusion model is faster even unforced: at AR-1.5B&#8217;s natural output length of 138 tokens,
 DG completes in 378 ms against AR&#8217;s 665.7 ms &#8212; a \(1.8\times \) advantage. Forcing the AR arm to emit \(L{=}1024\)
 tokens inflates that to \(5.4\times \), because first-object-wins parsing (§<a 
 href="#x1-310001">A<!--tex4ht:ref: app:defects --></a>, defect 3) discards the rambled
-continuation past the first JSON object. At \(L{=}1024\) the AR arm is charged 4026 ms for output the
-scorer deletes. The \(4.0\)&#8211;\(5.4\times \) advantage therefore measures the cost of <span 
-class="ec-lmtt-10x-x-109">min_tokens</span>, not the cost
-of autoregression &#8212; it is an upper bound on AR cost, not a measurement of it. The
-real advantage is \(1.8\times \), and a \(1.8\times \) gap on a model 17\(\times \) larger is not a deployment argument.
-</p><hr class="figure" /><div class="figure" 
+continuation past the first JSON object. At \(L{=}1024\) the AR arm is charged 4026 ms for output
+the scorer deletes. The \(4.0\)&#8211;\(5.4\times \) advantage therefore measures the cost of <span 
+class="ec-lmtt-10x-x-109">min_tokens</span>, not
+the cost of autoregression &#8212; it is an upper bound on AR cost, not a measurement
+of it. The real advantage is \(1.8\times \), and a \(1.8\times \) gap on a model 17\(\times \) larger is not a deployment
+argument.
+</p>
+   <hr class="figure" /><div class="figure" 
 >
                                                                                    
                                                                                    
                                                                                    
                                                                                    
-<!--l. 35--><p class="noindent" > <img 
+<!--l. 46--><p class="noindent" > <img 
 src="..//figures/fig9_deployment-.png" alt="PIC"  
 width="433" height="433"  /> <a 
  id="x1-10003r4"></a>
@@ -527,12 +534,12 @@ width="433" height="433"  /> <a
 ><span class="id">
 <span 
 class="ec-lmbx-10">Figure</span><span 
-class="ec-lmbx-10">&#x00A0;4. </span></span><span  
+class="ec-lmbx-10">&#x00A0;4.  </span></span><span  
 class="content"><span 
-class="ec-lmr-10">The quality-comparable deployment pair (, BGL,</span> \(n{=}100\)<span 
-class="ec-lmr-10">). </span><span 
+class="ec-lmr-10">The  quality-comparable  deployment  pair  (BGL,</span>  \(n{=}100\)<span 
+class="ec-lmr-10">).  </span><span 
 class="ec-lmbx-10">A: </span><span 
-class="ec-lmr-10">at forced output lengths the</span>
+class="ec-lmr-10">at  forced  output  lengths  the</span>
 <span 
 class="ec-lmr-10">diffusion model&#8217;s advantage is real and grows, because the AR model rambles well past its natural</span>
 <span 
@@ -547,29 +554,28 @@ class="ec-lmr-10">idle baselines (52.6 W and 58.6 W), so treat the energy compar
                                                                                    
                                                                                    
    </div><hr class="endfigure" />
-<!--l. 46--><p class="indent" >   The diffusion model uses less energy: at the compute-matched pair, 4.2 J per event against
-22.3 J for AR-3B (\(5.3\times \), idle 52.6 W, \(n{=}100\), BGL). At the quality-comparable pair, AR-1.5B uses
-5.1 J against 4.2 J (\(1.2\times \), idle 58.6 W, \(n{=}100\)). The two energy runs had different idle baselines,
-so the quality-comparable comparison is indicative rather than tight. The advantage
-tracks latency rather than adding to it &#8212; both models draw comparable power, and the
-diffusion model is simply busy for less time. The diffusion model also degrades gracefully
-under deadline pressure: it returns a complete canvas at lower quality, while the AR
-model returns a truncated record that fails schema validation. At a p99 budget of
-400 ms, dropping \(K\) from 8 to 4 meets it at 394.3 ms p99 with F1 falling from 0.853&#x00A0;to
-0.790.
+<!--l. 58--><p class="indent" >   The diffusion model uses less energy. At the compute-matched pair, the ratios are: \begin {align}  \text {compute-matched:} \quad &amp; R_{\mathrm {energy}} = \frac {\arThreeEnergy }{\dgEnergy } = 5.3 \quad \text {(idle 52.6\,W)} \\ \text {quality-comparable:} \quad &amp; R_{\mathrm {energy}} = \frac {\arOneFiveEnergy }{\dgEnergy } = 1.2 \quad \text {(idle 58.6\,W)}  \end {align}
+</p><!--l. 66--><p class="indent" >   The two energy runs had different idle baselines, so the quality-comparable comparison is
+indicative rather than tight. The advantage tracks latency rather than adding to it &#8212;
+both models draw comparable power, and the diffusion model is simply busy for less
+time.
+</p><!--l. 71--><p class="indent" >   The diffusion model also degrades gracefully under deadline pressure: it returns a complete
+canvas at lower quality, while the AR model returns a truncated record that fails schema
+validation. At a p99 budget of 400 ms, dropping \(K\) from 8 to 4 meets it at 394.3 ms p99 with F1
+falling from 0.853&#x00A0;to 0.790.
 <a 
  id="x1-10005r14"></a>
 </p>
    <h4 class="subsectionHead"><span class="titlemark">3.2   </span> <a 
  id="x1-110002"></a>Why the advantage usually doesn&#8217;t survive</h4>
-<!--l. 57--><p class="noindent" >Three factors close the niche, and a fourth narrows it:
+<!--l. 79--><p class="noindent" >Three factors close the niche, and a fourth narrows it.
 </p>
-<!--l. 57--><p class="noindent" ><span class="likeparagraphHead"><a 
+<!--l. 81--><p class="noindent" ><span class="likeparagraphHead"><a 
  id="x1-120002"></a>Footprint.</span>
    The quality-comparable AR model (Qwen2.5-1.5B, F1 0.868) is 3.0 GB; the diffusion model is
 52.0 GB &#8212; a 17\(\times \) difference.
 </p>
-<!--l. 59--><p class="noindent" ><span class="likeparagraphHead"><a 
+<!--l. 86--><p class="noindent" ><span class="likeparagraphHead"><a 
  id="x1-130002"></a>Batching.</span>
    Continuous batching converts arrival concurrency into throughput at 77.1&#8211;86.0\(\times \) for AR against
 \(\leq \)1.7\(\times \) for diffusion. Both diffusion measurements are engine-bounded (vLLM caps the batch at 8;
@@ -577,23 +583,25 @@ dInfer runs cache-less), so the true ceiling is unknown but lies at or above 1.7
 more than an order of magnitude (Appendix&#x00A0;<a 
 href="#x1-330003">C<!--tex4ht:ref: app:batching --></a>).
 </p>
-<!--l. 64--><p class="noindent" ><span class="likeparagraphHead"><a 
+<!--l. 95--><p class="noindent" ><span class="likeparagraphHead"><a 
  id="x1-140002"></a>Input length.</span>
    The diffusion prefill slope is 2.6\(\times \) steeper, because each denoising step re-attends the full
 prompt. At longer inputs the base rises and \(L^{*}\) moves upward.
 </p>
-<!--l. 66--><p class="noindent" ><span class="likeparagraphHead"><a 
+<!--l. 100--><p class="noindent" ><span class="likeparagraphHead"><a 
  id="x1-150002"></a>Tail latency.</span>
    The diffusion arm&#8217;s per-event CV is 20.9% with a max/median of 3.21\(\times \), against the AR arm&#8217;s
 0.2% and 1.03\(\times \) (Appendix&#x00A0;<a 
 href="#x1-420007">G<!--tex4ht:ref: app:distributions --></a>). A 3.21\(\times \) tail is what breaks a batch-1 SLA &#8212; exactly the regime the
-surviving niche occupies. </p><hr class="figure" /><div class="figure" 
+surviving niche occupies.
+</p>
+   <hr class="figure" /><div class="figure" 
 >
                                                                                    
                                                                                    
                                                                                    
                                                                                    
-<!--l. 72--><p class="noindent" > <img 
+<!--l. 108--><p class="noindent" > <img 
 src="..//figures/fig6_batching-.png" alt="PIC"  
 width="433" height="433"  /> <a 
  id="x1-15001r5"></a>
@@ -622,7 +630,7 @@ class="ec-lmr-10">.</span>                                                      
  id="x1-15003r17"></a>
    <h4 class="subsectionHead"><span class="titlemark">3.3   </span> <a 
  id="x1-160003"></a>The five conditions</h4>
-<!--l. 79--><p class="noindent" >The diffusion model is the right choice only when all five hold:
+<!--l. 118--><p class="noindent" >The diffusion model is the right choice only when all five hold:
     </p><dl class="enumerate-enumitem"><dt class="enumerate-enumitem">
  1. </dt><dd 
 class="enumerate-enumitem">Output length \(\geq 512\) tokens, forced (untested at naturally-long output; see §<a 
@@ -639,7 +647,7 @@ class="enumerate-enumitem">The quality floor exceeds what the AR model delivers.
     </dd><dt class="enumerate-enumitem">
  5. </dt><dd 
 class="enumerate-enumitem">A 52.0 GB resident footprint is acceptable.</dd></dl>
-<!--l. 81--><p class="noindent" ><span class="likeparagraphHead"><a 
+<!--l. 128--><p class="noindent" ><span class="likeparagraphHead"><a 
  id="x1-170003"></a>Co-residency.</span>
    Conditions 2 and 5 together describe an 80 GB A100 dedicated to one request at a time. The
 alternative is not &#8220;AR-1.5B serving one tenant&#8221; but &#8220;sixteen copies of AR-1.5B serving sixteen
@@ -945,13 +953,15 @@ any workload that can batch favours AR regardless of output length.
 </p>
    <h3 class="sectionHead"><span class="titlemark">7   </span> <a 
  id="x1-290007"></a>Cost per Event</h3>
-<!--l. 2--><p class="noindent" >The surviving niche requires batch-1 (condition 2) and a 52 GB resident footprint (condition 5)
+<!--l. 4--><p class="noindent" >The surviving niche requires batch-1 (condition 2) and a 52 GB resident footprint (condition 5)
 simultaneously &#8212; an 80 GB A100 dedicated to serving one request at a time. Table&#x00A0;<a 
 href="#x1-29001r3">3<!--tex4ht:ref: tab:cost --></a> prices this
-at a published on-demand rate. </p><div class="table">
+at a published on-demand rate.
+</p>
+   <div class="table">
                                                                                    
                                                                                    
-<!--l. 5--><p class="indent" >   </p><hr class="float" /><div class="float" 
+<!--l. 9--><p class="indent" >   </p><hr class="float" /><div class="float" 
 >
                                                                                    
                                                                                    
@@ -967,7 +977,7 @@ class="ec-lmbx-10">&#x00A0;3.  </span></span><span
 class="content"><span 
 class="ec-lmr-10">Cost  per  event  at  three  duty  cycles.  GPU:  A100  80GB  PCIe  at  $4.62/hr  (AWS</span>
 <span 
-class="ec-lmr-10">p4de.24xlarge, August 2026). Latency from (AR-1.5B) and (DG).</span>                            </span></div><!--tex4ht:label?: x1-29001r -->
+class="ec-lmr-10">p4de.24xlarge, August 2026).</span>                                                          </span></div><!--tex4ht:label?: x1-29001r -->
 <div class="tabular">
  <table id="TBL-6" class="tabular" 
  
@@ -1038,17 +1048,19 @@ class="td01">                          </td></tr></table></div>
                                                                                    
    </div><hr class="endfloat" />
    </div>
-<!--l. 23--><p class="indent" >   At 100% duty cycle on a dedicated GPU, DG is \(1.8\times \) cheaper per event than AR-1.5B &#8212; the same
-ratio as its latency advantage. But this comparison ignores the footprint asymmetry that
-conditions 2 and 5 create. The AR model occupies 3.0 GB; 26 copies fit in the same 80 GB device.
-At 16-way co-residency (the natural response to tenant-isolated batch-1), the effective cost per
-event drops to $0.0001 &#8212; \(5\times \) cheaper than a dedicated DG instance. The diffusion model cannot
-co-reside: at 52 GB it consumes the entire GPU. The break-even question is: at what duty cycle
-does DG&#8217;s per-event advantage pay for the GPU it monopolises? The answer is never, under the
-co-residency alternative. A single DG instance at 100% duty produces 9,504 events/hr at
-$0.0005/event. Sixteen AR-1.5B instances on the same GPU produce \(16 \times 5{,}408 = 86{,}528\) events/hr at
-$0.0001/event. The AR co-resident deployment is \(9\times \) cheaper per event while preserving tenant
-isolation. This does not eliminate the niche &#8212; condition 2 says &#8220;batch-1 by requirement&#8221;,
+<!--l. 29--><p class="indent" >   At 100% duty cycle on a dedicated GPU, the cost ratio is: \begin {equation}  R_{\mathrm {cost}} = \frac {\$/{\mathrm {event}}_{\mathrm {AR}}}{\$/{\mathrm {event}}_{\mathrm {DG}}} = \frac {0.0009}{0.0005} = 1.8  \end {equation}
+The same ratio as the latency advantage. But this comparison ignores the footprint asymmetry
+that conditions 2 and 5 create. The AR model occupies 3.0 GB; 26 copies fit in the
+same 80 GB device. At 16-way co-residency (the natural response to tenant-isolated
+batch-1), the effective cost per event drops to $0.0001 &#8212; \(5\times \) cheaper than a dedicated
+DG instance. The diffusion model cannot co-reside: at 52 GB it consumes the entire
+GPU.
+</p><!--l. 42--><p class="indent" >   The break-even question is: at what duty cycle does DG&#8217;s per-event advantage pay for the
+GPU it monopolises? The answer is never, under the co-residency alternative. A single DG
+instance at 100% duty produces 9,504 events/hr. Sixteen AR-1.5B instances on the same GPU
+produce \(16 \times 5{,}408 = 86{,}528\) events/hr. The AR co-resident deployment is \(9\times \) cheaper per event while preserving tenant
+isolation.
+</p><!--l. 49--><p class="indent" >   This does not eliminate the niche &#8212; condition 2 says &#8220;batch-1 by requirement&#8221;,
 and if the requirement is architectural (one model instance, not one per tenant) then
 co-residency is ruled out. But it narrows it further: the surviving deployment must
 justify dedicating an 80 GB GPU to a single request stream where a 3.0 GB alternative
@@ -1082,12 +1094,12 @@ arm.
 class="enumerate-enumitem"><span 
 class="ec-lmbx-10x-x-109">Decoding configuration. </span>Qwen2.5&#8217;s checkpoint sets <span 
 class="ec-lmtt-10x-x-109">repetition_penalty</span>\(=\) 1.1, which
+                                                                                   
+                                                                                   
     suppresses span-copying and empties the <span 
 class="ec-lmtt-10x-x-109">host </span>field. Correcting to 1.0 moved AR 9-field
     F1 from 0.779 to 0.844. <span 
 class="ec-lmri-10x-x-109">Against AR.</span>
-                                                                                   
-                                                                                   
     </dd><dt class="enumerate-enumitem">
  2. </dt><dd 
 class="enumerate-enumitem"><span 
@@ -1152,11 +1164,11 @@ class="ec-lmri-10x-x-109">Against AR </span>(overstated how well DG&#8217;s
 new architecture wins fails asymmetrically, because the arm the experimenter is not rooting for
 inherits the checkpoint defaults, the naive serving path, and the mature production
 infrastructure.
+                                                                                   
+                                                                                   
 <a 
  id="x1-31009r41"></a>
 </p>
-                                                                                   
-                                                                                   
    <h3 class="sectionHead"><span class="titlemark">B   </span> <a 
  id="x1-320002"></a>Base Decomposition: Why the Fit Fails</h3>
 <!--l. 2--><p class="noindent" >Sweeping \(K \in \{2,4,8,16,32,64\}\) at fixed output length fits \(T(K) = \kfitBase + \kfitSlope \cdot K\) with \(R^2 = \kfitRsq \). The low \(R^2\) is itself informative: latency
@@ -1752,7 +1764,7 @@ suggest (, BGL, \(n{=}300\)).
 </p>
    <h3 class="sectionHead"><span class="titlemark">H   </span> <a 
  id="x1-430008"></a>Analytical Resolution of the Forced-Decoding Question</h3>
-<!--l. 2--><p class="noindent" >The forced comparison (Table&#x00A0;<a 
+<!--l. 4--><p class="noindent" >The forced comparison (Table&#x00A0;<a 
 href="#x1-10001r2">2<!--tex4ht:ref: tab:niche --></a>) charges AR-1.5B for <span 
 class="ec-lmtt-10x-x-109">min_tokens </span>output that the parser
 discards. A reviewer asks: does the advantage survive on a task whose <span 
@@ -1760,14 +1772,15 @@ class="ec-lmri-10x-x-109">natural </span>output length is \(\geq 512\)
 tokens? We answer this analytically, without running a new experiment, by applying the fitted
 cost laws.
 </p>
-<!--l. 6--><p class="noindent" ><span class="likeparagraphHead"><a 
+<!--l. 10--><p class="noindent" ><span class="likeparagraphHead"><a 
  id="x1-440008"></a>The cost laws are length-dependent, not forcing-dependent.</span>
-   AR-1.5B&#8217;s latency is linear in output length: \(T = 142.3 + 3.79 \cdot L\) (ms), fitted from four measured points (\(L \in \{138, 256, 512, 1024\}\), \(R^2 &gt; 0.999\)). DG&#8217;s
-latency is the staircase: \(T = 378.3 + 119.5 \cdot (\lceil L/256 \rceil - 1)\). Neither law depends on <span 
-class="ec-lmtt-10x-x-109">min_tokens</span>; both depend only on
-\(L_{\mathrm {out}}\).
+   AR-1.5B&#8217;s latency is linear in output length, fitted from four measured points (\(L \in \{138, 256, 512, 1024\}\), \(R^2 &gt; 0.999\)):
+\begin {equation}  T_{\textsc {ar}}(L) = 142.3 + 3.79 \cdot L \quad \text {(ms)}  \end {equation}
+DG&#8217;s latency is the staircase: \begin {equation}  T_{\textsc {dg}}(L) = 378.3 + 119.5 \cdot \Bigl (\bigl \lceil \tfrac {L}{256} \bigr \rceil - 1\Bigr ) \quad \text {(ms)}  \end {equation}
+Neither law depends on <span 
+class="ec-lmtt-10x-x-109">min_tokens</span>; both depend only on \(L_{\mathrm {out}}\).
 </p>
-<!--l. 11--><p class="noindent" ><span class="likeparagraphHead"><a 
+<!--l. 25--><p class="noindent" ><span class="likeparagraphHead"><a 
  id="x1-450008"></a>A naturally-long task exists.</span>
    A multi-record extraction task &#8212; emit a JSON array of \(N\) structured records from \(N\) consecutive
 log lines &#8212; produces output of \(N \times 140\) tokens naturally, without forcing. At \(N{=}4\) the output is \(\sim \)560 tokens; at
@@ -1775,12 +1788,13 @@ log lines &#8212; produces output of \(N \times 140\) tokens naturally, without 
 </p>
                                                                                    
                                                                                    
-<!--l. 15--><p class="noindent" ><span class="likeparagraphHead"><a 
+<!--l. 32--><p class="noindent" ><span class="likeparagraphHead"><a 
  id="x1-460008"></a>The advantage holds.</span>
-   Applying the fitted laws: </p>
+   Applying the fitted laws:
+</p>
 <div class="center" 
 >
-<!--l. 16--><p class="noindent" >
+<!--l. 36--><p class="noindent" >
 </p>
 <div class="tabular">
  <table id="TBL-10" class="tabular" 
@@ -1828,14 +1842,14 @@ class="td10">      \(5.1\times \)</td>
 </tr><tr  
  style="vertical-align:baseline;" id="TBL-10-6-"><td  style="white-space:nowrap; text-align:left;" id="TBL-10-6-1"  
 class="td01">                     </td></tr></table></div></div>
-<!--l. 27--><p class="noindent" >The \(5.4\times \) advantage at \(L{=}1024\) in the paper is within the range predicted by the cost laws for any task producing
-that output length, forced or natural. What the forcing artifact changes is not the
+<!--l. 49--><p class="indent" >   The \(5.4\times \) advantage at \(L{=}1024\) in the paper is within the range predicted by the cost laws for any task
+producing that output length, forced or natural. What the forcing artifact changes is not the
 ratio but the <span 
 class="ec-lmri-10x-x-109">interpretation</span>: at forced \(L{=}1024\) the AR arm is charged for discarded tokens; at
 natural \(L{=}1024\) (multi-record \(N{=}8\)) it is charged for tokens that are all used. The niche is real either
 way.
 </p>
-<!--l. 32--><p class="noindent" ><span class="likeparagraphHead"><a 
+<!--l. 56--><p class="noindent" ><span class="likeparagraphHead"><a 
  id="x1-470008"></a>Caveat.</span>
    This is an analytical projection, not a measurement. The cost laws are fitted on single-record
 output; multi-record output may have different prompt structure (longer input) and different
@@ -1868,9 +1882,9 @@ class="ec-lmbx-10x-x-109">Cross-request prefix sharing </span>requires that both
  2. </dt><dd 
 class="enumerate-enumitem"><span 
 class="ec-lmbx-10x-x-109">Within-request KV persistence </span>across denoising steps requires that the keys and
+                                                                                   
+                                                                                   
     values for prompt tokens are identical across steps. They are &#8212; prompt tokens are never
-                                                                                   
-                                                                                   
     masked &#8212; so in principle the prompt KV <span 
 class="ec-lmri-10x-x-109">could </span>be cached. But the denoising tokens&#8217;
     KV changes at every step (the mask changes), so the per-step computation cannot reuse
