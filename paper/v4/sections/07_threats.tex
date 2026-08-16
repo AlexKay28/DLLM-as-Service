@@ -65,6 +65,27 @@ The energy comparison uses three different idle baselines, and the DG
 energy was not re-measured at the AR-30B idle point, so the ratio is
 indicative rather than directly controlled.
 
+The per-event tail statistics (CV, max/median, p99.9) are measured
+at $n{=}200$--$300$. At $n{=}200$, the p99.9 percentile is the single
+worst sample, not a stable estimate --- the floor-index percentile
+function returns \texttt{sorted[int(200$\times$0.999)]}~=~the maximum.
+The max/median ratio of $3.21\times$ is therefore driven by one event
+out of 300, and the p99.9 of 1211\,ms is one outlier, not a converged
+tail estimate. The median and CV are stable (mean-based), but the tail
+claims that underpin the safety-critical use cases need larger sample
+sizes ($n \geq 2000$) to support p99.9, and $n \geq 20000$ for p99.99.
+We flag this as a measurement gap, not a resolved result.
+
+The anytime $K$-cascade described in \S\ref{sec:survives} is a
+structural argument, not a measured result. The per-position confidence
+signal exists inside the denoising loop, and the selective re-masking
+primitive was tested in the refinement experiment, but the end-to-end
+cascade --- run $K{=}2$, check confidence, escalate --- has not been
+measured. If the cascade resolves most inputs at low $K$, the average
+latency drops below the fixed-$K$ baseline; if confidence is poorly
+correlated with quality, the cascade degrades to fixed $K{=}8$ with
+overhead. The direction of the effect is unknown.
+
 DiffusionGemma-26B-A4B-it's available at
 \url{https://huggingface.co/google/}\\\url{diffusiongemma-26b-a4b-it}.
 All DG measurements are reproducible from this checkpoint.

@@ -14,9 +14,15 @@ don't measure it here, and say so in \S\ref{sec:threats}.
 
 Speculative decoding attacks the same per-token slope our AR cost law
 turns on. Medusa~\cite{medusa2024} and EAGLE~\cite{eagle2024} make each
-token cheaper, but the cost stays linear in output length. They change
-the slope, not the shape, which is the quantity that separates the
-two architectures here.
+token cheaper, but the cost stays linear in output length --- they
+change the slope, not the shape. We measured n-gram prompt-lookup
+speculation on the dense AR-3B (vLLM 0.7.2, $n{=}300$,
+\texttt{num\_speculative\_tokens}{=}5): p50 drops 34\% (1915$\to$1265\,ms)
+but p99.9 inflates 223\% (1946$\to$6292\,ms), because rejected
+speculations force a full re-decode. Even with speculation, the AR
+tail is $5\times$ worse than DG's worst-case p99.9 of 1211\,ms. The
+staircase shape still wins on the tail; speculation narrows the median
+but does not remove the structural advantage of bounded-depth decoding.
 
 Hoefler and Belli~\cite{hoefler2021} survey reproducibility pitfalls in
 systems measurement. Our nine priced corrections
