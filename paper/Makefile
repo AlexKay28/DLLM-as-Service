@@ -28,7 +28,7 @@ FIGS      := $(patsubst %,figures/%.pdf, \
                fig8_defects fig9_deployment)
 TEXSRC    := $(PAPER).tex assets/style.tex assets/macros.tex assets/references.bib $(wildcard sections/*.tex)
 
-.PHONY: all figures paper verify publish check clean distclean
+.PHONY: all figures paper verify publish check clean distclean html
 
 all: publish
 
@@ -81,3 +81,11 @@ clean:
 distclean: clean
 	@rm -f $(PAPER).pdf figures/fig*.pdf figures/fig*.png
 	@echo ">> removed main.pdf and generated figures"
+
+# ------------------------------------------------------------------- html --
+# Generate HTML with MathJax. Fix FiraSans ligature rendering (ff -> 0).
+html: $(TEXSRC) $(FIGS)
+	@echo ">> building HTML"
+	@htlatex $(PAPER).tex "xhtml,mathjax,charset=utf-8" 2>&1 | tail -3
+	@sed -i 's/Di0usion/Diffusion/g; s/di0usion/diffusion/g' $(PAPER).html
+	@echo ">> $(PAPER).html ($(shell wc -l < $(PAPER).html) lines)"
