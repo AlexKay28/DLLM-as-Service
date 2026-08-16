@@ -82,24 +82,16 @@ The Cost Shape of Block-Structured Decoding}}
 \maketitle
 
 \begin{abstract}
-How much faster is block-diffusion than autoregressive decoding, and
-where does the advantage hold? We answer by pinning both
-architectures to the same vLLM serving stack on an A100 and deriving
-cost laws from measurement. The answer depends on output length: AR
-latency is a line that grows with every token, while block-diffusion
-latency is a staircase that is flat inside a 256-token canvas and
-steps only at the boundary. The two shapes cross at \crossoverL{}
-tokens. Above that, diffusion wins. Against a fair MoE-matched pair
-(DiffusionGemma-26B-A4B vs Qwen3-30B-A3B), the gap is fifteenfold at
-natural output length and still eightfold at a thousand tokens. The
-advantage narrows under two deployment pressures: AR batches far
-better, and DG's tail is wider. But in the batch-1 regime, serial
-investigation chains, autonomous driving, algorithmic trading, the
-staircase dominates. And when a deadline tightens, DG drops its
-denoising step count and returns a complete record at lower quality,
-while AR truncates mid-JSON. We state five conditions that define the
-regime where block diffusion is the right choice, and ground them in
-concrete workloads.
+AR latency is a line; block-diffusion latency is a staircase. The
+shapes cross at \crossoverL{} tokens, above which diffusion is
+fifteen times faster at natural output length and eight times faster
+at a thousand tokens, against a fair MoE-matched pair
+(DiffusionGemma-26B-A4B vs Qwen3-30B-A3B). The advantage narrows
+where AR batches better, but holds in the batch-1 regime: serial
+chains, autonomous driving, algorithmic trading. When a deadline
+tightens, DG drops quality, not completeness; AR truncates. We state
+five conditions for the regime where block diffusion is the right
+choice.
 \end{abstract}
 
 \begin{figure}[ht!]
