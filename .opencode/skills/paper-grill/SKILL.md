@@ -1,6 +1,6 @@
 ---
 name: paper-grill
-description: Use when reviewing a research paper for validity, consistency, and clarity. Runs a systematic 24-check audit across 6 dimensions — data integrity, narrative quality, mathematical correctness, presentation, completeness, and maintenance hygiene. Triggers on phrases like "grill the paper", "review the paper", "check for contradictions", "find issues", or "audit paper".
+description: Use when reviewing a research paper for validity, consistency, and clarity. Runs a systematic 27-check audit across 6 dimensions — data integrity, narrative quality, mathematical correctness, presentation, completeness, and maintenance hygiene. Includes the arXiv storytelling-rigor trade-off: intuition-first methods, question-framed experiments, self-contained captions, and real-world context. Triggers on phrases like "grill the paper", "review the paper", "check for contradictions", "find issues", or "audit paper".
 ---
 
 # Paper Grill Skill
@@ -36,7 +36,7 @@ A systematic audit strategy for research papers that finds contradictions, unsup
 8. **Run self-audit** — verify every fix was applied correctly (see Self-Audit Checklist below)
 9. **Report** using the output format at the end
 
-## Audit Strategy: 24 Checks in 6 Groups
+## Audit Strategy: 27 Checks in 6 Groups
 
 ---
 
@@ -247,6 +247,115 @@ for f in sorted(os.listdir('paper/v4/sections')):
 grep -n 'canvas\|denoising\|prefix caching\|first-object-wins\|p99\|max/median\|KV cache\|MoE' paper/v4/sections/01_introduction.tex
 # Check ambiguous 'this'/'that' references
 grep -n 'this approach\|that model\|the baseline\|this method\|that result' paper/v4/sections/*.tex
+```
+
+#### Check 25: Intuition Before Formalism — The arXiv Dual-Layer Test
+
+**Question:** Does every methods subsection open with plain-English intuition before equations arrive?
+
+The ideal arXiv trade-off is **dual-layer**: high-level conceptual intuition *before* formal definitions. A reader who doesn't parse equations should still understand the mechanism from the first 1–2 sentences. If the first thing a reader sees is `T = a + b \cdot f(L)` without a plain-English preamble, the section fails this check.
+
+**Pass threshold:** Every subsection containing an equation must have ≥1 sentence of intuition before the first equation environment.
+
+1. **Intuition-first check:** For every `\subsection` or `\paragraph` that contains an `\begin{equation}` or `\begin{align}`, read the text *before* the equation. Is there a plain-English sentence explaining what the equation says in words? Flag equations that appear with no conceptual preamble.
+2. **Story → rigor → detail structure:** Check that the flow is: (1) intuition (what does this do?), (2) formal definition (equation + where-block), (3) implementation detail (what values were measured). Flag sections that skip step 1 or 3.
+3. **Equation purpose check:** After every equation, is there a sentence explaining *what this equation tells us* (not just *what the variables are*)? The where-block defines variables; the sentence after it should state the finding. E.g., "This means AR's cost grows with every token, while DG's is bounded by canvas size."
+4. **Analogy presence:** Does the paper use at least one real-world analogy for its core mechanism? (e.g., "AR is a metered taxi; DG is a subway.") Flag papers that are 100% formal with zero analogies — they fail the arXiv trade-off.
+
+```bash
+# Find equations and check what precedes them
+python3 -c "
+import re, os
+for f in sorted(os.listdir('paper/v4/sections')):
+    if not f.endswith('.tex'): continue
+    text = open(f'paper/v4/sections/{f}').read()
+    for m in re.finditer(r'\\\\begin\{(equation|align)\*?\}', text):
+        # Get 300 chars before the equation
+        before = text[max(0, m.start()-300):m.start()]
+        # Strip LaTeX commands for readability check
+        clean = re.sub(r'\\\\\w+(\[[^\]]*\])?(\{[^}]*\})?', '', before)
+        clean = re.sub(r'%.*', '', clean).strip()
+        sentences = [s.strip() for s in clean.split('.') if len(s.strip()) > 15]
+        has_intuition = len(sentences) > 0 and not sentences[-1].startswith('where')
+        if not has_intuition:
+            print(f'{f}: equation at char {m.start()} — no intuition sentence before it')
+"
+# Check for analogies
+grep -n 'like a\|think of\|analogy\|equivalent of\|to put this\|in human terms\|in cost terms\|to make this concrete' paper/v4/sections/*.tex
+```
+
+#### Check 26: Question-Framed Experiments — "Why" Not "What"
+
+**Question:** Are tables and experiments framed by the question they answer, and does the text after each table explain *why* the pattern exists?
+
+A table presents numbers; the text must explain the mechanism. If the text after a table merely restates the numbers ("Table 1 shows AR is 15.6× slower"), it fails. The text must answer *why*: "AR latency is flat from 128 tokens because EOS stops generation; DG latency steps by ~120ms per canvas because each canvas is a fresh denoising pass."
+
+**Pass threshold:** Every table must be (a) preceded by a question or setup, and (b) followed by a "why" explanation that names the mechanism, not just the numbers.
+
+1. **Pre-table question:** Before every `\begin{table}`, is there a sentence stating what question the table answers? (e.g., "How does serial latency compare at the MoE-matched pair?") Flag tables that appear with no framing.
+2. **Post-table mechanism:** After every `\end{table}`, is there a sentence explaining *why* the pattern exists? Flag tables followed by restated numbers without causal explanation.
+3. **Counterintuitive result explanation:** If a table contains a counterintuitive result (e.g., a slower model that's cheaper per event), is the mechanism explained? Flag unexplained surprises.
+4. **Real-world context:** Are key numeric results translated into real-world context (cost in dollars, time in human-perceptible units, energy in kWh)? Flag papers that present only abstract numbers (ms, J, F1) without any translation. At minimum: the abstract and conclusion should each contain at least one cost or time analogy.
+5. **Currency translation:** For cost/performance claims, is there at least one translation to dollars? (e.g., "$0.0005 per event" or "$26,000/year gap"). Flag papers with cost tables but no dollar-context in the text.
+
+```bash
+# Find tables and check what follows them
+python3 -c "
+import re, os
+for f in sorted(os.listdir('paper/v4/sections')):
+    if not f.endswith('.tex'): continue
+    text = open(f'paper/v4/sections/{f}').read()
+    for m in re.finditer(r'\\\\end\{table\}', text):
+        after = text[m.end():m.end()+500]
+        # Strip LaTeX for readability
+        clean = re.sub(r'\\\\\w+(\[[^\]]*\])?(\{[^}]*\})?', '', after)
+        clean = re.sub(r'%.*', '', clean).strip()
+        # Check for 'because', 'due to', 'since', 'the reason', 'this is because'
+        has_mechanism = any(w in clean.lower() for w in ['because', 'due to', 'since', 'the reason', 'this is', 'the pattern'])
+        if not has_mechanism:
+            print(f'{f}: table ends at char {m.end()} — no mechanism explanation within 500 chars after')
+"
+# Check for real-world context
+grep -n 'cost\|dollar\|\\$\|kWh\|human\|blink\|second\|minute\|hour\|day\|year\|per million\|per event' paper/v4/sections/*.tex | grep -v 'caption\|label\|begin\|end'
+# Check for question-framing before tables
+grep -B2 'begin{table}' paper/v4/sections/*.tex
+```
+
+#### Check 27: Self-Contained Figure Captions
+
+**Question:** Can a reviewer understand the finding from the caption alone, without reading the body text?
+
+The ideal arXiv figure caption tells a micro-story: what is shown, what the pattern is, and why it matters. A caption that says "Latency vs output length" fails; a caption that says "AR latency grows linearly while DG is a staircase — the gap widens because AR has no floor and DG is bounded" passes.
+
+**Pass threshold:** Every figure caption must contain (a) what is plotted, (b) the finding/pattern, and (c) the mechanism or "why".
+
+1. **Three-part caption test:** For every `\caption{}`, check that it contains: (a) what the axes/panels show, (b) what the reader should notice (the pattern), and (c) why the pattern exists. Flag captions that only describe (a) without (b) and (c).
+2. **Standalone readability:** Read each caption in isolation. Does it make sense without the surrounding text? Flag captions that reference undefined context ("as described above", "see Section X") without restating the key finding.
+3. **Panel labeling:** For multi-panel figures, does each panel (A, B, ...) have its own micro-finding in the caption? Flag panel descriptions that only state what's plotted, not what it shows.
+4. **Data source disclosure:** Does the caption state which model/arm the data comes from? (e.g., "AR arm is dense AR-3B baseline"). Flag captions that don't disclose the model when the paper uses multiple models.
+5. **Numbers in captions:** Does the caption cite at least one key number? (e.g., "15.6× at L=256"). Flag captions with zero numbers — they're too vague.
+
+```bash
+# Extract and evaluate all captions
+python3 -c "
+import re, os
+for f in sorted(os.listdir('paper/v4/sections')):
+    if not f.endswith('.tex'): continue
+    text = open(f'paper/v4/sections/{f}').read()
+    for m in re.finditer(r'\\\\caption\{([^}]+(?:\{[^}]*\}[^}]*)*)\}', text):
+        cap = m.group(1)
+        # Strip nested LaTeX
+        clean = re.sub(r'\\\\\w+(\[[^\]]*\])?(\{[^}]*\})?', '', cap).strip()
+        words = clean.split()
+        has_number = any(re.search(r'\d', w) for w in words)
+        has_pattern = any(w in clean.lower() for w in ['grow', 'flat', 'jump', 'widens', 'narrows', 'saturates', 'collapses', 'staircase', 'linear', 'plateau', 'ratio'])
+        has_mechanism = any(w in clean.lower() for w in ['because', 'since', 'due to', 'while', 'whereas', 'unlike', 'contrast'])
+        has_model = any(w in cap for w in ['AR-3B', 'AR-30B', 'AR-1.5B', 'DG', 'dense', 'baseline'])
+        status = 'OK' if (has_number and has_pattern) else 'CHECK'
+        print(f'{f}: [{status}] {len(words)}w  num={has_number} pattern={has_pattern} mechanism={has_mechanism} model={has_model}')
+        print(f'  {clean[:150]}')
+        print()
+"
 ```
 
 ---
@@ -610,6 +719,11 @@ After all fixes are applied and the PDF is recompiled, verify:
 - [ ] Abstract, intro, conclusion cite the same numbers (re-run Check 14)
 - [ ] Crossover claims are integer-safe (re-run Check 18)
 - [ ] No contradictory framing (re-read abstract + conclusion first/last sentences)
+- [ ] Every equation has intuition before it (re-run Check 25)
+- [ ] Every table has a "why" explanation after it (re-run Check 26)
+- [ ] Every figure caption is self-contained (re-run Check 27)
+- [ ] At least one real-world analogy in the paper (Check 25)
+- [ ] At least one dollar-cost translation in abstract + conclusion (Check 26)
 
 ### Compilation
 - [ ] 0 errors, 0 overfull, 0 undefined (recompile from scratch)
@@ -632,7 +746,7 @@ STATUS: [CRITICAL / IMPORTANT / OK]
 FIX: [What was done, or "no fix needed"]
 ```
 
-After all 24 checks, summarize:
+After all 27 checks, summarize:
 - Total issues found (by group)
 - Critical issues fixed
 - Remaining known limitations (acknowledged in paper)
@@ -643,5 +757,9 @@ After all 24 checks, summarize:
 - Storytelling: setup-payoff closure gaps
 - Readability: sentences >40 words, Flesch score range, sections outside 30–50
 - Definitions: undefined variables, undefined metrics, missing methodology context
+- Intuition-first: equations without plain-English preamble (Check 25)
+- Question-framed: tables without "why" explanations (Check 26)
+- Self-contained captions: captions missing pattern or mechanism (Check 27)
+- Real-world context: analogies count, dollar translations count
 - Self-audit: pass/fail per item
 - Fix-log: written / not written
