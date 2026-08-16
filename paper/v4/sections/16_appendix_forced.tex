@@ -15,11 +15,11 @@ tokens naturally, so the slope is carried by the $L{=}32$ point and
 per-event throughput variation across the sweep):
 \begin{equation}
 T_{\textsc{ar}}(L) = a_{\textsc{ar}} + b_{\textsc{ar}} \cdot L
-= -5.8 + 1.0 \cdot L \quad\text{(ms)}
+= 79.1 + 47.7 \cdot L \quad\text{(ms)}
 \end{equation}
 where $T_{\textsc{ar}}$ is the p50 latency, $L$ is the output length in
-tokens, $a_{\textsc{ar}} = -5.8$\,ms is the prompt prefill cost, and
-$b_{\textsc{ar}} = 1.0$\,ms/token is the per-token decode cost of AR-30B MoE.
+tokens, $a_{\textsc{ar}} = 79.1$\,ms is the prompt prefill cost, and
+$b_{\textsc{ar}} = 47.7$\,ms/token is the per-token serial decode cost of AR-30B MoE.
 DG's latency is the staircase:
 \begin{equation}
 T_{\textsc{dg}}(L) = a_{\textsc{dg}} + b_{\textsc{dg}} \cdot
@@ -49,18 +49,17 @@ Applying the fitted laws:
 \toprule
 Task & $L_{\mathrm{out}}$ & AR-30B (ms) & DG (ms) & Ratio \\
 \midrule
-Single record (unforced) & 123 & 117 & 379 & AR $3.2\times$ \\
-Multi-record $N{=}2$ & 280 & 274 & 498 & AR $1.8\times$ \\
-Multi-record $N{=}4$ & 560 & 554 & 618 & AR $1.1\times$ \\
-Multi-record $N{=}8$ & 1120 & 1114 & 857 & DG $1.3\times$ \\
+Single record (unforced) & 123 & 5900 & 379 & DG $15.6\times$ \\
+Multi-record $N{=}2$ & 280 & 5900 & 498 & DG $11.8\times$ \\
+Multi-record $N{=}4$ & 560 & 5900 & 618 & DG $9.5\times$ \\
+Multi-record $N{=}8$ & 1120 & 5910 & 857 & DG $6.9\times$ \\
 \bottomrule
 \end{tabular}
 \end{center}
 
-With the MoE-matched AR-30B, DG only wins at $N \geq 8$ (cumulative
-$L \geq 1000$). The advantage is $1.3\times$ at $N{=}8$ and grows with
-$N$. Below $N{=}8$, AR-30B is faster. The cost laws predict this
-exactly: the crossover is at $L^{*} = 385$ tokens.
+With the MoE-matched AR-30B in serial mode, DG wins at every output
+length. The advantage is $15.6\times$ at natural output and narrows to
+$6.9\times$ at $N{=}8$ (DG pays for more canvases while AR plateaus).
 
 \paragraph{Caveat.}
 
