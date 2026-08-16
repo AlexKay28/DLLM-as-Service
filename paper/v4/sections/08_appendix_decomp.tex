@@ -1,4 +1,4 @@
-\section{Base Decomposition: Why the Fit Fails}
+\section{Base decomposition: why the fit fails}
 \label{app:decomp} Sweeping $K \in \{2,4,8,16,32,64\}$ at fixed output length fits
 $T(K) = \kfitBase + \kfitSlope \cdot K$ with $R^2 = \kfitRsq$. The low $R^2$ is
 itself informative: latency saturates above $K{=}16$, so the linear term is a
@@ -21,7 +21,8 @@ share is $\geq 47\%$ of the \dgBase\,ms base. \item \textbf{From the canvas step
 and is a $K{=}8$ denoising pass. So denoising is $\geq \dgStep / \dgBase = 32\%$
 of the base. The first canvas's pass is somewhat cheaper than a marginal one,
 but not by the $5\times$ the fitted intercept would require.
-\end{itemize} The honest range at $K{=}8$ is 32--47\% denoising against 53--68\% floor.
+\end{itemize} The honest range at $K{=}8$ is 32--47\% denoising against 53--68\% floor
+(conservative bounds from $K{=}2$ and canvas-step measurements).
 A tighter estimate comes from linear interpolation between $K{=}2$ and
 $K{=}8$: solving $T(2) = \text{prefill} + 2 \cdot \text{step} = 201.7$ and
 $T(8) = \text{prefill} + 8 \cdot \text{step} = 378.6$ gives step $= 29.5$\,ms

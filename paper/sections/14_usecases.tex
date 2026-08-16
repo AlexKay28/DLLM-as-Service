@@ -1,4 +1,4 @@
-\section{Real-Life Use Cases}
+\section{Real-life use cases}
 \label{sec:usecases} The five conditions in \S\ref{sec:fair} identify a narrow niche. Here we
 name concrete workloads that satisfy them, each grounded in a measured
 result in this repo. \subsection{Serial investigation chains} A security operations centre receives an alert, looks up threat
@@ -6,7 +6,7 @@ intelligence, cross-references internal logs, generates a hypothesis, and
 drills into the next layer. Each hop blocks on the previous one;
 concurrency is 1 by construction. This is the workflow for SOC analysts,
 forensic investigators, and multi-hop debugging pipelines. We measured chain depths $D \in \{1,3,5,10,20\}$ on both arms
-(BGL, $n{=}300$). Both models are
+(BGL, $n{=}300$, $K{=}8$). Both models are
 linear in depth (slope CV 1.1\% for DG, 1.2\% for AR). DG's per-hop p50 is
 $\sim$410\,ms against AR's $\sim$825\,ms --- a $2.0\times$ advantage that is
 constant across depth. DG's tail penalty (the 3.21$\times$ max/median from
@@ -16,7 +16,7 @@ the p99.9/median ratio converges from 1.04$\times$ at $D{=}1$ to
 \centering
 \includegraphics[width=\linewidth]{figures/fig10_usecase_chains.pdf}
 \caption{Serial investigation chains
-(BGL, $n{=}300$). \textbf{A:}
+(BGL, $n{=}300$, $K{=}8$). \textbf{A:}
 per-hop p50 is constant across depth for both models; DG is $2.0\times$
 faster. \textbf{B:} DG's p99.9/p50 ratio (high in isolation) converges to
 AR's mean as depth increases --- the tail penalty washes out under
@@ -76,7 +76,7 @@ composition: the p99.9/p50 ratio converges to the AR mean at depth 10+. The qual
 slower per hop even unforced. In a market where the first analysis wins,
 that margin is the trade. \subsection{Long structured extraction} Java stack traces, Kubernetes event cascades, and correlated alert bursts
 produce output that naturally exceeds 256 tokens. At forced $L{=}512$
-(BGL, $n{=}300$): \begin{center}
+(BGL, $n{=}300$, $K{=}8$): \begin{center}
 \begin{tabular}{@{}lrrl@{}}
 \toprule & AR-3B & DG & \\
 \midrule
@@ -100,7 +100,7 @@ inter-field constraints except through the prompt. \begin{figure}[t]
 \centering
 \includegraphics[width=0.85\linewidth]{figures/fig11_usecase_schema.pdf}
 \caption{Latency vs schema width
-(BGL, $n{=}300$). The
+(BGL, $n{=}300$, $K{=}8$). The
 gap widens with field count: AR's left-to-right generation pays per field,
 while DG's joint denoising treats all fields as one structured object.}
 \label{fig:schema}

@@ -32,7 +32,9 @@ supports. Latency is quoted to 0.1\,ms: the run-to-run CV on the pinned
 stack is \arCV--\dgCV\%, so 0.1\,ms is real resolution at the p50. F1
 scores are quoted to three decimals: at $n = \nPerCell$ events the
 standard error of a nine-field macro F1 is roughly 0.006, so three
-decimals is the defensible resolution. Ratios and multipliers are quoted
+decimals is the defensible resolution; differences below 0.006 (e.g.,
+0.852 vs 0.855 in Table~\ref{tab:niche}) fall within the noise band and
+are not statistically significant. Ratios and multipliers are quoted
 to one decimal. Fitted coefficients are quoted only to the precision the
 residuals support --- the K-sweep fit at $R^2 = \kfitRsq$
 (Appendix~\ref{app:decomp}) is cited as a shape, not a measurement.
@@ -41,7 +43,7 @@ residuals support --- the K-sweep fit at $R^2 = \kfitRsq$
 \centering
 \includegraphics[width=\linewidth]{figures/fig8_defects.pdf}
 \caption{Eight priced errors in our own comparison harness, each found by
-re-reading committed artifacts (BGL, $n{=}300$ per cell). Five of eight
+re-reading committed artifacts (BGL, $n{=}300$ per cell, $K{=}8$). Five of eight
 biased against the autoregressive arm. The clustering on one arm is
 suggestive, though the sample ($n{=}8$) is too small for a statistical
 claim.}

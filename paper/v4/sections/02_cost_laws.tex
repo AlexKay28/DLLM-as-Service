@@ -1,4 +1,4 @@
-\section{The Two Cost Laws: A Line and a Staircase}
+\section{The two cost laws: a line and a staircase}
 \label{sec:laws}
 
 \subsection{Autoregressive: a line with no floor}
@@ -31,7 +31,7 @@ latency saturates above $K{=}16$. Below $K{=}4$ quality collapses
 (0.485 at $K{=}2$).
 
 The \dgBase\,ms base at $K{=}8$ denoising steps is mostly prefill (bounded
-at 53--68\% by two independent measurements; see
+at 37--53\% by linear interpolation between $K{=}2$ and $K{=}8$; see
 Appendix~\ref{app:decomp}). Each additional canvas costs \dgStep\,ms
 (median of 7 measured transitions, range \dgStepLo--\dgStepHi). The
 staircase has sharp edges: growing output from 240 to \canvasLength{}
@@ -74,7 +74,8 @@ forms.
 
 \paragraph{Caveat: the base may be inflated by the serving stack.}
 
-The \dgBase\,ms base is 53--68\% prefill. Each denoising step re-attends
+The \dgBase\,ms base is 37--53\% prefill (by linear interpolation; see
+Appendix~\ref{app:decomp} for the full derivation). Each denoising step re-attends
 the full prompt, so prefill is paid $K$ times. Whether the prompt KV could
 be cached across denoising steps is a property of the serving
 implementation (vLLM's DiffusionGemma path), not obviously a property of

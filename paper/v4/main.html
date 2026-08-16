@@ -15,21 +15,17 @@
  <script type="text/javascript" async="async" id="MathJax-script" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js"></script>  
 </head><body 
 >
-<!--l. 5--><p class="noindent" ><span 
+<!--l. 22--><p class="noindent" ><span 
 class="ec-lmbx-12x-x-144">Diffusion LLMs as Fast Models for Specific Tasks:</span>
 <span 
 class="ec-lmbx-12x-x-144">The Cost Shape of Block-Structured Decoding</span>
-</p><!--l. 5--><p class="noindent" ><span 
+</p><!--l. 22--><p class="noindent" ><span 
 class="ec-lmri-12">When diffusion language models win on latency, and why they usually don&#8217;t</span>
-</p><!--l. 5--><p class="noindent" >Aleksandr Kaigorodov
-</p><!--l. 5--><p class="noindent" ><span 
+</p><!--l. 22--><p class="noindent" >Aleksandr Kaigorodov
+</p><!--l. 22--><p class="noindent" ><span 
 class="ec-lmr-10">Yandex</span>
-</p><!--l. 5--><p class="noindent" ><span 
-class="ec-lmr-9">Preprint </span><span 
-class="ts1-lmr9-">·</span><span 
-class="ec-lmr-9">&#x00A0;August 2026 </span><span 
-class="ts1-lmr9-">·</span><span 
-class="ec-lmr-9">&#x00A0;v4</span>
+</p><!--l. 22--><p class="noindent" ><span 
+class="ec-lmr-9">Preprint, August 2026, v4</span>
 </p>
    <div 
 class="abstract" 
@@ -38,7 +34,7 @@ class="abstract"
 <span 
 class="ec-lmbx-10">Abstract</span>
 </h3>
-     <!--l. 7--><p class="noindent" ><span 
+     <!--l. 26--><p class="noindent" ><span 
 class="ec-lmr-10">Diffusion language models can be faster than autoregressive ones for structured output</span>
      <span 
 class="ec-lmr-10">&#8212; but only in a narrow regime, and only after the comparison is done fairly. We measure</span>
@@ -56,23 +52,30 @@ class="ec-lmr-10">block-diffusion cost is a staircase, flat inside a fixed-size 
 class="ec-lmr-10">boundary. The shapes cross at 59</span><span 
 class="ec-lmr-10">&#x00A0;output tokens, below which the autoregressive model</span>
      <span 
-class="ec-lmr-10">is cheaper. The diffusion model&#8217;s advantage grows with output length:</span> \(1.8\times \) <span 
-class="ec-lmr-10">faster even at</span>
+class="ec-lmr-10">is cheaper.</span>
+     </p><!--l. 37--><p class="indent" >   <span 
+class="ec-lmr-10">The diffusion model&#8217;s advantage grows with output length:</span> \(1.8\times \) <span 
+class="ec-lmr-10">faster even at the AR</span>
      <span 
-class="ec-lmr-10">the AR model&#8217;s natural output length, inflated to</span> \(5.4\times \) <span 
-class="ec-lmr-10">at forced output</span> \(L{=}1024\)<span 
-class="ec-lmr-10">. It uses less energy</span>
+class="ec-lmr-10">model&#8217;s natural output length, inflated to</span> \(5.4\times \) <span 
+class="ec-lmr-10">at forced output</span> \(L{=}1024\) <span 
+class="ec-lmr-10">(see Appendix</span><span 
+class="ec-lmr-10">&#x00A0;</span><a 
+href="#x1-440008"><span 
+class="ec-lmr-10">H</span><!--tex4ht:ref: app:forced --></a> <span 
+class="ec-lmr-10">for an</span>
      <span 
-class="ec-lmr-10">and degrades under deadline pressure by losing quality rather than completeness. But</span>
+class="ec-lmr-10">analytical resolution of the forced-vs-natural question). It uses less energy and degrades</span>
      <span 
-class="ec-lmr-10">the advantage does not survive deployment: at comparable quality the autoregressive</span>
+class="ec-lmr-10">under deadline pressure by losing quality rather than completeness. But the advantage</span>
      <span 
-class="ec-lmr-10">model is 17</span>\(\times \) <span 
-class="ec-lmr-10">smaller and converts concurrency into throughput far better. What survives</span>
+class="ec-lmr-10">does not survive deployment: at comparable quality the autoregressive model is 17</span>\(\times \)
      <span 
-class="ec-lmr-10">is one narrow regime &#8212; long structured output under a batch-1 constraint &#8212; and we</span>
+class="ec-lmr-10">smaller and converts concurrency into throughput far better. What survives is one</span>
      <span 
-class="ec-lmr-10">state the five conditions it requires.</span>
+class="ec-lmr-10">narrow regime &#8212; long structured output under a batch-1 constraint &#8212; and we state</span>
+     <span 
+class="ec-lmr-10">the five conditions it requires.</span>
 </p>
 </div>
 <a 
@@ -82,10 +85,10 @@ class="ec-lmr-10">state the five conditions it requires.</span>
 <!--l. 4--><p class="noindent" >Autoregressive (AR) language models generate text one token at a time; each token requires a
 forward pass over the growing KV cache. Block-diffusion models generate an entire block of tokens
 in parallel through iterative denoising, then step to the next block. The structural difference
+                                                                                   
+                                                                                   
 produces different cost shapes, and the shapes determine which architecture is faster for a given
 workload.
-                                                                                   
-                                                                                   
 </p><!--l. 11--><p class="indent" >   We measure both on a pinned stack &#8212; vLLM 0.25.1, NVIDIA A100 80GB PCIe,
 BF16 &#8212; for structured log extraction from the LOGHUB BGL corpus. The task is
 12-field JSON extraction from log lines, scored on a 9-field macro F1. The models are
@@ -101,9 +104,11 @@ committed artifacts, not by running new experiments.
    Every number in this paper is quoted to a precision its measurement error supports. Latency
 is quoted to 0.1 ms: the run-to-run CV on the pinned stack is 0.1&#8211;0.3%, so 0.1 ms is real resolution
 at the p50. F1 scores are quoted to three decimals: at \(n = \nPerCell \) events the standard error of a nine-field
-macro F1 is roughly 0.006, so three decimals is the defensible resolution. Ratios and
-multipliers are quoted to one decimal. Fitted coefficients are quoted only to the precision
-the residuals support &#8212; the K-sweep fit at \(R^2 = \kfitRsq \) (Appendix&#x00A0;<a 
+macro F1 is roughly 0.006, so three decimals is the defensible resolution; differences below 0.006
+(e.g., 0.852 vs 0.855 in Table&#x00A0;<a 
+href="#x1-10001r2">2<!--tex4ht:ref: tab:niche --></a>) fall within the noise band and are not statistically significant.
+Ratios and multipliers are quoted to one decimal. Fitted coefficients are quoted only to the
+precision the residuals support &#8212; the K-sweep fit at \(R^2 = \kfitRsq \) (Appendix&#x00A0;<a 
 href="#x1-330002">B<!--tex4ht:ref: app:decomp --></a>) is cited as a shape, not a
 measurement.
 </p>
@@ -113,7 +118,7 @@ measurement.
                                                                                    
                                                                                    
                                                                                    
-<!--l. 42--><p class="noindent" > <img 
+<!--l. 44--><p class="noindent" > <img 
 src="..//figures/fig8_defects-.png" alt="PIC"  
 width="433" height="433"  /> <a 
  id="x1-2001r1"></a>
@@ -128,17 +133,18 @@ class="content"><span
 class="ec-lmr-10">Eight priced errors in our own comparison harness, each found by re-reading committed</span>
 <span 
 class="ec-lmr-10">artifacts (BGL,</span> \(n{=}300\) <span 
-class="ec-lmr-10">per cell). Five of eight biased against the autoregressive arm. The clustering on one</span>
+class="ec-lmr-10">per cell,</span> \(K{=}8\)<span 
+class="ec-lmr-10">). Five of eight biased against the autoregressive arm. The clustering on</span>
 <span 
-class="ec-lmr-10">arm is suggestive, though the sample (</span>\(n{=}8\)<span 
-class="ec-lmr-10">) is too small for a statistical claim.</span>                     </span></div><!--tex4ht:label?: x1-2001r -->
+class="ec-lmr-10">one arm is suggestive, though the sample (</span>\(n{=}8\)<span 
+class="ec-lmr-10">) is too small for a statistical claim.</span>                 </span></div><!--tex4ht:label?: x1-2001r -->
                                                                                    
                                                                                    
    </div><hr class="endfigure" />
    <div class="table">
                                                                                    
                                                                                    
-<!--l. 51--><p class="indent" >   </p><hr class="float" /><div class="float" 
+<!--l. 53--><p class="indent" >   </p><hr class="float" /><div class="float" 
 >
                                                                                    
                                                                                    
@@ -163,7 +169,7 @@ id="TBL-3-1" /><col
 id="TBL-3-2" /><col 
 id="TBL-3-3" /></colgroup><tr  
  style="vertical-align:baseline;" id="TBL-3-1-"><td  style="white-space:normal; text-align:left;" id="TBL-3-1-1"  
-class="td01"><!--l. 69--><p class="noindent" >                                       </p></td><td  style="white-space:nowrap; text-align:right;" id="TBL-3-1-2"  
+class="td01"><!--l. 71--><p class="noindent" >                                       </p></td><td  style="white-space:nowrap; text-align:right;" id="TBL-3-1-2"  
 class="td11"> <span 
 class="ec-lmbx-9">ar-3b (active-param.)  </span></td><td  style="white-space:nowrap; text-align:right;" id="TBL-3-1-3"  
 class="td10"> <span 
@@ -171,7 +177,7 @@ class="ec-lmbx-9">dg-26B-A4B</span></td>
 
 </tr><tr  
  style="vertical-align:baseline;" id="TBL-3-2-"><td  style="white-space:normal; text-align:left;" id="TBL-3-2-1"  
-class="td01"><!--l. 69--><p class="noindent" ><span 
+class="td01"><!--l. 71--><p class="noindent" ><span 
 class="ec-lmr-9">9-field</span>
 <span 
 class="ec-lmr-9">macro</span>
@@ -184,7 +190,7 @@ class="td11">              0.852  </td><td  style="white-space:nowrap; text-alig
 class="td10">       0.852</td>
 </tr><tr  
  style="vertical-align:baseline;" id="TBL-3-3-"><td  style="white-space:normal; text-align:left;" id="TBL-3-3-1"  
-class="td01"><!--l. 69--><p class="noindent" ><span 
+class="td01"><!--l. 71--><p class="noindent" ><span 
 class="ec-lmr-9">Active</span>
 <span 
 class="ec-lmr-9">parameters</span>                                                           </p></td><td  style="white-space:nowrap; text-align:right;" id="TBL-3-3-2"  
@@ -192,7 +198,7 @@ class="td11">              3.0 B  </td><td  style="white-space:nowrap; text-alig
 class="td10">       4.0 B</td>
 </tr><tr  
  style="vertical-align:baseline;" id="TBL-3-4-"><td  style="white-space:normal; text-align:left;" id="TBL-3-4-1"  
-class="td01"><!--l. 69--><p class="noindent" ><span 
+class="td01"><!--l. 71--><p class="noindent" ><span 
 class="ec-lmr-9">p50</span>
 <span 
 class="ec-lmr-9">latency</span>
@@ -206,7 +212,7 @@ class="td11">          1616.0 ms  </td><td  style="white-space:nowrap; text-alig
 class="td10">    379.0 ms</td>
 </tr><tr  
  style="vertical-align:baseline;" id="TBL-3-5-"><td  style="white-space:normal; text-align:left;" id="TBL-3-5-1"  
-class="td01"><!--l. 69--><p class="noindent" ><span 
+class="td01"><!--l. 71--><p class="noindent" ><span 
 class="ec-lmr-9">Within-block</span>
 <span 
 class="ec-lmr-9">marginal</span>
@@ -220,7 +226,7 @@ class="td11">             6.3 ms  </td><td  style="white-space:nowrap; text-alig
 class="td10">      0.0 ms</td>
 </tr><tr  
  style="vertical-align:baseline;" id="TBL-3-6-"><td  style="white-space:normal; text-align:left;" id="TBL-3-6-1"  
-class="td01"><!--l. 69--><p class="noindent" ><span 
+class="td01"><!--l. 71--><p class="noindent" ><span 
 class="ec-lmr-9">Block</span>
 <span 
 class="ec-lmr-9">boundary</span>
@@ -235,7 +241,7 @@ class="td11">               n/a  </td><td  style="white-space:nowrap; text-align
 class="td10">    119.5 ms</td>
 </tr><tr  
  style="vertical-align:baseline;" id="TBL-3-7-"><td  style="white-space:normal; text-align:left;" id="TBL-3-7-1"  
-class="td01"><!--l. 69--><p class="noindent" ><span 
+class="td01"><!--l. 71--><p class="noindent" ><span 
 class="ec-lmr-9">Marginal</span>
 <span 
 class="ec-lmr-9">cost</span>
@@ -249,7 +255,7 @@ class="td11">             0.0 ms  </td><td  style="white-space:nowrap; text-alig
 class="td10">      0.1 ms</td>
 </tr><tr  
  style="vertical-align:baseline;" id="TBL-3-8-"><td  style="white-space:normal; text-align:left;" id="TBL-3-8-1"  
-class="td01"><!--l. 69--><p class="noindent" ><span 
+class="td01"><!--l. 71--><p class="noindent" ><span 
 class="ec-lmr-9">Batch-1</span>
 \(\to \)
 <span 
@@ -262,7 +268,7 @@ class="td11">          77.1&#8211;86.0\(\times \)  </td><td  style="white-space:
 class="td10">         \(\leq \)1.7\(\times \)</td>
 </tr><tr  
  style="vertical-align:baseline;" id="TBL-3-9-"><td  style="white-space:normal; text-align:left;" id="TBL-3-9-1"  
-class="td01"><!--l. 69--><p class="noindent" ><span 
+class="td01"><!--l. 71--><p class="noindent" ><span 
 class="ec-lmr-9">Energy</span>
 <span 
 class="ec-lmr-9">per</span>
@@ -285,7 +291,7 @@ class="td10">       4.2 J</td>
 
 </tr><tr  
  style="vertical-align:baseline;" id="TBL-3-10-"><td  style="white-space:normal; text-align:left;" id="TBL-3-10-1"  
-class="td01"><!--l. 69--><p class="noindent" >                                       </p></td></tr></table>
+class="td01"><!--l. 71--><p class="noindent" >                                       </p></td></tr></table>
                                                                                    
                                                                                    
    </div><hr class="endfloat" />
@@ -293,7 +299,7 @@ class="td01"><!--l. 69--><p class="noindent" >                                  
 <a 
  id="x1-2005r1"></a>
    <h3 class="sectionHead"><span class="titlemark">2   </span> <a 
- id="x1-30002"></a>The Two Cost Laws: A Line and a Staircase</h3>
+ id="x1-30002"></a>The two cost laws: a line and a staircase</h3>
 <a 
  id="x1-3001r1"></a>
    <h4 class="subsectionHead"><span class="titlemark">2.1   </span> <a 
@@ -312,8 +318,8 @@ denoised in parallel; crossing a boundary triggers a fresh denoising pass. Cost 
 The operating point \(K{=}8\) was selected as the latency/quality knee: quality is flat above \(K{=}8\)
 (0.853 at \(K{=}8\), 0.858 at \(K{=}32\)) while latency saturates above \(K{=}16\). Below \(K{=}4\) quality collapses (0.485 at
 \(K{=}2\)).
-</p><!--l. 33--><p class="indent" >   The 378.8 ms base at \(K{=}8\) denoising steps is mostly prefill (bounded at 53&#8211;68% by two
-independent measurements; see Appendix&#x00A0;<a 
+</p><!--l. 33--><p class="indent" >   The 378.8 ms base at \(K{=}8\) denoising steps is mostly prefill (bounded at 37&#8211;53% by linear
+interpolation between \(K{=}2\) and \(K{=}8\); see Appendix&#x00A0;<a 
 href="#x1-330002">B<!--tex4ht:ref: app:decomp --></a>). Each additional canvas costs 119.5 ms
 (median of 7 measured transitions, range 113.1&#8211;122.6). The staircase has sharp edges:
 growing output from 240 to 256 tokens costs 0.2 ms; growing from 256 to 264 costs
@@ -394,9 +400,11 @@ forms.
 </p>
 <!--l. 75--><p class="noindent" ><span class="likeparagraphHead"><a 
  id="x1-70003"></a>Caveat: the base may be inflated by the serving stack.</span>
-   The 378.8 ms base is 53&#8211;68% prefill. Each denoising step re-attends the full prompt, so prefill
-is paid \(K\) times. Whether the prompt KV could be cached across denoising steps is a property of
-the serving implementation (vLLM&#8217;s DiffusionGemma path), not obviously a property of
+   The 378.8 ms base is 37&#8211;53% prefill (by linear interpolation; see Appendix&#x00A0;<a 
+href="#x1-330002">B<!--tex4ht:ref: app:decomp --></a> for the full
+derivation). Each denoising step re-attends the full prompt, so prefill is paid \(K\) times.
+Whether the prompt KV could be cached across denoising steps is a property of the
+serving implementation (vLLM&#8217;s DiffusionGemma path), not obviously a property of
 masked diffusion itself. If it were cached, the base could fall toward \(\sim \)150 ms and \(L^{*}\) would
 move downward, widening the region where diffusion wins. We treat the measured
 base as the operative number &#8212; it is what the pinned stack produces &#8212; but note the
@@ -409,14 +417,14 @@ scrutiny.
 </p>
    <h4 class="subsectionHead"><span class="titlemark">2.4   </span> <a 
  id="x1-80004"></a>Generalisation</h4>
-<!--l. 91--><p class="noindent" >Both laws generalise from BGL to HDFS within 1.7%. The AR p50 at \(L{=}\canvasLength \) moves from
+<!--l. 92--><p class="noindent" >Both laws generalise from BGL to HDFS within 1.7%. The AR p50 at \(L{=}\canvasLength \) moves from
 1616.0 ms to 1616.5 ms (\(+0.03\%\)); the diffusion canvas step moves from 118.5 ms to 120.5 ms
 (\(+1.7\%\)).
 <a 
  id="x1-8001r5"></a>
 </p>
    <h3 class="sectionHead"><span class="titlemark">3   </span> <a 
- id="x1-90003"></a>Where Diffusion Wins, and Where It Doesn&#8217;t</h3>
+ id="x1-90003"></a>Where diffusion wins, and where it doesn&#8217;t</h3>
 <a 
  id="x1-9001r12"></a>
    <h4 class="subsectionHead"><span class="titlemark">3.1   </span> <a 
@@ -532,12 +540,13 @@ width="433" height="433"  /> <a
 ><span class="id">
 <span 
 class="ec-lmbx-10">Figure</span><span 
-class="ec-lmbx-10">&#x00A0;4.  </span></span><span  
+class="ec-lmbx-10">&#x00A0;4. </span></span><span  
 class="content"><span 
-class="ec-lmr-10">The  quality-comparable  deployment  pair  (BGL,</span>  \(n{=}100\)<span 
-class="ec-lmr-10">).  </span><span 
+class="ec-lmr-10">The quality-comparable deployment pair (BGL,</span> \(n{=}100\)<span 
+class="ec-lmr-10">,</span> \(K{=}8\)<span 
+class="ec-lmr-10">). </span><span 
 class="ec-lmbx-10">A: </span><span 
-class="ec-lmr-10">at  forced  output  lengths  the</span>
+class="ec-lmr-10">at forced output lengths the</span>
 <span 
 class="ec-lmr-10">diffusion model&#8217;s advantage is real and grows, because the AR model rambles well past its natural</span>
 <span 
@@ -659,7 +668,7 @@ model.
  id="x1-17001r13"></a>
 </p>
    <h3 class="sectionHead"><span class="titlemark">4   </span> <a 
- id="x1-180004"></a>Related Work</h3>
+ id="x1-180004"></a>Related work</h3>
 <!--l. 2--><p class="noindent" >Diffusion LM speedup claims (LLaDA&#x00A0;<span class="cite">[<a 
 href="#Xllada2025">7</a>]</span>, DiffusionGemma&#x00A0;<span class="cite">[<a 
 href="#Xdiffusiongemma">3</a>]</span>) are typically measured against
@@ -688,7 +697,7 @@ measured.
                                                                                    
                                                                                    
    <h3 class="sectionHead"><span class="titlemark">5   </span> <a 
- id="x1-190005"></a>Threats to Validity</h3>
+ id="x1-190005"></a>Threats to validity</h3>
 <!--l. 4--><p class="noindent" >All measurements are on one GPU (NVIDIA A100 80GB PCIe); the fitted constants are
 A100-specific but the shapes should transfer. The batching ceiling reproduces across two runtimes
 and two model families, but both measurements are engine-bounded (Appendix&#x00A0;<a 
@@ -725,7 +734,7 @@ class="ec-lmtt-10x-x-109">diffusiongemma-26b-a4b-it</span></a>. All DG measureme
  id="x1-19001r26"></a>
 </p>
    <h3 class="sectionHead"><span class="titlemark">6   </span> <a 
- id="x1-200006"></a>Real-Life Use Cases</h3>
+ id="x1-200006"></a>Real-life use cases</h3>
 <!--l. 2--><p class="noindent" >The five conditions in §<a 
 href="#x1-90003">3<!--tex4ht:ref: sec:fair --></a> identify a narrow niche. Here we name concrete workloads that satisfy
 them, each grounded in a measured result in this repo.
@@ -738,7 +747,7 @@ them, each grounded in a measured result in this repo.
 internal logs, generates a hypothesis, and drills into the next layer. Each hop blocks on the
 previous one; concurrency is 1 by construction. This is the workflow for SOC analysts, forensic
 investigators, and multi-hop debugging pipelines. We measured chain depths \(D \in \{1,3,5,10,20\}\) on both arms (BGL,
-\(n{=}300\)). Both models are linear in depth (slope CV 1.1% for DG, 1.2% for AR). DG&#8217;s per-hop p50 is
+\(n{=}300\), \(K{=}8\)). Both models are linear in depth (slope CV 1.1% for DG, 1.2% for AR). DG&#8217;s per-hop p50 is
 \(\sim \)410 ms against AR&#8217;s \(\sim \)825 ms &#8212; a \(2.0\times \) advantage that is constant across depth. DG&#8217;s tail penalty (the
 3.21\(\times \) max/median from Appendix&#x00A0;<a 
 href="#x1-430007">G<!--tex4ht:ref: app:distributions --></a>) washes out under sequential composition: the
@@ -764,6 +773,7 @@ class="ec-lmbx-10">Figure</span><span
 class="ec-lmbx-10">&#x00A0;6. </span></span><span  
 class="content"><span 
 class="ec-lmr-10">Serial investigation chains (BGL,</span> \(n{=}300\)<span 
+class="ec-lmr-10">,</span> \(K{=}8\)<span 
 class="ec-lmr-10">). </span><span 
 class="ec-lmbx-10">A: </span><span 
 class="ec-lmr-10">per-hop p50 is constant across depth for both</span>
@@ -859,7 +869,7 @@ trade.
    <h4 class="subsectionHead"><span class="titlemark">6.5   </span> <a 
  id="x1-250005"></a>Long structured extraction</h4>
 <!--l. 77--><p class="noindent" >Java stack traces, Kubernetes event cascades, and correlated alert bursts produce output that
-naturally exceeds 256 tokens. At forced \(L{=}512\) (BGL, \(n{=}300\)): </p>
+naturally exceeds 256 tokens. At forced \(L{=}512\) (BGL, \(n{=}300\), \(K{=}8\)): </p>
 <div class="center" 
 >
 <!--l. 79--><p class="noindent" >
@@ -928,6 +938,7 @@ class="ec-lmbx-10">Figure</span><span
 class="ec-lmbx-10">&#x00A0;7. </span></span><span  
 class="content"><span 
 class="ec-lmr-10">Latency vs schema width (BGL,</span> \(n{=}300\)<span 
+class="ec-lmr-10">,</span> \(K{=}8\)<span 
 class="ec-lmr-10">). The gap widens with field count: AR&#8217;s left-to-right</span>
 <span 
 class="ec-lmr-10">generation pays per field, while DG&#8217;s joint denoising treats all fields as one structured object.</span>     </span></div><!--tex4ht:label?: x1-26001r -->
@@ -956,7 +967,7 @@ any workload that can batch favours AR regardless of output length.
  id="x1-28001r27"></a>
 </p>
    <h3 class="sectionHead"><span class="titlemark">7   </span> <a 
- id="x1-290007"></a>Cost per Event</h3>
+ id="x1-290007"></a>Cost per event</h3>
 <!--l. 4--><p class="noindent" >The surviving niche requires batch-1 (condition 2) and a 52 GB resident footprint (condition 5)
 simultaneously &#8212; an 80 GB A100 dedicated to serving one request at a time. Table&#x00A0;<a 
 href="#x1-29001r3">3<!--tex4ht:ref: tab:cost --></a> prices this
@@ -981,7 +992,9 @@ class="ec-lmbx-10">&#x00A0;3.  </span></span><span
 class="content"><span 
 class="ec-lmr-10">Cost  per  event  at  three  duty  cycles.  GPU:  A100  80GB  PCIe  at  $4.62/hr  (AWS</span>
 <span 
-class="ec-lmr-10">p4de.24xlarge, August 2026).</span>                                                          </span></div><!--tex4ht:label?: x1-29001r -->
+class="ec-lmr-10">p4de.24xlarge,  August  2026).  SXM  variants  may  differ  in  pricing;  the  PCIe  rate  is  used  as  a</span>
+<span 
+class="ec-lmr-10">conservative lower bound.</span>                                                             </span></div><!--tex4ht:label?: x1-29001r -->
 <div class="tabular">
  <table id="TBL-6" class="tabular" 
  
@@ -1052,19 +1065,19 @@ class="td01">                          </td></tr></table></div>
                                                                                    
    </div><hr class="endfloat" />
    </div>
-<!--l. 29--><p class="indent" >   At 100% duty cycle on a dedicated GPU, the cost ratio is: \begin {equation}  R_{\mathrm {cost}} = \frac {\$/{\mathrm {event}}_{\mathrm {AR}}}{\$/{\mathrm {event}}_{\mathrm {DG}}} = \frac {0.0009}{0.0005} = 1.8  \end {equation}
+<!--l. 30--><p class="indent" >   At 100% duty cycle on a dedicated GPU, the cost ratio is: \begin {equation}  R_{\mathrm {cost}} = \frac {\$/{\mathrm {event}}_{\mathrm {AR}}}{\$/{\mathrm {event}}_{\mathrm {DG}}} = \frac {0.0009}{0.0005} = 1.8  \end {equation}
 The same ratio as the latency advantage. But this comparison ignores the footprint asymmetry
 that conditions 2 and 5 create. The AR model occupies 3.0 GB; 26 copies fit in the
 same 80 GB device. At 16-way co-residency (the natural response to tenant-isolated
 batch-1), the effective cost per event drops to $0.0001 &#8212; \(5\times \) cheaper than a dedicated
 DG instance. The diffusion model cannot co-reside: at 52 GB it consumes the entire
 GPU.
-</p><!--l. 42--><p class="indent" >   The break-even question is: at what duty cycle does DG&#8217;s per-event advantage pay for the
+</p><!--l. 43--><p class="indent" >   The break-even question is: at what duty cycle does DG&#8217;s per-event advantage pay for the
 GPU it monopolises? The answer is never, under the co-residency alternative. A single DG
 instance at 100% duty produces 9,504 events/hr. Sixteen AR-1.5B instances on the same GPU
 produce \(16 \times 5{,}408 = 86{,}528\) events/hr. The AR co-resident deployment is \(9\times \) cheaper per event while preserving tenant
 isolation.
-</p><!--l. 49--><p class="indent" >   This does not eliminate the niche &#8212; condition 2 says &#8220;batch-1 by requirement&#8221;,
+</p><!--l. 50--><p class="indent" >   This does not eliminate the niche &#8212; condition 2 says &#8220;batch-1 by requirement&#8221;,
 and if the requirement is architectural (one model instance, not one per tenant) then
 co-residency is ruled out. But it narrows it further: the surviving deployment must
 justify dedicating an 80 GB GPU to a single request stream where a 3.0 GB alternative
@@ -1146,7 +1159,7 @@ class="ec-lmri-10x-x-109">arXiv preprint arXiv:2307.09702</span>, 2024.
 <a 
  id="x1-31009r40"></a>
    <h3 class="sectionHead"><span class="titlemark">A   </span> <a 
- id="x1-320001"></a>Eight Priced Corrections</h3>
+ id="x1-320001"></a>Eight priced corrections</h3>
 <!--l. 2--><p class="noindent" >Each of the following was found by re-reading committed artifacts, not by running new
 experiments. Items 1&#8211;5 were harness defects &#8212; the measurement itself was contaminated.
                                                                                    
@@ -1233,7 +1246,7 @@ infrastructure.
  id="x1-32009r42"></a>
 </p>
    <h3 class="sectionHead"><span class="titlemark">B   </span> <a 
- id="x1-330002"></a>Base Decomposition: Why the Fit Fails</h3>
+ id="x1-330002"></a>Base decomposition: why the fit fails</h3>
 <!--l. 2--><p class="noindent" >Sweeping \(K \in \{2,4,8,16,32,64\}\) at fixed output length fits \(T(K) = \kfitBase + \kfitSlope \cdot K\) with \(R^2 = \kfitRsq \). The low \(R^2\) is itself informative: latency
 saturates above \(K{=}16\), so the linear term is a poor description at the top of the range and the
 fit is carried by the bottom. The intercept is therefore not interpretable as a floor.
@@ -1284,16 +1297,16 @@ class="ec-lmbx-10x-x-109">. </span>For any decomposition \(T(K) = \text {floor} 
 class="ec-lmbx-10x-x-109">From the canvas step. </span>One additional canvas costs 119.5 ms and is a \(K{=}8\) denoising pass.
    So denoising is \(\geq \dgStep / \dgBase = 32\%\) of the base. The first canvas&#8217;s pass is somewhat cheaper than a marginal
    one, but not by the \(5\times \) the fitted intercept would require.</p></li></ul>
-<!--l. 24--><p class="noindent" >The honest range at \(K{=}8\) is 32&#8211;47% denoising against 53&#8211;68% floor. A tighter estimate comes from linear
-interpolation between \(K{=}2\) and \(K{=}8\): solving \(T(2) = \text {prefill} + 2 \cdot \text {step} = 201.7\) and \(T(8) = \text {prefill} + 8 \cdot \text {step} = 378.6\) gives step \(= 29.5\) ms and prefill \(= 142.7\) ms, i.e.&#x00A0;prefill \(= 38\%\) and
-denoising \(= 62\%\) . The exact split awaiting profiler attribution is now narrowed to prefill
-37&#8211;53%, denoising 47&#8211;63% &#8212; far from the old 93.5%/6.5% claim the fitted intercept
-produced.
+<!--l. 24--><p class="noindent" >The honest range at \(K{=}8\) is 32&#8211;47% denoising against 53&#8211;68% floor (conservative bounds from \(K{=}2\) and
+canvas-step measurements). A tighter estimate comes from linear interpolation between \(K{=}2\) and \(K{=}8\):
+solving \(T(2) = \text {prefill} + 2 \cdot \text {step} = 201.7\) and \(T(8) = \text {prefill} + 8 \cdot \text {step} = 378.6\) gives step \(= 29.5\) ms and prefill \(= 142.7\) ms, i.e.&#x00A0;prefill \(= 38\%\) and denoising \(= 62\%\) . The exact split awaiting
+profiler attribution is now narrowed to prefill 37&#8211;53%, denoising 47&#8211;63% &#8212; far from the old
+93.5%/6.5% claim the fitted intercept produced.
 <a 
  id="x1-33003r43"></a>
 </p>
    <h3 class="sectionHead"><span class="titlemark">C   </span> <a 
- id="x1-340003"></a>The Batching Ceiling and Its Engine Defects</h3>
+ id="x1-340003"></a>The batching ceiling and its engine defects</h3>
 <!--l. 2--><p class="noindent" >The diffusion batching ceiling (\(\leq \)1.7\(\times \)) reproduces across two runtimes and two model families, but
 both measurements are bounded by known engine defects: </p>
    <ul class="itemize1">
@@ -1316,7 +1329,7 @@ above 1.7\(\times \).
  id="x1-34001r45"></a>
 </p>
    <h3 class="sectionHead"><span class="titlemark">D   </span> <a 
- id="x1-350004"></a>Six Refuted Hypotheses</h3>
+ id="x1-350004"></a>Six refuted hypotheses</h3>
 <!--l. 2--><p class="noindent" >We set out to find regimes where the diffusion model beats the autoregressive baseline, and
 generated hypotheses accordingly. Six were refuted. They are reported here at the same length as
                                                                                    
@@ -1693,7 +1706,7 @@ what separates these six from the ones we kept.
  id="x1-38001r46"></a>
 </p>
    <h3 class="sectionHead"><span class="titlemark">E   </span> <a 
- id="x1-390005"></a>The Input-Length Variable and the Canvas Pareto</h3>
+ id="x1-390005"></a>The input-length variable and the canvas Pareto</h3>
 <a 
  id="x1-39001r37"></a>
    <h4 class="subsectionHead"><span class="titlemark">E.1   </span> <a 
@@ -1761,7 +1774,7 @@ crossover.
  id="x1-41001r51"></a>
 </p>
    <h3 class="sectionHead"><span class="titlemark">F   </span> <a 
- id="x1-420006"></a>Quality vs Output Length</h3>
+ id="x1-420006"></a>Quality vs output length</h3>
 <!--l. 2--><p class="noindent" >Figure&#x00A0;<a 
 href="#x1-42001r10">10<!--tex4ht:ref: fig:quality --></a> shows what happens to quality when output length is forced. The AR model&#8217;s 9-field
 F1 is flat at 0.852 from \(L{=}\canvasLength \) to \(L{=}512\) &#8212; not because the model is invariant, but because first-object-wins
@@ -1807,7 +1820,7 @@ safer.
  id="x1-42003r55"></a>
 </p>
    <h3 class="sectionHead"><span class="titlemark">G   </span> <a 
- id="x1-430007"></a>Latency Distributions</h3>
+ id="x1-430007"></a>Latency distributions</h3>
 <!--l. 2--><p class="noindent" >The per-event latency distributions are asymmetric. Across the 300 individual events of one
 anchor run at \(L{=}\canvasLength \): </p>
    <ul class="itemize1">
@@ -1826,7 +1839,7 @@ suggest (BGL, \(n{=}300\)).
  id="x1-43001r57"></a>
 </p>
    <h3 class="sectionHead"><span class="titlemark">H   </span> <a 
- id="x1-440008"></a>Analytical Resolution of the Forced-Decoding Question</h3>
+ id="x1-440008"></a>Analytical resolution of the forced-decoding question</h3>
 <!--l. 4--><p class="noindent" >The forced comparison (Table&#x00A0;<a 
 href="#x1-10001r2">2<!--tex4ht:ref: tab:niche --></a>) charges AR-1.5B for <span 
 class="ec-lmtt-10x-x-109">min_tokens </span>output that the parser
@@ -1922,7 +1935,7 @@ is the standard assumption for autoregressive decoding.
  id="x1-48001r58"></a>
 </p>
    <h3 class="sectionHead"><span class="titlemark">I   </span> <a 
- id="x1-490009"></a>Why the Batching Ceiling Is Likely Architectural</h3>
+ id="x1-490009"></a>Why the batching ceiling is likely architectural</h3>
 <!--l. 2--><p class="noindent" >The diffusion batching ceiling (\(\leq 1.7\times \)) is measured on two engine-bounded stacks (Appendix&#x00A0;<a 
 href="#x1-340003">C<!--tex4ht:ref: app:batching --></a>). We
 argue here that the ceiling is likely architectural, not an engine bug, by reasoning about the
