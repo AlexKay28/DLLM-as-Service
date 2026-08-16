@@ -24,18 +24,6 @@ passes begins.
 Figure~\ref{fig:schematic} contrasts the two patterns. The taxi fare
 climbs with every token; the subway charges per station.
 
-\begin{figure}[!htbp]
-\centering
-\includegraphics[width=\linewidth]{figures/fig0_decoding_schematic_hires.png}
-\caption{Decoding schematics. \textbf{A:} Autoregressive decoding
-generates tokens one at a time; each token costs one forward pass, so
-cost grows linearly. \textbf{B:} Block-diffusion decoding generates a
-canvas of $C$ tokens in parallel through $K$ denoising passes; within
-a canvas, tokens are free. Cost is flat inside a canvas and steps up
-at the boundary.}
-\label{fig:schematic}
-\end{figure}
-
 \subsection{The cost laws}
 
 Both laws share the structure $T = a + b \cdot f(L)$, where $a$ is the
@@ -74,9 +62,9 @@ widens again. Figure~\ref{fig:shapes} plots the two shapes against
 each other; Figure~\ref{fig:edges} probes the staircase at its
 boundaries to show the steps are regular enough to be one constant.
 
-\begin{figure}[!htbp]
+\begin{figure}[ht!]
 \centering
-\includegraphics[width=\linewidth]{figures/fig1_cost_shapes_hires.png}
+\includegraphics[width=\linewidth]{figures/fig1_cost_shapes.png}
 \caption{The two cost shapes. AR latency grows linearly with output
 length --- the line has no floor. DG latency is a staircase that steps
 at every 256-token canvas boundary and is flat inside --- the
@@ -88,9 +76,9 @@ $K{=}8$).}
 \label{fig:shapes}
 \end{figure}
 
-\begin{figure}[!htbp]
+\begin{figure}[ht!]
 \centering
-\includegraphics[width=\linewidth]{figures/fig2_canvas_edges_hires.png}
+\includegraphics[width=\linewidth]{figures/fig2_canvas_edges.png}
 \caption{The staircase probed at canvas boundaries. \textbf{A:}
 latency is flat inside a canvas and jumps at the boundary --- tokens
 within a canvas are free. \textbf{B:} the staircase is regular: all
@@ -122,4 +110,3 @@ generalisation was measured on the dense AR-3B, not AR-30B, so the
 shape transfers across corpora on both arms but the AR constants do
 not transfer across model scales.
 
-\FloatBarrier
