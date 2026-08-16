@@ -2,24 +2,23 @@
 \label{sec:wins}
 
 The diffusion model's latency advantage is dramatic in serial
-(batch-1) mode. The AR-30B MoE model takes $\sim$5900\,ms to
-produce a 123-token JSON record; DG completes the same task in
-379\,ms --- a $15.6\times$ advantage. To make this concrete: if
-both models serve a security operations centre processing alerts
-one at a time, DG handles \crossoverLambda{} alerts per second
-per GPU; the AR-30B handles 0.17. Or, in human terms: DG finishes
-before you can blink; AR-30B finishes before you finish reading
-this sentence. The AR model stops at $\sim$123 tokens (EOS), so
-latency plateaus regardless of max\_tokens.
+mode. The AR-30B model takes roughly six seconds to produce a
+123-token JSON record; DG completes the same task in under 400\,ms.
+To make this concrete: if both models serve a security operations
+centre processing alerts one at a time, DG handles \crossoverLambda{}
+alerts per second per GPU; the AR-30B handles fewer than one in five
+seconds. Or, in human terms: DG finishes before you can blink; AR-30B
+finishes before you finish reading this sentence. The AR model stops
+at its natural EOS, so latency plateaus regardless of
+\texttt{max\_tokens}.
 
 Table~\ref{tab:niche} shows the measured serial comparison. The
-pattern reveals two things: (1) AR latency is flat from 128 tokens
-onward because the model hits EOS at $\sim$123 tokens --- setting
-\texttt{max\_tokens} higher does nothing --- and (2) DG latency
-stays at 379\,ms for the first canvas (256 tokens) because tokens
-inside a canvas are free, then steps up by $\sim$120\,ms per
-additional canvas. The advantage narrows with output length because
-DG starts paying for canvases, but never drops below $8\times$.
+pattern reveals two things: first, AR latency is flat from 128 tokens
+onward because the model hits EOS --- setting \texttt{max\_tokens}
+higher does nothing. Second, DG latency stays flat for the first
+canvas and then steps up per additional canvas. The advantage
+narrows with output length because DG starts paying for canvases, but
+never drops below eightfold.
 
 \begin{table}[h]
 \centering
@@ -44,26 +43,18 @@ max\_tokens & AR-30B (ms) & AR actual out & DG (ms) & DG advantage \\
 
 The serial cost law gives crossover $L^{*} = \crossoverL$ tokens --- DG
 is faster at any output length above $L^{*}$ (integer-safe: $L \geq 7$).
-At the natural output length
-of 123 tokens, DG is $15.6\times$ faster. The advantage narrows at
-longer output (DG pays per canvas) but remains large: $8.0\times$ at
-$L{=}1024$.
-
-The AR-30B serial slope is \arSlope\,ms/token --- $73\times$ steeper
-than the batch-throughput slope (0.65\,ms/token, from the batch-300
-per-event time of 80\,ms over 123 output tokens). This is because
-serial mode pays full prefill and decode overhead per request, while
-batch mode amortises across concurrent requests. The batch-throughput
-projection severely understates AR serial latency.
+The AR-30B serial slope is $73\times$ steeper than its batch-throughput
+slope, because serial mode pays full prefill and decode overhead per
+request while batch mode amortises across concurrent requests. The
+batch-throughput projection severely understates AR serial latency.
 
 \paragraph{Energy.}
 
 The diffusion model uses less energy because it is busy for less time.
-At an A100 drawing 92.7\,W idle, the AR-30B burns 10.1\,J per event;
-DG burns 4.2\,J --- less than half. Over a million events that is
-28\,kWh saved, roughly \$3 at industrial electricity rates, or the
-difference between leaving a space heater on for 14 hours vs. turning
-it off. The energy ratio is:
+At an A100 drawing $\sim$90\,W idle, the AR-30B burns roughly twice
+the energy per event. Over a million events that is the difference
+between leaving a space heater on for an afternoon vs.\ turning it
+off. The energy ratio is:
 \begin{equation}
 R_{\mathrm{energy}} = \frac{E_{\mathrm{AR}}}{E_{\mathrm{DG}}}
 \end{equation}
@@ -75,10 +66,10 @@ event (joules, idle-subtracted) for each arm. Measured values:
 \text{Dense AR-1.5B:} \quad & R_{\mathrm{energy}} =
 \frac{5.1}{4.2} = 1.2 \quad \text{(idle 58.6\,W)}
 \end{align}
-A ratio > 1 means AR uses more energy. The three runs used different idle
-baselines (AR-30B MoE 92.7\,W, AR-1.5B 58.6\,W, DG 52.6\,W); the DG
-energy was not re-measured at the AR-30B idle point, so the AR-30B vs DG
-ratio (2.4) is indicative rather than directly controlled.
+A ratio above 1 means AR uses more energy. The three runs used different
+idle baselines; the DG energy was not re-measured at the AR-30B idle
+point, so the AR-30B vs DG ratio is indicative rather than directly
+controlled.
 
 \paragraph{Graceful degradation under deadline pressure.}
 
@@ -95,9 +86,8 @@ summarises the contrast across practical challenges.
 \centering
 \caption{Practical challenge contrast. Each row is a deployment
 scenario; the right column names the architectural property that drives
-the outcome. AR tail-latency statistics (CV, max/med) in the
-tail-sensitive row are from the dense AR-3B baseline; energy is AR-30B
-MoE.}
+the outcome. AR tail-latency statistics in the tail-sensitive row are
+from the dense AR-3B baseline; energy is AR-30B MoE.}
 \label{tab:contrast}
 \begin{tabularx}{\linewidth}{@{}L L L L@{}}
 \toprule

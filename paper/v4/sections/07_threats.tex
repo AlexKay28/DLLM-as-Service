@@ -1,57 +1,46 @@
 \section{Threats to validity}
 \label{sec:threats}
 
-All measurements are on one GPU (\gpuModel{}); the fitted constants are
-A100-specific but the shapes should transfer. The crossover is
-calibrated at a $\sim$\refPrompt-token prompt and shifts with input
-length. The AR--DG quality difference ($\Delta = \qualityGap$, 95\% CI
-$[-0.012, +0.011]$, $n = 300$) is equivalent at a $\pm 0.015$ margin.
-This quality comparison uses the dense AR-3B baseline
-(Qwen2.5-3B), not the AR-30B MoE: the 9-field F1 of
-\arThreeBFnine\ was re-scored with the corrected first-object-wins parser
-on the dense baseline, and the AR-30B MoE was not re-scored at the same
-parser setting. The latency comparison (Table~\ref{tab:niche}) uses the
-AR-30B MoE cost law, so the quality and latency arms are not the same
-model.
+All measurements are on one GPU; the fitted constants are A100-specific
+but the shapes should transfer. The crossover is calibrated at a
+reference prompt of $\sim$\refPrompt\,tokens and shifts with input
+length.
+
+The AR--DG quality difference is equivalent at a $\pm 0.015$ margin.
+This quality comparison uses the dense AR-3B baseline, not the AR-30B
+MoE: the 9-field F1 of \arThreeBFnine\ was re-scored with the corrected
+parser on the dense baseline, and the AR-30B was not re-scored at the
+same parser setting. The latency comparison uses the AR-30B MoE cost
+law, so the quality and latency arms are not the same model.
 
 The surviving niche has not been tested on a task whose natural output
-length is $\geq 512$ tokens. The AR-30B cost law (Eq.~\ref{eq:ar}) is
-fitted from a five-point serial (batch-1) sweep with $R^2 = 1.0$, but the
-model stops at $\sim$123 tokens (EOS), so the slope is carried by the
-$L{=}32$ point and the cluster at natural output. The measured serial p50
-at $L{=}256$ is 5899\,ms, matching the cost law evaluated at the actual
-output of 123 tokens (5946\,ms). The advantage in serial mode (15.6$\times$
-at natural output) is the realized comparison; forcing AR to generate
-longer output would increase its latency per the cost law, making DG's
-advantage larger. A task with genuinely long natural output --- multi-record
-extraction, incident reports --- would test the niche without this
-EOS-stop artifact (Appendix~\ref{app:forced} provides an analytical
-projection).
+length is $\geq 512$ tokens. The AR-30B cost law is fitted from a
+five-point serial sweep with $R^2 = 1.0$, but the model stops at
+$\sim$123 tokens (EOS), so the slope is carried by the $L{=}32$ point
+and the cluster at natural output. The advantage in serial mode is the
+realized comparison; forcing AR to generate longer output would
+increase its latency per the cost law, making DG's advantage larger.
 
-The niche has not been tested against grammar-constrained AR decoding
-(outlines, xgrammar, llguidance), which would eliminate over-generation,
-guarantee 100\% schema validity, and remove the diffusion model's
-completeness advantage. An attempt to run grammar-constrained
-\ARoneb\ on vLLM 0.10.2 produced 1.0\% schema-valid output --- the
-grammar enforced JSON structure but the model padded string fields it
-could not answer, preventing the JSON from closing. This is a stated
-limitation.
+The niche has not been tested against grammar-constrained AR decoding,
+which would eliminate over-generation, guarantee 100\% schema
+validity, and remove the diffusion model's completeness advantage. An
+attempt to run grammar-constrained AR on vLLM produced 1.0\% schema-valid
+output --- the grammar enforced JSON structure but the model padded
+string fields it could not answer, preventing the JSON from closing.
+This is a stated limitation.
 
 The batching ceiling reproduces across two runtimes and two model
-families, but both measurements are engine-bounded
-(Appendix~\ref{app:batching}). A structural argument for why the ceiling
-is likely architectural --- not an engine bug --- is in
-Appendix~\ref{app:batching_architectural}.
+families, but both measurements are engine-bounded; see
+Appendix~\ref{app:batching}. A structural argument for why the ceiling
+is likely architectural is in Appendix~\ref{app:batching_architectural}.
 
-The cost-shape generalisation (``any decoder emitting fixed-size blocks
-would inherit the same shape'') is inferred from one block-diffusion
+The cost-shape generalisation is inferred from one block-diffusion
 model measured against one AR family. The shape claim is structural but
 not tested on a second diffusion family.
 
-The energy comparison (\S\ref{sec:wins}) uses three different idle
-baselines (AR-30B MoE 92.7\,W, AR-1.5B 58.6\,W, DG 52.6\,W); the DG
+The energy comparison uses three different idle baselines; the DG
 energy was not re-measured at the AR-30B idle point, so the AR-30B vs
-DG ratio (2.4) is indicative rather than directly controlled.
+DG ratio is indicative rather than directly controlled.
 
 DiffusionGemma-26B-A4B-it is available at
 \url{https://huggingface.co/google/}\\\url{diffusiongemma-26b-a4b-it}.
