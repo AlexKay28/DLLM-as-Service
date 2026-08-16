@@ -53,6 +53,59 @@ demand via per-request priority preemption, and it survives the
 \texttt{max-num-seqs 1} constraint that the mixed-phase crash forces.
 AR's batching advantage is irrelevant for the one request that matters.
 
+\subsection{Autonomous driving and safety-critical perception}
+
+An autonomous vehicle perceives a hazardous scene --- a pedestrian entering
+a blind crosswalk, debris on a highway, a construction zone with temporary
+lane closures --- and must produce a structured situation report and action
+plan before the next control tick. The output is long (multi-object scene
+description, predicted trajectories, recommended manoeuvre), the latency
+budget is sub-second, and the system is strictly batch-1: there is one
+vehicle, one scene, one decision. There is no queue to batch against.
+
+DG's properties map directly onto this workload. The staircase cost law
+means the p50 is flat whether the scene report is 128 or 512 tokens ---
+the model does not pay per token the way an autoregressive decoder does.
+The $K$ knob (Appendix~\ref{app:decomp}) is a per-request quality slider:
+drop $K$ from 8 to 4 and the record arrives in \kFourPfifty\,ms at
+\kFourFone\ F1, meeting a tightened deadline without truncating the output.
+An AR model under the same deadline returns a truncated record that fails
+schema validation --- a partial scene description is not a partial plan, it
+is a failed plan. And the diffusion model always returns a complete canvas,
+which for a safety-critical consumer that validates against a schema is a
+qualitative rather than quantitative guarantee.
+
+The tail latency (Appendix~\ref{app:distributions}) is the counterargument:
+DG's 3.21$\times$ max/median ratio means a p99 SLA lands far above p50. For
+autonomous driving this is managed by the $K$ knob (lower $K$ compresses
+the tail) and by the serial-chain result (consecutive hops wash out the
+tail). A single-hop, hard-deadline perception task is the regime where DG
+is weakest, and we state that plainly.
+
+\subsection{Algorithmic trading and multi-hop situation analysis}
+
+A trading system detects an anomalous price movement, pulls relevant
+order-book history, cross-references news and regulatory filings, and
+produces a structured hypothesis: is this a mean-reversion signal, a
+liquidity event, or a precursor to a larger move? Each step blocks on the
+previous one --- the analysis is a chain, not a batch. The output at each
+hop is a structured record (event classification, confidence, recommended
+action), and the total latency from signal to decision must be under the
+market's reaction window, typically 1--5 seconds.
+
+This is the serial investigation chain of \S\ref{sec:usecases} applied to
+market microstructure. DG's per-hop latency of $\sim$410\,ms (measured,
+Figure~\ref{fig:chains}) means a 5-hop analysis completes in
+$\sim$2.1\,s; AR's $\sim$825\,ms per hop gives $\sim$4.1\,s for the same
+chain. At 10 hops the gap is 4.1\,s vs 8.3\,s --- the difference between
+acting before and after the market moves. The tail penalty that makes DG
+risky in single-hop, hard-deadline settings washes out under sequential
+composition: the p99.9/p50 ratio converges to the AR mean at depth 10+.
+
+The quality-matched AR model (1.5B, \arOneFiveFnine\ F1) is $1.8\times$
+slower per hop even unforced. In a market where the first analysis wins,
+that margin is the trade.
+
 \subsection{Long structured extraction}
 
 Java stack traces, Kubernetes event cascades, and correlated alert bursts
