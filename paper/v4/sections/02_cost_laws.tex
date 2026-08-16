@@ -24,6 +24,18 @@ passes begins.
 Figure~\ref{fig:schematic} contrasts the two patterns. The taxi fare
 climbs with every token; the subway charges per station.
 
+\begin{figure}[ht!]
+\centering
+\includegraphics[width=\linewidth]{figures/fig0_decoding_schematic.png}
+\caption{Decoding schematics. \textbf{A:} Autoregressive decoding
+generates tokens one at a time; each token costs one forward pass, so
+cost grows linearly. \textbf{B:} Block-diffusion decoding generates a
+canvas of $C$ tokens in parallel through $K$ denoising passes; within
+a canvas, tokens are free. Cost is flat inside a canvas and steps up
+at the boundary.}
+\label{fig:schematic}
+\end{figure}
+
 \subsection{The cost laws}
 
 Both laws share the structure $T = a + b \cdot f(L)$, where $a$ is the
@@ -58,23 +70,10 @@ L^{*} = \frac{a_{\textsc{dg}} - a_{\textsc{ar}}}{b_{\textsc{ar}}}
 where $L^{*}$ is the crossover output length and $\lambda^{*}$ is the
 maximum serial event rate before a queue forms. Below $L^{*}$, AR is
 cheaper; above it, DG is --- until the next canvas edge, where the gap
-widens again. Figure~\ref{fig:shapes} plots the two shapes against
-each other; Figure~\ref{fig:edges} probes the staircase at its
-boundaries to show the steps are regular enough to be one constant.
-
-\begin{figure}[ht!]
-\centering
-\includegraphics[width=\linewidth]{figures/fig1_cost_shapes.png}
-\caption{The two cost shapes. AR latency grows linearly with output
-length --- the line has no floor. DG latency is a staircase that steps
-at every 256-token canvas boundary and is flat inside --- the
-staircase is bounded. The gap widens with $L$ because the taxi fare
-climbs forever while the subway charges per station. The crossover
-is at $L^{*}\!=\!\crossoverL$ tokens. AR values from the fitted cost
-law, extrapolated beyond natural EOS; DG measured (BGL, $n{=}200$,
-$K{=}8$).}
-\label{fig:shapes}
-\end{figure}
+widens again. Figure~\ref{fig:shapes} (page~\pageref{fig:shapes})
+plots the two shapes against each other;
+Figure~\ref{fig:edges} probes the staircase at its boundaries to show
+the steps are regular enough to be one constant.
 
 \begin{figure}[ht!]
 \centering
