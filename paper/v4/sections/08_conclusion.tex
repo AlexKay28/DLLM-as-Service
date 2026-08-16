@@ -2,12 +2,13 @@
 \label{sec:conclusion}
 
 Block-diffusion language models have a staircase cost shape that is
-structurally different from the linear cost of autoregressive
-decoding. The shapes cross at $L^{*} = \crossoverL$ output tokens,
-above which diffusion is faster. The advantage is large --- fifteenfold
-at natural output, eightfold at a thousand tokens --- and in cost
-terms, that is a fifteen-to-one gap per million events that does not
-close with a bigger model, only with batching.
+structurally different from the linear cost of autoregressive decoding.
+The taxi fare climbs with every token; the subway charges per station.
+The shapes cross at $L^{*} = \crossoverL$ output tokens, above which
+diffusion is faster. The advantage is large --- fifteenfold at natural
+output, eightfold at a thousand tokens --- and in cost terms, that is
+a fifteen-to-one gap per million events that does not close with a
+bigger model, only with batching.
 
 Against a MoE-matched AR model, this is a fair comparison. Moving
 from the dense AR-3B to the MoE AR-30B raised the serial per-token
@@ -18,11 +19,9 @@ The advantage is limited where batching is available and where tail
 SLAs are tight. But in the batch-1 regime --- serial investigation
 chains, autonomous driving, algorithmic trading --- the staircase
 shape provides a structural latency advantage that the line cannot
-match. The $K$ knob gives DG a per-request quality slider that AR has
-no equivalent for, and the complete-canvas guarantee under deadline
-pressure is a qualitative property: when the deadline tightens, DG
-degrades gracefully; AR truncates.
-
-Block diffusion is the right choice when output is long, batch-1 is
-required, and schema completeness matters. We have named five
-conditions and grounded them in concrete workloads.
+match. The $K$ knob is DG's emergency brake: when the deadline
+tightens, DG degrades gracefully --- lower quality, complete canvas.
+AR's only response is truncation. Block diffusion is the right choice
+when output is long, batch-1 is required, and schema completeness
+matters. We have named five conditions and grounded them in concrete
+workloads.

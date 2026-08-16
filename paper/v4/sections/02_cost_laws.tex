@@ -44,8 +44,8 @@ position, confirmed across seven measured transitions.
 
 AR is a metered taxi: the fare climbs with every block.
 DG is a subway: flat fare per station, no matter how many tokens board.
-The shapes cross where the two costs are equal. Solving for
-$L_{\mathrm{out}}$:
+The line has no floor, but the staircase is bounded. The shapes cross
+where the two costs are equal. Solving for $L_{\mathrm{out}}$:
 \begin{equation}
 \label{eq:lcross}
 L^{*} = \frac{a_{\textsc{dg}} - a_{\textsc{ar}}}{b_{\textsc{ar}}}
@@ -62,11 +62,13 @@ widens again.
 \centering
 \includegraphics[width=\linewidth]{figures/fig1_cost_shapes.pdf}
 \caption{The two cost shapes. AR latency grows linearly with output
-length; DG latency is a staircase that steps at every 256-token canvas
-boundary and is flat inside. The gap widens with $L$ because AR's line
-has no floor while DG's staircase is bounded. AR values from the
-fitted cost law, extrapolated beyond natural EOS; DG measured (BGL,
-$n{=}200$, $K{=}8$).}
+length --- the line has no floor. DG latency is a staircase that steps
+at every 256-token canvas boundary and is flat inside --- the
+staircase is bounded. The gap widens with $L$ because the taxi fare
+climbs forever while the subway charges per station. The crossover
+is at $L^{*}\!=\!\crossoverL$ tokens. AR values from the fitted cost
+law, extrapolated beyond natural EOS; DG measured (BGL, $n{=}200$,
+$K{=}8$).}
 \label{fig:shapes}
 \end{figure}
 

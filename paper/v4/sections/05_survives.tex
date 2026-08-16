@@ -14,58 +14,73 @@ choice are:
   \item A \dgWeights\,GB resident footprint is acceptable.
 \end{enumerate}
 
-\paragraph{Concrete workloads.}
+\paragraph{Why serial investigation chains are the natural habitat of the staircase.}
 
-\textit{Serial investigation chains.} A security operations centre
-receives an alert, looks up threat intelligence, cross-references
-internal logs, and drills into the next layer. Each hop blocks on the
-previous; concurrency is 1 by construction. This is the natural
-habitat of the staircase. Against AR-30B, DG is roughly fourteen times
-faster per hop. The advantage compounds with chain depth: at eight
-hops, the difference between three seconds and forty-seven seconds is
-the difference between catching an intruder in the act and finding
-the trail gone cold.
+A security operations centre receives an alert, looks up threat
+intelligence, cross-references internal logs, and drills into the next
+layer. Each hop blocks on the previous; concurrency is 1 by
+construction. Against AR-30B, DG is roughly fourteen times faster per
+hop. The advantage compounds with chain depth: at eight hops, the
+difference between three seconds and forty-seven seconds is the
+difference between catching an intruder in the act and finding the
+trail gone cold.
 
 \begin{figure}[t]
 \centering
 \includegraphics[width=\linewidth]{figures/fig10_usecase_chains.pdf}
 \caption{Serial investigation chains. \textbf{A:} per-hop p50 is
-constant across depth. \textbf{B:} DG's p99.9/p50 ratio converges to
-AR's mean as depth increases (BGL, $n{=}300$, $K{=}8$; AR arm is the
-dense AR-3B baseline).}
+constant across depth --- the staircase does not steepen.
+\textbf{B:} DG's p99.9/p50 ratio converges to AR's mean as depth
+increases, so the tail advantage disappears with chain length (BGL,
+$n{=}300$, $K{=}8$; AR arm is the dense AR-3B baseline).}
 \label{fig:chains}
 \end{figure}
 
-\textit{Critical-alert preemption.} A FATAL log line arrives
-mid-stream. DG's bounded service time and complete-canvas guarantee
-make it suitable for priority preemption: a preempted request returns
-a valid record, not a truncated one. The AR model, interrupted
-mid-generation, returns half a JSON object --- syntactically invalid,
-unusable downstream. In a system that must decide whether to page an
-on-call engineer at 3\,a.m., the difference between a complete record
-and a truncated one is the difference between an actionable alert and
-a false negative.
+\paragraph{What happens when a deadline expires mid-generation?}
 
-\textit{Autonomous driving.} One vehicle, one scene, one decision:
-batch-1 by construction. There is no batching a braking decision ---
-the car either processes the scene or it does not. The $K$ knob is a
-per-request quality slider: drop $K$ to meet a tightened deadline
-without truncating output. The completeness guarantee holds only above
-the canvas length; below $L{=}128$ DG's schema validity collapses.
+A FATAL log line arrives mid-stream. DG's bounded service time and
+complete-canvas guarantee make it suitable for priority preemption: a
+preempted request returns a valid record, not a truncated one. The AR
+model, interrupted mid-generation, returns half a JSON object ---
+syntactically invalid, unusable downstream. In a system that must
+decide whether to page an on-call engineer at 3\,a.m., the difference
+between a complete record and a truncated one is the difference
+between an actionable alert and a false negative.
 
-\textit{Algorithmic trading.} A serial chain with a 1--5\,s market
-reaction window. At eight or more hops, DG's staircase advantage
-provides faster end-to-end analysis.
+The $K$ knob is DG's emergency brake: when a deadline tightens, drop
+$K$ from 8 to 4 and the model still fills every field --- just with
+slightly less precision --- instead of cutting the JSON in half
+mid-key. AR has no equivalent; its only response to a deadline is
+truncation. The completeness guarantee holds only above the canvas
+length; below $L{=}128$ DG's schema validity collapses.
 
-\textit{Wide-schema normalisation.} DG's joint-canvas denoising treats
-all fields as one structured object. Across schema widths from 12 to
-100 fields, DG's latency advantage held at roughly two- to threefold
-(measured against the dense AR-3B baseline, not AR-30B).
+\paragraph{Why autonomous driving is batch-1 by construction.}
+
+One vehicle, one scene, one decision. There is no batching a braking
+decision --- the car either processes the scene or it does not. The
+$K$ knob is a per-request quality slider: drop $K$ to meet a tightened
+deadline without truncating output. Output is long --- multi-object
+scene description, predicted trajectories --- which is exactly where
+the staircase advantage is largest.
+
+\paragraph{Why algorithmic trading rewards long chains.}
+
+A serial chain with a 1--5\,s market reaction window. At eight or more
+hops, DG's staircase advantage provides faster end-to-end analysis.
+The taxi fare compounds; the subway fare does not.
+
+\paragraph{Why wide schemas favour joint denoising.}
+
+DG's joint-canvas denoising treats all fields as one structured
+object. Across schema widths from 12 to 100 fields, DG's latency
+advantage held at roughly two- to threefold (measured against the
+dense AR-3B baseline, not AR-30B).
 
 \begin{figure}[t]
 \centering
 \includegraphics[width=0.85\linewidth]{figures/fig11_usecase_schema.pdf}
-\caption{Latency vs schema width (BGL, $n{=}300$).}
+\caption{Latency vs schema width (BGL, $n{=}300$). DG's advantage
+holds across widths because all fields are denoised in one canvas.}
 \label{fig:schema}
 \end{figure}
 

@@ -2,29 +2,31 @@
 \label{sec:limits}
 
 The diffusion model's serial advantage is large, but five deployment
-factors limit it in practice.
+factors constrain it in practice.
 
 \paragraph{1. Footprint.}
 
-Both models are MoE and have comparable footprints. Neither can share a
-GPU with another large model. The asymmetry that matters is against
-the quality-similar dense AR-1.5B at 3\,GB: sixteen copies fit in the
+Both models are MoE with comparable footprints. Neither can share a GPU
+with another large model. The asymmetry that matters is against the
+quality-similar dense AR-1.5B at 3\,GB: sixteen copies fit in the
 space either MoE model occupies.
 
 \paragraph{2. Batching.}
 
 Continuous batching converts arrival concurrency into throughput at
-$77\times$ for AR-30B against $\leq 1.7\times$ for DG. Both DG
-measurements are engine-bounded, so the true ceiling is unknown but
-lies at or above $1.7\times$. Even so, the gap is more than an order
-of magnitude; see Appendix~\ref{app:batching}.
+$77\times$ for AR-30B against $\leq 1.7\times$ for DG. We measured
+both DG multipliers on engine-bounded stacks, so the true ceiling is
+unknown but lies at or above $1.7\times$. Even so, the gap is more
+than an order of magnitude; see Appendix~\ref{app:batching}.
 
 \begin{figure}[t]
 \centering
 \includegraphics[width=\linewidth]{figures/fig6_batching.pdf}
-\caption{Batch-1 to peak throughput multipliers (BGL, $n{=}300$).
-AR-30B MoE reaches $77\times$; DG caps at $\leq 1.7\times$. The prefix
-cache on/off bars are the dense AR-3B, not the AR-30B MoE.}
+\caption{Batch-1 to peak throughput multipliers. AR-30B reaches
+$77\times$ via KV-cache reuse; DG caps at $\leq 1.7\times$ because
+changing attention masks invalidate KV persistence across denoising
+steps. The prefix cache on/off bars are the dense AR-3B, not the
+AR-30B MoE (BGL, $n{=}300$).}
 \label{fig:batching}
 \end{figure}
 

@@ -3,20 +3,21 @@
 
 Autoregressive language models generate text one token at a time;
 each token requires a forward pass over the growing KV cache. This is
-the decoding equivalent of a toll road: every token pays a fare, and
-the fare never decreases. Block-diffusion models generate an entire
-block of tokens in parallel through iterative denoising, then step to
-the next block. The cost is a turnstile: pay once, pass through a
-whole block. We call this second class \emph{block-diffusion} because
+the decoding equivalent of a metered taxi: the fare climbs with every
+block. Block-diffusion models generate an entire block of tokens in
+parallel through iterative denoising, then step to the next block.
+The cost is a subway: flat fare per station, no matter how many
+tokens board. We call this second class \emph{block-diffusion} because
 the block structure --- not the diffusion process --- is what
 determines its cost shape.
 
-We compare the two on a pinned serving stack: vLLM on an NVIDIA A100
-80GB, BF16. The task is structured log extraction from the LOGHUB BGL
-corpus --- system logs from the BlueGene/L supercomputer at Lawrence
-Livermore National Laboratory. Each raw log line describes a hardware
-or software event; the model must extract a structured JSON record
-with twelve fields spanning structural, semantic, anomaly, and action
+We pinned both architectures to an identical vLLM serving stack on an
+NVIDIA A100 80GB to eliminate runtime noise. The task is structured
+log extraction from the LOGHUB BGL corpus --- system logs from the
+BlueGene/L supercomputer at Lawrence Livermore National Laboratory.
+Each raw log line describes a hardware or software event; the model
+must extract a structured JSON record with twelve fields spanning
+structural, semantic, anomaly, and action
 categories.\footnote{Structural fields require span-copying from the
 input; semantic fields require inference; anomaly fields require
 binary classification. Quality is macro-averaged token-level F1 across
@@ -36,6 +37,22 @@ The cost shapes we derive are properties of the \emph{decoding
 paradigm}, not of model scale. A larger AR model would have a steeper
 slope but the same linear shape; a larger diffusion model would have a
 higher floor but the same staircase.
+
+\paragraph{The plot twist.}
+
+When we first compared the two architectures, diffusion looked
+\emph{slower} than AR --- by a factor of four. The AR model was
+running on a naive HuggingFace generate loop while the diffusion model
+ran on vLLM with continuous batching. The harness was silently
+crippling the baseline. We found eight such defects by re-reading our
+own committed artifacts: a checkpoint default that suppressed
+span-copying, a parser that took the most-drifted JSON object, a
+metric that counted falsy values as missing keys. Five of the eight
+biased against the AR arm. After correction, the narrative inverted:
+diffusion is not slower --- it is fifteen times faster at natural
+output length. The eight corrections are priced in
+Appendix~\ref{app:defects}; they are the methodological backbone of
+every number that follows.
 
 Our contributions are as follows:
 \begin{itemize}[leftmargin=1.5em]
