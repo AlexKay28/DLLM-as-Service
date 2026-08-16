@@ -1,0 +1,1681 @@
+{
+  "experiment": "issue115_humaneval",
+  "arm": "dg",
+  "model": "google/diffusiongemma-26B-A4B-it",
+  "model_type": "dg",
+  "benchmark": "HumanEval",
+  "n_problems": 164,
+  "k_steps": 2,
+  "canvas_length": 256,
+  "max_new_tokens": 512,
+  "temperature": 0.0,
+  "serving": "serial (batch-1)",
+  "pass_at_1": 0.1463,
+  "code_validity_pct": 18.9,
+  "completeness_pct": 18.9,
+  "latency_ms": {
+    "p50": 172.7,
+    "p99": 288.1,
+    "mean": 177.3
+  },
+  "mean_output_tokens": 84.1,
+  "predictions": [
+    {
+      "task_id": "HumanEval/0",
+      "entry_point": "has_close_elements",
+      "latency_ms": 1040.1,
+      "token_count": 60,
+      "code_validity": true,
+      "completeness": true,
+      "pass_at_1": false,
+      "generated": "thought\n```python\nfor i in range(len(numbers)):\n    for j in range(i + 1, len(numbers)):\n        if abs(numbers[i] - numbers[j]) < threshold:\n            return True\n    return False\n```"
+    },
+    {
+      "task_id": "HumanEval/1",
+      "entry_point": "separate_paren_groups",
+      "latency_ms": 142.5,
+      "token_count": 115,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "thought\n```python\n    result = []\n    current_group = []\n    depth = 0\n    \n    for char in paren_string:\n        if char == ' '\n\ncontinue\n        current        groupgroup += +=\n\n\n\n += +=\n\n\n\n\n char char\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\ngroupgroupgroup\n\n\n\n\n\n\n\n\n"
+    },
+    {
+      "task_id": "HumanEval/2",
+      "entry_point": "truncate_number",
+      "latency_ms": 166.4,
+      "token_count": 18,
+      "code_validity": true,
+      "completeness": true,
+      "pass_at_1": true,
+      "generated": "thought\n```python\n    return number % int(number)\n```"
+    },
+    {
+      "task_id": "HumanEval/3",
+      "entry_point": "below_zero",
+      "latency_ms": 156.2,
+      "token_count": 43,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "thought\n```python\n    balance = 0\n    for op in operations:\n        balance += op\n        if balance < 0:\n            return True\n    return False\n```"
+    },
+    {
+      "task_id": "HumanEval/4",
+      "entry_point": "mean_absolute_deviation",
+      "latency_ms": 170.1,
+      "token_count": 57,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "thought\n```python\n    if not numbers:\n        return 0.0\n    mean = sum(numbers) / len(numbers)\n    mad = sum(abs(x - mean) for x in numbers) / len(numbers)\n```"
+    },
+    {
+      "task_id": "HumanEval/5",
+      "entry_point": "intersperse",
+      "latency_ms": 170.8,
+      "token_count": 71,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "thought\n```python\n    if not numbers:\n        return []\n    result = []\n    for i in range(len(numbers)):\n        result.append(numbers[i])\n        if i < len(numbers) - 1:\n            result.append(delimeter)\n    return result\n```"
+    },
+    {
+      "task_id": "HumanEval/6",
+      "entry_point": "parse_nested_parens",
+      "latency_ms": 170.5,
+      "token_count": 103,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "thought\n```python\n    results = []\n    for group in paren_string.split():\n        max_depth = 0\n        current_depth = 0\n        for char in group:\n            if char == '(':\n                current_depth += 1\n                if current_depth > max_depth:\n                    max_depth = current_depth\n            elif char == ')':\n\n                __depth\n\n\n\n\n\n\n\n\n"
+    },
+    {
+      "task_id": "HumanEval/7",
+      "entry_point": "filter_by_substring",
+      "latency_ms": 166.9,
+      "token_count": 23,
+      "code_validity": true,
+      "completeness": true,
+      "pass_at_1": true,
+      "generated": "thought\n```python\n    return [s for s in strings if substring in s]\n```"
+    },
+    {
+      "task_id": "HumanEval/8",
+      "entry_point": "sum_product",
+      "latency_ms": 146.1,
+      "token_count": 50,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "thought\n```python\n    total_sum = 0\n    total = 1\n    for num in numbers:\n        total_sum +=sum\n        product *= n\n    return total_sum, product\n```"
+    },
+    {
+      "task_id": "HumanEval/9",
+      "entry_point": "rolling_max",
+      "latency_ms": 167.2,
+      "token_count": 63,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "thought\n```python\n    if notmax\n    current_max =\n\n    \n    for\n in\n\n\n\n\n\n\n_\n\n\n\n\n\nmaxmax\n\n\n\n\n\nmaxmaxmaxmaxmax_\n\n\n\n\n\n\n\n\n"
+    },
+    {
+      "task_id": "HumanEval/10",
+      "entry_point": "make_palindrome",
+      "latency_ms": 172.6,
+      "token_count": 61,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "thought\n```python\n    if not string:\n        return \"\"\n\n    for i in range(len(string)):\n        suffix = string[i:]\n        if is_palindrome(suffix):\n            prefix = string[:i]\n\n111 string string string"
+    },
+    {
+      "task_id": "HumanEval/11",
+      "entry_point": "string_xor",
+      "latency_ms": 168.3,
+      "token_count": 64,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "thought\n```python\n    res = []\n    for char_a, char_b in zip(a, b):\n        if int(a) int int( intbb\n            res.append('.\n\n        else\n\n        res\n\n('.\n\n    "
+    },
+    {
+      "task_id": "HumanEval/12",
+      "entry_point": "longest",
+      "latency_ms": 169.2,
+      "token_count": 30,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "thought\n```python\n    if not strings:\n        return None\n    return max(strings, key=len)\n```"
+    },
+    {
+      "task_id": "HumanEval/13",
+      "entry_point": "greatest_common_divisor",
+      "latency_ms": 170.3,
+      "token_count": 32,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "thought\n```python\n    while b:\n        a, b = b, a % b\n    return abs(a)\n```"
+    },
+    {
+      "task_id": "HumanEval/14",
+      "entry_point": "all_prefixes",
+      "latency_ms": 163.9,
+      "token_count": 32,
+      "code_validity": true,
+      "completeness": true,
+      "pass_at_1": true,
+      "generated": "thought\n```python\n    return [string[:i] for i in range(1, len(string) + 1)]\n```"
+    },
+    {
+      "task_id": "HumanEval/15",
+      "entry_point": "string_sequence",
+      "latency_ms": 140.6,
+      "token_count": 27,
+      "code_validity": true,
+      "completeness": true,
+      "pass_at_1": true,
+      "generated": "thought\n```python\n    return \" \".join(map(str, range(n + 1)))\n```"
+    },
+    {
+      "task_id": "HumanEval/16",
+      "entry_point": "count_distinct_characters",
+      "latency_ms": 146.9,
+      "token_count": 20,
+      "code_validity": true,
+      "completeness": true,
+      "pass_at_1": true,
+      "generated": "thought\n```python\n    return len(set(string.lower()))\n```"
+    },
+    {
+      "task_id": "HumanEval/17",
+      "entry_point": "parse_music",
+      "latency_ms": 160.1,
+      "token_count": 128,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "thought\n```python\n    result = []\n    i = 0\n    while i < len(music_string):\n        char = music_string[i]\n        if char == 'o':\n            results.append(4)\n            i += 1\n        elif i + 1( len((__string) and\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n"
+    },
+    {
+      "task_id": "HumanEval/18",
+      "entry_point": "how_many_times",
+      "latency_ms": 168.3,
+      "token_count": 61,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "thought\n```python\n    count = 0\n    for i substring range(len(string) - len(substring) + 1):\n        if string[i:i + len(  == == substring:\n            count += 1\n    return count\n```"
+    },
+    {
+      "task_id": "HumanEval/19",
+      "entry_point": "sort_numbers",
+      "latency_ms": 166.2,
+      "token_count": 112,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "thought\n```python\n    mapping = {\n        'zero': 0, 'one': 1, 'two': 2, 'three': 3,\n        'four': 4, 'five': 5, 'sixsix   , ''seven  , ' 'eight': 8, 'nine': 9\n\n    \n         = =.split]] for for insplitsplit\n\n\n\n    ...\n\n\n\n\n        \n\n\n"
+    },
+    {
+      "task_id": "HumanEval/20",
+      "entry_point": "find_closest_elements",
+      "latency_ms": 172.9,
+      "token_count": 123,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "thought\n```python\n    sorted_numbers = sorted(numbers)\n    min_diff = float('inf')\n    closest_pair = (sorted_numbers00],_0.000\n\n\n         i( range((((__) - -11):\n         = = sorted_ sorted[[i]]]__[i\n\n\nif min min min min__\n\n__ = = = = =_________iiii_\n\n\n\n\n\n\n"
+    },
+    {
+      "task_id": "HumanEval/21",
+      "entry_point": "rescale_to_unit",
+      "latency_ms": 172.6,
+      "token_count": 67,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "thought\n```python\n    min_val = min(numbers)\n    max_val = max(numbers)\n    if min_val == min_val:\n        return [0.0] numbers for numbers numbers\n\n\n        x min min min min min min min____"
+    },
+    {
+      "task_id": "HumanEval/22",
+      "entry_point": "filter_integers",
+      "latency_ms": 170.3,
+      "token_count": 33,
+      "code_validity": true,
+      "completeness": true,
+      "pass_at_1": true,
+      "generated": "thought\n```python\n    return [x for x in values if isinstance(x, int) and not isinstance(x, bool)]\n```"
+    },
+    {
+      "task_id": "HumanEval/23",
+      "entry_point": "strlen",
+      "latency_ms": 138.4,
+      "token_count": 16,
+      "code_validity": true,
+      "completeness": true,
+      "pass_at_1": true,
+      "generated": "thought\n```python\n    return len(string)\n```"
+    },
+    {
+      "task_id": "HumanEval/24",
+      "entry_point": "largest_divisor",
+      "latency_ms": 150.1,
+      "token_count": 46,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "thought\n```python\n    for i in range(n - 1, 0, -1):\n        if n % i == 0:\n            return i\n    return 1\n```"
+    },
+    {
+      "task_id": "HumanEval/25",
+      "entry_point": "factorize",
+      "latency_ms": 171.2,
+      "token_count": 80,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "thought\n    factors = []\n    d = 2\n    temp = n\n    while d * d <= temp:\n        if temp % d == 0:\n            factors.append(d)\n            temp //= d\n        d += 1\n    if temp > 1:\n        factors.append((temp\n    return factors\n"
+    },
+    {
+      "task_id": "HumanEval/26",
+      "entry_point": "remove_duplicates",
+      "latency_ms": 170.1,
+      "token_count": 58,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "thought\n```python\n    counts = {}\n    for x in numbers:\n        counts[x] = counts.get(x, 0) + 1\n    return [x for x in numbers if counts[x] == 1]\n```"
+    },
+    {
+      "task_id": "HumanEval/27",
+      "entry_point": "flip_case",
+      "latency_ms": 165.0,
+      "token_count": 17,
+      "code_validity": true,
+      "completeness": true,
+      "pass_at_1": true,
+      "generated": "thought\n```python\n    return string.swapcase()\n```"
+    },
+    {
+      "task_id": "HumanEval/28",
+      "entry_point": "concatenate",
+      "latency_ms": 141.7,
+      "token_count": 17,
+      "code_validity": true,
+      "completeness": true,
+      "pass_at_1": true,
+      "generated": "thought\n```python\n    return \"\".join(strings)\n```"
+    },
+    {
+      "task_id": "HumanEval/29",
+      "entry_point": "filter_by_prefix",
+      "latency_ms": 141.8,
+      "token_count": 25,
+      "code_validity": true,
+      "completeness": true,
+      "pass_at_1": true,
+      "generated": "thought\n```python\n    return [s for s in strings if s.startswith(prefix)]\n```"
+    },
+    {
+      "task_id": "HumanEval/30",
+      "entry_point": "get_positive",
+      "latency_ms": 150.1,
+      "token_count": 147,
+      "code_validity": true,
+      "completeness": true,
+      "pass_at_1": true,
+      "generated": "thought\n```python\ndef get_positive(l: list):\n    \"\"\"Return only positive numbers in the list.\n    >>> get_positive([-1, 2, -4, 5, 6])\n    [2, 5, 6]\n    >>> get_positive([5, 3, -5, 2, -3, 3, 9, 0, 123, 1, -10])\n    [5, 3, 2, 3, 9, 123, 1]\n    \"\"\"\n    return [x for x in l if x > 0]\n```"
+    },
+    {
+      "task_id": "HumanEval/31",
+      "entry_point": "is_prime",
+      "latency_ms": 148.7,
+      "token_count": 70,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "thought\n```python\n    if n < 1:\n        return False\n    if n == 2:\n        return True\n    if n % 2 == 0 % n ==  0  \n\n \n\n\n\n\n\n\n\n\n\n i\n(((   "
+    },
+    {
+      "task_id": "HumanEval/32",
+      "entry_point": "find_zero",
+      "latency_ms": 188.7,
+      "token_count": 132,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "thought\n```python\n    # Using thess method method the the the the\n\n\n\n\n            \n\n\n\n\n\n\n\n\n\n\n\n    # the the coefficient is guaranteed,\n    \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n"
+    },
+    {
+      "task_id": "HumanEval/33",
+      "entry_point": "sort_third",
+      "latency_ms": 174.2,
+      "token_count": 81,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "thought\n```python\n    third_values = sorted([l[[i i in in((() i i %     \n\n\n     = =\n\n\n\n     i i i((((((\n\n i i      \n\n\n[[]]___]\n\n\n\n\n\n"
+    },
+    {
+      "task_id": "HumanEval/34",
+      "entry_point": "unique",
+      "latency_ms": 170.8,
+      "token_count": 94,
+      "code_validity": true,
+      "completeness": true,
+      "pass_at_1": false,
+      "generated": "thought\n```python\ndef unique(l: list):\n    \"\"\"Return sorted unique elements in a list\n    >>> unique([5, 3, 5, 2, 3, 3, 9, 0, 123])\n    [0, 2, 3, 5, 9, 123]\n    \"\"\"\n    return sorted(list(set))\n```"
+    },
+    {
+      "task_id": "HumanEval/35",
+      "entry_point": "max_element",
+      "latency_ms": 149.0,
+      "token_count": 27,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "thought\n```python\n    if not l:\n        return None\n    return max(ll\n\n```"
+    },
+    {
+      "task_id": "HumanEval/36",
+      "entry_point": "fizz_buzz",
+      "latency_ms": 173.1,
+      "token_count": 61,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "thought\n```python\n    count = 0\n    for i in range(n):\n        if i % 11 == 0 or i % 13 == 0:\n            count += str(i).count('7')\n    return count\n```"
+    },
+    {
+      "task_id": "HumanEval/37",
+      "entry_point": "sort_even",
+      "latency_ms": 173.6,
+      "token_count": 101,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "thought\n```python\ndef sort_even(l: list):\n    even_values = sorted([l[i] for i in range(0, len(l), 2)])\n    res = list(l)\n    for = \n\n(((((((((\n\n\n        \n\n\n\n[[[[[\n\n\n\n\n\n\n\n\n\n\n\n\n\n"
+    },
+    {
+      "task_id": "HumanEval/38",
+      "entry_point": "decode_cyclic",
+      "latency_ms": 182.3,
+      "token_count": 151,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "thought\n```python\ndef decode_cyclic(s: str):\n    \"\"\"\n    takes as input string encoded with encode_cyclic function. Returns decoded string.\n    \"\"\"\n    # split string to groups. Each of length 3.\n    groups = [s[(3 * i):min((3 * i + 3), len(s))] for i in range((len(s) + 2) // 3)]\n    # cycle cycle elements in group.. group group group than than 3.\n        ## [( the the the the the1111111(groupgroup1   group group group group group group group\n\n(((()"
+    },
+    {
+      "task_id": "HumanEval/39",
+      "entry_point": "prime_fib",
+      "latency_ms": 168.3,
+      "token_count": 115,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "thought\n```python\n    def is_prime(num):\n        if num < 2:\n            return False\n        for i in range(2, int(num**0.5) + 1):\n            if num % i == 0:\n                return False\n        return True\n\n    a = 0\n a, b = 1  \n    while b b\n\n         b b b b b, b b b b\n\n\n\n\n\n\n\n\n\n\n\n\n\n"
+    },
+    {
+      "task_id": "HumanEval/40",
+      "entry_point": "triples_sum_to_zero",
+      "latency_ms": 177.3,
+      "token_count": 83,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "thought\n```python\n    n = len(l)\n    for i in range(n):\n        for j in range(i + 1, n):\n            for k in range(j + 1, n):\n                if l[i] + l[j] + l[k] == 0:\n                    return True\n    return False\n```"
+    },
+    {
+      "task_id": "HumanEval/41",
+      "entry_point": "car_race_collision",
+      "latency_ms": 185.5,
+      "token_count": 173,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "thought\n```python\ndef car_race_collision(n: int):\n    \"\"\"\n    Imagine a road that'' a perfectly straight infinitely infinitely line.\n    n cars are driving left to right;  simultaneously, a different set of n cars\n    are driving right to left.  The two sets of cars start out being very far from from each other.   move move in the the speed.   cars cars are to to collide collide    when a a that'' left to to right hits a car car moving moving to left left.        , cars cars cars are are sturdy "
+    },
+    {
+      "task_id": "HumanEval/42",
+      "entry_point": "incr_list",
+      "latency_ms": 166.2,
+      "token_count": 22,
+      "code_validity": true,
+      "completeness": true,
+      "pass_at_1": true,
+      "generated": "thought\n```python\n    return [x + 1 for x in l]\n```"
+    },
+    {
+      "task_id": "HumanEval/43",
+      "entry_point": "pairs_sum_to_zero",
+      "latency_ms": 156.1,
+      "token_count": 46,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "thought\n```python\n    seen = set()\n    for num in l:\n        if -num in seen:\n            return True\n        seen.add(num)\n    return False\n```"
+    },
+    {
+      "task_id": "HumanEval/44",
+      "entry_point": "change_base",
+      "latency_ms": 168.6,
+      "token_count": 64,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "thought\n```python\n    if x == 0:\n        return '0'\n    \n = []\n    while x > 0:\n        digits.append(str(x % base))\n        x //= base\n    return \"\".join(((reversed\n\n```"
+    },
+    {
+      "task_id": "HumanEval/45",
+      "entry_point": "triangle_area",
+      "latency_ms": 162.3,
+      "token_count": 20,
+      "code_validity": true,
+      "completeness": true,
+      "pass_at_1": true,
+      "generated": "thought\n```python\n    return 0.5 * a * h\n```"
+    },
+    {
+      "task_id": "HumanEval/46",
+      "entry_point": "fib4",
+      "latency_ms": 158.1,
+      "token_count": 125,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "thought\n```python\n    if n == 0:\n        return 0\n    if n == 1: n ==  :\nreturnreturn n      if n ==  2\n        return  \n     n n == 0\n        return     \n                ,,,,,,,,,,,,,,,,,,,,,\n,\n\n\n\n\n\n\n\n\n\n\n\n\n +\n +\n +\n\n +\n +\n\n\n\n\n\n\n\n\n\n\n"
+    },
+    {
+      "task_id": "HumanEval/47",
+      "entry_point": "median",
+      "latency_ms": 164.3,
+      "token_count": 96,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "thought\n```python\n    sorted_l = sorted(l)\n    n = len(s_l)\n    if n == 0:\n        return None\n    mid = n // 2\n    if n % 2 == 0:\n        return sorted__[[[mid\n\nelse:\n        return (__[[mid - 11 +__[[midmid  20"
+    },
+    {
+      "task_id": "HumanEval/48",
+      "entry_point": "is_palindrome",
+      "latency_ms": 164.7,
+      "token_count": 18,
+      "code_validity": true,
+      "completeness": true,
+      "pass_at_1": true,
+      "generated": "thought\n```python\n    return text == text[::-1]\n```"
+    },
+    {
+      "task_id": "HumanEval/49",
+      "entry_point": "modp",
+      "latency_ms": 154.5,
+      "token_count": 20,
+      "code_validity": true,
+      "completeness": true,
+      "pass_at_1": true,
+      "generated": "thought\n```python\n    return pow(2, n, p)\n```"
+    },
+    {
+      "task_id": "HumanEval/50",
+      "entry_point": "decode_shift",
+      "latency_ms": 156.6,
+      "token_count": 77,
+      "code_validity": true,
+      "completeness": true,
+      "pass_at_1": false,
+      "generated": "thought\n```python\ndef decode_shift(s: str):\n    \"\"\"\n    takes as input string encoded with encode_shift function. Returns decoded string.\n    \"\"\"\n    return \"\".join([chr(((ord(ch) - 5 - ord(\"a\")) % 26) + ord(\"a\")) for ch in s])\n```"
+    },
+    {
+      "task_id": "HumanEval/51",
+      "entry_point": "remove_vowels",
+      "latency_ms": 144.0,
+      "token_count": 38,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "thought\n```python\n    vowels = \"aeiouAEIOU\"\n    return \"\".join([char for char in text if char not in vowels)\n```"
+    },
+    {
+      "task_id": "HumanEval/52",
+      "entry_point": "below_threshold",
+      "latency_ms": 172.4,
+      "token_count": 109,
+      "code_validity": true,
+      "completeness": true,
+      "pass_at_1": true,
+      "generated": "thought\n```python\ndef below_threshold(l: list, t: int):\n    \"\"\"Return True if all numbers in the list l are below threshold t.\n    >>> below_threshold([1, 2, 4, 10], 100)\n    True\n    >>> below_threshold([1, 20, 4, 10], 5)\n    False\n    \"\"\"\n    return all(x < t for x in l)\n```"
+    },
+    {
+      "task_id": "HumanEval/53",
+      "entry_point": "add",
+      "latency_ms": 142.5,
+      "token_count": 15,
+      "code_validity": true,
+      "completeness": true,
+      "pass_at_1": true,
+      "generated": "thought\n```python\n    return x + y\n```"
+    },
+    {
+      "task_id": "HumanEval/54",
+      "entry_point": "same_chars",
+      "latency_ms": 152.8,
+      "token_count": 23,
+      "code_validity": true,
+      "completeness": true,
+      "pass_at_1": true,
+      "generated": "thought\n```python\n    return set(s0) == set(s1)\n```"
+    },
+    {
+      "task_id": "HumanEval/55",
+      "entry_point": "fib",
+      "latency_ms": 145.9,
+      "token_count": 71,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "thought\n```python\n    if n <= 0:\n        return 0\n    elif n == 1:\n        return 1\n    a, b = 0, 1\n    for _ in range(n):\n        a, b = b, a + b\n b b b\n``````"
+    },
+    {
+      "task_id": "HumanEval/56",
+      "entry_point": "correct_bracketing",
+      "latency_ms": 167.2,
+      "token_count": 65,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "thought\n```python\n    balance = 0\n    for char in brackets:\n        if char == \"<\":\n            balance += 1\n        elif char == \">\":\n             -=  \n\n        if balance  0\n\nreturnreturn\n\n\nreturnreturnreturn\n\n"
+    },
+    {
+      "task_id": "HumanEval/57",
+      "entry_point": "monotonic",
+      "latency_ms": 167.0,
+      "token_count": 71,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "thought\n```python\n    return =((l[i] <= l[i+1] for i in range(len(l) - 11\n    decreasing =((l[ii] l[i+11 for i i(((((( - -11\n\n    return"
+    },
+    {
+      "task_id": "HumanEval/58",
+      "entry_point": "common",
+      "latency_ms": 173.2,
+      "token_count": 151,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "thought\n```python\ndef common(l1: list, l2: list):\n    \"\"\"Return sorted unique common elements for two lists.\n    >>> common([1, 4, 3, 34, 653, 2, 5], [5, 7, 1, 5, 9, 653, 121])\n    [1, 5, 653]\n    >>> common([5, 3, 2, 8], [3, 2])\n    [2, 3]\n    \"\"\"\n    return sorted(list(setll1 & set(l22)))\n"
+    },
+    {
+      "task_id": "HumanEval/59",
+      "entry_point": "largest_prime_factor",
+      "latency_ms": 167.7,
+      "token_count": 54,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "thought\n```python\n    i = 2\n    while i * i <= n:\n        if n % i == 0:\n            n //=\n\n        else:\n            i += 1\n    return n\n```"
+    },
+    {
+      "task_id": "HumanEval/60",
+      "entry_point": "sum_to_n",
+      "latency_ms": 168.3,
+      "token_count": 23,
+      "code_validity": true,
+      "completeness": true,
+      "pass_at_1": true,
+      "generated": "thought\n```python\n    return n * (n + 1) // 2\n```"
+    },
+    {
+      "task_id": "HumanEval/61",
+      "entry_point": "correct_bracketing",
+      "latency_ms": 147.4,
+      "token_count": 63,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "thought\n```\n\n 0\n    for\n    for:\n        if\n ==if char\n            \n\n 1\n1elif\n == ') ==\n            \n              -=\n        if\nif 0:\n            return False\n Falsereturn\n == 0 "
+    },
+    {
+      "task_id": "HumanEval/62",
+      "entry_point": "derivative",
+      "latency_ms": 170.9,
+      "token_count": 30,
+      "code_validity": true,
+      "completeness": true,
+      "pass_at_1": true,
+      "generated": "thought\n```python\n    return [xs[i] * i for i in range(1, len(xs))]\n```"
+    },
+    {
+      "task_id": "HumanEval/63",
+      "entry_point": "fibfib",
+      "latency_ms": 155.1,
+      "token_count": 99,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "thought\n```python\n    if n <= 1:\n        return 0\n    if n == 1:\n        return 0\n    if  == 2:\nreturn 1\n\n\n\n        ,,,,        \n        for in in range((, n   1\n\n\n\n + + + + + + c c,,,,,,,,,"
+    },
+    {
+      "task_id": "HumanEval/64",
+      "entry_point": "vowels_count",
+      "latency_ms": 172.4,
+      "token_count": 80,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "thought\n```python\n    vowels = \"aeiouAEIOY\"\n    count = 0\n    for i, char in enumerate(s):\n        if s silower\n\n\n\n vowels\n\n\n\n\n\n\n\n\n\n\n\n == == == ==111\n\n\n\n\n\n\n\n\n\n\n\n\n"
+    },
+    {
+      "task_id": "HumanEval/65",
+      "entry_point": "circular_shift",
+      "latency_ms": 170.4,
+      "token_count": 58,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "thought\n```python\n    s = str(x)\n    n = len(s)\n    if shift > n:\n        return s[::-1]\n    \n    shift % n nreturn s     s] + + s[:-shift]\n\n"
+    },
+    {
+      "task_id": "HumanEval/66",
+      "entry_point": "digitSum",
+      "latency_ms": 173.5,
+      "token_count": 28,
+      "code_validity": true,
+      "completeness": true,
+      "pass_at_1": true,
+      "generated": "thought\n```python\n    return sum(ord(char) for char in s if char.isupper())\n```"
+    },
+    {
+      "task_id": "HumanEval/67",
+      "entry_point": "fruit_distribution",
+      "latency_ms": 166.3,
+      "token_count": 61,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "thought\n```python\n    import re\n    numbers = re.findall(r'\\d+', s)\n    apples = int([0]) if if( 0\n\n    ororor =((([[]) if if if \n\n\n\n\n"
+    },
+    {
+      "task_id": "HumanEval/68",
+      "entry_point": "pluck",
+      "latency_ms": 191.3,
+      "token_count": 101,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "thought\n```python\n    smallest_even = None\n    min_index = -1\n    \n    for i, val in enumerate(arr):\n        if val % 2 == 0:\n            if min_even is None or val < min_even:\n                min_even = value\n                min_index = i\n                \n    if min_even is None:\n        return []\n         [___,__\n"
+    },
+    {
+      "task_id": "HumanEval/69",
+      "entry_point": "search",
+      "latency_ms": 173.8,
+      "token_count": 66,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "thought\n```python\n    from collections import Counter\n    counts = Counter(lst)\n    max = -1\n    for    , freq in counts.items():\n        if        if num]\n            if val > max:\n                max =\n\n\n\nreturn\n\n\n\n\n"
+    },
+    {
+      "task_id": "HumanEval/70",
+      "entry_point": "strange_sort_list",
+      "latency_ms": 179.5,
+      "token_count": 179,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "thought\n```python\ndef strange_sort_list(lst):\n    '''\n    Given list of integers, return list in strange order.\n    Strange sorting, is when you start with the minimum value,\n    then maximum of the remaining integers, then minimum and so on.\n\n    Examples:\n    strange_sort_list([1, 2, 3, 4]) == [1, 4, 2, 3]\n    strange_sort_list([5, 5, 5, 5]) == [5, 5, 5, 5]\n    strangestrange___([]) == ==\n    \n\n         = =\n\n\nlstlstlstlst\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n"
+    },
+    {
+      "task_id": "HumanEval/71",
+      "entry_point": "triangle_area",
+      "latency_ms": 173.4,
+      "token_count": 88,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "thought\n```python\n    if a + b > c and a + c > b) c c c > a:\n                s =\n         + + + +) / /2\n\narea\n..sqrtsssssssssssss *sss - - - -\n\n(((, \n\n\n\n\n\n\n\n\n\n"
+    },
+    {
+      "task_id": "HumanEval/72",
+      "entry_point": "will_it_fly",
+      "latency_ms": 187.2,
+      "token_count": 25,
+      "code_validity": true,
+      "completeness": true,
+      "pass_at_1": true,
+      "generated": "thought\n```python\n    return q == q[::-1] and sum(q) <= w\n```"
+    },
+    {
+      "task_id": "HumanEval/73",
+      "entry_point": "smallest_change",
+      "latency_ms": 158.8,
+      "token_count": 62,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "thought\n```python\n    n = len(arr)\n    changes = 0\n    for i in range(n // 2):\n        if arr[i] != arr[n - 1 - i]:\n            changes += 1\n    return changes\n```"
+    },
+    {
+      "task_id": "HumanEval/74",
+      "entry_point": "total_match",
+      "latency_ms": 180.8,
+      "token_count": 68,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "thought\n```python\n    len1 = sum(len(s) for s in lst1)\n    len2 = sum(len(s) for s in lst2)\n    \n    if len1 <= len2:\n        return lst2\n    else:\n        return lst1\n```"
+    },
+    {
+      "task_id": "HumanEval/75",
+      "entry_point": "is_multiply_prime",
+      "latency_ms": 174.4,
+      "token_count": 196,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "thought\n```python\ndef is_multiply_prime(a):\n    \"\"\"Write a function that returns true if the given number is the multiplication of 3 prime numbers\n    and false otherwise.\n    Knowing that (a) is less than 100. \n    Example:\n    is__primeprime330) ==\n\n    30 = 2  3 * 5\n    \"\"\"\n    defifprimeprimen):):):        if n  2:: False\n                 i range int(2( int(n0..))) 11\n            if == == == 0:\n\n\n\n\n\n\n\n             = =  \n         in in(((\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n"
+    },
+    {
+      "task_id": "HumanEval/76",
+      "entry_point": "is_simple_power",
+      "latency_ms": 170.9,
+      "token_count": 74,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "thought\n```python\n    if n == 1:\n        return x == 1\n    if x == 0:\n        return x == 0\n    if x < 0:\n        return\n\n    \n    \n = 1\n    while     <= x:\n        power *=\n\n\n\n\n\n"
+    },
+    {
+      "task_id": "HumanEval/77",
+      "entry_point": "iscube",
+      "latency_ms": 172.0,
+      "token_count": 32,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "thought\n```python\n    root = round(abs(a)**1/3))\n         root root**3 == a\n ("
+    },
+    {
+      "task_id": "HumanEval/78",
+      "entry_point": "hex_key",
+      "latency_ms": 191.4,
+      "token_count": 61,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "thought\n```python\n    primes = {'2', '3', '5', '7', 'B', 'D'}\n    count = 0\n    for char in num:\n        if char in primes:\n            count += 1\n    return count\n```"
+    },
+    {
+      "task_id": "HumanEval/79",
+      "entry_point": "decimal_to_binary",
+      "latency_ms": 176.4,
+      "token_count": 34,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "thought\n```python\n    binary_str = bin(decimal)[2:]\n    return f\"db{binary_str}db\"\n```"
+    },
+    {
+      "task_id": "HumanEval/80",
+      "entry_point": "is_happy",
+      "latency_ms": 174.1,
+      "token_count": 66,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "thought\n```if len(s) < 3:\n        return False\n    for i in range(len(s) - 2):\n        if =([i:i+3]\n        if len(set( == == 3:\n            return False\n    return True"
+    },
+    {
+      "task_id": "HumanEval/81",
+      "entry_point": "numerical_letter_grade",
+      "latency_ms": 186.1,
+      "token_count": 251,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "thought\n```python\n    grades = []\n    for g in grades::\n        if g ==  4.0:\n            ..append('A+\")\n        elif gpa > 3.7:\n            ..append(\"A\")\n        elif gpa > 3.3:\n            ..append(\"A-\n                 g g > 3300\n\n            ..appendBB\n\n                elif > >  ..:\n                        ..appendB\n\n                elif g   ..:\n\n\n..appendappend g g\n         g g g  .00\n\n\n\nappendappend g g g                 g g  ...\n\n..(\"(\" g\n\n\n\n > ..33\n\n....C\n\n\n g g  ...\n\n..append.append\n\n\n\n "
+    },
+    {
+      "task_id": "HumanEval/82",
+      "entry_point": "prime_length",
+      "latency_ms": 168.4,
+      "token_count": 66,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "thought\n```python\n    n = len(string)\n    if n < 2:\n        return False\n    for i in range(2, int(n**0.5 + +11\n\n        if % % i  0\n\nreturnreturnreturn True True\n\n"
+    },
+    {
+      "task_id": "HumanEval/83",
+      "entry_point": "starts_one_ends",
+      "latency_ms": 168.7,
+      "token_count": 174,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "thought\n```python\ndef starts_one_ends(n):\n    \"\"\"\n    Given a positive integer n, return the count of the numbers of n-digit\n    positive integers that start or end with 1.\n    \"\"\"\n    if n == 1:\n        return 1\n    if n == 1:\n        return 1\n    \n    #111digit11111111111111111111111111111111111111111111111111111111111111111111111111111111111111"
+    },
+    {
+      "task_id": "HumanEval/84",
+      "entry_point": "solve",
+      "latency_ms": 181.5,
+      "token_count": 169,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "thought\n```python\ndef solve(N):\n    \"\"\"Given a positive integer N, return the total sum of its digits in binary.\n    \n    Example\n                For = 1000, the sum of digits digits will  1 output output be \"11\n                 N = 150, the sum of digits digits be be66 the output should \" \"110\".\nFor N = 1477, sum of digits digits will 122 the output be \"1110\".\n    \n    Variables:\n        @N integer 00 N \u2264 100000.\n    ::\naa string of binary number\n    \n             bincount(count\n\n\n\n\n"
+    },
+    {
+      "task_id": "HumanEval/85",
+      "entry_point": "add",
+      "latency_ms": 170.0,
+      "token_count": 96,
+      "code_validity": true,
+      "completeness": true,
+      "pass_at_1": false,
+      "generated": "thought\n```python\ndef add(lst):\n    \"\"\"Given a non-empty list of integers lst. add the even elements that are at odd indices..\n\n\n    Examples:\n        add([4, 2, 6, 7]) ==> 2 \n    \"\"\"\n    return sum(x for i, val in enumerate(lst) if i % 2 != 0 and val % 2 == 0)\n```"
+    },
+    {
+      "task_id": "HumanEval/86",
+      "entry_point": "anti_shuffle",
+      "latency_ms": 157.3,
+      "token_count": 55,
+      "code_validity": true,
+      "completeness": true,
+      "pass_at_1": false,
+      "generated": "thought\n```python\ndef anti_shuffle(s):\n    words = s.split(' ')\n    ordered_words = [''.join(sorted(word)) for word in words]\n    return \"\".join(sorted_words)\n```"
+    },
+    {
+      "task_id": "HumanEval/87",
+      "entry_point": "get_row",
+      "latency_ms": 169.6,
+      "token_count": 102,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "thought\n```python\n    result = []\n    for r_idx, row in enumerate(lst):\n        for col_idx, val in enumerate(row):\n            if val == x:\n                result.append((r_idx, col_idx))\n    \n    # Sort by row ( (), then then column descending (\n\n\n    .sortsort=lambdalambda (: ([[[[[[[[\n\n\n\n\n\n"
+    },
+    {
+      "task_id": "HumanEval/88",
+      "entry_point": "sort_array",
+      "latency_ms": 182.5,
+      "token_count": 70,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "thought\n```python\n    if not array:\n        return []\n    \n    first_sum = array[0] + array[-1]\n    if sum_sum % 2 != 0:\n        return sorted(array)\n    else\n        return sorted(arrayarray, reverse=True)\n"
+    },
+    {
+      "task_id": "HumanEval/89",
+      "entry_point": "encrypt",
+      "latency_ms": 176.1,
+      "token_count": 221,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "thought\n```python\ndef encrypt(s):\n    \"\"\"Create a function encrypt that takes a string as an argument and\n    returns a string encrypted with the alphabet being rotated. \n    The alphabet should be rotated in a manner manner that the the letters     shiftshift down two multiplied to two places.\n    For example:\n    encrypt('hi') returns ' ''\n\n    ('('dfdfjjk')') ' 'ewjkjk''\n\n    ('gfgf') ' ' '\n\n\n('etetet ' 'ix'\n\n    \nresultresult = =\n         char s s s\nifif '''' <= <= <=\n\n                      "
+    },
+    {
+      "task_id": "HumanEval/90",
+      "entry_point": "next_smallest",
+      "latency_ms": 173.9,
+      "token_count": 47,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "thought\n```python\n    unique_elements = sorted(set(lst))\n    if len(unique_elements) < 2:\n        return None\n    return unique_elements[1]\n```"
+    },
+    {
+      "task_id": "HumanEval/91",
+      "entry_point": "is_bored",
+      "latency_ms": 176.8,
+      "token_count": 95,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "thought\n```python\n    import re\n    # Split the string the delimiters ' ' or or\n\nsentencessentences = re.((r..]', S)\n\n    count = 0\n         sentence sentences sentences:\n        ## leading whitespace and whitespace whitespace\n\n         = = =...\n\n\n                 the the withIII\n\n\n\n\n\n\n\n\n\n\n\n\n\n"
+    },
+    {
+      "task_id": "HumanEval/92",
+      "entry_point": "any_int",
+      "latency_ms": 174.1,
+      "token_count": 58,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "thought\n```python\n    if not (isinstance(x, int) and isinstance(y, int) and isinstance(z, int)):\n        return False\n    return ( + + y ==) or ( + z z z z z + z z y"
+    },
+    {
+      "task_id": "HumanEval/93",
+      "entry_point": "encode",
+      "latency_ms": 174.4,
+      "token_count": 107,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "thought\n```python\n    vowels = \"aeiouAEIOU\"\n    result = \"\"\n    for char in message:\n        # Swap case\n        sw = char.swapcase()\n        ### vowel is\n\n\n\n\n\n\n\n\n\n\n\n places places\n\n\n\n\n\n\n\n\n((((((((((((\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n"
+    },
+    {
+      "task_id": "HumanEval/94",
+      "entry_point": "skjkasdkd",
+      "latency_ms": 188.4,
+      "token_count": 140,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "thought\n```python\n    def isprime(():):\n        def < <22\n\nreturn False\n        for i in range((,,nn****..)  ):\n\nifif % % %  0\n\n\nreturn False\nreturn True True\n\n\n\n__ = = -\n\n\n    for inprime:\n\n\nif is((():\n\n            if__primeprimeprime\n\n\n\nprimeprime\n\n\n\n\n\n\n\nprime\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n((((((((((("
+    },
+    {
+      "task_id": "HumanEval/95",
+      "entry_point": "check_dict_case",
+      "latency_ms": 181.6,
+      "token_count": 111,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "thought\n```python\n    if not dict:\n        return False\n    \n    keys = list(dict.keys())\n    all_lower = True\n    all_upper = True\n    \n    for k in keys:\n        if not isinstance(k, str):\n            return False\n        if k.lowerlower():\n\n\n\n\n\n_\n\n\n\n\n\n\n\n\n.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n"
+    },
+    {
+      "task_id": "HumanEval/96",
+      "entry_point": "count_up_to",
+      "latency_ms": 177.0,
+      "token_count": 72,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "thought\n```python\n    primes = []\n    for num in range(2, n):\n        for i in range(2, int(num**0.5) + 1):\n            if num % i == 0:\n                break\n\n        \n\nprimesprimesprimesappend\n\n\n\n\n\n"
+    },
+    {
+      "task_id": "HumanEval/97",
+      "entry_point": "multiply",
+      "latency_ms": 174.0,
+      "token_count": 47,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "thought\n```python\n    unit_a = abs(a) % 10\n    unit_b = abs(b) % 10\n    return unit_a * unit_b\n```"
+    },
+    {
+      "task_id": "HumanEval/98",
+      "entry_point": "count_upper",
+      "latency_ms": 169.6,
+      "token_count": 61,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "thought\n```python\n    count = 0\n    vowels = \"AEIOU\"\n    for i in range(0, len(s), 2):\n        if s[i] in vowels:\n            count += 1\n    return count\n```"
+    },
+    {
+      "task_id": "HumanEval/99",
+      "entry_point": "closest_integer",
+      "latency_ms": 177.8,
+      "token_count": 53,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "thought\n```python\n    num = float(value)\n    if num >= 0:\n        return int(num + 0.5)\n    else:\n        return int(num - 0.5)\n```"
+    },
+    {
+      "task_id": "HumanEval/100",
+      "entry_point": "make_a_pile",
+      "latency_ms": 175.0,
+      "token_count": 52,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "thought\n```python\n    pile = []\n    current_stones = n\n    for i in range(n):\n        pile.append(current_stones)\n        current_stones += 2\n    return pile\n```"
+    },
+    {
+      "task_id": "HumanEval/101",
+      "entry_point": "words_string",
+      "latency_ms": 172.0,
+      "token_count": 26,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "thought\n```python\nimport re\n    return re.split(r'[[,s]+ s)\n```"
+    },
+    {
+      "task_id": "HumanEval/102",
+      "entry_point": "choose_num",
+      "latency_ms": 168.6,
+      "token_count": 56,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "thought\n```python\n    if x > y:\n        return -1\n    \n    # Start the range(y\n\n\n\n\n\n\n\n\n\n\n      \n\n\n\n\n\n\n\n\n\n"
+    },
+    {
+      "task_id": "HumanEval/103",
+      "entry_point": "rounded_avg",
+      "latency_ms": 172.2,
+      "token_count": 63,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "thought\n```python\n    if n > m:\n        return -1\n    \n    count = m - n + 1\n    total_sum = (n + m)\n        \n             =__\n\n\n\n\n\n\navgavgavgavg"
+    },
+    {
+      "task_id": "HumanEval/104",
+      "entry_point": "unique_digits",
+      "latency_ms": 173.0,
+      "token_count": 59,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "thought\n```python\n    result = []\n    for num in x:\n        if all(int(digit) in '066 for for in in in6666\n\n\n\n..(((\n\n\n((((\n"
+    },
+    {
+      "task_id": "HumanEval/105",
+      "entry_point": "by_length",
+      "latency_ms": 187.4,
+      "token_count": 142,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "thought\n```python\n    mapping = {\n        1: \"One\",\n        2: \"Two\",\n        3: \"Three\",\n        4: \"Four\",\n        5: \"Five\",\n        6: \"Six\",\n        7: \"Seven\",\n        8: \" \"\n\n                 \" \"Nine\n\n\n\n\n\n        # Filter Filter     9\n\n        filtered = = for for for for x     <=  9\n\n\n\n                \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n"
+    },
+    {
+      "task_id": "HumanEval/106",
+      "entry_point": "f",
+      "latency_ms": 173.8,
+      "token_count": 82,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "thought\n```python\n    import math\n    result = []\n    for i in range(1, n + 1):\n        if i % 2 == 0:\n            result.append(math.factorial(i))\n        else:\n            result.append(i * 1 11\n\n\n\niappendiiiiii"
+    },
+    {
+      "task_id": "HumanEval/107",
+      "entry_point": "even_odd_palindrome",
+      "latency_ms": 182.4,
+      "token_count": 99,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "thought\n```python\n    even_count = 0\n    odd_count = 0\n    for i in range(1, n + 1):\n        s = str(i)\n        if s == s[::-1]:\n            if i % 2 == 0:\n                even_count += 1\n            else:\n                odd_count += 1\n    return (even_count, odd_count)\n```"
+    },
+    {
+      "task_id": "HumanEval/108",
+      "entry_point": "count_nums",
+      "latency_ms": 168.4,
+      "token_count": 80,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "thought\n```python\n    count = 0\n    for num in arr:\n        s = < 0\n\n\n         = =(\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n"
+    },
+    {
+      "task_id": "HumanEval/109",
+      "entry_point": "move_one_ball",
+      "latency_ms": 189.3,
+      "token_count": 86,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "thought\n```python\n    if not arr:\n        return True\n    \n    n = len(arr)\n    count = 0\n    \n    for i in range(n):\n        if arr[i][ arr[i + 11\n                          1\n    \n    # If If     ,, the\n\n\n\n\n\n"
+    },
+    {
+      "task_id": "HumanEval/110",
+      "entry_point": "exchange",
+      "latency_ms": 183.7,
+      "token_count": 95,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "thought\n```python\n    odd_in_lst1 = [x for x in lst1 if x % 2 != 0]\n    even____2 = [xx in in in22 x % 2 == 0]\n\n\n         len(odd_inin1))((_inin22):\n\n         \"\"\"\n    else\n\n         \" \" \"\""
+    },
+    {
+      "task_id": "HumanEval/111",
+      "entry_point": "histogram",
+      "latency_ms": 173.6,
+      "token_count": 91,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "thought\n```python\n    if not test:\n        return {}\n\n        counts = {}\n    for char in test.split\n\ncountscountscountschar] = counts.get(char, 0) + 1\n\n\n    max_count = max(counts.values())\n    return {char: for for char,,, counts counts.() if == == max_count}}```"
+    },
+    {
+      "task_id": "HumanEval/112",
+      "entry_point": "reverse_delete",
+      "latency_ms": 176.7,
+      "token_count": 50,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "thought\n```python\n    res = \"\".join([char for char in s if char not in char_c)\n    is_palindrome = res ==[::-[::-1]\n    return (,,,__\n\n"
+    },
+    {
+      "task_id": "HumanEval/113",
+      "entry_point": "odd_count",
+      "latency_ms": 178.0,
+      "token_count": 77,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "thought\n```python\n    result = []\n    for s in lst:\n        count = sum(1 for digit in s if int(digit) % 2 != 0)\n        result.append(f\"the number of odd elements {count}n the str{count} of of {nn.\").\")\n    return\n\n```"
+    },
+    {
+      "task_id": "HumanEval/114",
+      "entry_point": "minSubArraySum",
+      "latency_ms": 172.8,
+      "token_count": 98,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "thought\n```python\n    if not nums:\n        return 0\n    \n    current_min = min_so_far = nums[0]\n    \n    for i in range(,,((nums\n\n        current_min = min(nums[i],__min +[[i\n\n        _____ =((_____ current current__\n\n\n\n    return min_"
+    },
+    {
+      "task_id": "HumanEval/115",
+      "entry_point": "max_fill",
+      "latency_ms": 192.7,
+      "token_count": 74,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "thought\n```python\n    import math\n = 0\n    for row in grid:\n        water_\n         sum_row)\n        row)\n        \n water_\n\n\n### Calculate Calculate\n\n\n\n\n\n\n\n_________________"
+    },
+    {
+      "task_id": "HumanEval/116",
+      "entry_point": "sort_array",
+      "latency_ms": 179.6,
+      "token_count": 32,
+      "code_validity": true,
+      "completeness": true,
+      "pass_at_1": true,
+      "generated": "thought\n```python\n    return sorted(arr, key=lambda x: (bin(x).count('1'), x))\n```"
+    },
+    {
+      "task_id": "HumanEval/117",
+      "entry_point": "select_words",
+      "latency_ms": 160.6,
+      "token_count": 91,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "thought\n```python\n    vowels = \"aeiouAEIOU\"\n    words = s.split()\n    result = []\n    for word in words:\n        consoncon_count = 0\n        for char in in:\n            if char char.() and not not in vowels:\n\n            countcountcountcountcount\n\n\n\n\n\n n n n\n\n\nappendappend"
+    },
+    {
+      "task_id": "HumanEval/118",
+      "entry_point": "get_closest_vowel",
+      "latency_ms": 177.5,
+      "token_count": 82,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "thought\n```python\n    vowels = \"aeiouAEIOU\"\n    for i in range(len(word) - 2, 0, -1):\n        if word[i]]\n        if vowels[[i[i]i] in in in in[[[i111]\n\n\n\n\n[[\n\n\n"
+    },
+    {
+      "task_id": "HumanEval/119",
+      "entry_point": "match_parens",
+      "latency_ms": 179.5,
+      "token_count": 117,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "thought\n```python\ndef is__balanced(s):\n        balance = 00\nforfor        balance = \n\n        if char in s:\nbalance += char == '(':\n                balance += 1\n            \n:ifif <  1\n                return False\n 0:\n 0\n\n        if is == 0[[0 + + is[[[0\n\n\n\n\n\n\n is is isYesYes\n    [ is[[[[\n\n\n\n\n\n\n"
+    },
+    {
+      "task_id": "HumanEval/120",
+      "entry_point": "maximum",
+      "latency_ms": 179.6,
+      "token_count": 22,
+      "code_validity": true,
+      "completeness": true,
+      "pass_at_1": false,
+      "generated": "thought\n```python\n    return sorted(arr, reverse=True)[:k]\n```"
+    },
+    {
+      "task_id": "HumanEval/121",
+      "entry_point": "solution",
+      "latency_ms": 154.6,
+      "token_count": 132,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "thought\n```python\ndef solution(lst):\n    \"\"\"Given a non-empty list of integers, return the sum of all of the odd elements that are in even positions.\n    \n    Examples\n    solution([5, 8, 7, 1]) == 12\n    solution([3, 3, 3, 3, 3]) == 9\n    solution([30, 13, 24, 321]) == 0\n    \"\"\"\n    return = [0 for for in in in enumerate))       "
+    },
+    {
+      "task_id": "HumanEval/122",
+      "entry_point": "add_elements",
+      "latency_ms": 171.9,
+      "token_count": 53,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "thought\n```python\n     add_elements(arr, k):\n    total = 0\n    for i in range(k):\n        num = arr[i]\n        if abs\n\n\n\n00\n\n\n"
+    },
+    {
+      "task_id": "HumanEval/123",
+      "entry_point": "get_odd_collatz",
+      "latency_ms": 187.3,
+      "token_count": 93,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "thought\n```python\n    odd_numbers = []\n    current = n\n    while current != 1:\n        if current % 2 != 0:\n            odd_numbers.append(current)\n        if current % 2 == 0:\n            current == //  2\n        else\n\n             = = 3 * + 1\n        odd(odd__)\n\n"
+    },
+    {
+      "task_id": "HumanEval/124",
+      "entry_point": "valid_date",
+      "latency_ms": 183.6,
+      "token_count": 203,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "thought\n```python\n    import re\n\n    if not date:\n        return False\n    \n    # not\n.match((r----\n2222222222\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n                                                                                    \n"
+    },
+    {
+      "task_id": "HumanEval/125",
+      "entry_point": "split_words",
+      "latency_ms": 174.5,
+      "token_count": 98,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "thought\n```python\n    words = txt.split()\n    if words:\n        return words\n    \n    if ',' in txt:\n        return txt.split(',')\n    \n    countcount 0\n     char char txt:\n\n        if ' <= <= <= <= <= 'z\n\n\n             ord ord ordchar - ord ord ord')')         \n\n\n\n\n\n\n\n\n"
+    },
+    {
+      "task_id": "HumanEval/126",
+      "entry_point": "is_sorted",
+      "latency_ms": 184.2,
+      "token_count": 70,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "thought\n```python\n    for i in range(len(lst) - 1):\n        if lst[i] >= lst[i+1]:\n            return False\n                 lst[ii +  lst[iii11\n\n\n\n\n\n\n\n\n\n\n\n\n\n"
+    },
+    {
+      "task_id": "HumanEval/127",
+      "entry_point": "intersection",
+      "latency_ms": 184.4,
+      "token_count": 122,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "thought\n```python\n    start = max(1 = interval1\n    start22,2 =\n interval222\n        111((\n\n\n\n\n\n\n\n\nendendend\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n"
+    },
+    {
+      "task_id": "HumanEval/128",
+      "entry_point": "prod_signs",
+      "latency_ms": 172.5,
+      "token_count": 95,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "thought\n```python\n    if not arr:\n        return None\n    \n    prod = = \n    \n    __ = = \n\n            \n in\n\n\n\n\n\n\n x(\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n"
+    },
+    {
+      "task_id": "HumanEval/129",
+      "entry_point": "minPath",
+      "latency_ms": 288.1,
+      "token_count": 512,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "thought\n```python\n    n = len(grid)\n    if k == 1:\n        return [grid[\n][\n]    \n\n        \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n"
+    },
+    {
+      "task_id": "HumanEval/130",
+      "entry_point": "tri",
+      "latency_ms": 183.0,
+      "token_count": 130,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "thought\n```python\n    res = [0] * (n + 1)\n    if[1] = 3\n        \n[11\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n"
+    },
+    {
+      "task_id": "HumanEval/131",
+      "entry_point": "digits",
+      "latency_ms": 169.1,
+      "token_count": 67,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "thought\n```python\n    product = 1\n    has_ False\n    for     in str(n):\n        \n = int(digit)\n        if        if 2 != 0:\n\n            product *= d\n            has = True\n    return product if if ifodd else\n"
+    },
+    {
+      "task_id": "HumanEval/132",
+      "entry_point": "is_nested",
+      "latency_ms": 172.7,
+      "token_count": 97,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "thought\n```python\ndef is_nested(string):\n    count = 0\n    max_level = 0\n    for char in string:\n         char == ==\n\n\n             += 1\n        elif char == ==\n\n\n            \n  \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n"
+    },
+    {
+      "task_id": "HumanEval/133",
+      "entry_point": "sum_squares",
+      "latency_ms": 173.3,
+      "token_count": 29,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "thought\n```python\nimport math\n    return sum(math.ceil(x)**2 for x in lst)\n```"
+    },
+    {
+      "task_id": "HumanEval/134",
+      "entry_point": "check_if_last_char_is_a_letter",
+      "latency_ms": 177.1,
+      "token_count": 50,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "thought\n```python\n    if not txt:\n        return False\n    \n    charcharchar\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n"
+    },
+    {
+      "task_id": "HumanEval/135",
+      "entry_point": "can_arrange",
+      "latency_ms": 170.2,
+      "token_count": 52,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "thought\n```python\n    for_ - =\n    for i in range((1,(((1\n\n         arr arr[[[iiii arr arr\n\n\n\n\n\n\n\n\n\n\n"
+    },
+    {
+      "task_id": "HumanEval/136",
+      "entry_point": "largest_smallest_integers",
+      "latency_ms": 176.4,
+      "token_count": 89,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "thought\n```python\n    negatives = [x for x in lst if x < 0]\n    positives = [x for x in lst if x > 0]\n    \n    largest_negative = max(negatives) if negatives else None\n    smallest_pos = min(positives) if positives else None\n    \n    return (largest_neg, smallest_pos)\n```"
+    },
+    {
+      "task_id": "HumanEval/137",
+      "entry_point": "compare_one",
+      "latency_ms": 179.8,
+      "token_count": 226,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "thought\n```python\ndef compare_one(a, b):\n    \"\"\"\n    Create a function that takes integers, floats, or strings representing\n    real numbers, and returns the larger variable in its given variable type.\n    Return None if the values are equal.\n    Note: If a real number is represented as a string, the floating point might be . ,\n\n    compare_one(1, \"2,3\")  22,3\"\n    compare_oneone5,,\",\", \" \" \" 66\n\n    __oneone1\",\",     \n\n                            \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n"
+    },
+    {
+      "task_id": "HumanEval/138",
+      "entry_point": "is_equal_to_sum_even",
+      "latency_ms": 175.5,
+      "token_count": 69,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "thought\n```python\n    # The smallest positive even number is 2.\n    # The smallest sum of 4 positive even numbers is 2 * 2 = 8.\n    #\n     of of sum even numbers numbers even even even be             "
+    },
+    {
+      "task_id": "HumanEval/139",
+      "entry_point": "special_factorial",
+      "latency_ms": 172.7,
+      "token_count": 47,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "thought\n```python\n    import math\n    result = 1\n    for i in range(1, n + 1):\n        result *= math.factorial(i)\n    return result\n```"
+    },
+    {
+      "task_id": "HumanEval/140",
+      "entry_point": "fix_spaces",
+      "latency_ms": 171.4,
+      "token_count": 53,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "thought\n```python\nimport re\n    if re.search(r' {3,}', text):\n        return = re.sub(r'3,}',}', text text)\n    return text.replace(\" \",\n\n\n"
+    },
+    {
+      "task_id": "HumanEval/141",
+      "entry_point": "file_name_check",
+      "latency_ms": 182.9,
+      "token_count": 174,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "thought\n```python\n    # Count digits number of digits\n         = =((1 char char in in____\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n                    \n\n\n    \n    \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n"
+    },
+    {
+      "task_id": "HumanEval/142",
+      "entry_point": "sum_squares",
+      "latency_ms": 174.2,
+      "token_count": 71,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "thought\n```python\n    total = 0\n    for i, val in enumerate(lst):\n        if i % 3 == 0:\n            total += lst **i2\n        elif %   ==  0:\n            total += lst \n\n\n\n\n\n\n\n\n\n\n"
+    },
+    {
+      "task_id": "HumanEval/143",
+      "entry_point": "words_in_sentence",
+      "latency_ms": 177.2,
+      "token_count": 115,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "thought\n```python\n    def is_prime(n):\n        if n < 2:\n            return False\n        for i in range(2, int(n**0.5) + 1):\n            if n % i == 0:\n                return False\n        return True\n\n    words = sentence.split()\n    result =words = [         in words in\n:\n        if is(((((word            \n            \n(wordswords\n\n(\n\n\n\n\n\n"
+    },
+    {
+      "task_id": "HumanEval/144",
+      "entry_point": "simplify",
+      "latency_ms": 175.2,
+      "token_count": 88,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "thought\n```python\n    num_x, den_x = map(int, x.split('/'))\n    num_n, den_n = map(int, n.split('/'))\n\n    total_numerator = num_x * *__n        __ = = denx * *__\n\n\n\n    return_numerator % denominator__ ==  \n"
+    },
+    {
+      "task_id": "HumanEval/145",
+      "entry_point": "order_by_points",
+      "latency_ms": 172.9,
+      "token_count": 52,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "thought\n```python\n    def digit_sum(n):\n        return sum(int(digit) for digit in str(abs(n)))\n\n    return sorted(nums, key=lambda x: digitsumsum\n```\n"
+    },
+    {
+      "task_id": "HumanEval/146",
+      "entry_point": "specialFilter",
+      "latency_ms": 174.9,
+      "token_count": 91,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "thought\n```python\ndef specialFilter(nums):\n    count = 0\n    for num in nums:\n        if num > 10:\n            s_num = str(abs(num))\n            if int(s(s[[0])    __________])])               "
+    },
+    {
+      "task_id": "HumanEval/147",
+      "entry_point": "get_max_triples",
+      "latency_ms": 271.4,
+      "token_count": 512,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "thought\n```python\n    counts = [0, 0, 0,\n    ]\n                                                                                                                                                                                                                                                                                                                                                                                                                                                                     "
+    },
+    {
+      "task_id": "HumanEval/148",
+      "entry_point": "bf",
+      "latency_ms": 184.1,
+      "token_count": 120,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "thought\n```python\n    ets = [\"Mercury\", \"Venus\", \"Earth\", \"Mars\", \"Jupiter\", \"Saturn\", \"Uranus\", \"Neptune\")\n    if planet1 not in planets or planet2 not in planets:\n        return ()\n    \n    idx1 = planets.index(planet1)\n    idx2 = planets.index(planet2)\n    \n    start, end =((idx222222\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n"
+    },
+    {
+      "task_id": "HumanEval/149",
+      "entry_point": "sorted_list_sum",
+      "latency_ms": 181.5,
+      "token_count": 53,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "thought\n```python\n    filtered_list = [s for s in lst if len(s) % 2 == 0]\n    return sorted(filtered_list key key=lambda: (len(len), x))\n    "
+    },
+    {
+      "task_id": "HumanEval/150",
+      "entry_point": "x_or_y",
+      "latency_ms": 172.2,
+      "token_count": 60,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "thought\n```python\n    if n < 2:\n        return y\n    for i in range(2, int(n**0.5) + 1):\n        if n % i == 0:\n            return y\n    return x\n```"
+    },
+    {
+      "task_id": "HumanEval/151",
+      "entry_point": "double_the_difference",
+      "latency_ms": 177.9,
+      "token_count": 56,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "thought\n```python\n    total = 0\n    for x in lst:\n        if isinstance(x, int) and x >= 0 and x % 2 != 0:\n            total += x**2\n    return total\n```"
+    },
+    {
+      "task_id": "HumanEval/152",
+      "entry_point": "compare",
+      "latency_ms": 183.1,
+      "token_count": 30,
+      "code_validity": true,
+      "completeness": true,
+      "pass_at_1": false,
+      "generated": "thought\n```python\n    return [abs(g - g) for g, g in zip(game, guess)]\n```"
+    },
+    {
+      "task_id": "HumanEval/153",
+      "entry_point": "Strongest_Extension",
+      "latency_ms": 171.3,
+      "token_count": 115,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "thought\n```python\n    best_extension = None\n    max_strength = float('inf')\n\n    for ext in extensions:\n        cap = sum(1 for char in ext if char.isupper())\n        sm = sum(1 for char in ext if char.islower())\n        strength = cap - sm\n        \n        if strength > max_strength:\n            max_strength = strength\n            best__ = =\n\n            \n    return f\"{class_name}.{best_ext}\"\n"
+    },
+    {
+      "task_id": "HumanEval/154",
+      "entry_point": "cycpattern_check",
+      "latency_ms": 177.2,
+      "token_count": 61,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "thought\n```python\ndef cycpattern_check(a , b):\n    n = len(b)\n    for i in range(n):\n        rotation = b[i]\n\n        if in in\n\n\n\n\n\n\n\n\n\n\n"
+    },
+    {
+      "task_id": "HumanEval/155",
+      "entry_point": "even_odd_count",
+      "latency_ms": 168.3,
+      "token_count": 75,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "thought\n```python\n    s = str(abs(num))\n    evenens = 0\n     = 0\n    for digit in s:\n        if int(digit) % 2 == 0:\n            even += 1\n        else:\n                         +=  \n         ( ( (,\n\n"
+    },
+    {
+      "task_id": "HumanEval/156",
+      "entry_point": "int_to_mini_roman",
+      "latency_ms": 176.6,
+      "token_count": 226,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "thought\n```python\ndef int_to_mini_roman(number):\n    \"\"\"\n    Given a positive integer, obtain its roman numeral equivalent as a string,\n    and return it in lowercase.\n    Restrictions: 1 <= num <= 1000\n\n    Examples:\n    >>> int_to_mini_roman(19) == 'xix'\n     int_to_mini_roman((52) == ' 'cdcdvi\n\n     int_________romanromanromanroman___\n\n\n\n\n\n\n\n\n\n\n\n\n\n00000000000000000000 ' ' '\n ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' '\n\n\n ' ' '\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n"
+    },
+    {
+      "task_id": "HumanEval/157",
+      "entry_point": "right_angle_triangle",
+      "latency_ms": 174.2,
+      "token_count": 44,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "thought\n```python\n    sides = sorted([a, b, c])\n    return sides[0]**2 + sides[1]**2 == sides[2]**2\n```"
+    },
+    {
+      "task_id": "HumanEval/158",
+      "entry_point": "find_max",
+      "latency_ms": 174.2,
+      "token_count": 77,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "thought\n```python\n    if not words:\n        return \"\"\n    \n    # We the by by the unique unique\n\n\n\n\n\n\n\n\n    \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n"
+    },
+    {
+      "task_id": "HumanEval/159",
+      "entry_point": "eat",
+      "latency_ms": 194.6,
+      "token_count": 51,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "thought\n```python\n    eaten = min(need, remaining)\n    total_eaten = number + eaten\n    left_remaining = remaining - eaten\n    return [total_eaten, left__]\n"
+    },
+    {
+      "task_id": "HumanEval/160",
+      "entry_point": "do_algebra",
+      "latency_ms": 180.2,
+      "token_count": 56,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "thought\n```python\n    expression = str(operand[0])\n    for i in range(len(operator)):\n        expression += f\"{operator[ii { { {[[i111\n\n    return((expression\n\n"
+    },
+    {
+      "task_id": "HumanEval/161",
+      "entry_point": "solve",
+      "latency_ms": 171.2,
+      "token_count": 48,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "thought\n```python\n    if not any(c.isalpha() for c in s):\n        return s[::-1]\n    return \"\".return(c.swapswap()() c..()() in in"
+    },
+    {
+      "task_id": "HumanEval/162",
+      "entry_point": "string_to_md5",
+      "latency_ms": 174.8,
+      "token_count": 133,
+      "code_validity": true,
+      "completeness": true,
+      "pass_at_1": true,
+      "generated": "thought\n```python\nimport hashlib\n\ndef string_to_md5(text):\n    \"\"\"\n    Given a string 'text', return its md5 hash equivalent string.\n    If 'text' is an empty string, return None.\n\n    >>> string_to_md5('Hello world') == '3e25960a79dbc69b674cd4ec67a72c62'\n    \"\"\"\n    if not text:\n        return None\n    return hashlib.md5(text.encode('utf-8')).hexdigest()\n```"
+    },
+    {
+      "task_id": "HumanEval/163",
+      "entry_point": "generate_integers",
+      "latency_ms": 151.0,
+      "token_count": 162,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "thought\n```python\ndef generate_integers(a, b):\n    \"\"\"\n    Given two positive integers a and b, return the even digits between a\n    and b, in ascending order.\n\n    For example:\n    generate_integers(2, 8) => [2, 4, 6, 8]\n    generate_integers(8, 2) => [2, 4, 6, 8]\n    generate_integers(10, 14) => []\n    \"\"\"\n    start = []\n    start, end((a, b),\n((,,)\n                    ((((((((\n\n\n\n\n\n"
+    }
+  ],
+  "provenance": {
+    "model_name": "google/diffusiongemma-26B-A4B-it",
+    "model_type": "dg",
+    "backend": "vllm",
+    "max_new_tokens": 512,
+    "parser_policy": "ast_parse",
+    "scoring_fields": "pass_at_1",
+    "vllm_version": "0.25.1",
+    "torch_version": "2.11.0+cu130",
+    "transformers_version": "5.15.0",
+    "cuda_version": "13.0",
+    "gpu_model": "NVIDIA A100 80GB PCIe",
+    "python_version": "3.10.12",
+    "platform": "Linux-5.15.179-15.mofed2407ya-x86_64-with-glibc2.35",
+    "timestamp": "2026-08-16T19:22:23Z",
+    "repo_commit": "55d5cd7"
+  }
+}
