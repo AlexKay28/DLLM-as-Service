@@ -204,13 +204,15 @@ def check_defect_magnitudes() -> None:
 # Latency (ms, p50/p90/p99, base, step, slope, anchor, energy): 1 decimal.
 # F1 (F, f1, Fone, Gap):                                       3 decimals.
 # Ratio / multiplier / CV / percentage (Ratio, Mult, CV, Pct): 1 decimal.
+# Rate (per-token input slopes, e.g. arInputSlope):            3 decimals.
 _LATENCY_KEYS = (
     "ms", "p50", "p99", "p90", "base", "step", "slope",
     "anchor", "energy", "pfifty", "pninetynine", "latency",
 )
 _RATIO_KEYS = ("ratio", "mult", "cv", "pct")
 _F1_KEYS = ("f", "f1", "fone", "gap")
-_MAX_DECIMALS = {"latency": 1, "f1": 3, "ratio": 1}
+_RATE_KEYS = ("inputslope",)
+_MAX_DECIMALS = {"latency": 1, "f1": 3, "ratio": 1, "rate": 3}
 
 PRECISION_VIOLATIONS = []
 
@@ -232,7 +234,12 @@ def _is_numeric(value: str) -> bool:
 
 def _classify_macro(name: str) -> str | None:
     low = name.lower()
-    # Latency first: its keyword list (incl. Energy, Slope) takes precedence.
+    # Rate first: input slopes (e.g. arInputSlope) are per-token rates, not
+    # raw latencies; they need 3 decimals (0.038 ms/token).
+    for k in _RATE_KEYS:
+        if k in low:
+            return "rate"
+    # Latency next: its keyword list (incl. Energy, Slope) takes precedence.
     for k in _LATENCY_KEYS:
         if k in low:
             return "latency"
