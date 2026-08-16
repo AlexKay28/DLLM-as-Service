@@ -112,4 +112,15 @@ every other AR entry is the AR-30B MoE.}
 \end{tabularx}
 \end{table}
 
-\FloatBarrier
+\begin{figure}[ht!]
+\centering
+\includegraphics[width=\linewidth]{figures/fig0_decoding_schematic.png}
+\caption{Decoding schematics. \textbf{A:} Autoregressive decoding
+generates tokens one at a time; each token costs one forward pass, so
+cost grows linearly. \textbf{B:} Block-diffusion decoding generates a
+canvas of $C$ tokens in parallel through $K$ denoising passes; within
+a canvas, tokens are free. Cost is flat inside a canvas and steps up
+at the boundary.}
+\label{fig:schematic}
+\end{figure}
+
