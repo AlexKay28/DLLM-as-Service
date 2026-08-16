@@ -33,3 +33,19 @@ the base and that base is $48\%$ higher. Shrinking the canvas doesn't
 shrink the prefill it must re-attend, so a smaller canvas buys
 finer-grained output at the cost of paying the fixed overhead more
 often.
+
+\subsection{Joint canvas$\times$K sweep confirms canvas $= 128$ is
+Pareto-optimal}
+
+A full $4\times5$ grid (canvas $\in \{64,128,256,512\}$, $K \in
+\{2,4,8,16,32\}$, $n{=}200$ per cell) confirms the single-knob finding
+holds across all $K$ values, not just $K{=}8$. The Pareto frontier
+contains six cells; the paper's current operating point (canvas$=256$,
+$K{=}8$: p50$=$376\,ms, F1$=$0.853) is \emph{dominated} by
+(canvas$=128$, $K{=}8$: p50$=$368\,ms, F1$=$0.864), which is faster
+and higher quality simultaneously. The $K$ knee also shifts left at
+smaller canvas: at canvas$=128$, $K{=}8$ is near saturation
+(F1$=$0.864), while at canvas$=256$ quality keeps improving through
+$K{=}32$ (F1$=$0.862). Canvas$=64$ remains non-viable even at $K{=}32$
+(F1$=$0.834, below the canvas$=256$ $K{=}8$ baseline). Full data in
+\texttt{results/issue114\_joint\_sweep.json}.
