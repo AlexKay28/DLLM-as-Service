@@ -7,8 +7,8 @@ across two runtimes and two model families, but both measurements are
 engine-bounded (Appendix~\ref{app:batching}). The crossover is calibrated at
 a $\sim$\refPrompt-token prompt and shifts with input length. The AR--DG
 quality difference ($\Delta = \qualityGap$) has a 95\% CI of $[-0.012,
-+0.011]$ at $n=300$; the two are statistically equivalent at a $\pm 0.01$
-margin.
++0.011]$ at $n=300$; the two are equivalent at a $\pm 0.015$ margin, which is
+the smallest F1 difference that would change a deployment decision.
 
 The surviving niche has not been tested on a task whose natural output length
 is $\geq 512$ tokens. The forced comparison in Table~\ref{tab:niche} charges
