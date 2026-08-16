@@ -290,6 +290,10 @@ def main():
                          "canvas (DiffusionGemma default is 48, from its "
                          "generation_config.json). Sweep K to trace the "
                          "latency-in-K curve.")
+    ap.add_argument("--canvas", type=int, default=256,
+                    help="dLLM only: canvas_length (block size) in tokens. "
+                         "DiffusionGemma default is 256. Sweep to study the "
+                         "canvas×K tradeoff (issue #114).")
     ap.add_argument("--output", default="results/vllm_serving.json")
     ap.add_argument("--save-predictions",
                     help="JSONL path for per-event predictions (one model only)")
@@ -347,7 +351,7 @@ def main():
         )
         if args.denoising_steps is not None:
             llm_kwargs["diffusion_config"] = {
-                "canvas_length": 256,
+                "canvas_length": args.canvas,
                 "max_denoising_steps": args.denoising_steps}
         if args.speculative_config:
             import json as _json
@@ -377,6 +381,7 @@ def main():
         )
         if args.denoising_steps is not None:
             prov.denoising_steps = args.denoising_steps
+            prov.canvas_length = args.canvas
         if args.guided_json:
             try:
                 import json as _json2
