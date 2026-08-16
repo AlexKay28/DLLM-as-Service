@@ -126,12 +126,12 @@ def fig1_cost_shapes():
     # Add value labels on bars (log scale: use multiplicative offset)
     for bar, val in zip(bars_ar, ar_vals):
         if val > 0:
-            ax.text(bar.get_x() + bar.get_width()/2, val * 1.08,
+            ax.text(bar.get_x() + bar.get_width()/2, val * 1.06,
                     f"{val:,.0f}", ha="center", va="bottom", fontsize=7.0,
                     color=S.AR, fontweight="medium")
     for bar, val in zip(bars_dg, dg_vals):
         if val > 0:
-            ax.text(bar.get_x() + bar.get_width()/2, val * 1.08,
+            ax.text(bar.get_x() + bar.get_width()/2, val * 1.06,
                     f"{val:,.0f}", ha="center", va="bottom", fontsize=7.0,
                     color=S.DG, fontweight="medium")
 
@@ -141,7 +141,7 @@ def fig1_cost_shapes():
             ratio = max(ar_vals[i], dg_vals[i]) / min(ar_vals[i], dg_vals[i])
             who = "AR" if ar_vals[i] < dg_vals[i] else "DG"
             ymax = max(ar_vals[i], dg_vals[i])
-            ax.text(i, ymax * 1.35, f"{who} {ratio:.1f}×", ha="center", va="bottom",
+            ax.text(i, ymax * 1.55, f"{who} {ratio:.1f}×", ha="center", va="bottom",
                     fontsize=8.2, color=S.INK2, fontweight="medium")
 
     ax.set_xticks(x)
@@ -214,7 +214,7 @@ def fig2_canvas_edges():
     axB.bar(bx, steps, width=0.55, color=S.DG, zorder=3)
     axB.set_xticks(bx)
     axB.set_xticklabels([f"{a}$\\to${b}" for a, b in zip(full, full[1:])],
-                        fontsize=6.6, rotation=30, ha="right")
+                        fontsize=6.2, rotation=45, ha="right")
     axB.set_ylim(0, 160)
     axB.set_ylabel("cost of one extra canvas  (ms)")
     S.title(axB, "B  Every step is the same step")
@@ -283,7 +283,7 @@ def fig3_input_sweep():
         axB.text(v + 0.004, y, f"{v:.3f}", va="center", fontsize=8.0,
                  color=c, fontweight="medium")
     axB.annotate(f"{dg_slope/ar_slope:.1f}$\\times$ steeper",
-                 xy=(0.128, 0.45), fontsize=8.4, color=S.INK,
+                 xy=(0.135, 0.5), fontsize=8.4, color=S.INK,
                  fontweight="medium", ha="center")
 
     S.save(fig, "fig3_input_sweep", OUT)
@@ -355,9 +355,9 @@ def fig4_ksweep():
                      textcoords="offset points", ha="center", fontsize=7.2,
                      color=S.INK2)
 
-    axA.annotate("operating point $K\\!=\\!8$", xy=(8, 480), xytext=(6, 0),
+    axA.annotate("operating point $K\\!=\\!8$", xy=(8, 510), xytext=(6, 0),
                  textcoords="offset points", fontsize=7.8, color=S.INK,
-                 fontweight="medium", va="center")
+                 fontweight="medium", va="top")
     axB.annotate("collapse", xy=(2.6, 0.44), fontsize=7.6, color=S.MUTED,
                  ha="center")
 
@@ -488,7 +488,7 @@ def fig6_batching():
     axA.tick_params(axis="y", length=0, labelcolor=S.INK2)
     axA.axhspan(2.5, 4.5, color=S.WASH_NEUTRAL, lw=0, zorder=0)
     axA.annotate("hatched = lower bound\n(engine caps batch at 8)",
-                 xy=(3.4, 1.35), fontsize=7.0, color=S.MUTED, va="center",
+                 xy=(3.4, 0.65), fontsize=7.0, color=S.MUTED, va="center",
                  linespacing=1.3)
 
     # ---- Panel B: the cache test -----------------------------------------
@@ -511,12 +511,12 @@ def fig6_batching():
     S.despine(axB)
     axB.grid(axis="x", visible=False)
     S.label_end(axB, bs[-1], on["sweep"][-1]["events_per_s"],
-                f"prefix cache on  {on['multiplier']:g}$\\times$", S.AR,
-                dx=-6, dy=8, ha="right", size=7.4)
+                 f"prefix cache on  {on['multiplier']:g}$\\times$", S.AR,
+                 dx=-6, dy=12, ha="right", size=7.4)
     S.label_end(axB, bs[-1], off["sweep"][-1]["events_per_s"],
-                f"cache off  {off['multiplier']:g}$\\times$", S.AR,
-                dx=-6, dy=-14, ha="right", size=7.4)
-    axB.annotate("diffusion ceiling, $\\approx$1.2$\\times$", xy=(1.15, 2.6),
+                 f"cache off  {off['multiplier']:g}$\\times$", S.AR,
+                 dx=-6, dy=-16, ha="right", size=7.4)
+    axB.annotate("diffusion ceiling, $\\approx$1.2$\\times$", xy=(1.15, 1.2),
                  fontsize=7.4, color=S.LLADA, fontweight="medium", va="bottom")
 
     S.save(fig, "fig6_batching", OUT)
@@ -593,7 +593,7 @@ def fig7_decision_map():
     axB.annotate("break-even", xy=(1900, 1.0), xytext=(0, 5),
                  textcoords="offset points", ha="right", fontsize=7.4,
                  color=S.MUTED)
-    axB.annotate("$L\\!=\\!176$\n(guard)", xy=(LAWS["nat_l_dg"], 70),
+    axB.annotate("$L\\!=\\!176$\n(guard)", xy=(LAWS["nat_l_dg"], 85),
                  xytext=(8, 0), textcoords="offset points", fontsize=7.4,
                  color=S.INK2, va="center")
     for L in (256, 512, 1024, 2048):
@@ -670,7 +670,7 @@ def fig8_defects():
     ax.set_yticklabels([r[0] for r in rows], fontsize=8.0)
     ax.invert_yaxis()
     ax.set_xlabel("magnitude of correction (%)", fontsize=8.5)
-    ax.set_xlim(0, max(deltas) * 1.6)
+    ax.set_xlim(0, max(deltas) * 1.75)
     S.title(ax, "Pricing the baseline: eight corrections")
     S.despine(ax)
     ax.grid(axis="y", visible=False)
