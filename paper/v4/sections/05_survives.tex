@@ -20,12 +20,12 @@ A security operations centre receives an alert, looks up threat
 intelligence, cross-references internal logs, and drills into the next
 layer. Each hop blocks on the previous; concurrency is 1 by
 construction. Against AR-30B, DG is roughly fourteen times faster per
-hop: the chain harness measures DG at 419\,ms per hop rather than the
+hop. The chain harness measures DG at 419\,ms per hop rather than the
 379\,ms anchor, because each hop re-prefills a longer accumulated
-prompt, and the AR-30B side is its 5{,}899\,ms single-shot anchor
-rather than a chain run --- only the dense AR-3B was run through the
-chain harness, at 808\,ms per hop. So the $14\times$ is a cross-harness
-figure; Figure~\ref{fig:chains} plots the measured AR-3B chain and
+prompt. The AR-30B side is its 5{,}899\,ms single-shot anchor rather
+than a chain run --- only the dense AR-3B was run through the chain
+harness, at 808\,ms per hop. So the $14\times$ is a cross-harness
+figure. Figure~\ref{fig:chains} plots the measured AR-3B chain and
 shows the $1.9\times$ ratio of that pairing. What the figure
 establishes is the \emph{shape}: neither the per-hop cost nor DG's tail
 penalty grows with depth. The gap widens in absolute terms as hops
@@ -118,9 +118,9 @@ Six hypotheses about diffusion's structural advantages were tested and
 refuted; see Appendix~\ref{app:refuted}. Three of the six --- the
 perturbation, refinement and bounded-deadline probes --- were run on a
 second diffusion model, \LLaDA\ (LLaDA-8B-Instruct), against the dense
-AR-3B, because they predate the DiffusionGemma arm; we report them
-because the hypotheses concern block diffusion as a class, but they are
-not measurements of DG. The most instructive failures: bidirectional
+AR-3B, because they predate the DiffusionGemma arm. We report them
+because the hypotheses concern block diffusion as a class, but they
+are not measurements of DG. The most instructive failures: bidirectional
 attention propagates input noise in both directions, making the
 diffusion arm \emph{less} robust to perturbation than AR in all ten
 tested categories. Joint denoising should preserve suffix tokens by

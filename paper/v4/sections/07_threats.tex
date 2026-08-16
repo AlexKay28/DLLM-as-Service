@@ -16,36 +16,38 @@ CUDA 13.0), but the AR-30B ran on vLLM 0.11.0 (torch 2.8.0, CUDA
 \texttt{enforce\_eager}, which the anchor harnesses do not, so the
 AR-30B decoded without graph capture. Third, and most seriously, the
 AR-30B harness read its inputs from the gold record file rather than
-the raw log file, so the model was prompted with the answer it was
-supposed to extract --- which is why its 9-field F1 is exactly
-$1.0$ in every cell, and why its outputs are near-copies of the gold.
+the raw log file. The model was prompted with the answer it was
+supposed to extract, which is why its 9-field F1 is exactly $1.0$ in
+every cell and its outputs are near-copies of the gold.
 
 The consequence is that the AR-30B decodes at $48$\,ms/token against
 the dense AR-3B's $6.3$\,ms/token --- a $7.6\times$ per-token penalty
 for a model with the same active parameter count, which we do not
 believe. We therefore report the AR-30B comparison as
-\emph{unverified} rather than as a bound: the cost law
+\emph{unverified} rather than as a bound. The cost law
 (Eq.~\ref{eq:ar}), Table~\ref{tab:niche}, the fifteenfold and
-eightfold headline figures, the $77\times$ batching multiplier and the
-cost-per-event table all inherit these three confounds and require
-re-measurement on the pinned stack before they can be relied on. The
-DG-side constants, the canvas step, the $K$ sweep and every AR-3B and
-AR-1.5B result are unaffected, having been measured on the pinned
-stack from raw log lines. This is the same class of defect as
-correction~2 in Appendix~\ref{app:defects} --- a harness asymmetry
-flattering the architecture we hoped would win --- found, as those
-eight were, by re-reading committed artifacts.
+eightfold headline figures, the batching multiplier and the
+cost-per-event table all inherit these confounds and require
+re-measurement on the pinned stack. The DG-side constants, the canvas
+step, the $K$ sweep and every AR-3B and AR-1.5B result are unaffected,
+having been measured on the pinned stack from raw log lines. This is
+the same class of defect as correction~2 in
+Appendix~\ref{app:defects} --- a harness asymmetry flattering the
+architecture we hoped would win --- found, as those eight were, by
+re-reading committed artifacts.
 
 The AR--DG quality difference is equivalent at a $\pm 0.015$ margin
-($\Delta = \qualityGap$, 95\% CI $[-0.012, +0.011]$, $n = 300$). Note
-that $\pm 0.015$ is looser than the $\pm 0.010$ margin we
-pre-registered, at which the 95\% CI does not quite fit; equivalence
-holds at the pre-registered margin only on the 90\% CI. This quality
-comparison uses the dense AR-3B baseline, not the AR-30B MoE: the
-9-field F1 of \arThreeBFnine\ was re-scored with the corrected parser
-on the dense baseline, and the AR-30B was not re-scored at the same
-parser setting. The latency comparison uses the AR-30B MoE cost law, so
-the quality and latency arms are not the same model.
+($\Delta = \qualityGap$, 95\% CI $[-0.012, +0.011]$, $n = 300$).
+This is looser than the $\pm 0.010$ margin we pre-registered, at
+which the 95\% CI does not quite fit. Equivalence holds at the
+pre-registered margin only on the 90\% CI.
+
+This quality comparison uses the dense AR-3B baseline, not the AR-30B
+MoE. The 9-field F1 of \arThreeBFnine\ was re-scored with the
+corrected parser on the dense baseline, and the AR-30B was not
+re-scored at the same parser setting. The latency comparison uses the
+AR-30B MoE cost law, so the quality and latency arms are not the same
+model.
 
 Several secondary results come from arms other than the MoE-matched
 pair, and we flag them together rather than only at each use. The

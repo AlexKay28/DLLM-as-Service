@@ -7,9 +7,9 @@ measurement of long output; neither arm is forced there. The question
 this appendix answers is what happens when the \emph{task} makes the
 output long. A multi-record extraction task --- emit a JSON array of
 $N$ structured records from $N$ consecutive log lines --- produces
-output of roughly $N \times 140$ tokens naturally, without forcing
-(a record inside an array costs slightly more than the 123 tokens of a
-bare record, for the enclosing punctuation and indentation).
+output of roughly $N \times 140$ tokens naturally, without forcing.
+A record inside an array costs slightly more than the 123 tokens of a
+bare record, for the enclosing punctuation and indentation.
 Table~\ref{tab:forced} applies the fitted cost laws
 (Eqs.~\ref{eq:ar}--\ref{eq:dg}):
 
