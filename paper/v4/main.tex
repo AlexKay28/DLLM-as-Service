@@ -96,44 +96,29 @@ The Cost Shape of Block-Structured Decoding}}
 \maketitle
 
 \begin{abstract}
-Autoregressive language models decode one token at a time; each token
-costs a forward pass. Block-diffusion models decode an entire block in
-parallel through iterative denoising, then step to the next block. We
-show that this produces a fundamentally different cost shape:
-autoregressive latency is a line in output length with no floor;
-block-diffusion latency is a staircase --- flat inside a fixed-size
-block, stepping at each boundary. The shapes cross at \crossoverL{}
-output tokens, above which diffusion is faster.
-
-We measure both architectures on a pinned serving stack for
-structured log extraction, with Mixture-of-Experts arms on both sides:
-DiffusionGemma-26B-A4B and Qwen3-30B-A3B. Against this fair baseline,
-the diffusion model wins at every practical output length in serial
-mode: fifteen times faster at natural output length, still eight times
-faster at a thousand tokens. It degrades under deadline pressure by
-losing quality rather than completeness --- a property autoregressive
-decoding has no equivalent for.
-
-The advantage is limited by deployment factors: the autoregressive
-model batches far better and has a tighter tail. But in the regime
-where batching is unavailable --- serial investigation chains,
-autonomous driving, algorithmic trading --- the staircase shape
-provides a structural latency advantage that the line cannot match. We
-state five conditions that define this regime and ground them in
-concrete workloads.
+Autoregressive decoding pays per token; block-diffusion pays per
+block. We show this produces two fundamentally different cost shapes:
+AR latency is a line with no floor; block-diffusion latency is a
+staircase --- flat inside a fixed-size block, stepping at each
+boundary. The shapes cross at \crossoverL{} output tokens, above
+which diffusion is faster. Against a fair MoE-matched baseline
+(DiffusionGemma-26B-A4B vs Qwen3-30B-A3B), the diffusion model is
+fifteen times faster at natural output length and eight times faster
+at a thousand tokens. The advantage holds where batching is
+unavailable --- serial chains, autonomous driving, algorithmic trading
+--- and degrades gracefully under deadline pressure by losing quality,
+not completeness.
 \end{abstract}
 
 \begin{figure}[ht!]
 \centering
 \includegraphics[width=\linewidth]{figures/fig1_cost_shapes.png}
-\caption{The two cost shapes. AR latency grows linearly with output
-length --- the line has no floor. DG latency is a staircase that steps
-at every 256-token canvas boundary and is flat inside --- the
-staircase is bounded. The gap widens with $L$ because the taxi fare
-climbs forever while the subway charges per station. The crossover
-is at $L^{*}\!=\!\crossoverL$ tokens. AR values from the fitted cost
-law, extrapolated beyond natural EOS; DG measured (BGL, $n{=}200$,
-$K{=}8$).}
+\caption{The two cost shapes. AR latency grows linearly --- the line
+has no floor. DG latency is a staircase, flat inside a 256-token
+canvas and stepping at the boundary --- the staircase is bounded. The
+gap widens with $L$; the crossover is at $L^{*}\!=\!\crossoverL$
+tokens. AR values from the fitted cost law; DG measured (BGL,
+$n{=}200$, $K{=}8$).}
 \label{fig:shapes}
 \end{figure}
 
