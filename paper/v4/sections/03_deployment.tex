@@ -23,7 +23,7 @@ $L_{\mathrm{out}}$ & AR-30B (ms) & DG (ms) & Advantage \\
 256  & 256 & 378 & AR $1.5\times$ \\
 512  & 506 & 498 & DG $1.0\times$ \\
 1024 & 1018 & 737 & DG $1.4\times$ \\
-2048 & 2042 & 857 & DG $2.4\times$ \\
+2048 & 2042 & 1215 & DG $1.7\times$ \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -31,11 +31,11 @@ $L_{\mathrm{out}}$ & AR-30B (ms) & DG (ms) & Advantage \\
 \paragraph{The crossover is at $L^{*} = 368$.}
 
 Below 368 tokens, AR-30B is faster. Above it, DG is faster. The margin
-is steady. At $L{=}512$ the two are equal; at $L{=}1024$ DG wins by only
-$1.4\times$; at $L{=}2048$ by $2.4\times$. Compare with the dense
-AR-3B baseline (slope 6.3 ms/token) showed DG winning
-$5.4\times$ at $L{=}1024$ against the dense baseline. The six-fold improvement in per-token cost
-from dense-to-MoE AR is the reason the niche shrank.
+grows steadily: at $L{=}512$ the two are equal; at $L{=}1024$ DG wins
+$1.4\times$; at $L{=}2048$ $1.7\times$. Against the dense AR-3B
+baseline (slope 6.3\,ms/token), DG won $5.4\times$ at $L{=}1024$.
+The six-fold improvement in per-token cost from dense-to-MoE AR is
+the reason the advantage narrowed.
 
 \paragraph{Energy.}
 
