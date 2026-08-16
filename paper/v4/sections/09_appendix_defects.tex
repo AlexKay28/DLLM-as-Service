@@ -4,7 +4,7 @@ running new experiments. Items 1--5 were harness defects --- the measurement
 itself was contaminated. Items 6--8 were claims withdrawn after correction
 --- the measurement was sound, but the claim drawn from it was not. Five of
 the eight biased against the autoregressive arm. \begin{enumerate}
-\item \textbf{Decoding configuration.} Qwen2.5's checkpoint sets
+\item \textbf{Decoding configuration.} Qwen's checkpoint sets
 \texttt{repetition\_penalty}\,$=$\,1.1, which suppresses span-copying and
 empties the \texttt{host} field. Correcting to 1.0 moved AR 9-field F1 from
 \defectOneFBefore{} to \defectOneFAfter. \emph{Against AR.} \item \textbf{Serving parity.} The AR model ran a naive HuggingFace generate

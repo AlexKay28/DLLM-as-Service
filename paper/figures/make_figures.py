@@ -119,7 +119,7 @@ def fig1_cost_shapes():
     x = np.arange(len(key_Ls))
     width = 0.35
 
-    bars_ar = ax.bar(x - width/2, ar_vals, width, color=S.AR, label="AR-3B", zorder=3)
+    bars_ar = ax.bar(x - width/2, ar_vals, width, color=S.AR, label="AR-30B", zorder=3)
     bars_dg = ax.bar(x + width/2, dg_vals, width, color=S.DG, label="DG-26B-A4B", zorder=3)
 
     # Add value labels on bars
@@ -261,14 +261,14 @@ def fig3_input_sweep():
     S.title(axA, "A  Cost vs prompt length", "$L_{\\mathrm{out}}$ fixed at 256 tokens")
     S.despine(axA)
     axA.grid(axis="x", visible=False)
-    S.label_end(axA, axr[-1], ayr[-1], "AR-3B", S.AR, dx=7)
+    S.label_end(axA, axr[-1], ayr[-1], "AR-30B", S.AR, dx=7)
     S.label_end(axA, dxr[-1], dyr[-1], "DG", S.DG, dx=7)
 
     # ---- Panel B: the slopes, which is the actual finding -----------------
     axB.barh([1, 0], [ar_slope, dg_slope], height=0.30,
              color=[S.AR, S.DG], zorder=3)
     axB.set_yticks([1, 0])
-    axB.set_yticklabels(["AR-3B", "DG"])
+    axB.set_yticklabels(["AR-30B", "DG"])
     axB.set_ylim(-0.55, 1.55)
     axB.set_xlim(0, 0.165)
     axB.set_xlabel("prefill slope  (ms per prompt token)")
@@ -421,12 +421,12 @@ def fig5_quality_vs_length():
     axB.annotate("1.0%", xy=(1, dgv[1]), xytext=(-7, 0),
                  textcoords="offset points", fontsize=7.4, color=S.DG,
                  ha="right", va="center")
-    S.label_end(axB, x[-1], arv[-1], "AR-3B", S.AR, dx=6, dy=-7)
+    S.label_end(axB, x[-1], arv[-1], "AR-30B", S.AR, dx=6, dy=-7)
     S.label_end(axB, x[-1], dgv[-1], "DG", S.DG, dx=6, dy=7)
 
     handles = [
         Line2D([], [], color=S.AR, lw=1.6, marker=S.MARK["ar"], ms=4.2,
-               label="AR-3B"),
+               label="AR-30B"),
         Line2D([], [], color=S.DG, lw=1.6, marker=S.MARK["dg"], ms=4.2,
                ls=S.DASH["dg"], label="DG-26B-A4B ($K\\!=\\!8$)"),
     ]
@@ -451,10 +451,10 @@ def fig6_batching():
           f"LLaDA {lla_mult}x")
 
     rows = [
-        ("AR-3B  vLLM, $L\\!=\\!512$",        86.0, S.AR,    False),
-        ("AR-3B  vLLM, $L\\!=\\!128$",        77.1, S.AR,    False),
-        ("AR-3B  prefix cache on",  on["multiplier"],  S.AR,    False),
-        ("AR-3B  prefix cache off", off["multiplier"], S.AR,    False),
+        ("AR-30B  vLLM, $L\\!=\\!512$",        86.0, S.AR,    False),
+        ("AR-30B  vLLM, $L\\!=\\!128$",        77.1, S.AR,    False),
+        ("AR-30B  prefix cache on",  on["multiplier"],  S.AR,    False),
+        ("AR-30B  prefix cache off", off["multiplier"], S.AR,    False),
         ("DG-26B  vLLM, $L\\!=\\!128$",        1.7,  S.DG,    True),
         ("DG-26B  vLLM, $L\\!=\\!512$",        1.5,  S.DG,    True),
         ("LLaDA-8B  dInfer",             lla_mult,   S.LLADA, False),

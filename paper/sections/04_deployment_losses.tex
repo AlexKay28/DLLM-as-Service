@@ -9,11 +9,11 @@ fifth --- co-residency --- that narrows it further.
 
 \paragraph{1. Footprint.}
 
-The quality-comparable AR model (\ARoneb, F1 \arOneFiveFnine) is
+The quality-similar AR model (\ARoneb, F1 \arOneFiveFnine) is
 \arOneFiveWeights\,GB; the diffusion model is \dgWeights\,GB. But even
 the active-parameter-matched
 pair is close: \ARthree\ at 60\,GB vs \DG\ at 52\,GB. The deployment
-asymmetry comes from the quality-comparable pair, not from the
+asymmetry comes from the quality-similar pair, not from the
 architecture. A 3\,GB model can be co-resident with many others; a
 52\,GB model consumes the entire GPU.
 
@@ -75,7 +75,7 @@ pricing; the PCIe rate is used as a conservative lower bound.}
 \toprule
 Arm & Weights & Duty & Events/hr & \$/event \\
 \midrule
-\ARoneb\ (quality-comparable) & 3.0\,GB & 100\% & 5{,}408 & \$0.0009 \\
+\ARoneb\ (quality-similar) & 3.0\,GB & 100\% & 5{,}408 & \$0.0009 \\
 \ARoneb                       & 3.0\,GB & 25\%  & 1{,}352 & \$0.003 \\
 \ARoneb                       & 3.0\,GB & 10\%  & 541    & \$0.009 \\
 \midrule

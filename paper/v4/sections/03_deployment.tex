@@ -3,13 +3,13 @@
 
 The diffusion model's latency advantage grows with output length because
 AR pays per token while DG pays per canvas. Table~\ref{tab:niche} shows
-the comparison at the quality-comparable pair (\ARoneb\ vs \DG). AR
+the comparison at the quality-similar pair (\ARoneb\ vs \DG). AR
 cells are \emph{forced} ($\texttt{min\_tokens} = L$); the unforced row
 shows AR-1.5B at its natural output length of 138 tokens.
 
 \begin{table}[h]
 \centering
-\caption{Latency at comparable quality (AR-1.5B F1 0.868 vs DG 0.852;
+\caption{Latency at similar quality (AR-1.5B F1 0.868 vs DG 0.852;
 within the 0.016 margin). AR-1.5B vs DG-26B-A4B, batch-1, BGL.
 $n{=}100$--$300$.}
 \label{tab:niche}
@@ -66,7 +66,7 @@ either way.
 \begin{figure}[t]
 \centering
 \includegraphics[width=\linewidth]{figures/fig9_deployment.pdf}
-\caption{The quality-comparable deployment pair (BGL, $n{=}100$,
+\caption{The quality-similar deployment pair (BGL, $n{=}100$,
 $K{=}8$). \textbf{A:} at forced output lengths the diffusion model's
 advantage is real and grows, because the AR model rambles well past its
 natural length ($\sim$138 tokens). \textbf{B:} the standing cost of
@@ -77,15 +77,15 @@ keeping each model resident.}
 \paragraph{Energy.}
 
 The diffusion model uses less energy because it is busy for less time.
-At the compute-matched pair (\ARthree\ vs \DG):
+At the active-parameter-matched pair (\ARthree\ vs \DG):
 \begin{align}
 \text{compute-matched:} \quad & R_{\mathrm{energy}} =
 \frac{\arThreeEnergy}{\dgEnergy} = 5.3 \quad \text{(idle 52.6\,W)} \\
-\text{quality-comparable:} \quad & R_{\mathrm{energy}} =
+\text{quality-similar:} \quad & R_{\mathrm{energy}} =
 \frac{\arOneFiveEnergy}{\dgEnergy} = 1.2 \quad \text{(idle 58.6\,W)}
 \end{align}
 The two energy runs had different idle baselines, so the
-quality-comparable comparison is indicative.
+quality-similar comparison is indicative.
 
 \paragraph{Graceful degradation under deadline pressure.}
 
