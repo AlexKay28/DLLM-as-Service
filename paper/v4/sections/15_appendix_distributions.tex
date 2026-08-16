@@ -9,7 +9,7 @@ The diffusion arm's 3.21$\times$ max/median ratio is driven by
 mixture-of-experts routing variability and warm-up on the first events of a
 run. Both models are deterministic at temperature 0 --- across five repeats of
 300 events, outputs were identical --- so the tail is a property of the
-serving path, not of the model's stochasticity. The AR arm's 0.17\% CV means
-its p50 is a reliable planning number; the DG arm's 20.9\% means a p99 SLA
+serving path, not of the model's stochasticity. The AR arm's \arEventCV\% CV means
+its p50 is a reliable planning number; the DG arm's \dgEventCV\% means a p99 SLA
 lands in a very different place than p50 would suggest
 (BGL, $n{=}300$).

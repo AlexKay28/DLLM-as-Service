@@ -1,0 +1,58 @@
+{
+  "L32": {
+    "max_tokens": 32,
+    "n_events": 50,
+    "p50_ms": 1603.8,
+    "p99_ms": 1697.6,
+    "mean_ms": 1608.7,
+    "mean_output_tokens": 32.0,
+    "field_f1_9": 1.0,
+    "schema_valid_pct": 0.0
+  },
+  "L128": {
+    "max_tokens": 128,
+    "n_events": 50,
+    "p50_ms": 5923.0,
+    "p99_ms": 6499.8,
+    "mean_ms": 6019.9,
+    "mean_output_tokens": 121.1,
+    "field_f1_9": 1.0,
+    "schema_valid_pct": 76.0
+  },
+  "L256": {
+    "max_tokens": 256,
+    "n_events": 50,
+    "p50_ms": 5899.3,
+    "p99_ms": 6979.2,
+    "mean_ms": 6037.5,
+    "mean_output_tokens": 122.6,
+    "field_f1_9": 1.0,
+    "schema_valid_pct": 100.0
+  },
+  "L512": {
+    "max_tokens": 512,
+    "n_events": 50,
+    "p50_ms": 5897.5,
+    "p99_ms": 6991.4,
+    "mean_ms": 6056.1,
+    "mean_output_tokens": 122.6,
+    "field_f1_9": 1.0,
+    "schema_valid_pct": 100.0
+  },
+  "L1024": {
+    "max_tokens": 1024,
+    "n_events": 50,
+    "p50_ms": 5910.2,
+    "p99_ms": 6927.6,
+    "mean_ms": 6020.6,
+    "mean_output_tokens": 122.6,
+    "field_f1_9": 1.0,
+    "schema_valid_pct": 100.0
+  },
+  "cost_law": {
+    "intercept_ms": 79.1,
+    "slope_ms_per_token": 47.68,
+    "r_squared": 1.0,
+    "crossover_L_star": 6.0
+  }
+}

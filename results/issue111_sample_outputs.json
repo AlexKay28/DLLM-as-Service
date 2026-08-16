@@ -1,0 +1,27 @@
+{
+  "L32": [
+    "{\"timestamp_norm\": \"1118772771\", \"host\": \"R21-M0-NF-C:J11",
+    "{\"timestamp_norm\": \"1118709471\", \"host\": \"R13-M0-N7-C:J04",
+    "{\"timestamp_norm\": \"1129270792\", \"host\": \"R72-M0-N0-C:J06"
+  ],
+  "L128": [
+    "{\"timestamp_norm\": \"1118772771\", \"host\": \"R21-M0-NF-C:J11-U11\", \"component\": \"KERNEL\", \"severity\": \"FATAL\", \"event_type\": \"floating point instr. enabled\", \"message_template\": \"floating point instr. enabled.....<*>\", \"error_code\": \"\", \"affected_entity\": \"\", \"metric_value\": 1.0, \"is_anomaly\": true, \"anomaly_score\": 1.0, \"remediation_hint\": \"none\"}",
+    "{\"timestamp_norm\": \"1118709471\", \"host\": \"R13-M0-N7-C:J04-U01\", \"component\": \"KERNEL\", \"severity\": \"FATAL\", \"event_type\": \"data storage interrupt\", \"message_template\": \"data storage interrupt\", \"error_code\": \"\", \"affected_entity\": \"\", \"metric_value\": 0.0, \"is_anomaly\": true, \"anomaly_score\": 1.0, \"remediation_hint\": \"none\"}",
+    "{\"timestamp_norm\": \"1129270792\", \"host\": \"R72-M0-N0-C:J06-U01\", \"component\": \"KERNEL\", \"severity\": \"INFO\", \"event_type\": \"ce sym 5 at mask\", \"message_template\": \"CE sym <*> at 0x<*> mask <*>\", \"error_code\": \"\", \"affected_entity\": \"\", \"metric_value\": 5.0, \"is_anomaly\": false, \"anomaly_score\": 0.0, \"remediation_hint\": \"none\"}"
+  ],
+  "L256": [
+    "{\"timestamp_norm\": \"1118772771\", \"host\": \"R21-M0-NF-C:J11-U11\", \"component\": \"KERNEL\", \"severity\": \"FATAL\", \"event_type\": \"floating point instr. enabled\", \"message_template\": \"floating point instr. enabled.....<*>\", \"error_code\": \"\", \"affected_entity\": \"\", \"metric_value\": 1.0, \"is_anomaly\": true, \"anomaly_score\": 1.0, \"remediation_hint\": \"none\"}",
+    "{\"timestamp_norm\": \"1118709471\", \"host\": \"R13-M0-N7-C:J04-U01\", \"component\": \"KERNEL\", \"severity\": \"FATAL\", \"event_type\": \"data storage interrupt\", \"message_template\": \"data storage interrupt\", \"error_code\": \"\", \"affected_entity\": \"\", \"metric_value\": 0.0, \"is_anomaly\": true, \"anomaly_score\": 1.0, \"remediation_hint\": \"none\"}",
+    "{\"timestamp_norm\": \"1129270792\", \"host\": \"R72-M0-N0-C:J06-U01\", \"component\": \"KERNEL\", \"severity\": \"INFO\", \"event_type\": \"ce sym 5 at mask\", \"message_template\": \"CE sym <*> at 0x<*> mask <*>\", \"error_code\": \"\", \"affected_entity\": \"\", \"metric_value\": 5.0, \"is_anomaly\": false, \"anomaly_score\": 0.0, \"remediation_hint\": \"none\"}"
+  ],
+  "L512": [
+    "{\"timestamp_norm\": \"1118772771\", \"host\": \"R21-M0-NF-C:J11-U11\", \"component\": \"KERNEL\", \"severity\": \"FATAL\", \"event_type\": \"floating point instr. enabled\", \"message_template\": \"floating point instr. enabled.....<*>\", \"error_code\": \"\", \"affected_entity\": \"\", \"metric_value\": 1.0, \"is_anomaly\": true, \"anomaly_score\": 1.0, \"remediation_hint\": \"none\"}",
+    "{\"timestamp_norm\": \"1118709471\", \"host\": \"R13-M0-N7-C:J04-U01\", \"component\": \"KERNEL\", \"severity\": \"FATAL\", \"event_type\": \"data storage interrupt\", \"message_template\": \"data storage interrupt\", \"error_code\": \"\", \"affected_entity\": \"\", \"metric_value\": 0.0, \"is_anomaly\": true, \"anomaly_score\": 1.0, \"remediation_hint\": \"none\"}",
+    "{\"timestamp_norm\": \"1129270792\", \"host\": \"R72-M0-N0-C:J06-U01\", \"component\": \"KERNEL\", \"severity\": \"INFO\", \"event_type\": \"ce sym 5 at mask\", \"message_template\": \"CE sym <*> at 0x<*> mask <*>\", \"error_code\": \"\", \"affected_entity\": \"\", \"metric_value\": 5.0, \"is_anomaly\": false, \"anomaly_score\": 0.0, \"remediation_hint\": \"none\"}"
+  ],
+  "L1024": [
+    "{\"timestamp_norm\": \"1118772771\", \"host\": \"R21-M0-NF-C:J11-U11\", \"component\": \"KERNEL\", \"severity\": \"FATAL\", \"event_type\": \"floating point instr. enabled\", \"message_template\": \"floating point instr. enabled.....<*>\", \"error_code\": \"\", \"affected_entity\": \"\", \"metric_value\": 1.0, \"is_anomaly\": true, \"anomaly_score\": 1.0, \"remediation_hint\": \"none\"}",
+    "{\"timestamp_norm\": \"1118709471\", \"host\": \"R13-M0-N7-C:J04-U01\", \"component\": \"KERNEL\", \"severity\": \"FATAL\", \"event_type\": \"data storage interrupt\", \"message_template\": \"data storage interrupt\", \"error_code\": \"\", \"affected_entity\": \"\", \"metric_value\": 0.0, \"is_anomaly\": true, \"anomaly_score\": 1.0, \"remediation_hint\": \"none\"}",
+    "{\"timestamp_norm\": \"1129270792\", \"host\": \"R72-M0-N0-C:J06-U01\", \"component\": \"KERNEL\", \"severity\": \"INFO\", \"event_type\": \"ce sym 5 at mask\", \"message_template\": \"CE sym <*> at 0x<*> mask <*>\", \"error_code\": \"\", \"affected_entity\": \"\", \"metric_value\": 5.0, \"is_anomaly\": false, \"anomaly_score\": 0.0, \"remediation_hint\": \"none\"}"
+  ]
+}

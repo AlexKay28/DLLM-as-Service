@@ -109,8 +109,9 @@ We measure both architectures on a pinned serving stack (vLLM, A100
 80GB) for structured log extraction. Both arms are Mixture-of-Experts:
 DiffusionGemma-26B-A4B (4\,B active of 26\,B) and Qwen3-30B-A3B (3\,B
 active of 30\,B). Against this fair MoE-vs-MoE baseline, the diffusion
-model wins above $L^{*} = 385$ tokens: $1.4\times$ at $L{=}1024$,
-$1.7\times$ at $L{=}2048$. It degrades under deadline pressure by
+model wins at every practical output length in serial mode:
+$15.6\times$ faster at the natural output length of 123 tokens,
+$8.0\times$ at $L{=}1024$. It degrades under deadline pressure by
 losing quality rather than completeness --- a property AR decoding has
 no equivalent for.
 

@@ -25,8 +25,8 @@ attention pattern is request-specific and step-specific. This is
 structurally different from AR decoding, where the attention pattern is
 causal and the KV cache grows monotonically. \paragraph{The cache-off test confirms the direction.}
 Disabling prefix caching on the AR arm drops its multiplier from
-$77\times$ to $76.9\times$ --- still $45\times$ above the DG ceiling.
-Cache reuse accounts for part of the AR advantage but not all of it; the
+$\cacheOnMult\times$ to $\cacheOffMult\times$ --- still more than twenty
+times the diffusion ceiling. Cache reuse accounts for part of the AR advantage but not all of it; the
 remainder is the bandwidth-bound decode loop, which DG also lacks because
 each step is a full forward pass. \paragraph{What a fixed engine would change.}
 If vLLM's mixed-phase crash were fixed (phase-segregated batching), the

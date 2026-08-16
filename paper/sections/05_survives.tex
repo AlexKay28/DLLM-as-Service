@@ -2,12 +2,11 @@
 \label{sec:survives}
 
 The MoE-matched comparison shows DG's advantage is concentrated at
-long output. DG wins above $L^{*} = 385$ tokens, with the margin
-growing steadily: $1.4\times$ at $L{=}1024$, $1.7\times$ at
-$L{=}2048$. The five conditions that define the regime where block
+serial mode. DG wins at every practical output length: $15.6\times$
+at natural output, $8.0\times$ at $L{=}1024$. The five conditions that define the regime where block
 diffusion is the right choice are:
 \begin{enumerate}[nosep]
-  \item Output length $\geq 385$ tokens (naturally long; meaningful advantage above $L{=}1000$).
+  \item Output length $\geq 6$ tokens (DG crossover in serial mode).
   \item Batch-1 by requirement (tenant isolation, interactivity, or
     serial chain structure).
   \item Completeness is validated against a schema.

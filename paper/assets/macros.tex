@@ -26,8 +26,8 @@
 \newcommand{\arOneFiveFnine}{0.868}
 
 % --- Cost laws ------------- results/anchors/*.json, results/issue68_*.json --
-\newcommand{\arBase}{-5.8}        % ms, AR-30B MoE fitted intercept (Qwen3-30B-A3B)
-\newcommand{\arSlope}{1.0}       % ms/token, AR-30B MoE decode slope (Qwen3-30B-A3B)
+\newcommand{\arBase}{79.1}        % ms, AR-30B MoE serial intercept (Qwen3-30B-A3B)
+\newcommand{\arSlope}{47.7}      % ms/token, AR-30B MoE serial decode slope
 \newcommand{\dgBase}{378.8}       % ms, DG base at K=8
 \newcommand{\dgStep}{119.5}       % ms, median of the 7 measured canvas steps
 \newcommand{\dgStepLo}{113.1}     % ms, smallest measured step (1536->1792 in)
@@ -37,7 +37,7 @@
 \newcommand{\marginalRatio}{13.5} % arSlope / dgMarginal
 
 % Anchors, five repeats each -------- results/anchors/anchor_remeasure.json --
-\newcommand{\arAnchorTwoFive}{6148.1}   % AR-30B MoE L=256 batch-1 p50 (issue111 batch sweep)
+\newcommand{\arAnchorTwoFive}{5899.3}   % AR-30B MoE L=256 serial p50
 \newcommand{\arAnchorFiveOne}{3225.1}   % dense AR-3B L=512 p50, CV 0.01% (anchor remeasure)
 \newcommand{\dgAnchorTwoFive}{379.0}    % DG     L=256 p50, CV 0.25%
 \newcommand{\dgAnchorFiveOne}{500.7}    % DG     L=512 p50, CV 0.12%
@@ -50,7 +50,7 @@
 \newcommand{\dgMaxMed}{3.21}
 
 % --- Crossovers ------------------------- models/decision/procedure.py --------
-\newcommand{\crossoverL}{385}      % tokens: (dgBase - arBase) / arSlope, with MoE AR
+\newcommand{\crossoverL}{6}        % tokens: (dgBase - arBase) / arSlope, serial mode
 \newcommand{\crossoverLambda}{2.6} % ev/s: 1000 / dgBase (unchanged — DG base same)
 \newcommand{\naturalLdg}{176}      % DG natural output length (tokens)
 \newcommand{\naturalLar}{123}      % AR natural output length (tokens)

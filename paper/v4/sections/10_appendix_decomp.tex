@@ -21,8 +21,9 @@ share is $\geq 47\%$ of the \dgBase\,ms base. \item \textbf{From the canvas step
 and is a $K{=}8$ denoising pass. So denoising is $\geq \dgStep / \dgBase = 32\%$
 of the base. The first canvas's pass is somewhat cheaper than a marginal one,
 but not by the $5\times$ the fitted intercept would require.
-\end{itemize} The honest range at $K{=}8$ is 32--47\% denoising against 53--68\% floor
-(conservative bounds from $K{=}2$ and canvas-step measurements).
+\end{itemize} The conservative bounds at $K{=}8$ are denoising $\geq 32\%$ (canvas
+step) and $\geq 47\%$ ($K{=}2$), so the floor is at most $68\%$ and
+$53\%$ respectively.
 A tighter estimate comes from linear interpolation between $K{=}2$ and
 $K{=}8$: solving $T(2) = \text{prefill} + 2 \cdot \text{step} = 201.7$ and
 $T(8) = \text{prefill} + 8 \cdot \text{step} = 378.6$ gives step $= 29.5$\,ms

@@ -1,14 +1,14 @@
 \section{Where the diffusion model wins}
 \label{sec:wins}
 
-The diffusion model's latency advantage grows with output length
-because AR pays per token while DG pays per canvas. But with the
-MoE-matched AR-30B (slope 1.0\,ms/token, six times faster than the
-dense AR's 6.3), the advantage grows with output length.
+The diffusion model's latency advantage is dramatic in serial
+(batch-1) mode. The AR-30B MoE model takes $\sim$5900\,ms to
+produce a 123-token JSON record; DG completes the same task in
+379\,ms --- a $15.6\times$ advantage. The AR model stops at
+$\sim$123 tokens (EOS), so latency plateaus regardless of
+max\_tokens.
 
-Table~\ref{tab:niche} shows the comparison. AR values are projected
-from the fitted cost law (Eq.~\ref{eq:ar}); the natural row shows
-AR-30B at its natural output length of $\sim$123 tokens.
+Table~\ref{tab:niche} shows the measured serial comparison.
 
 \begin{table}[h]
 \centering
@@ -17,13 +17,13 @@ $n{=}100$--$300$). DG wins above $L^{*}=385$.}
 \label{tab:niche}
 \begin{tabular}{@{}lrrr@{}}
 \toprule
-$L_{\mathrm{out}}$ & AR-30B (ms) & DG (ms) & Advantage \\
+$L_{\mathrm{out}}$ & AR-30B (ms) & DG (ms) & DG advantage \\
 \midrule
-123 (natural)  & 117 & 378 & AR $3.2\times$ \\
-256  & 250 & 378 & AR $1.5\times$ \\
-512  & 506 & 498 & DG $1.0\times$ \\
-1024 & 1018 & 737 & DG $1.4\times$ \\
-2048 & 2042 & 1215 & DG $1.7\times$ \\
+32   & 1604 & 379 & $4.2\times$ \\
+123 (natural)  & 5900 & 379 & $15.6\times$ \\
+256  & 5900 & 379 & $15.6\times$ \\
+512  & 5900 & 498 & $11.8\times$ \\
+1024 & 5910 & 737 & $8.0\times$ \\
 \bottomrule
 \end{tabular}
 \end{table}
