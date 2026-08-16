@@ -1,0 +1,39 @@
+\section{Five Harness Defects}
+\label{app:defects}
+
+Each of the following was found by re-reading committed artifacts, not by
+running new experiments. Four of the five biased against the autoregressive
+arm; the fifth was a correctness-of-record defect.
+
+\begin{enumerate}
+\item \textbf{Decoding configuration.} Qwen2.5's checkpoint sets
+\texttt{repetition\_penalty}\,$=$\,1.1, which suppresses span-copying and
+empties the \texttt{host} field. Correcting to 1.0 moved AR 9-field F1 from
+\defectOneFBefore{} to \defectOneFAfter. \emph{Against AR.}
+
+\item \textbf{Serving parity.} The AR model ran a naive HuggingFace generate
+loop while the diffusion model ran on vLLM with continuous batching. Moving
+AR to vLLM moved its p50 from \defectTwoBefore{} to \defectTwoAfter\,ms
+(\defectTwoRatio$\times$), reversing the headline speed claim.
+\emph{Against AR.}
+
+\item \textbf{Parser policy.} At $L{=}512$, \rambleRate\% of AR outputs
+contained multiple JSON objects. The old parser took the last (most-drifted)
+copy; first-object-wins moved AR F1 from \defectThreeBefore{} to
+\defectThreeAfter. \emph{Against AR.}
+
+\item \textbf{Metric defaults.} The completeness metric treated falsy values
+(\texttt{""}, \texttt{0.0}, \texttt{False}) as missing keys. The AR model
+emits falsy defaults on early stop; DiffusionGemma always fills every field.
+Distinguishing absent from present-but-falsy moved AR completeness from
+\defectFourBefore\% to \defectFourAfter\%. \emph{Against AR.}
+
+\item \textbf{Provenance.} A CLI default wrote an AR model name into three DG
+result files. Biases no comparison but made audit impossible until correction
+sidecars were written. \emph{Neutral.}
+\end{enumerate}
+
+The clustering on one arm is not a coincidence: a comparison harness written by
+someone hoping the new architecture wins fails asymmetrically, because the
+arm the experimenter is not rooting for inherits the checkpoint defaults, the
+naive serving path, and the mature production infrastructure.
