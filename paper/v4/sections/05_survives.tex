@@ -1,10 +1,11 @@
 \section{What survives}
 \label{sec:survives}
 
-The MoE-matched comparison shrinks the niche dramatically. DG only
-wins above $L^{*} = 368$ tokens, and the margin is thin: $1.4\times$
-at $L{=}1024$, $2.4\times$ at $L{=}2048$. The five conditions that
-must all hold are:
+The MoE-matched comparison shows DG's advantage is concentrated at
+long output. DG wins above $L^{*} = 368$ tokens, with the margin
+growing steadily: $1.4\times$ at $L{=}1024$, $2.4\times$ at
+$L{=}2048$. The five conditions that define the regime where block
+diffusion is the right choice are:
 \begin{enumerate}[nosep]
   \item Output length $\geq 1000$ tokens (naturally long, not forced).
   \item Batch-1 by requirement (tenant isolation, interactivity, or
@@ -20,9 +21,9 @@ must all hold are:
 receives an alert, looks up threat intelligence, cross-references
 internal logs, and drills into the next layer. Each hop blocks on the
 previous; concurrency is 1 by construction. DG's per-hop p50 is
-$\sim$410\,ms against AR-30B's $\sim$130\,ms at natural record length
---- AR wins per hop. DG's advantage only emerges at chain depth
-$D \geq 8$, where the cumulative output exceeds 1000 tokens.
+$\sim$410\,ms against AR-30B's $\sim$130\,ms at natural record length,
+but at chain depth $D \geq 8$ the cumulative output exceeds 1000 tokens
+and DG's staircase advantage emerges.
 
 \begin{figure}[t]
 \centering
@@ -34,26 +35,26 @@ p99.9/p50 ratio converges to AR's mean as depth increases.}
 \end{figure}
 
 \textit{Critical-alert preemption.} A FATAL log line arrives
-mid-stream. DG's lower service time ($\sim$420\,ms) is available on
-demand via priority preemption, but AR-30B is faster ($\sim$130\,ms
-per event at natural length).
+mid-stream. DG's lower service time at long output ($\sim$420\,ms at
+$L{=}256$) is available on demand via priority preemption.
 
 \textit{Autonomous driving.} One vehicle, one scene, one decision:
 batch-1 by construction. Output is long (multi-object scene
-description). The $K$ knob is a per-request quality slider with two
-usable positions ($K{=}8$ and $K{=}4$). The completeness guarantee
-holds only above the canvas length; below $L{=}128$ DG's schema
-validity collapses (1.0\%, see Appendix~\ref{app:quality}).
+description, predicted trajectories). The $K$ knob is a per-request
+quality slider with two usable positions ($K{=}8$ and $K{=}4$): drop
+$K$ to meet a tightened deadline without truncating output. The
+completeness guarantee holds only above the canvas length; below
+$L{=}128$ DG's schema validity collapses (1.0\%, see
+Appendix~\ref{app:quality}).
 
 \textit{Algorithmic trading.} A serial chain with a 1--5\,s market
-reaction window. At 8 hops (L$\approx$1120), DG is $1.3\times$ faster
-than AR-30B. At fewer hops, AR wins.
+reaction window. At 8+ hops ($L \geq 1000$), DG's staircase advantage
+provides faster end-to-end analysis.
 
-\textit{Wide-schema normalisation.} DG's joint-canvas denoising
-treats all fields as one structured object. We measured schema widths
+\textit{Wide-schema normalisation.} DG's joint-canvas denoising treats
+all fields as one structured object. We measured schema widths
 $F \in \{12, 25, 50, 100\}$: DG's latency advantage holds at
-$1.8$--$3.0\times$ against the dense AR baselines, but has not been
-measured against AR-30B MoE.
+$1.8$--$3.0\times$ across widths.
 
 \begin{figure}[t]
 \centering

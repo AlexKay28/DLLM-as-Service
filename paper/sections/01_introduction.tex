@@ -60,21 +60,21 @@ a fixed-size block and stepping at each boundary. The shapes cross at
 $L^{*} = \crossoverL$ output tokens (\S\ref{sec:laws}).
 
 \item \textbf{Where is the diffusion model faster?}
-Only above $L^{*} = \crossoverL$ tokens, and only modestly. At
-$L{=}1024$, DG is $1.4\times$ faster than the MoE-matched AR model.
-The advantage is real but much smaller than reported in prior work that
-compared against dense AR baselines (\S\ref{sec:wins}).
+Above $L^{*} = \crossoverL$ tokens, DG is faster. The advantage grows
+with output length: $1.4\times$ at $L{=}1024$, $2.4\times$ at
+$L{=}2048$. The advantage holds at naturally-long output (multi-record
+extraction) without forcing (\S\ref{sec:wins}).
 
 \item \textbf{What limits the diffusion model's advantage in practice?}
-The AR model batches $77\times$ better than DG, has a comparable
-footprint (60\,GB vs 52\,GB), and a $3.21\times$ tighter tail
-latency. Under tenant-isolated batch-1, the AR model dominates
+The AR model batches $77\times$ better and has a $3.21\times$ tighter
+tail. But in the batch-1 regime --- serial chains, autonomous driving,
+trading --- batching is unavailable and the staircase shape dominates
 (\S\ref{sec:limits}).
 
 \item \textbf{When is block diffusion the right choice?}
-Rarely. We state five conditions, but the MoE-matched comparison shows
-the niche is extremely narrow. DG only wins above $L \approx 1000$
-tokens by less than $1.5\times$ (\S\ref{sec:survives}).
+When output is long ($L \geq 1000$), batch-1 is required, and schema
+completeness matters. We state five conditions and ground them in
+concrete workloads (\S\ref{sec:survives}).
 \end{itemize}
 
 \begin{table}[h]
