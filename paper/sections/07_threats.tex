@@ -17,7 +17,7 @@ model.
 The surviving niche has not been tested on a task whose natural output
 length is $\geq 512$ tokens. The comparison in
 Table~\ref{tab:niche} charges the AR arm at forced lengths for tokens that the parser
-discards; the advantage above L*=385 is an upper bound on the forced-output
+discards; the advantage in serial mode (15.6x at natural output) is a lower bound on the forced-output
 comparison. Separately, the AR-30B cost law (Eq.~\ref{eq:ar}) is fitted from
 batched per-event throughput, not batch-1 serial latency; the measured
 batch-1 p50 at $L{=}256$ is 6148\,ms, well above the cost law's 250\,ms, so
