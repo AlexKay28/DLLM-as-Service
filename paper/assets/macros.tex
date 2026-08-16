@@ -34,7 +34,7 @@
 \newcommand{\dgStepHi}{122.6}     % ms, largest measured step (256->512)
 \newcommand{\canvasLength}{256}   % tokens per canvas
 \newcommand{\dgMarginal}{0.47}    % ms/token at the margin: step / canvas
-\newcommand{\marginalRatio}{13.5} % arSlope / dgMarginal
+\newcommand{\marginalRatio}{101.5} % arSlope / dgMarginal
 
 % Anchors, five repeats each -------- results/anchors/anchor_remeasure.json --
 \newcommand{\arAnchorTwoFive}{5899.3}   % AR-30B MoE L=256 serial p50
@@ -88,9 +88,11 @@
 \newcommand{\energyRatio}{2.4}     % arThreeEnergy / dgEnergy = 10.1 / 4.2
 
 % --- Deployment pair ------ results/issue_evidence_ar1b_*.json, issue68_*.json --
-\newcommand{\arOneFiveTwoFive}{1007}   % ms, AR-1.5B forced L=256
+\newcommand{\arOneFiveTwoFive}{1007}   % ms, AR-1.5B forced L=256 (energy run, n=100)
 \newcommand{\arOneFiveFiveOne}{2005}   % ms, AR-1.5B forced L=512
 \newcommand{\arOneFiveTenTwoFour}{4026}% ms, AR-1.5B forced L=1024
+\newcommand{\arOneFiveNatTwoFive}{665.7} % ms, AR-1.5B natural-output p50 (issue49, n=300)
+\newcommand{\arOneFiveEventsHr}{5408}  % events/hr, 3600000/arOneFiveNatTwoFive
 \newcommand{\dgTwoFive}{378}           % ms, DG forced L=256
 \newcommand{\dgFiveOne}{501}           % ms, DG forced L=512
 \newcommand{\dgTenTwoFour}{739}        % ms, DG forced L=1024

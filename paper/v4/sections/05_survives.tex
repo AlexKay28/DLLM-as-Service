@@ -22,10 +22,11 @@ internal logs, and drills into the next layer. Each hop blocks on the
 previous; concurrency is 1 by construction. DG's per-hop p50 is
 $\sim$410\,ms (Figure~\ref{fig:chains}, recorded against the dense
 AR-3B baseline, not AR-30B). Against AR-30B the per-hop cost projected
-from the cost law (Eq.~\ref{eq:ar}) is $\sim$117\,ms at natural record
-length, so DG is slower per hop; but at chain depth $D \geq 8$ the
-cumulative output exceeds 1000 tokens and DG's staircase advantage
-emerges.
+from the serial cost law (Eq.~\ref{eq:ar}) is $\sim$5946\,ms at natural record
+length, so DG is $\sim$14$\times$ faster per hop. The advantage
+compounds with chain depth: at $D \geq 8$ the cumulative output exceeds
+1000 tokens, where DG's staircase cost grows far more slowly than AR's
+linear per-token cost.
 
 \begin{figure}[t]
 \centering

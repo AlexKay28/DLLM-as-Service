@@ -50,16 +50,19 @@ Applying the fitted laws:
 Task & $L_{\mathrm{out}}$ & AR-30B (ms) & DG (ms) & Ratio \\
 \midrule
 Single record (unforced) & 123 & 5900 & 379 & DG $15.6\times$ \\
-Multi-record $N{=}2$ & 280 & 5900 & 498 & DG $11.8\times$ \\
-Multi-record $N{=}4$ & 560 & 5900 & 618 & DG $9.5\times$ \\
-Multi-record $N{=}8$ & 1120 & 5910 & 857 & DG $6.9\times$ \\
+Multi-record $N{=}2$ & 280 & 13435 & 498 & DG $27.0\times$ \\
+Multi-record $N{=}4$ & 560 & 26791 & 618 & DG $43.4\times$ \\
+Multi-record $N{=}8$ & 1120 & 53503 & 857 & DG $62.4\times$ \\
 \bottomrule
 \end{tabular}
 \end{center}
 
 With the MoE-matched AR-30B in serial mode, DG wins at every output
-length. The advantage is $15.6\times$ at natural output and narrows to
-$6.9\times$ at $N{=}8$ (DG pays for more canvases while AR plateaus).
+length. The advantage is $15.6\times$ at natural output and grows to
+$62.4\times$ at $N{=}8$, because AR's linear cost ($47.7$\,ms/token)
+grows far faster than DG's staircase ($119.5$\,ms per $256$ tokens).
+The first row is the measured baseline; subsequent rows are cost-law
+projections at the multi-record output lengths.
 
 \paragraph{Caveat.}
 

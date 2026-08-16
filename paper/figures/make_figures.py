@@ -26,13 +26,13 @@ OUT = REPO / "paper" / "figures"
 
 # --- Fitted laws (macros.tex is the authority; these must match it) ---------
 LAWS = {
-    "ar_a": -5.8,       # ms, AR-30B MoE intercept (Qwen3-30B-A3B)
-    "ar_b": 1.0,        # ms/token, AR-30B MoE decode slope (Qwen3-30B-A3B)
-    "dg_base": 378.8,    # ms, DG base at K=8
-    "dg_step": 119.5,    # ms per extra canvas (median of 7)
-    "canvas": 256,       # tokens
-    "l_star": 385,       # token crossover, (dg_base - ar_a) / ar_b
-    "lam_star": 2.64,    # ev/s rate crossover, 1000 / dg_base
+    "ar_a": 79.1,        # ms, AR-30B MoE serial intercept (Qwen3-30B-A3B) [macros \arBase]
+    "ar_b": 47.7,        # ms/token, AR-30B MoE serial decode slope [macros \arSlope]
+    "dg_base": 378.8,    # ms, DG base at K=8 [macros \dgBase]
+    "dg_step": 119.5,    # ms per extra canvas (median of 7) [macros \dgStep]
+    "canvas": 256,       # tokens [macros \canvasLength]
+    "l_star": 6,         # token crossover, (dg_base - ar_a) / ar_b [macros \crossoverL]
+    "lam_star": 2.64,    # ev/s rate crossover, 1000 / dg_base [macros \crossoverLambda]
     "nat_l_dg": 176,     # DG natural output length
     # Dense AR-3B baseline (Qwen2.5-3B), retained for figures whose measured
     # data is the dense baseline (fig3 input sweep, fig5 quality).
@@ -94,9 +94,12 @@ def staircase(lmax, lmin=1.0):
 
 def fig1_cost_shapes():
     """The two cost shapes: grouped bar chart of p50 latency at key output lengths."""
-    # AR-30B MoE values come from the fitted cost law (Eq. 2); the dense AR-3B
+    # AR-30B MoE values come from the fitted serial cost law (Eq. 2); the dense AR-3B
     # was not measured at forced lengths, and the AR-30B forced-length sweep
     # did not pin min_tokens, so the fitted law is the operative AR series.
+    # The serial AR-30B slope (47.7 ms/token) is ~48x steeper than the batch-
+    # throughput slope, so the extrapolated cost-law values dwarf DG; a log
+    # y-axis keeps both series visible.
     key_Ls = [256, 512, 1024, 2048]
     ar_pts = {L: t_ar(L) for L in key_Ls}
 
@@ -120,15 +123,15 @@ def fig1_cost_shapes():
     bars_ar = ax.bar(x - width/2, ar_vals, width, color=S.AR, label="AR-30B (cost law)", zorder=3)
     bars_dg = ax.bar(x + width/2, dg_vals, width, color=S.DG, label="DG-26B-A4B (measured)", zorder=3)
 
-    # Add value labels on bars
+    # Add value labels on bars (log scale: use multiplicative offset)
     for bar, val in zip(bars_ar, ar_vals):
         if val > 0:
-            ax.text(bar.get_x() + bar.get_width()/2, val + 200,
+            ax.text(bar.get_x() + bar.get_width()/2, val * 1.08,
                     f"{val:,.0f}", ha="center", va="bottom", fontsize=7.0,
                     color=S.AR, fontweight="medium")
     for bar, val in zip(bars_dg, dg_vals):
         if val > 0:
-            ax.text(bar.get_x() + bar.get_width()/2, val + 200,
+            ax.text(bar.get_x() + bar.get_width()/2, val * 1.08,
                     f"{val:,.0f}", ha="center", va="bottom", fontsize=7.0,
                     color=S.DG, fontweight="medium")
 
@@ -138,16 +141,17 @@ def fig1_cost_shapes():
             ratio = max(ar_vals[i], dg_vals[i]) / min(ar_vals[i], dg_vals[i])
             who = "AR" if ar_vals[i] < dg_vals[i] else "DG"
             ymax = max(ar_vals[i], dg_vals[i])
-            ax.text(i, ymax + 1200, f"{who} {ratio:.1f}×", ha="center", va="bottom",
+            ax.text(i, ymax * 1.35, f"{who} {ratio:.1f}×", ha="center", va="bottom",
                     fontsize=8.2, color=S.INK2, fontweight="medium")
 
     ax.set_xticks(x)
     ax.set_xticklabels([str(L) for L in key_Ls])
     ax.set_xlabel("output length $L_{\\mathrm{out}}$  (tokens)")
-    ax.set_ylabel("p50 latency  (ms)")
+    ax.set_ylabel("p50 latency  (ms, log scale)")
     S.title(ax, "The two cost shapes: a line vs a staircase")
     S.despine(ax)
-    ax.set_ylim(0, max(max(ar_vals), max(dg_vals)) * 1.25)
+    ax.set_yscale("log")
+    ax.set_ylim(min(min(dg_vals), 200) * 0.7, max(max(ar_vals), max(dg_vals)) * 2.0)
     ax.legend(loc="upper left", fontsize=8.0)
 
     S.save(fig, "fig1_cost_shapes", OUT)
@@ -565,7 +569,7 @@ def fig7_decision_map():
              ha="center", va="center", alpha=0.75)
     axA.text(96, 24, "AR", fontsize=10, color=S.AR, fontweight="bold",
              ha="center", va="center", alpha=0.75)
-    axA.text(1100, 0.42, "per-event speedup 2.1–10.6$\\times$", fontsize=7.2,
+    axA.text(1100, 0.42, "per-event speedup 22–80$\\times$", fontsize=7.2,
              color=S.DG, ha="center", va="center")
 
     # ---- Panel B: the ratio along the DG band -----------------------------
@@ -579,7 +583,7 @@ def fig7_decision_map():
     axB.plot(Lb, ratio, color=S.INK, lw=1.4, zorder=3)
     axB.axvline(LAWS["nat_l_dg"], color=S.INK2, lw=0.8, ls=(0, (3, 2)), zorder=3)
     axB.set_xlim(16, 2048)
-    axB.set_ylim(0, 12)
+    axB.set_ylim(0, 90)
     axB.set_xticks([256, 512, 1024, 1536, 2048])
     axB.set_xlabel("expected output length $L$  (tokens)")
     axB.set_ylabel("$T_{\\mathrm{AR}}/T_{\\mathrm{DG}}$")
@@ -589,7 +593,7 @@ def fig7_decision_map():
     axB.annotate("break-even", xy=(1900, 1.0), xytext=(0, 5),
                  textcoords="offset points", ha="right", fontsize=7.4,
                  color=S.MUTED)
-    axB.annotate("$L\\!=\\!176$\n(guard)", xy=(LAWS["nat_l_dg"], 10.4),
+    axB.annotate("$L\\!=\\!176$\n(guard)", xy=(LAWS["nat_l_dg"], 70),
                  xytext=(8, 0), textcoords="offset points", fontsize=7.4,
                  color=S.INK2, va="center")
     for L in (256, 512, 1024, 2048):
