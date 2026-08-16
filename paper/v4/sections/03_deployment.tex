@@ -12,7 +12,8 @@ finishes before you finish reading this sentence. The AR model stops
 at its natural EOS, so latency plateaus regardless of
 \texttt{max\_tokens}.
 
-Table~\ref{tab:niche} shows the measured serial comparison. The
+Table~\ref{tab:niche} shows the serial comparison --- AR-30B measured,
+DG from the staircase law of Eq.~\ref{eq:dg}. The
 pattern reveals two things: first, AR latency is flat from 128 tokens
 onward because the model hits EOS --- setting \texttt{max\_tokens}
 higher does nothing. Second, DG latency stays flat for the first
@@ -22,9 +23,17 @@ never drops below eightfold.
 
 \begin{table}[h]
 \centering
-\caption{Serial latency at the MoE-matched pair (AR-30B vs DG, batch-1,
-BGL, $n{=}50$). AR-30B stops at $\sim$123 tokens (EOS); DG emits one
-canvas (256 tokens) per step.}
+\caption{Serial latency at the MoE-matched pair (AR-30B vs DG,
+batch-1, BGL). The AR-30B column is measured ($n{=}50$) and plateaus
+because the model stops at $\sim$123 tokens (EOS), so raising
+\texttt{max\_tokens} buys nothing. The DG column is Eq.~\ref{eq:dg}
+evaluated at the canvas count each budget implies, anchored on the
+measured base ($n{=}300$) and canvas step ($n{=}200$); forcing DG to
+fill those canvases measures 501\,ms at $L{=}512$ and 739\,ms at
+$L{=}1024$, within 1\% of the law. The two columns therefore compare
+AR at its natural output against DG at a full canvas budget --- a
+conservative reading for DG, which emits four times more tokens at the
+last row.}
 \label{tab:niche}
 \begin{tabular}{@{}lrrrr@{}}
 \toprule

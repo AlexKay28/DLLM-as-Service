@@ -41,19 +41,22 @@ higher floor but the same staircase.
 
 \paragraph{The plot twist.}
 
-When we first compared the two architectures, diffusion looked
-\emph{slower} than AR --- by a factor of four. The AR model was
-running on a naive HuggingFace generate loop while the diffusion model
-ran on vLLM with continuous batching. The harness was silently
-crippling the baseline. We found eight such defects by re-reading our
-own committed artifacts: a checkpoint default that suppressed
-span-copying, a parser that took the most-drifted JSON object, a
-metric that counted falsy values as missing keys. Five of the eight
-biased against the AR arm. After correction, the narrative inverted:
-diffusion is not slower --- it is fifteen times faster at natural
-output length. The eight corrections are priced in
-Appendix~\ref{app:defects}; they are the methodological backbone of
-every number that follows.
+When we first compared the two architectures, diffusion looked four
+times \emph{faster} than AR. It was not. The AR model was running on a
+naive HuggingFace generate loop while the diffusion model ran on vLLM
+with continuous batching; the harness was silently crippling the
+baseline. Moving that baseline onto the same serving stack cut its p50
+from \defectTwoBefore\,ms to \defectTwoAfter\,ms and erased the gap
+outright. We found eight such defects by re-reading our own committed
+artifacts: a checkpoint default that suppressed span-copying, a parser
+that took the most-drifted JSON object, a metric that counted falsy
+values as missing keys. Five of the eight biased against the AR arm,
+because the arm we were not rooting for inherited every default. The
+fifteenfold advantage reported below is not what that flattering
+harness produced --- it is what survived all eight corrections
+\emph{and} a switch to an architecture-matched AR baseline. The
+corrections are priced in Appendix~\ref{app:defects}; they are the
+methodological backbone of every number that follows.
 
 Our contributions are as follows:
 \begin{itemize}[leftmargin=1.5em]
@@ -85,7 +88,11 @@ workloads (\S\ref{sec:survives}).
 \begin{table}[h]
 \centering
 \caption{The paper in one table. The diffusion model's latency
-advantage is real; deployment factors limit it in practice.}
+advantage is real; deployment factors limit it in practice.
+Max/median is the largest per-event latency over its median, across
+300 events at $L{=}\canvasLength$; the AR entry for that row is the
+dense AR-3B baseline, which was the arm measured per-event, while
+every other AR entry is the AR-30B MoE.}
 \label{tab:summary}
 \begin{tabularx}{\linewidth}{@{}L r r@{}}
 \toprule

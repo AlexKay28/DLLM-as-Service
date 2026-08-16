@@ -26,7 +26,7 @@ climbs with every token; the subway charges per station.
 
 \begin{figure}[t]
 \centering
-\includegraphics[width=\linewidth]{figures/fig0_decoding_schematic.pdf}
+\includegraphics[width=\linewidth]{figures/fig0_decoding_schematic_hires.png}
 \caption{Decoding schematics. \textbf{A:} Autoregressive decoding
 generates tokens one at a time; each token costs one forward pass, so
 cost grows linearly. \textbf{B:} Block-diffusion decoding generates a
@@ -74,7 +74,7 @@ widens again.
 
 \begin{figure}[t]
 \centering
-\includegraphics[width=\linewidth]{figures/fig1_cost_shapes.pdf}
+\includegraphics[width=\linewidth]{figures/fig1_cost_shapes_hires.png}
 \caption{The two cost shapes. AR latency grows linearly with output
 length --- the line has no floor. DG latency is a staircase that steps
 at every 256-token canvas boundary and is flat inside --- the
@@ -88,19 +88,23 @@ $K{=}8$).}
 
 \begin{figure}[t]
 \centering
-\includegraphics[width=\linewidth]{figures/fig2_canvas_edges.pdf}
+\includegraphics[width=\linewidth]{figures/fig2_canvas_edges_hires.png}
 \caption{The staircase probed at canvas boundaries. \textbf{A:}
 latency is flat inside a canvas and jumps at the boundary --- tokens
-within a canvas are free. \textbf{B:} all seven canvas transitions
-out to $L{=}2048$ cost the same within noise, confirming the
-staircase is regular: every canvas costs the same regardless of
-position ($K{=}8$, BGL, $n{=}200$).}
+within a canvas are free. \textbf{B:} the staircase is regular: all
+seven canvas transitions out to $L{=}2048$ fall in
+\dgStepLo--\dgStepHi\,ms (median \dgStep\,ms, an $8\%$ spread), so a
+canvas costs about the same wherever it sits in the sequence. That
+regularity is what makes the second term of Eq.~\ref{eq:dg} a single
+constant rather than a function of position ($K{=}8$, BGL,
+$n{=}200$).}
 \label{fig:edges}
 \end{figure}
 
 \subsection{What the base is made of}
 
-The DG base is roughly half prefill, by linear interpolation between
+The DG base is roughly two-fifths prefill ($\approx$38\%), by linear
+interpolation between
 $K{=}2$ and $K{=}8$; see Appendix~\ref{app:decomp}. Each denoising
 step re-attends the full prompt, so prefill is paid $K$ times. If the
 prompt KV were cached across denoising steps, the base could fall

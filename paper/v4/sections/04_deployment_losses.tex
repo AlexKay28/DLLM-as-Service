@@ -21,7 +21,7 @@ than an order of magnitude; see Appendix~\ref{app:batching}.
 
 \begin{figure}[t]
 \centering
-\includegraphics[width=\linewidth]{figures/fig6_batching.pdf}
+\includegraphics[width=\linewidth]{figures/fig6_batching_hires.png}
 \caption{Batch-1 to peak throughput multipliers. AR-30B reaches
 $77\times$ via KV-cache reuse; DG caps at $\leq 1.7\times$ because
 changing attention masks invalidate KV persistence across denoising
@@ -56,7 +56,7 @@ isolation is preserved.
 Table~\ref{tab:cost} prices the comparison at a published on-demand
 rate. The headline: at full duty, DG processes events at less than a
 twentieth of a cent each. The AR-30B costs fifteen times more. For a
-B2B log-processing service handling ten million events per day, that
+B2B log-processing service handling ten thousand events per day, that
 is five dollars a day on DG versus seventy-six on AR-30B --- a
 \$26{,}000 annual gap on a single GPU.
 
