@@ -1,13 +1,13 @@
 ---
 name: paper-grill
-description: Use when reviewing a research paper for validity, consistency, and clarity. Runs a systematic 21-check audit checking every number, claim, cross-reference, table consistency, figure alignment, equation validity, narrative coherence, derived calculations, macro comments, crossover semantics, and per-event data attribution. Triggers on phrases like "grill the paper", "review the paper", "check for contradictions", "find issues", or "audit paper".
+description: Use when reviewing a research paper for validity, consistency, and clarity. Runs a systematic 24-check audit checking every number, claim, cross-reference, table consistency, figure alignment, equation validity, narrative coherence, storytelling, language readability, definition completeness, derived calculations, macro comments, crossover semantics, and per-event data attribution. Triggers on phrases like "grill the paper", "review the paper", "check for contradictions", "find issues", or "audit paper".
 ---
 
 # Paper Grill Skill
 
-A systematic audit strategy for research papers that finds contradictions, unsupported claims, broken numbers, and narrative inconsistencies before a reviewer does. Run every check. For each, ask the question, search the paper, flag issues, and fix critical ones before moving on.
+A systematic audit strategy for research papers that finds contradictions, unsupported claims, broken numbers, narrative inconsistencies, and readability barriers before a reviewer does. Run every check. For each, ask the question, search the paper, flag issues, and fix critical ones before moving on.
 
-## Audit Strategy: 21 Checks
+## Audit Strategy: 24 Checks
 
 ### Check 1: Number Consistency — Macros vs Calculated vs Text
 
@@ -377,6 +377,174 @@ for m in sorted(dead):
 "
 ```
 
+### Check 22: Storytelling and Narrative Coherence
+
+**Question:** Does the paper tell a single, compelling, logically-ordered story — or does it read as a list of results stitched together?
+
+A systems paper is a story with a protagonist (the idea), a setting (the experimental setup), a conflict (the problem), a climax (the results), and a resolution (the conclusion). If sections feel disconnected, if the reader cannot predict what comes next, or if the narrative arc is broken, the paper loses its persuasive force.
+
+1. **Story arc integrity:** Read the first and last sentence of each section. Does each section's opening follow from the previous section's closing? Write a one-sentence summary of each section; the list should read as a coherent paragraph.
+2. **Setup-payoff closure:** For every setup (e.g., "we derive two cost laws" in the intro), verify the payoff appears (the laws in §2, the measurement in §3). For every payoff (e.g., "77× batching gap"), verify the setup was laid earlier. Flag orphaned setups (promised but never delivered) and orphaned payoffs (delivered but never promised).
+3. **Contribution-to-section mapping:** List the paper's stated contributions (usually in the intro). For each contribution, identify which section delivers it. Flag any contribution with no corresponding section, or any section that delivers nothing promised in the intro.
+4. **Forward references and foreshadowing:** Check phrases like "see Appendix X", "as shown later", "we return to this in §Y". Does the referenced section actually address the foreshadowed point? Flag broken foreshadowing (a promise never kept) and dangling backward references (a reference to something that was never set up).
+5. **Tension and resolution:** Does the paper create genuine tension (a problem the reader wants solved) and resolve it? Or does it present results without framing why they matter? Flag sections that present data without first stating the question the data answers.
+6. **Narrative consistency across passes:** If the paper has been revised (model switches, number corrections), check that the narrative was updated alongside the numbers. A paper that says "the advantage grows with output length" but whose table now shows the advantage narrows (15.6× → 8.0×) has a broken story.
+
+```bash
+# Extract first and last sentence of each section
+python3 -c "
+import re, os
+for f in sorted(os.listdir('paper/v4/sections')):
+    if f.endswith('.tex'):
+        text = open(f'paper/v4/sections/{f}').read()
+        # Strip LaTeX commands for readability
+        clean = re.sub(r'\\\\\w+(\{[^}]*\})?', '', text)
+        sentences = re.split(r'(?<=[.!?])\s+', clean.strip())
+        sentences = [s.strip() for s in sentences if len(s.strip()) > 20]
+        if sentences:
+            print(f'=== {f} ===')
+            print(f'  OPEN: {sentences[0][:120]}')
+            print(f'  CLOSE: {sentences[-1][:120]}')
+            print()
+"
+# Check contribution-to-section mapping
+grep -n 'textbf{.*}\|\\\\item' paper/v4/sections/01_introduction.tex | head -20
+# Check forward references
+grep -n 'see.*Appendix\|as shown\|we return\|later.*section\|Section.*\\\\ref' paper/v4/sections/*.tex
+```
+
+### Check 23: Language and Readability Hardness
+
+**Question:** Is the prose clear and readable, or is it needlessly dense, jargon-stacked, and clause-nested?
+
+A reviewer who has to re-read a sentence three times is a reviewer who is annoyed. Systems papers should be precise but not impenetrable. This check identifies sentences that are too long, too nested, or too jargon-dense for a first-time reader.
+
+1. **Sentence length distribution:** Compute the word count of every sentence. Flag sentences over 40 words (hard to parse) and over 60 words (likely unreadable). The median should be 15–25 words.
+2. **Nested clause depth:** Count subordinate clauses (indicated by "which", "where", "that", em-dashes, parentheticals). More than 3 levels of nesting makes a sentence hard to follow. Flag sentences with 4+ nesting levels.
+3. **Jargon density per sentence:** Count domain-specific terms (model names, metric names, acronyms) per sentence. A sentence with 5+ jargon terms and no plain-language restatement is a wall. Flag dense clusters.
+4. **Acronym/abbreviation expansion:** Every acronym must be expanded on first use (e.g., "Mixture-of-Experts (MoE)"). Check that the first occurrence is the expansion, not a bare acronym. Flag bare acronyms that appear before their expansion.
+5. **Passive voice overuse:** A paragraph entirely in passive voice ("was measured", "is shown", "was found") drains energy. Flag paragraphs with 4+ consecutive passive-voice sentences.
+6. **Hedging language:** "may", "might", "could", "possibly", "it appears that" weaken claims. Flag sentences with 2+ hedges where a direct statement would be more precise.
+7. **Readability formula:** Compute the Flesch Reading Ease score for each section. A systems paper should score 30–50 (college level). Below 20 is unreadable; above 60 is too informal.
+8. **Paragraph opening strength:** Check if paragraphs open with the key claim or with a buried lead. A paragraph that opens with "It should be noted that..." or "In addition to the above..." before reaching its point is a buried lead.
+
+```bash
+python3 -c "
+import re, os, textstat
+
+# Install if needed: pip install textstat
+try:
+    import textstat
+except ImportError:
+    print('Install: pip install textstat')
+    exit()
+
+for f in sorted(os.listdir('paper/v4/sections')):
+    if not f.endswith('.tex'):
+        continue
+    text = open(f'paper/v4/sections/{f}').read()
+    # Strip LaTeX commands
+    clean = re.sub(r'\\\\\w+(\[[^\]]*\])?(\{[^}]*\})?', '', text)
+    clean = re.sub(r'%.*', '', clean)
+    clean = re.sub(r'\s+', ' ', clean).strip()
+
+    sentences = re.split(r'(?<=[.!?])\s+', clean)
+    sentences = [s for s in sentences if len(s.split()) > 3]
+
+    word_counts = [len(s.split()) for s in sentences]
+    long = [c for c in word_counts if c > 40]
+    very_long = [c for c in word_counts if c > 60]
+
+    fre = textstat.flesch_reading_ease(clean)
+
+    print(f'=== {f} ===')
+    print(f'  Sentences: {len(sentences)}')
+    print(f'  Median length: {sorted(word_counts)[len(word_counts)//2]} words')
+    print(f'  >40 words: {len(long)}  >60 words: {len(very_long)}')
+    print(f'  Flesch Reading Ease: {fre:.1f}  (target: 30-50)')
+    if long:
+        worst = max(sentences, key=lambda s: len(s.split()))
+        print(f'  Longest sentence ({len(worst.split())} words):')
+        print(f'    {worst[:200]}...')
+    print()
+"
+# Check acronym expansion on first use
+python3 -c "
+import re, os
+acronyms = {}  # acronym -> first file:line where it appears
+for f in sorted(os.listdir('paper/v4/sections')):
+    if not f.endswith('.tex'):
+        continue
+    text = open(f'paper/v4/sections/{f}').read()
+    for m in re.finditer(r'\b([A-Z]{2,6})\b', text):
+        acr = m.group(1)
+        if acr not in acronyms:
+            acronyms[acr] = f
+# Check which ones have expansions
+full_text = ''
+for f in sorted(os.listdir('paper/v4/sections')):
+    if f.endswith('.tex'):
+        full_text += open(f'paper/v4/sections/{f}').read()
+for acr in sorted(acronyms):
+    expansion = re.search(acr + r'\s*\(([^)]+)\)', full_text[::-1])  # reverse search
+    bare = acr in full_text and f'({acr})' not in full_text
+    if f'({acr})' not in full_text and acr not in ['GPU','PCIe','JSON','SLA','F1','CV','I/O','KV','BF16','MoE','AR','DG','BGL','HDFS','MMPP','AR-','EOS','CI','TOST']:
+        print(f'  BARE ACRONYM (no expansion): {acr} (first in {acronyms[acr]})')
+"
+# Check passive voice clusters
+grep -n 'was measured\|is shown\|was found\|is computed\|was performed\|is done\|was used\|were used\|is assumed\|was assumed' paper/v4/sections/*.tex
+# Check hedging
+grep -n 'may be\|might be\|could be\|possibly\|it appears\|it seems\|arguably\|presumably' paper/v4/sections/*.tex
+```
+
+### Check 24: Information Completeness and Definitions
+
+**Question:** Does the paper define every term, variable, and concept before using it — and does it omit information a reviewer needs to evaluate the claims?
+
+A reviewer cannot assess a claim they cannot parse. This check finds undefined terms, missing methodological detail, and gaps that force the reader to guess what was done.
+
+1. **Variable definition completeness:** For every equation, check that every variable is defined in the surrounding "where..." block. Flag any variable used in an equation but never defined in the text. Check: are units stated for every physical quantity (ms, J, tokens, GB)?
+2. **First-use definitions:** For every technical term (e.g., "canvas", "denoising step", "prefix caching", "continuous batching", "first-object-wins parser", "p99", "max/median ratio"), verify it is defined or explained on first use, not just used as if the reader already knows it.
+3. **Methodology gaps:** For every experiment cited, check: (a) what model was used, (b) what n was, (c) what hardware/software stack, (d) what metric was measured, (e) how many repeats. If any of these are missing from a cited result, the reviewer cannot reproduce or evaluate it. Flag results presented without their full experimental context.
+4. **Missing baselines:** Does the paper compare against all relevant alternatives? If the paper claims DG is faster than AR but only tests one AR model, flag the missing comparisons (e.g., other AR sizes, speculative decoding, grammar-constrained decoding).
+5. **Missing error bars / significance:** For every numeric claim (e.g., "15.6× faster"), check: is a confidence interval, standard error, or CV reported? If a difference is claimed (e.g., "quality is equivalent"), is a statistical test (TOST, bootstrap CI) cited? Flag bare numbers without uncertainty quantification.
+6. **Missing scale information:** Are model sizes (parameters, GB, active params) stated for every model used? Is the GPU specified? Is the vLLM/torch version stated? Flag any result presented without its hardware/software context.
+7. **Ambiguous antecedents:** Check pronouns and references: "this approach", "that model", "the baseline". Does the referent unambiguously resolve? Flag sentences where "this" or "that" could refer to two different antecedents.
+8. **Undefined metrics:** For every metric (F1, schema-validity, consistency, anomaly-F1, CV, max/median), check: is the metric defined (formula or plain-language description) before the first numeric value is reported? Flag metrics used without definition.
+9. **Missing experiment parameters:** For cited results, check: what was K? What was the canvas size? What was max_tokens? What was the prompt length? If a result is cited without these, the configuration is ambiguous.
+10. **Forward-reference dependency chains:** If section 3 says "see Appendix X for the full method" and Appendix X says "as described in section 3", the reader is in a loop. Check that forward references resolve to sections that actually contain the missing information, not another forward reference.
+
+```bash
+# Check variable definitions after equations
+python3 -c "
+import re, os
+for f in sorted(os.listdir('paper/v4/sections')):
+    if not f.endswith('.tex'):
+        continue
+    text = open(f'paper/v4/sections/{f}').read()
+    # Find equations
+    equations = re.findall(r'\\\\begin\{(equation|align)\*?\}.*?\\\\end\{\1\*?\}', text, re.DOTALL)
+    for eq in equations:
+        # Extract variables (single letters or subscripted letters)
+        vars_in_eq = set(re.findall(r'\\\\?(\w+)_{?\\mathrm\{?\w*\}?\}?', eq))
+        # Check if 'where' block follows
+        after_eq = text[text.find(eq)+len(eq):text.find(eq)+len(eq)+500]
+        has_where = 'where' in after_eq.lower() or 'in which' in after_eq.lower()
+        if not has_where:
+            print(f'{f}: equation without where-block')
+"
+# Check for undefined terms (words used as if known, before first definition)
+grep -n 'canvas\|denoising\|prefix caching\|first-object-wins\|p99\|max/median\|continuous batching\|KV cache\|MoE\|top-8' paper/v4/sections/01_introduction.tex
+# Check every numeric claim has uncertainty
+grep -n '\\\\times\|faster\|slower\|advantage\|ratio' paper/v4/sections/*.tex | head -20
+# Check methodology completeness: model, n, hardware for each result
+grep -n 'n=\|n =\|n{=}\|\\\\nPerCell' paper/v4/sections/*.tex
+# Check ambiguous 'this'/'that' references
+grep -n 'this approach\|that model\|the baseline\|this method\|that result\|this means\|this is' paper/v4/sections/*.tex
+# Check missing experiment parameters
+grep -n 'K{=}8\|K=8\|canvas\|max_tokens\|max\\\\_tokens\|prompt.*token' paper/v4/sections/*.tex | head -20
+```
+
 ## Output Format
 
 For each check, report:
@@ -388,7 +556,7 @@ STATUS: [CRITICAL / IMPORTANT / OK]
 FIX: [What was done, or "no fix needed"]
 ```
 
-After all 21 checks, summarize:
+After all 24 checks, summarize:
 - Total issues found
 - Critical issues fixed
 - Remaining known limitations (acknowledged in paper)
@@ -396,3 +564,6 @@ After all 21 checks, summarize:
 - verify_numbers.py status
 - Dead macros count
 - Derived calculation mismatches count
+- Storytelling: setup-payoff closure gaps
+- Readability: sentences >40 words, Flesch score per section
+- Definitions: undefined variables, undefined metrics, missing methodology context
