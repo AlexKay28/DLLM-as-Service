@@ -35,6 +35,7 @@ sequential composition.}
 \label{fig:chains}
 \end{figure}
 
+Quality at depth is not measured: each hop achieves ~0.85 9-field F1, and errors may compound. The latency advantage is real; whether the chain produces correct end-to-end output at depth 10+ is an open question.
 The batching multiplier that makes AR dominant in aggregate throughput is
 unavailable here by construction. The serial-vs-serial comparison is the
 operative one, and DG leads it.
@@ -66,7 +67,7 @@ vehicle, one scene, one decision. There is no queue to batch against.
 DG's properties map directly onto this workload. The staircase cost law
 means the p50 is flat whether the scene report is 128 or 512 tokens ---
 the model does not pay per token the way an autoregressive decoder does.
-The $K$ knob (Appendix~\ref{app:decomp}) is a per-request quality slider:
+The $K$ knob (Appendix~\ref{app:decomp}) is a per-request quality knob with two usable positions (K=8 and K=4):
 drop $K$ from 8 to 4 and the record arrives in \kFourPfifty\,ms at
 \kFourFone\ F1, meeting a tightened deadline without truncating the output.
 An AR model under the same deadline returns a truncated record that fails

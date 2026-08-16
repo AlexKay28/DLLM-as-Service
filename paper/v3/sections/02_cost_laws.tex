@@ -24,6 +24,7 @@ T_{\textsc{dg}}(L_{\mathrm{out}}) = \dgBase +
 \dgStep \cdot \Bigl(\bigl\lceil \tfrac{L_{\mathrm{out}}}{\canvasLength}\bigr\rceil - 1\Bigr)
 \quad\text{(ms)}
 \end{equation}
+The operating point $K{=}8$ was selected as the latency/quality knee: quality is flat above $K{=}8$ (0.853 at $K{=}8$, 0.858 at $K{=}32$) while latency saturates above $K{=}16$. Below $K{=}4$ quality collapses (0.485 at $K{=}2$).
 The \dgBase\,ms base at $K{=}8$ denoising steps is mostly prefill (bounded at
 53--68\% by two independent measurements; see Appendix~\ref{app:decomp}). Each
 additional canvas costs \dgStep\,ms (median of 7 measured transitions, range

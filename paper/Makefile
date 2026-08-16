@@ -47,8 +47,10 @@ paper: $(PAPER).pdf
 
 $(PAPER).pdf: $(TEXSRC) $(FIGS)
 	@echo ">> compiling $(PAPER).tex"
-	@$(TECTONIC) -X compile $(PAPER).tex --keep-logs
-	@$(PYTHON) -c "import re; log=open('$(PAPER).log',errors='ignore').read(); \
+	@pdflatex -interaction=nonstopmode $(PAPER).tex
+	@bibtex $(PAPER)
+	@pdflatex -interaction=nonstopmode $(PAPER).tex
+	@pdflatex -interaction=nonstopmode $(PAPER).tex
 	  print('>> %d overfull box(es), %d undefined reference(s)' % ( \
 	    len(re.findall(r'Overfull .hbox', log)), \
 	    len(re.findall(r'Reference .* undefined', log))))"

@@ -15,16 +15,16 @@
  <script type="text/javascript" async="async" id="MathJax-script" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js"></script>  
 </head><body 
 >
-<!--l. 15--><p class="noindent" ><span 
+<!--l. 16--><p class="noindent" ><span 
 class="ec-lmbx-12x-x-144">Diffusion LLMs as Fast Models for Specific Tasks:</span>
 <span 
 class="ec-lmbx-12x-x-144">The Cost Shape of Block-Structured Decoding</span>
-</p><!--l. 15--><p class="noindent" ><span 
+</p><!--l. 16--><p class="noindent" ><span 
 class="ec-lmri-12">When diffusion language models win on latency, and why they usually don&#8217;t</span>
-</p><!--l. 15--><p class="noindent" >Aleksandr Kaigorodov
-</p><!--l. 15--><p class="noindent" ><span 
+</p><!--l. 16--><p class="noindent" >Aleksandr Kaigorodov
+</p><!--l. 16--><p class="noindent" ><span 
 class="ec-lmr-10">Yandex</span>
-</p><!--l. 15--><p class="noindent" ><span 
+</p><!--l. 16--><p class="noindent" ><span 
 class="ec-lmr-9">Preprint </span><span 
 class="ts1-lmr9-">·</span><span 
 class="ec-lmr-9">&#x00A0;August 2026 </span><span 
@@ -38,7 +38,7 @@ class="abstract"
 <span 
 class="ec-lmbx-10">Abstract</span>
 </h3>
-     <!--l. 19--><p class="noindent" ><span 
+     <!--l. 20--><p class="noindent" ><span 
 class="ec-lmr-10">Diffusion language models can be faster than autoregressive ones for structured output</span>
      <span 
 class="ec-lmr-10">&#8212; but only in a narrow regime, and only after the comparison is done fairly. We measure</span>
@@ -57,7 +57,7 @@ class="ec-lmr-10">boundary. The shapes cross at 59</span><span
 class="ec-lmr-10">&#x00A0;output tokens, below which the autoregressive model</span>
      <span 
 class="ec-lmr-10">is cheaper.</span>
-     </p><!--l. 30--><p class="indent" >   <span 
+     </p><!--l. 31--><p class="indent" >   <span 
 class="ec-lmr-10">The diffusion model&#8217;s advantage grows with output length:</span> \(1.8\times \) <span 
 class="ec-lmr-10">faster even at the AR</span>
      <span 
@@ -77,11 +77,11 @@ class="ec-lmr-10">narrow regime &#8212; long structured output under a batch-1 c
 class="ec-lmr-10">the five conditions it requires.</span>
 </p>
 </div>
-<!--l. 64--><p class="noindent" >
-<!--l. 64--><p class="noindent" ><object data="main-1.svg" width="579.1578 " height="49.24861 " type="image/svg+xml"><p>SVG-Viewer needed.</p></object>
+<!--l. 65--><p class="noindent" >
+<!--l. 65--><p class="noindent" ><object data="main-1.svg" width="579.1578 " height="49.24861 " type="image/svg+xml"><p>SVG-Viewer needed.</p></object>
                                                                                    
                                                                                    
-<!--l. 64--><p class="noindent" ><object data="main-2.svg" width="579.1578 " height="695.13902 " type="image/svg+xml"><p>SVG-Viewer needed.</p></object>
+<!--l. 65--><p class="noindent" ><object data="main-2.svg" width="579.1578 " height="695.13902 " type="image/svg+xml"><p>SVG-Viewer needed.</p></object>
 <a 
  id="x1-2r1"></a>
 </p>
@@ -102,7 +102,7 @@ parameters. At \(L{=}256\) output tokens they reach quality equivalence: 0.852 v
 (\(\Delta = \qualityGap \), 95% CI \([-0.012, +0.011]\), \(n=300\)).
 </p><!--l. 20--><p class="indent" >   Eight corrections &#8212; five harness defects and three withdrawn claims &#8212; were made before this
 version. Five of the eight biased against the AR arm (Appendix&#x00A0;<a 
-href="#x1-300001">A<!--tex4ht:ref: app:defects --></a>). All were found by re-reading
+href="#x1-310001">A<!--tex4ht:ref: app:defects --></a>). All were found by re-reading
 committed artifacts, not by running new experiments.
 </p>
 <!--l. 25--><p class="noindent" ><span class="likeparagraphHead"><a 
@@ -113,7 +113,7 @@ at the p50. F1 scores are quoted to three decimals: at \(n = \nPerCell \) events
 macro F1 is roughly 0.006, so three decimals is the defensible resolution. Ratios and
 multipliers are quoted to one decimal. Fitted coefficients are quoted only to the precision
 the residuals support &#8212; the K-sweep fit at \(R^2 = \kfitRsq \) (Appendix&#x00A0;<a 
-href="#x1-310002">B<!--tex4ht:ref: app:decomp --></a>) is cited as a shape, not a
+href="#x1-320002">B<!--tex4ht:ref: app:decomp --></a>) is cited as a shape, not a
 measurement.
 </p>
    <hr class="figure" /><div class="figure" 
@@ -134,8 +134,10 @@ width="433" height="433"  /> <a
 class="content"><tspan font-family="ec-lmr" font-size="10">Eight    priced    errors    in    our    own    comparison    harness,    each    found    by</tspan>
 <tspan font-family="ec-lmr" font-size="10">re-reading committed artifacts (</tspan><span id="textcolor7"><tspan font-family="ec-lmtt" font-size="8">results/issue43_nine_field_f1.json</tspan></span><tspan font-family="ec-lmr" font-size="10">, </tspan><span id="textcolor8"><tspan font-family="ec-lmtt" font-size="8">results/issue44_dg_ksweep_K*.json</tspan></span><tspan font-family="ec-lmr" font-size="10">,</tspan>
 <span id="textcolor9"><tspan font-family="ec-lmtt" font-size="8">results/issue66_canvas_*.json</tspan></span><tspan font-family="ec-lmr" font-size="10">, </tspan><span id="textcolor10"><tspan font-family="ec-lmtt" font-size="8">results/issue68_dg_L*.json</tspan></span><tspan font-family="ec-lmr" font-size="10">, </tspan><span id="textcolor11"><tspan font-family="ec-lmtt" font-size="8">results/issue49_ar1b.json</tspan></span><tspan font-family="ec-lmr" font-size="10">; BGL,</tspan> \(n{=}300\) <tspan font-family="ec-lmr" font-size="10">per cell).</tspan>
-<tspan font-family="ec-lmr" font-size="10">Five of eight biased against the autoregressive arm. The clustering on one arm is the finding: a</tspan>
-<tspan font-family="ec-lmr" font-size="10">comparison harness written by someone hoping the new architecture wins fails asymmetrically.</tspan>   </span></div><!--tex4ht:label?: x1-2001r -->
+<tspan font-family="ec-lmr" font-size="10">Five of eight biased against the autoregressive arm. The clustering on one arm is suggestive, though</tspan>
+<tspan font-family="ec-lmr" font-size="10">the sample (n=8) is too small for a statistical claim: a comparison harness written by someone</tspan>
+<tspan font-family="ec-lmr" font-size="10">hoping the new architecture wins fails asymmetrically. The sample is too small (n=8) to distinguish</tspan>
+<tspan font-family="ec-lmr" font-size="10">from chance.</tspan>                                                                        </span></div><!--tex4ht:label?: x1-2001r -->
                                                                                    
                                                                                    
    </div><hr class="endfigure" />
@@ -158,9 +160,11 @@ decode cost. Five repeats at \(L{=}\canvasLength \) give p50 \(=\) 1616.0 ms (CV
 <!--l. 18--><p class="noindent" >DiffusionGemma writes onto fixed-size canvases of 256 tokens. Within one canvas every position is
 denoised in parallel; crossing a boundary triggers a fresh denoising pass. Cost is stepwise:
 \begin {equation}  \label {eq:dg} T_{\textsc {dg}}(L_{\mathrm {out}}) = \dgBase + \dgStep \cdot \Bigl (\bigl \lceil \tfrac {L_{\mathrm {out}}}{\canvasLength }\bigr \rceil - 1\Bigr ) \quad \text {(ms)}  \end {equation}
+The operating point \(K{=}8\) was selected as the latency/quality knee: quality is flat above \(K{=}8\) (0.853
+at \(K{=}8\), 0.858 at \(K{=}32\)) while latency saturates above \(K{=}16\). Below \(K{=}4\) quality collapses (0.485 at \(K{=}2\)).
 The 378.8 ms base at \(K{=}8\) denoising steps is mostly prefill (bounded at 53&#8211;68% by two
 independent measurements; see Appendix&#x00A0;<a 
-href="#x1-310002">B<!--tex4ht:ref: app:decomp --></a>). Each additional canvas costs 119.5 ms
+href="#x1-320002">B<!--tex4ht:ref: app:decomp --></a>). Each additional canvas costs 119.5 ms
 (median of 7 measured transitions, range 113.1&#8211;122.6). The staircase has sharp edges:
 growing output from 240 to 256 tokens costs 0.2 ms; growing from 256 to 264 costs
 121.7 ms.
@@ -171,7 +175,7 @@ growing output from 240 to 256 tokens costs 0.2 ms; growing from 256 to 264 cost
                                                                                    
                                                                                    
                                                                                    
-<!--l. 36--><p class="noindent" > <img 
+<!--l. 37--><p class="noindent" > <img 
 src="..//figures/fig1_cost_shapes-.png" alt="PIC"  
 width="433" height="433"  /> <a 
  id="x1-5001r2"></a>
@@ -192,7 +196,7 @@ class="content"><tspan font-family="ec-lmr" font-size="10">The two cost shapes (
                                                                                    
                                                                                    
                                                                                    
-<!--l. 47--><p class="noindent" > <img 
+<!--l. 48--><p class="noindent" > <img 
 src="..//figures/fig2_canvas_edges-.png" alt="PIC"  
 width="433" height="433"  /> <a 
  id="x1-5003r3"></a>
@@ -211,13 +215,13 @@ class="content"><tspan font-family="ec-lmr" font-size="10">The staircase probed 
  id="x1-5005r6"></a>
    <h4 class="subsectionHead"><span class="titlemark">2.3   </span> <a 
  id="x1-60003"></a>The crossover</h4>
-<!--l. 58--><p class="noindent" >At the reference prompt the crossing point is analytic: \begin {equation}  \label {eq:lcross} L^{*} = \frac {\dgBase - \arBase }{\arSlope } = \crossoverL \text { tokens}, \qquad \lambda ^{*} = \frac {1000}{\dgBase } = \crossoverLambda \text { events/s}  \end {equation}
+<!--l. 59--><p class="noindent" >At the reference prompt the crossing point is analytic: \begin {equation}  \label {eq:lcross} L^{*} = \frac {\dgBase - \arBase }{\arSlope } = \crossoverL \text { tokens}, \qquad \lambda ^{*} = \frac {1000}{\dgBase } = \crossoverLambda \text { events/s}  \end {equation}
 Below \(L^{*}\) the AR model is cheaper per event; above it the diffusion model is, until the
 next canvas edge. \(\lambda ^{*}\) is the other boundary: with one event in flight, the reciprocal of
 the diffusion base is the ceiling on its serial throughput, and above that rate a queue
 forms.
 </p>
-<!--l. 70--><p class="noindent" ><span class="likeparagraphHead"><a 
+<!--l. 71--><p class="noindent" ><span class="likeparagraphHead"><a 
  id="x1-70003"></a>Caveat: the base may be inflated by the serving stack.</span>
    The 378.8 ms base is 53&#8211;68% prefill. Each denoising step re-attends the full prompt, so prefill
 is paid \(K\) times. Whether the prompt KV could be cached across denoising steps is a property of
@@ -226,7 +230,7 @@ masked diffusion itself. If it were cached, the base could fall toward \(\sim \)
 move downward, widening the region where diffusion wins. We treat the measured
 base as the operative number &#8212; it is what the pinned stack produces &#8212; but note the
 asymmetry: in Appendix&#x00A0;<a 
-href="#x1-320003">C<!--tex4ht:ref: app:batching --></a> we decline to treat engine-bounded batching as a ceiling;
+href="#x1-330003">C<!--tex4ht:ref: app:batching --></a> we decline to treat engine-bounded batching as a ceiling;
 here we absorb an engine-bounded prefill cost into the crossover without the same
 scrutiny.
 <a 
@@ -234,7 +238,7 @@ scrutiny.
 </p>
    <h4 class="subsectionHead"><span class="titlemark">2.4   </span> <a 
  id="x1-80004"></a>Generalisation</h4>
-<!--l. 84--><p class="noindent" >Both laws generalise from BGL to HDFS within 1.7%. The AR p50 at \(L{=}\canvasLength \) moves from
+<!--l. 85--><p class="noindent" >Both laws generalise from BGL to HDFS within 1.7%. The AR p50 at \(L{=}\canvasLength \) moves from
 1616.0 ms to 1616.5 ms (\(+0.03\%\)); the diffusion canvas step moves from 118.5 ms to 120.5 ms
 (\(+1.7\%\)).
 <a 
@@ -323,7 +327,7 @@ class="td01">            </td></tr></table></div>
 <!--l. 33--><p class="indent" >   The diffusion model is faster even unforced: at AR-1.5B&#8217;s natural output length of 138 tokens,
 DG completes in 378 ms against AR&#8217;s 665.7 ms &#8212; a \(1.8\times \) advantage. Forcing the AR arm to emit \(L{=}1024\)
 tokens inflates that to \(5.4\times \), because first-object-wins parsing (§<a 
-href="#x1-300001">A<!--tex4ht:ref: app:defects --></a>, defect 3) discards the rambled
+href="#x1-310001">A<!--tex4ht:ref: app:defects --></a>, defect 3) discards the rambled
 continuation past the first JSON object. At \(L{=}1024\) the AR arm is charged 4026 ms for output
 the scorer deletes. The \(4.0\)&#8211;\(5.4\times \) advantage therefore measures the cost of <tspan font-family="ec-lmtt" font-size="10">min_tokens</tspan>, not
 the cost of autoregression &#8212; it is an upper bound on AR cost, not a measurement
@@ -383,7 +387,7 @@ falling from 0.853&#x00A0;to 0.790.
 \(\leq \)1.7\(\times \) for diffusion. Both diffusion measurements are engine-bounded (vLLM caps the batch at 8;
 dInfer runs cache-less), so the true ceiling is unknown but lies at or above 1.7\(\times \). Even so, the gap is
 more than an order of magnitude (Appendix&#x00A0;<a 
-href="#x1-320003">C<!--tex4ht:ref: app:batching --></a>).
+href="#x1-330003">C<!--tex4ht:ref: app:batching --></a>).
 </p>
 <!--l. 94--><p class="noindent" ><span class="likeparagraphHead"><a 
  id="x1-140002"></a>Input length.</span>
@@ -394,7 +398,7 @@ prompt. At longer inputs the base rises and \(L^{*}\) moves upward.
  id="x1-150002"></a>Tail latency.</span>
    The diffusion arm&#8217;s per-event CV is 20.9% with a max/median of 3.21\(\times \), against the AR arm&#8217;s
 0.2% and 1.03\(\times \) (Appendix&#x00A0;<a 
-href="#x1-410007">G<!--tex4ht:ref: app:distributions --></a>). A 3.21\(\times \) tail is what breaks a batch-1 SLA &#8212; exactly the regime the
+href="#x1-420007">G<!--tex4ht:ref: app:distributions --></a>). A 3.21\(\times \) tail is what breaks a batch-1 SLA &#8212; exactly the regime the
 surviving niche occupies.
 </p>
    <hr class="figure" /><div class="figure" 
@@ -426,7 +430,7 @@ class="content"><tspan font-family="ec-lmr" font-size="10">Batch-1 to peak throu
     </p><dl class="enumerate-enumitem"><dt class="enumerate-enumitem">
  1. </dt><dd 
 class="enumerate-enumitem">Output length \(\geq 512\) tokens, forced (untested at naturally-long output; see §<a 
-href="#x1-180005">5<!--tex4ht:ref: sec:threats --></a>).
+href="#x1-190005">5<!--tex4ht:ref: sec:threats --></a>).
     </dd><dt class="enumerate-enumitem">
  2. </dt><dd 
 class="enumerate-enumitem">Batch-1 by requirement (tenant isolation, interactivity).
@@ -439,10 +443,21 @@ class="enumerate-enumitem">The quality floor exceeds what the AR model delivers.
     </dd><dt class="enumerate-enumitem">
  5. </dt><dd 
 class="enumerate-enumitem">A 52.0 GB resident footprint is acceptable.</dd></dl>
+<!--l. 127--><p class="noindent" ><span class="likeparagraphHead"><a 
+ id="x1-170003"></a>Co-residency.</span>
+   Conditions 2 and 5 together describe an 80 GB A100 dedicated to one request at a time. The
+alternative is not &#8220;AR-1.5B serving one tenant&#8221; but &#8220;sixteen copies of AR-1.5B serving sixteen
+isolated tenants&#8221; &#8212; at 3.0 GB per copy, sixteen fit in the space DG occupies alone.
+Per-tenant latency is unchanged; throughput is 16\(\times \); isolation is preserved. This co-residency
+argument is the natural response to &#8220;batch-1 by tenant isolation&#8221; and is not covered by
+the batching measurement in §<a 
+href="#x1-330003">C<!--tex4ht:ref: app:batching --></a>, which measures cross-request batching within one
+model.
 <a 
- id="x1-16006r12"></a>
+ id="x1-17001r12"></a>
+</p>
    <h3 class="sectionHead"><span class="titlemark">4   </span> <a 
- id="x1-170004"></a>Related Work</h3>
+ id="x1-180004"></a>Related Work</h3>
 <!--l. 4--><p class="noindent" >Diffusion LM speedup claims (LLaDA&#x00A0;<span class="cite">[<a 
 href="#Xllada2025">7</a>]</span>, DiffusionGemma&#x00A0;<span class="cite">[<a 
 href="#Xdiffusiongemma">3</a>]</span>) are typically measured against
@@ -467,22 +482,22 @@ metric semantics, provenance) in under five minutes per check, using only commit
 artifacts. We do not claim generality beyond the structured-output serving setting we
 measured.
 <a 
- id="x1-17001r23"></a>
+ id="x1-18001r24"></a>
 </p>
+                                                                                   
+                                                                                   
    <h3 class="sectionHead"><span class="titlemark">5   </span> <a 
- id="x1-180005"></a>Threats to Validity</h3>
+ id="x1-190005"></a>Threats to Validity</h3>
 <!--l. 4--><p class="noindent" >All measurements are on one GPU (NVIDIA A100 80GB PCIe); the fitted constants are
 A100-specific but the shapes should transfer. The batching ceiling reproduces across two runtimes
 and two model families, but both measurements are engine-bounded (Appendix&#x00A0;<a 
-href="#x1-320003">C<!--tex4ht:ref: app:batching --></a>). The crossover
+href="#x1-330003">C<!--tex4ht:ref: app:batching --></a>). The crossover
 is calibrated at a \(\sim \)1,047-token prompt and shifts with input length. The AR&#8211;DG quality difference
 (\(\Delta = \qualityGap \)) has a 95% CI of \([-0.012, +0.011]\) at \(n=300\); the two are equivalent at a \(\pm 0.015\) margin, which is the smallest F1 difference
 that would change a deployment decision.
 </p><!--l. 13--><p class="indent" >   The surviving niche has not been tested on a task whose natural output length is \(\geq 512\) tokens. The
 forced comparison in Table&#x00A0;<a 
 href="#x1-10001r1">1<!--tex4ht:ref: tab:niche --></a> charges the AR arm for tokens that first-object-wins parsing
-                                                                                   
-                                                                                   
 discards, so the \(5.4\times \) advantage is an upper bound on AR cost rather than a measurement of it. A task
 with genuinely long natural output &#8212; multi-record extraction, incident reports &#8212; would test the
 niche without this artifact.
@@ -491,19 +506,29 @@ xgrammar, llguidance), which would eliminate the over-generation the forced comp
 for, guarantee 100% schema validity, and remove the diffusion model&#8217;s completeness advantage.
 Constrained decoding is the standard answer to the structured-output problem and is a stated
 limitation of this paper.
+</p><!--l. 27--><p class="indent" >   The cost-shape generalisation (&#8220;any decoder emitting fixed-size blocks would inherit the same
+shape&#8221;) is inferred from one block-diffusion model (DiffusionGemma-26B-A4B) measured against
+one AR family (Qwen2.5). The LLaDA-8B arm was measured under dInfer but is inconclusive due
+to the cache bug (Appendix&#x00A0;<a 
+href="#x1-330003">C<!--tex4ht:ref: app:batching --></a>). The shape claim is structural and should hold for any
+canvas-bound decoder, but it is not tested on a second diffusion family on a working serving
+stack.
+</p><!--l. 35--><p class="indent" >   DiffusionGemma-26B-A4B-it is available at <a 
+href="https://huggingface.co/google/diffusiongemma-26b-a4b-it" class="url" ><tspan font-family="ec-lmtt" font-size="10">https://huggingface.co/google/diffusiongemma-26b-a4b-it</tspan></a>.
+All DG measurements are reproducible from this checkpoint.
 <a 
- id="x1-18001r24"></a>
+ id="x1-19001r25"></a>
 </p>
    <h3 class="sectionHead"><span class="titlemark">6   </span> <a 
- id="x1-190006"></a>Real-Life Use Cases</h3>
+ id="x1-200006"></a>Real-Life Use Cases</h3>
 <!--l. 4--><p class="noindent" >The five conditions in §<a 
 href="#x1-90003">3<!--tex4ht:ref: sec:fair --></a> identify a narrow niche. Here we name concrete workloads that satisfy
 them, each grounded in a measured result in this repo.
 <a 
- id="x1-19001r22"></a>
+ id="x1-20001r22"></a>
 </p>
    <h4 class="subsectionHead"><span class="titlemark">6.1   </span> <a 
- id="x1-200001"></a>Serial investigation chains</h4>
+ id="x1-210001"></a>Serial investigation chains</h4>
 <!--l. 10--><p class="noindent" >A security operations centre receives an alert, looks up threat intelligence, cross-references
 internal logs, generates a hypothesis, and drills into the next layer. Each hop blocks on the
 previous one; concurrency is 1 by construction. This is the workflow for SOC analysts, forensic
@@ -512,8 +537,10 @@ investigators, and multi-hop debugging pipelines.
 BGL, \(n{=}300\)). Both models are linear in depth (slope CV 1.1% for DG, 1.2% for AR). DG&#8217;s per-hop p50
 is \(\sim \)410 ms against AR&#8217;s \(\sim \)825 ms &#8212; a \(2.0\times \) advantage that is constant across depth. DG&#8217;s tail penalty
 (the 3.21\(\times \) max/median from Appendix&#x00A0;<a 
-href="#x1-410007">G<!--tex4ht:ref: app:distributions --></a>) washes out under sequential composition:
+href="#x1-420007">G<!--tex4ht:ref: app:distributions --></a>) washes out under sequential composition:
 the p99.9/median ratio converges from 1.04\(\times \) at \(D{=}1\) to 1.77&#8211;2.07\(\times \) at \(D{=}10\)&#8211;\(20\), against AR&#8217;s 1.93\(\times \)
+                                                                                   
+                                                                                   
 mean.
 </p>
    <hr class="figure" /><div class="figure" 
@@ -525,103 +552,106 @@ mean.
 <!--l. 28--><p class="noindent" > <img 
 src="..//figures/fig10_usecase_chains-.png" alt="PIC"  
 width="433" height="433"  /> <a 
- id="x1-20001r6"></a>
+ id="x1-21001r6"></a>
 <a 
- id="x1-20002"></a>
+ id="x1-21002"></a>
 <br />                                                                                   </p><div class="caption" 
 ><span class="id">
 <tspan font-family="ec-lmbx" font-size="10">Figure</tspan><tspan font-family="ec-lmbx" font-size="10">&#x00A0;6.  </tspan></span><span  
 class="content"><tspan font-family="ec-lmr" font-size="10">Serial  investigation  chains  (</tspan><span id="textcolor35"><tspan font-family="ec-lmtt" font-size="8">results/chain_analysis.json</tspan></span><tspan font-family="ec-lmr" font-size="10">,  BGL,</tspan>  \(n{=}300\)<tspan font-family="ec-lmr" font-size="10">).  </tspan><tspan font-family="ec-lmbx" font-size="10">A:  </tspan><tspan font-family="ec-lmr" font-size="10">per-hop  p50  is</tspan>
 <tspan font-family="ec-lmr" font-size="10">constant across depth for both models; DG is</tspan> \(2.0\times \) <tspan font-family="ec-lmr" font-size="10">faster. </tspan><tspan font-family="ec-lmbx" font-size="10">B: </tspan><tspan font-family="ec-lmr" font-size="10">DG&#8217;s p99.9/p50 ratio (high in isolation)</tspan>
 <tspan font-family="ec-lmr" font-size="10">converges  to  AR&#8217;s  mean  as  depth  increases  &#8212;  the  tail  penalty  washes  out  under  sequential</tspan>
-<tspan font-family="ec-lmr" font-size="10">composition.</tspan>                                                                        </span></div><!--tex4ht:label?: x1-20001r -->
+<tspan font-family="ec-lmr" font-size="10">composition.</tspan>                                                                        </span></div><!--tex4ht:label?: x1-21001r -->
                                                                                    
                                                                                    
    </div><hr class="endfigure" />
-<!--l. 38--><p class="indent" >   The batching multiplier that makes AR dominant in aggregate throughput is unavailable here
-by construction. The serial-vs-serial comparison is the operative one, and DG leads
-it.
+<!--l. 38--><p class="indent" >   Quality at depth is not measured: each hop achieves &#x00A0;0.85 9-field F1, and errors may
+compound. The latency advantage is real; whether the chain produces correct end-to-end output
+at depth 10+ is an open question. The batching multiplier that makes AR dominant in aggregate
+throughput is unavailable here by construction. The serial-vs-serial comparison is the operative
+one, and DG leads it.
 <a 
- id="x1-20003r26"></a>
+ id="x1-21003r27"></a>
 </p>
    <h4 class="subsectionHead"><span class="titlemark">6.2   </span> <a 
- id="x1-210002"></a>Critical-alert preemption</h4>
-<!--l. 44--><p class="noindent" >A FATAL log line arrives mid-stream while batch work is in flight. The structured record
+ id="x1-220002"></a>Critical-alert preemption</h4>
+<!--l. 45--><p class="noindent" >A FATAL log line arrives mid-stream while batch work is in flight. The structured record
 must be fresh within 1 s. Trading dashboards, safety-critical monitoring, alarm triage,
 and on-call paging all have this shape: most work is background, but one request is
 urgent.
-</p><!--l. 49--><p class="indent" >   We measured vLLM 0.25.1&#8217;s preemption policies on both arms (<span id="textcolor36"><tspan font-family="ec-lmtt" font-size="8">results/vip_{ar3b,dg}.json</tspan></span>,
+</p><!--l. 50--><p class="indent" >   We measured vLLM 0.25.1&#8217;s preemption policies on both arms (<span id="textcolor36"><tspan font-family="ec-lmtt" font-size="8">results/vip_{ar3b,dg}.json</tspan></span>,
 BGL). DG&#8217;s lower service time (\(\sim \)420 ms vs AR&#8217;s \(\sim \)660&#8211;800 ms at task lengths) is available on
 demand via per-request priority preemption, and it survives the <tspan font-family="ec-lmtt" font-size="10">max-num-seqs 1 </tspan>constraint that
 the mixed-phase crash forces. AR&#8217;s batching advantage is irrelevant for the one request that
 matters.
 <a 
- id="x1-21001r28"></a>
+ id="x1-22001r29"></a>
 </p>
    <h4 class="subsectionHead"><span class="titlemark">6.3   </span> <a 
- id="x1-220003"></a>Autonomous driving and safety-critical perception</h4>
-<!--l. 58--><p class="noindent" >An autonomous vehicle perceives a hazardous scene &#8212; a pedestrian entering a blind crosswalk,
+ id="x1-230003"></a>Autonomous driving and safety-critical perception</h4>
+<!--l. 59--><p class="noindent" >An autonomous vehicle perceives a hazardous scene &#8212; a pedestrian entering a blind crosswalk,
 debris on a highway, a construction zone with temporary lane closures &#8212; and must produce a
 structured situation report and action plan before the next control tick. The output is long
 (multi-object scene description, predicted trajectories, recommended manoeuvre), the latency
 budget is sub-second, and the system is strictly batch-1: there is one vehicle, one scene, one
 decision. There is no queue to batch against.
-</p><!--l. 66--><p class="indent" >   DG&#8217;s properties map directly onto this workload. The staircase cost law means the p50 is flat
-whether the scene report is 128 or 512 tokens &#8212; the model does not pay per token the way an
-autoregressive decoder does. The \(K\) knob (Appendix&#x00A0;<a 
-href="#x1-310002">B<!--tex4ht:ref: app:decomp --></a>) is a per-request quality slider: drop \(K\) from 8
-to 4 and the record arrives in 292 ms at 0.790&#x00A0;F1, meeting a tightened deadline without
-truncating the output. An AR model under the same deadline returns a truncated record that
-fails schema validation &#8212; a partial scene description is not a partial plan, it is a failed
+</p><!--l. 67--><p class="indent" >   DG&#8217;s properties map directly onto this workload. The staircase cost law means the p50 is flat
+whether the scene report is 128 or 512 tokens &#8212; the model does not pay per token the
+way an autoregressive decoder does. The \(K\) knob (Appendix&#x00A0;<a 
+href="#x1-320002">B<!--tex4ht:ref: app:decomp --></a>) is a per-request quality
+knob with two usable positions (K=8 and K=4): drop \(K\) from 8 to 4 and the record
+arrives in 292 ms at 0.790&#x00A0;F1, meeting a tightened deadline without truncating the
+output. An AR model under the same deadline returns a truncated record that fails
+schema validation &#8212; a partial scene description is not a partial plan, it is a failed
 plan. The diffusion model always returns a complete canvas, which for a safety-critical
 consumer that validates against a schema is a qualitative rather than quantitative
 guarantee &#8212; <tspan font-family="ec-lmri" font-size="10">provided the output length budget is sufficient</tspan>. Below the natural record
 length the diffusion model&#8217;s schema validity collapses (1.0% at \(L{=}128\), see Appendix&#x00A0;<a 
-href="#x1-400006">F<!--tex4ht:ref: app:quality --></a>); the
+href="#x1-410006">F<!--tex4ht:ref: app:quality --></a>); the
 completeness guarantee holds only at or above the canvas length where the model was
 calibrated.
-</p><!--l. 82--><p class="indent" >   The tail latency (Appendix&#x00A0;<a 
-href="#x1-410007">G<!--tex4ht:ref: app:distributions --></a>) is the counterargument: DG&#8217;s 3.21\(\times \) max/median ratio means a
+</p><!--l. 83--><p class="indent" >   The tail latency (Appendix&#x00A0;<a 
+href="#x1-420007">G<!--tex4ht:ref: app:distributions --></a>) is the counterargument: DG&#8217;s 3.21\(\times \) max/median ratio means a
 p99 SLA lands far above p50. For autonomous driving this is managed by the \(K\) knob (lower \(K\)
+                                                                                   
+                                                                                   
 compresses the tail) and by the serial-chain result (consecutive hops wash out the tail). A
 single-hop, hard-deadline perception task is the regime where DG is weakest, and we state that
 plainly.
-                                                                                   
-                                                                                   
 <a 
- id="x1-22001r29"></a>
+ id="x1-23001r30"></a>
 </p>
    <h4 class="subsectionHead"><span class="titlemark">6.4   </span> <a 
- id="x1-230004"></a>Algorithmic trading and multi-hop situation analysis</h4>
-<!--l. 91--><p class="noindent" >A trading system detects an anomalous price movement, pulls relevant order-book history,
+ id="x1-240004"></a>Algorithmic trading and multi-hop situation analysis</h4>
+<!--l. 92--><p class="noindent" >A trading system detects an anomalous price movement, pulls relevant order-book history,
 cross-references news and regulatory filings, and produces a structured hypothesis: is this a
 mean-reversion signal, a liquidity event, or a precursor to a larger move? Each step blocks on the
 previous one &#8212; the analysis is a chain, not a batch. The output at each hop is a structured
 record (event classification, confidence, recommended action), and the total latency
 from signal to decision must be under the market&#8217;s reaction window, typically 1&#8211;5
 seconds.
-</p><!--l. 100--><p class="indent" >   This is the serial investigation chain of §<a 
-href="#x1-190006">6<!--tex4ht:ref: sec:usecases --></a> applied to market microstructure. DG&#8217;s per-hop
+</p><!--l. 101--><p class="indent" >   This is the serial investigation chain of §<a 
+href="#x1-200006">6<!--tex4ht:ref: sec:usecases --></a> applied to market microstructure. DG&#8217;s per-hop
 latency of \(\sim \)410 ms (measured, Figure&#x00A0;<a 
-href="#x1-20001r6">6<!--tex4ht:ref: fig:chains --></a>) means a 5-hop analysis completes in \(\sim \)2.1 s; AR&#8217;s \(\sim \)825 ms
+href="#x1-21001r6">6<!--tex4ht:ref: fig:chains --></a>) means a 5-hop analysis completes in \(\sim \)2.1 s; AR&#8217;s \(\sim \)825 ms
 per hop gives \(\sim \)4.1 s for the same chain. At 10 hops the gap is 4.1 s vs 8.3 s &#8212; the difference
 between acting before and after the market moves. The tail penalty that makes DG risky in
 single-hop, hard-deadline settings washes out under sequential composition: the p99.9/p50 ratio
 converges to the AR mean at depth 10+.
-</p><!--l. 109--><p class="indent" >   The quality-comparable AR model (1.5B, 0.868&#x00A0;F1) is \(1.8\times \) slower per hop even unforced. In a
+</p><!--l. 110--><p class="indent" >   The quality-comparable AR model (1.5B, 0.868&#x00A0;F1) is \(1.8\times \) slower per hop even unforced. In a
 market where the first analysis wins, that margin is the trade.
 <a 
- id="x1-23001r30"></a>
+ id="x1-24001r31"></a>
 </p>
    <h4 class="subsectionHead"><span class="titlemark">6.5   </span> <a 
- id="x1-240005"></a>Long structured extraction</h4>
-<!--l. 115--><p class="noindent" >Java stack traces, Kubernetes event cascades, and correlated alert bursts produce output
+ id="x1-250005"></a>Long structured extraction</h4>
+<!--l. 116--><p class="noindent" >Java stack traces, Kubernetes event cascades, and correlated alert bursts produce output
 that naturally exceeds 256 tokens. At forced \(L{=}512\) (<span id="textcolor37"><tspan font-family="ec-lmtt" font-size="8">results/appD_mult_{ar3b,dg}_L512.json</tspan></span>, BGL,
 \(n{=}300\)):
 </p>
 <div class="center" 
 >
-<!--l. 119--><p class="noindent" >
+<!--l. 120--><p class="noindent" >
 </p>
 <div class="tabular">
  <table id="TBL-5" class="tabular" 
@@ -652,20 +682,20 @@ class="td10"> comparable</td>
 </tr><tr  
  style="vertical-align:baseline;" id="TBL-5-4-"><td  style="white-space:nowrap; text-align:left;" id="TBL-5-4-1"  
 class="td01">         </td></tr></table></div></div>
-<!--l. 130--><p class="indent" >   AR forced to emit 512 tokens when the record needs \(\sim \)150 rambles and corrupts even structural
+<!--l. 131--><p class="indent" >   AR forced to emit 512 tokens when the record needs \(\sim \)150 rambles and corrupts even structural
 copy-from-input fields. DG&#8217;s canvas fills the record plus padding without degrading &#8212; masked
 diffusion is length-robust where autoregression is not. At long output this is a qualitative
 advantage, not just a speedup.
 <a 
- id="x1-24001r31"></a>
+ id="x1-25001r32"></a>
 </p>
+                                                                                   
+                                                                                   
    <h4 class="subsectionHead"><span class="titlemark">6.6   </span> <a 
- id="x1-250006"></a>Wide-schema normalisation</h4>
-<!--l. 138--><p class="noindent" >Financial transaction records, complex telemetry, and compliance reports can carry 50&#8211;100
+ id="x1-260006"></a>Wide-schema normalisation</h4>
+<!--l. 139--><p class="noindent" >Financial transaction records, complex telemetry, and compliance reports can carry 50&#8211;100
 fields with pairwise consistency constraints that grow as \(O(F^2)\). We measured schema widths \(F \in \{12, 25, 50, 100\}\)
 (<span id="textcolor38"><tspan font-family="ec-lmtt" font-size="8">results/wide_schema_{ar3b,dg}.json</tspan></span>, BGL). DG&#8217;s latency advantage holds at \(1.8\)&#8211;\(3.0\times \) across widths.
-                                                                                   
-                                                                                   
 Consistency drops from 91% to 87% at 50 fields but plateaus &#8212; the joint-canvas denoising (all
 fields denoised together) absorbs the structural coherence cost. AR generates fields
 one at a time with no mechanism to enforce inter-field constraints except through the
@@ -677,44 +707,44 @@ prompt.
                                                                                    
                                                                                    
                                                                                    
-<!--l. 150--><p class="noindent" > <img 
+<!--l. 151--><p class="noindent" > <img 
 src="..//figures/fig11_usecase_schema-.png" alt="PIC"  
 width="368" height="368"  /> <a 
- id="x1-25001r7"></a>
+ id="x1-26001r7"></a>
 <a 
- id="x1-25002"></a>
+ id="x1-26002"></a>
 <br />                                                                                   </p><div class="caption" 
 ><span class="id">
 <tspan font-family="ec-lmbx" font-size="10">Figure</tspan><tspan font-family="ec-lmbx" font-size="10">&#x00A0;7. </tspan></span><span  
 class="content"><tspan font-family="ec-lmr" font-size="10">Latency vs schema width (</tspan><span id="textcolor40"><tspan font-family="ec-lmtt" font-size="8">results/wide_schema_{ar3b,dg}.json</tspan></span><tspan font-family="ec-lmr" font-size="10">, BGL,</tspan> \(n{=}300\)<tspan font-family="ec-lmr" font-size="10">). The gap widens</tspan>
 <tspan font-family="ec-lmr" font-size="10">with field count: AR&#8217;s left-to-right generation pays per field, while DG&#8217;s joint denoising treats all</tspan>
-<tspan font-family="ec-lmr" font-size="10">fields as one structured object.</tspan>                                                         </span></div><!--tex4ht:label?: x1-25001r -->
+<tspan font-family="ec-lmr" font-size="10">fields as one structured object.</tspan>                                                         </span></div><!--tex4ht:label?: x1-26001r -->
                                                                                    
                                                                                    
    </div><hr class="endfigure" />
 <a 
- id="x1-25003r32"></a>
+ id="x1-26003r33"></a>
    <h4 class="subsectionHead"><span class="titlemark">6.7   </span> <a 
- id="x1-260007"></a>Edge and single-tenant deployments</h4>
-<!--l. 160--><p class="noindent" >Industrial controllers, network probes, IoT gateways, and regulated environments (HIPAA, SOC2)
+ id="x1-270007"></a>Edge and single-tenant deployments</h4>
+<!--l. 161--><p class="noindent" >Industrial controllers, network probes, IoT gateways, and regulated environments (HIPAA, SOC2)
 where cross-request batching is disallowed. At \(B{=}1\) the entire throughput case for AR collapses: the
 serial-vs-serial number is the operative one, and DG leads it. DG&#8217;s cost-invariance to output size
 also means the p99 is flat whether the record is 128 or 512 tokens, where AR&#8217;s p99 grows
 linearly.
 <a 
- id="x1-26001r34"></a>
+ id="x1-27001r35"></a>
 </p>
    <h4 class="subsectionHead"><span class="titlemark">6.8   </span> <a 
- id="x1-270008"></a>Where diffusion does not win</h4>
-<!--l. 169--><p class="noindent" >The boundary is sharp. High-rate log streams (\(\lambda \gg \crossoverLambda \) ev/s) favour AR&#8217;s batching by 50&#8211;80\(\times \).
+ id="x1-280008"></a>Where diffusion does not win</h4>
+<!--l. 170--><p class="noindent" >The boundary is sharp. High-rate log streams (\(\lambda \gg \crossoverLambda \) ev/s) favour AR&#8217;s batching by 50&#8211;80\(\times \).
 Tail-sensitive single-stream workloads with strict p99 SLAs are hurt by DG&#8217;s 3.21\(\times \) max/median
 ratio (though this washes out under sequential composition, as the chain experiment shows). And
 any workload that can batch favours AR regardless of output length.
 <a 
- id="x1-27001r25"></a>
+ id="x1-28001r26"></a>
 </p>
    <h3 class="sectionHead"><span class="titlemark">7   </span> <a 
- id="x1-280007"></a>Conclusion</h3>
+ id="x1-290007"></a>Conclusion</h3>
 <!--l. 4--><p class="noindent" >Diffusion language models have a real latency advantage for structured output: \(1.8\times \) faster than the
 quality-comparable AR model even at natural output length, inflated to \(5.4\times \) at forced output \(L{=}1024\). The
 advantage comes from the cost shape &#8212; a staircase that is flat inside each block &#8212; not from the
@@ -727,7 +757,7 @@ schema validation, and a data-centre footprint. Outside that regime, the line be
 staircase.
 </p>
    <h3 class="likesectionHead"><a 
- id="x1-290007"></a>References</h3>
+ id="x1-300007"></a>References</h3>
    <div class="thebibliography">
    <p class="bibitem" ><span class="biblabel">
  [1]<span class="bibsp">&#x00A0;&#x00A0;&#x00A0;</span></span><a 
@@ -776,9 +806,9 @@ staircase.
 </p>
    </div>
 <a 
- id="x1-29009r36"></a>
+ id="x1-30009r37"></a>
    <h3 class="sectionHead"><span class="titlemark">A   </span> <a 
- id="x1-300001"></a>Eight Priced Corrections</h3>
+ id="x1-310001"></a>Eight Priced Corrections</h3>
 <!--l. 4--><p class="noindent" >Each of the following was found by re-reading committed artifacts, not by running new
 experiments. Items 1&#8211;5 were harness defects &#8212; the measurement itself was contaminated.
 Items 6&#8211;8 were claims withdrawn after correction &#8212; the measurement was sound, but
@@ -841,10 +871,10 @@ infrastructure.
                                                                                    
                                                                                    
 <a 
- id="x1-30009r38"></a>
+ id="x1-31009r39"></a>
 </p>
    <h3 class="sectionHead"><span class="titlemark">B   </span> <a 
- id="x1-310002"></a>Base Decomposition: Why the Fit Fails</h3>
+ id="x1-320002"></a>Base Decomposition: Why the Fit Fails</h3>
 <!--l. 4--><p class="noindent" >Sweeping \(K \in \{2,4,8,16,32,64\}\) at fixed output length fits \(T(K) = \kfitBase + \kfitSlope \cdot K\) with \(R^2 = \kfitRsq \). The low \(R^2\) is itself informative: latency saturates above
 \(K{=}16\), so the linear term is a poor description at the top of the range and the fit is carried by the
 bottom. The intercept is therefore not interpretable as a floor.
@@ -858,15 +888,15 @@ bottom. The intercept is therefore not interpretable as a floor.
 <!--l. 12--><p class="noindent" > <img 
 src="..//figures/fig4_ksweep-.png" alt="PIC"  
 width="368" height="368"  /> <a 
- id="x1-31001r8"></a>
+ id="x1-32001r8"></a>
 <a 
- id="x1-31002"></a>
+ id="x1-32002"></a>
 <br />                                                                                   </p><div class="caption" 
 ><span class="id">
 <tspan font-family="ec-lmbx" font-size="10">Figure</tspan><tspan font-family="ec-lmbx" font-size="10">&#x00A0;8. </tspan></span><span  
 class="content"><tspan font-family="ec-lmr" font-size="10">Denoising-step sweep at</tspan> \(L_{\mathrm {out}}{=}\canvasLength \) <tspan font-family="ec-lmr" font-size="10">(</tspan><span id="textcolor42"><tspan font-family="ec-lmtt" font-size="8">results/issue44_dg_ksweep_K*.json</tspan></span><tspan font-family="ec-lmr" font-size="10">, BGL,</tspan> \(n{=}200\) <tspan font-family="ec-lmr" font-size="10">per point). Latency</tspan>
 <tspan font-family="ec-lmr" font-size="10">saturates above</tspan> \(K{=}16\)<tspan font-family="ec-lmr" font-size="10">; quality is flat above</tspan> \(K{=}8\)<tspan font-family="ec-lmr" font-size="10">. Halving</tspan> \(K\) <tspan font-family="ec-lmr" font-size="10">from 8 to 4 saves</tspan> \(\sim \)<tspan font-family="ec-lmr" font-size="10">87 ms because the saving comes</tspan>
-<tspan font-family="ec-lmr" font-size="10">out of the small slice, while F1 falls from 0.853</tspan><tspan font-family="ec-lmr" font-size="10">&#x00A0;to 0.790</tspan><tspan font-family="ec-lmr" font-size="10">&#x00A0;because the loss comes out of the whole.</tspan> </span></div><!--tex4ht:label?: x1-31001r -->
+<tspan font-family="ec-lmr" font-size="10">out of the small slice, while F1 falls from 0.853</tspan><tspan font-family="ec-lmr" font-size="10">&#x00A0;to 0.790</tspan><tspan font-family="ec-lmr" font-size="10">&#x00A0;because the loss comes out of the whole.</tspan> </span></div><!--tex4ht:label?: x1-32001r -->
                                                                                    
                                                                                    
    </div><hr class="endfigure" />
@@ -884,10 +914,10 @@ class="content"><tspan font-family="ec-lmr" font-size="10">Denoising-step sweep 
 <!--l. 36--><p class="indent" >   The honest range at \(K{=}8\) is 32&#8211;47% denoising against 53&#8211;68% floor. The exact split awaits profiler
 attribution.
 <a 
- id="x1-31003r39"></a>
+ id="x1-32003r40"></a>
 </p>
    <h3 class="sectionHead"><span class="titlemark">C   </span> <a 
- id="x1-320003"></a>The Batching Ceiling and Its Engine Defects</h3>
+ id="x1-330003"></a>The Batching Ceiling and Its Engine Defects</h3>
 <!--l. 4--><p class="noindent" >The diffusion batching ceiling (\(\leq \)1.7\(\times \)) reproduces across two runtimes and two model families, but
 both measurements are bounded by known engine defects:
 </p>
@@ -906,10 +936,10 @@ more than twenty times the diffusion ceiling. Remaining candidates include mixtu
 routing variability and kernel maturity. The true ceiling on an uncrippled stack is unknown but
 lies at or above 1.7\(\times \).
 <a 
- id="x1-32001r41"></a>
+ id="x1-33001r42"></a>
 </p>
    <h3 class="sectionHead"><span class="titlemark">D   </span> <a 
- id="x1-330004"></a>Six Refuted Hypotheses</h3>
+ id="x1-340004"></a>Six Refuted Hypotheses</h3>
 <!--l. 4--><p class="noindent" >We set out to find regimes where the diffusion model beats the autoregressive baseline, and
 generated hypotheses accordingly. Six were refuted. They are reported here at the same length as
                                                                                    
@@ -918,7 +948,7 @@ the confirmations, because a paper whose central methodological claim is &#8220;
 before you compare against it&#8221; has exactly one asset, and that asset is spent the moment a
 negative result gets softened into a footnote.
 </p><!--l. 11--><p class="indent" >   The distinction between these six and the eight-item ledger in Appendix&#x00A0;<a 
-href="#x1-300001">A<!--tex4ht:ref: app:defects --></a> is worth stating
+href="#x1-310001">A<!--tex4ht:ref: app:defects --></a> is worth stating
 plainly. There, our <tspan font-family="ec-lmri" font-size="10">harness was wrong</tspan>: the measurement itself was contaminated, so the recorded
 number was incorrect. Here, our <tspan font-family="ec-lmri" font-size="10">prediction was wrong</tspan>: the measurement was sound, but the
 hypothesis it tested did not survive it.
@@ -931,15 +961,15 @@ hypothesis it tested did not survive it.
                                                                                    
                                                                                    
 <a 
- id="x1-33001r2"></a>
+ id="x1-34001r2"></a>
 <a 
- id="x1-33002"></a>
+ id="x1-34002"></a>
                                                                                    <div class="caption" 
 ><span class="id">
 <tspan font-family="ec-lmbx" font-size="10">Table</tspan><tspan font-family="ec-lmbx" font-size="10">&#x00A0;2.                 </tspan></span><span  
 class="content"><tspan font-family="ec-lmr" font-size="10">Six                hypotheses                that                did                not</tspan>
 <tspan font-family="ec-lmr" font-size="10">survive measurement (sources: </tspan><span id="textcolor46"><tspan font-family="ec-lmtt" font-size="8">results/issue43_nine_field_f1.json</tspan></span><tspan font-family="ec-lmr" font-size="10">, </tspan><span id="textcolor47"><tspan font-family="ec-lmtt" font-size="8">results/issue44_dg_ksweep_K*.json</tspan></span><tspan font-family="ec-lmr" font-size="10">,</tspan>
-<span id="textcolor48"><tspan font-family="ec-lmtt" font-size="8">results/issue68_dg_L*.json</tspan></span><tspan font-family="ec-lmr" font-size="10">, BGL,</tspan> \(n{=}300\)<tspan font-family="ec-lmr" font-size="10">).</tspan>                                                      </span></div><!--tex4ht:label?: x1-33001r -->
+<span id="textcolor48"><tspan font-family="ec-lmtt" font-size="8">results/issue68_dg_L*.json</tspan></span><tspan font-family="ec-lmr" font-size="10">, BGL,</tspan> \(n{=}300\)<tspan font-family="ec-lmr" font-size="10">).</tspan>                                                      </span></div><!--tex4ht:label?: x1-34001r -->
                                                                                    
                                                                                    
 
@@ -1113,7 +1143,7 @@ class="td01"><!--l. 41--><p class="noindent" >                        </p></td><
    </div><hr class="endfloat" />
    </div>
 <!--l. 44--><p class="noindent" ><span class="likeparagraphHead"><a 
- id="x1-340004"></a>Perturbation robustness, refuted in every category</span>
+ id="x1-350004"></a>Perturbation robustness, refuted in every category</span>
    We predicted that denoising a whole canvas jointly would make the diffusion model more
 tolerant of noisy input than left-to-right decoding. Across ten perturbation categories at full
 intensity, it was worse in all ten. Two categories &#8212; whitespace and abbreviation &#8212; left the
@@ -1123,7 +1153,7 @@ input noise forward only, while bidirectional conditioning also propagates it ba
 test that, and it stays a hypothesis.
 </p>
 <!--l. 55--><p class="noindent" ><span class="likeparagraphHead"><a 
- id="x1-350004"></a>Infilling, refuted for a reason worth stating</span>
+ id="x1-360004"></a>Infilling, refuted for a reason worth stating</span>
    The prediction was structural: with a fixed right context, suffix tokens are never
 in the denoised set, so the diffusion model should preserve them byte-identically by
 construction. The experiment (\(S \in \{0,2,4,8\}\) suffix fields, \(n{=}50\)) refuted it, but the mechanism matters &#8212; the
@@ -1134,7 +1164,7 @@ be regenerated from context, such as code infilling. It does not hold on short J
 fields.
 </p>
 <!--l. 66--><p class="noindent" ><span class="likeparagraphHead"><a 
- id="x1-360004"></a>A pattern in the refutations</span>
+ id="x1-370004"></a>A pattern in the refutations</span>
    Every refuted hypothesis had, at some earlier point, appeared to be confirmed. In each case
 the apparent confirmation traced to an artifact of our own harness rather than to a property
 of either architecture: the bounded-deadline result was the completeness metric, the
@@ -1142,14 +1172,14 @@ length-invariance result was the contaminated metric, and the perturbation and r
 ran a mis-provenanced model. The measurement discipline is not a preamble to the results. It is
 what separates these six from the ones we kept.
 <a 
- id="x1-36001r42"></a>
+ id="x1-37001r43"></a>
 </p>
    <h3 class="sectionHead"><span class="titlemark">E   </span> <a 
- id="x1-370005"></a>The Input-Length Variable and the Canvas Pareto</h3>
+ id="x1-380005"></a>The Input-Length Variable and the Canvas Pareto</h3>
 <a 
- id="x1-37001r35"></a>
+ id="x1-38001r36"></a>
    <h4 class="subsectionHead"><span class="titlemark">E.1   </span> <a 
- id="x1-380001"></a>Input length: the second variable</h4>
+ id="x1-390001"></a>Input length: the second variable</h4>
 <!--l. 6--><p class="noindent" >Equation&#x00A0;<tspan font-family="ec-lmbx" font-size="10">??</tspan> has two variables, and the second one matters more for diffusion than for
 autoregression. Sweeping the prompt from roughly 1,000 to 6,800 tokens gives 0.0 ms per prompt
 token for the autoregressive arm and 0.1 ms for the diffusion arm &#8212; 2.6\(\times \) steeper. The mechanism
@@ -1166,15 +1196,15 @@ times.
 <!--l. 17--><p class="noindent" > <img 
 src="..//figures/fig3_input_sweep-.png" alt="PIC"  
 width="433" height="433"  /> <a 
- id="x1-38001r9"></a>
+ id="x1-39001r9"></a>
 <a 
- id="x1-38002"></a>
+ id="x1-39002"></a>
 <br />                                                                                   </p><div class="caption" 
 ><span class="id">
 <tspan font-family="ec-lmbx" font-size="10">Figure</tspan><tspan font-family="ec-lmbx" font-size="10">&#x00A0;9. </tspan></span><span  
 class="content"><tspan font-family="ec-lmr" font-size="10">Input-length sweep at fixed</tspan> \(L_{\mathrm {out}}{=}\canvasLength \) <tspan font-family="ec-lmr" font-size="10">(</tspan><span id="textcolor50"><tspan font-family="ec-lmtt" font-size="8">results/issue44_{ar3b,dg}_input_sweep.json</tspan></span><tspan font-family="ec-lmr" font-size="10">, BGL,</tspan> \(n{=}100\) <tspan font-family="ec-lmr" font-size="10">per point).</tspan>
 <tspan font-family="ec-lmr" font-size="10">The prompt is lengthened by repeating the schema block, so the task is unchanged. </tspan><tspan font-family="ec-lmbx" font-size="10">B </tspan><tspan font-family="ec-lmr" font-size="10">is the finding:</tspan>
-<tspan font-family="ec-lmr" font-size="10">the diffusion model&#8217;s prefill slope is 2.6</tspan>\(\times \) <tspan font-family="ec-lmr" font-size="10">the autoregressive model&#8217;s.</tspan>                           </span></div><!--tex4ht:label?: x1-38001r -->
+<tspan font-family="ec-lmr" font-size="10">the diffusion model&#8217;s prefill slope is 2.6</tspan>\(\times \) <tspan font-family="ec-lmr" font-size="10">the autoregressive model&#8217;s.</tspan>                           </span></div><!--tex4ht:label?: x1-39001r -->
                                                                                    
                                                                                    
    </div><hr class="endfigure" />
@@ -1185,10 +1215,10 @@ which the autoregressive model is cheaper at <tspan font-family="ec-lmri" font-s
 number is an extrapolation of two fitted slopes and is quoted as an order of magnitude, not a
 boundary.
 <a 
- id="x1-38003r48"></a>
+ id="x1-39003r49"></a>
 </p>
    <h4 class="subsectionHead"><span class="titlemark">E.2   </span> <a 
- id="x1-390002"></a>A free Pareto improvement at canvas \(= 128\)</h4>
+ id="x1-400002"></a>A free Pareto improvement at canvas \(= 128\)</h4>
 <!--l. 38--><p class="noindent" >DiffusionGemma&#8217;s canvas length is a configuration parameter, so we swept it. At
 canvas \(=128\) the base falls to 368.5 ms (\(-2.0\%\) relative to the canvas \(=256\) measurement of 378.8 ms
 from <span id="textcolor51"><tspan font-family="ec-lmtt" font-size="8">results/issue44_dg_ksweep_K8.json</tspan></span>; the canvas sweep&#8217;s own \(L{=}256\) point measured 376.0 ms
@@ -1201,15 +1231,15 @@ variable.
 the base, and prefill does not shrink when the canvas does. Tuning the canvas trades quality
 against step count; it does not buy a different crossover.
 <a 
- id="x1-39001r47"></a>
+ id="x1-40001r48"></a>
 </p>
    <h3 class="sectionHead"><span class="titlemark">F   </span> <a 
- id="x1-400006"></a>Quality vs Output Length</h3>
+ id="x1-410006"></a>Quality vs Output Length</h3>
 <!--l. 4--><p class="noindent" >Figure&#x00A0;<a 
-href="#x1-40001r10">10<!--tex4ht:ref: fig:quality --></a> shows what happens to quality when output length is forced. The AR model&#8217;s 9-field
+href="#x1-41001r10">10<!--tex4ht:ref: fig:quality --></a> shows what happens to quality when output length is forced. The AR model&#8217;s 9-field
 F1 is flat at 0.852 from \(L{=}\canvasLength \) to \(L{=}512\) &#8212; not because the model is invariant, but because first-object-wins
 parsing (defect 3, Appendix&#x00A0;<a 
-href="#x1-300001">A<!--tex4ht:ref: app:defects --></a>) discards the tokens past the first JSON object. At \(L{=}128\) the AR model
+href="#x1-310001">A<!--tex4ht:ref: app:defects --></a>) discards the tokens past the first JSON object. At \(L{=}128\) the AR model
 retains 0.669 F1 and 66.7% schema validity, while the diffusion model falls to 0.311 and
 1.0%.
 </p>
@@ -1222,16 +1252,16 @@ retains 0.669 F1 and 66.7% schema validity, while the diffusion model falls to 0
 <!--l. 15--><p class="noindent" > <img 
 src="..//figures/fig5_quality_vs_length-.png" alt="PIC"  
 width="433" height="433"  /> <a 
- id="x1-40001r10"></a>
+ id="x1-41001r10"></a>
 <a 
- id="x1-40002"></a>
+ id="x1-41002"></a>
 <br />                                                                                   </p><div class="caption" 
 ><span class="id">
 <tspan font-family="ec-lmbx" font-size="10">Figure</tspan><tspan font-family="ec-lmbx" font-size="10">&#x00A0;10.        </tspan></span><span  
 class="content"><tspan font-family="ec-lmr" font-size="10">Quality        and        schema        validity        as        a        function        of</tspan>
 <tspan font-family="ec-lmr" font-size="10">forced output length (</tspan><span id="textcolor54"><tspan font-family="ec-lmtt" font-size="8">results/issue43_nine_field_f1.json</tspan></span><tspan font-family="ec-lmr" font-size="10">, BGL,</tspan> \(n{=}300\) <tspan font-family="ec-lmr" font-size="10">per cell). AR-3B F1 is flat from</tspan> \(L{=}256\) <tspan font-family="ec-lmr" font-size="10">to</tspan>
 \(L{=}512\) <tspan font-family="ec-lmr" font-size="10">because first-object-wins parsing discards the rambled continuation. The diffusion model&#8217;s quality</tspan>
-<tspan font-family="ec-lmr" font-size="10">rises with</tspan> \(L\) <tspan font-family="ec-lmr" font-size="10">and then plateaus.</tspan>                                                          </span></div><!--tex4ht:label?: x1-40001r -->
+<tspan font-family="ec-lmr" font-size="10">rises with</tspan> \(L\) <tspan font-family="ec-lmr" font-size="10">and then plateaus.</tspan>                                                          </span></div><!--tex4ht:label?: x1-41001r -->
                                                                                    
                                                                                    
    </div><hr class="endfigure" />
@@ -1239,10 +1269,10 @@ class="content"><tspan font-family="ec-lmr" font-size="10">Quality        and   
 <tspan font-family="ec-lmri" font-size="10">output-length </tspan>budget. Which one an application faces decides which architecture is
 safer.
 <a 
- id="x1-40003r51"></a>
+ id="x1-41003r52"></a>
 </p>
    <h3 class="sectionHead"><span class="titlemark">G   </span> <a 
- id="x1-410007"></a>Latency Distributions</h3>
+ id="x1-420007"></a>Latency Distributions</h3>
 <!--l. 4--><p class="noindent" >The per-event latency distributions are asymmetric. Across the 300 individual events of one
 anchor run at \(L{=}\canvasLength \): </p>
    <ul class="itemize1">

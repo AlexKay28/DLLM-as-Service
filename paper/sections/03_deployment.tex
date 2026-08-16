@@ -123,3 +123,13 @@ The diffusion model is the right choice only when all five hold:
   \item The quality floor exceeds what the AR model delivers.
   \item A \dgWeights\,GB resident footprint is acceptable.
 \end{enumerate}
+
+\paragraph{Co-residency.} Conditions 2 and 5 together describe an 80\,GB
+A100 dedicated to one request at a time. The alternative is not
+``AR-1.5B serving one tenant'' but ``sixteen copies of AR-1.5B serving
+sixteen isolated tenants'' --- at 3.0\,GB per copy, sixteen fit in the
+space DG occupies alone. Per-tenant latency is unchanged; throughput is
+16$\times$; isolation is preserved. This co-residency argument is the
+natural response to ``batch-1 by tenant isolation'' and is not covered by
+the batching measurement in \S\ref{app:batching}, which measures
+cross-request batching within one model.
