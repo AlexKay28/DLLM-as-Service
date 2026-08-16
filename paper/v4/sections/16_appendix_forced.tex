@@ -14,13 +14,19 @@ points ($L \in \{138, 256, 512, 1024\}$, $R^2 > 0.999$):
 \begin{equation}
 T_{\textsc{ar}}(L) = 142.3 + 3.79 \cdot L \quad\text{(ms)}
 \end{equation}
-DG's latency is the staircase:
+where $T_{\textsc{ar}}$ is the p50 latency in milliseconds, $L$ is the
+output length in tokens, the intercept 142.3\,ms is the prompt prefill
+cost, and the slope 3.79\,ms/token is the per-token decode cost of
+AR-1.5B. DG's latency is the staircase:
 \begin{equation}
 T_{\textsc{dg}}(L) = 378.3 + 119.5 \cdot
 \Bigl(\bigl\lceil \tfrac{L}{256} \bigr\rceil - 1\Bigr) \quad\text{(ms)}
 \end{equation}
-Neither law depends on \texttt{min\_tokens}; both depend only on
-$L_{\mathrm{out}}$.
+where 378.3\,ms is the first-canvas cost (prefill + $K{=}8$ denoising
+steps over 256 tokens), 119.5\,ms is the marginal cost per additional
+canvas, and $\lceil L/256 \rceil$ counts the number of canvases needed
+to emit $L$ tokens. Neither law depends on \texttt{min\_tokens}; both
+depend only on $L_{\mathrm{out}}$.
 
 \paragraph{A naturally-long task exists.}
 

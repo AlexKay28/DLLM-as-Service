@@ -55,8 +55,12 @@ L^{*} = \frac{\dgBase - \arBase}{\arSlope} = \crossoverL \text{ tokens},
 \qquad
 \lambda^{*} = \frac{1000}{\dgBase} = \crossoverLambda \text{ events/s}
 \end{equation}
-Below $L^{*}$, AR is cheaper; above it, DG is --- until the next canvas
-edge, where the gap widens again.
+where $L^{*}$ is the output length at which the two cost laws produce
+equal latency (i.e., $T_{\textsc{ar}}(L^{*}) = T_{\textsc{dg}}(L^{*})$),
+and $\lambda^{*}$ is the maximum serial event rate before a queue
+forms (the reciprocal of the DG base, in events per second). Below
+$L^{*}$, AR is cheaper; above it, DG is --- until the next canvas edge,
+where the gap widens again.
 
 \begin{figure}[t]
 \centering

@@ -62,8 +62,11 @@ diffusion model would have a higher floor but the same staircase.
 \Delta_{\mathrm{F1}} = |\arThreeBFnine - \dgNineF| = \qualityGap, \quad
 \text{95\% CI } [-0.012, +0.011], \quad n = 300
 \end{equation}
-Differences below 0.006 fall within the standard error and are not
-statistically significant.
+where $\Delta_{\mathrm{F1}}$ is the absolute difference in 9-field
+macro F1 between the two arms, \arThreeBFnine{} and \dgNineF{} are
+the measured F1 scores for AR-30B and DG respectively, and $n$ is the
+number of test events. Differences below 0.006 fall within the standard
+error and are not statistically significant.
 
 Our contributions are as follows:
 \begin{itemize}[leftmargin=1.5em]

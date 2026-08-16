@@ -79,13 +79,15 @@ keeping each model resident.}
 The diffusion model uses less energy because it is busy for less time.
 At the active-parameter-matched pair (\ARthree\ vs \DG):
 \begin{align}
-\text{compute-matched:} \quad & R_{\mathrm{energy}} =
+\text{active-param-matched:} \quad & R_{\mathrm{energy}} =
 \frac{\arThreeEnergy}{\dgEnergy} = 5.3 \quad \text{(idle 52.6\,W)} \\
 \text{quality-similar:} \quad & R_{\mathrm{energy}} =
 \frac{\arOneFiveEnergy}{\dgEnergy} = 1.2 \quad \text{(idle 58.6\,W)}
 \end{align}
-The two energy runs had different idle baselines, so the
-quality-similar comparison is indicative.
+where $R_{\mathrm{energy}}$ is the ratio of net energy per event
+(joules, idle-subtracted) between the AR and DG arms. A ratio $> 1$
+means AR uses more energy. The two energy runs had different idle
+baselines, so the quality-similar comparison is indicative.
 
 \paragraph{Graceful degradation under deadline pressure.}
 
