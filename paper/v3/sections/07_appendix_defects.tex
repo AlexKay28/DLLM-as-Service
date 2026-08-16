@@ -1,9 +1,11 @@
-\section{Five Harness Defects}
+\section{Eight Priced Corrections}
 \label{app:defects}
 
 Each of the following was found by re-reading committed artifacts, not by
-running new experiments. Four of the five biased against the autoregressive
-arm; the fifth was a correctness-of-record defect.
+running new experiments. Items 1--5 were harness defects --- the measurement
+itself was contaminated. Items 6--8 were claims withdrawn after correction
+--- the measurement was sound, but the claim drawn from it was not. Five of
+the eight biased against the autoregressive arm.
 
 \begin{enumerate}
 \item \textbf{Decoding configuration.} Qwen2.5's checkpoint sets
@@ -31,6 +33,28 @@ Distinguishing absent from present-but-falsy moved AR completeness from
 \item \textbf{Provenance.} A CLI default wrote an AR model name into three DG
 result files. Biases no comparison but made audit impossible until correction
 sidecars were written. \emph{Neutral.}
+
+\item \textbf{Classical-parser baseline.} An earlier draft claimed a classical
+parser matched LLM extraction at Field-F1 of $0.68$ against $0.85$. What was
+recorded as a near-match was self-grading: our ``Drain'' was a regex fallback
+rather than the reference implementation, and the gold generator was the same
+code. The claim is withdrawn. \emph{Neutral} (inflated a third baseline, not
+either architecture). Found by re-reading the gold-generation script.
+
+\item \textbf{Contaminated semantic gold.} An earlier draft claimed structural
+and semantic fields separate cleanly, on a 12-field macro where AR led DG by
+\twelveGap\ F1. The semantic gold labels were placeholder output of the same
+parser, one a constant across 2{,}000 events. On the decontaminated 9-field
+macro the two differ by \qualityGap. The contamination inflated the arm that
+fills fields with plausible text (AR) and penalised the arm that leaves them
+empty (DG). \emph{Against DG.} Found by re-reading the gold labels.
+
+\item \textbf{Queueing model.} An earlier draft claimed an M/D/1 queue
+predicts diffusion latency under load. The match was to the measured
+saturation knee under Poisson arrivals; under bursty (MMPP) arrivals, which is
+what log streams actually produce, the model stops being predictive. The claim
+is withdrawn. \emph{Against AR} (overstated how well DG's load behaviour is
+modelled).
 \end{enumerate}
 
 The clustering on one arm is not a coincidence: a comparison harness written by
