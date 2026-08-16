@@ -4,13 +4,13 @@
 Block-diffusion language models have a staircase cost shape that is
 structurally different from the linear cost of autoregressive decoding.
 The shapes cross at $L^{*} = \crossoverL$ output tokens, above which
-diffusion is faster. The advantage grows with output length: $1.4\times$
-at $L{=}1024$, $1.7\times$
+diffusion is faster. The advantage is large: $15.6\times$
+at natural output, $8.0\times$
 at $L{=}2048$.
 
 Against a MoE-matched AR model (Qwen3-30B-A3B, 3\,B active of 30\,B),
 this is a fair comparison. The six-fold improvement in AR per-token
-cost from dense-to-MoE (6.3 to 1.0\,ms/token) pushed the crossover
+cost from dense-to-MoE serial (6.3 to 47.7\,ms/token) pushed the crossover
 from 59 to 6 tokens. DG wins at every practical output length in serial mode.
 
 The advantage is limited where batching is available (AR batches
