@@ -10,7 +10,7 @@ at $L{=}1024$, $2.4\times$ at $L{=}2048$.
 Against a MoE-matched AR model (Qwen3-30B-A3B, 3\,B active of 30\,B),
 this is a fair comparison. The six-fold improvement in AR per-token
 cost from dense-to-MoE (6.3 to 1.0\,ms/token) narrowed the crossover
-from 59 to 368 tokens, but DG still wins decisively at long output.
+from 59 to 368 tokens. DG still wins at long output at long output.
 
 The advantage is limited where batching is available (AR batches
 $77\times$ better) and where tail SLAs are tight (DG's max/median is

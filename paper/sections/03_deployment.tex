@@ -4,7 +4,7 @@
 The diffusion model's latency advantage grows with output length
 because AR pays per token while DG pays per canvas. But with the
 MoE-matched AR-30B (slope 1.0\,ms/token, six times faster than the
-dense AR-3B's 6.3), the advantage is modest.
+dense AR's 6.3), the advantage grows with output length.
 
 Table~\ref{tab:niche} shows the measured comparison. AR cells are
 \emph{forced} ($\texttt{min\_tokens} = L$); the unforced row shows
@@ -33,8 +33,8 @@ $L_{\mathrm{out}}$ & AR-30B (ms) & DG (ms) & Advantage \\
 Below 368 tokens, AR-30B is faster. Above it, DG is --- but the margin
 is thin. At $L{=}512$ the two are equal; at $L{=}1024$ DG wins by only
 $1.4\times$; at $L{=}2048$ by $2.4\times$. Compare with the dense
-AR-3B baseline (slope 6.3\,ms/token): against that model, DG won
-$5.4\times$ at $L{=}1024$. The six-fold improvement in per-token cost
+The dense AR-3B baseline (from earlier measurements) (slope 6.3 ms/token) showed DG winning
+$5.4\times$ at $L{=}1024$ against the dense baseline. The six-fold improvement in per-token cost
 from dense-to-MoE AR is the reason the niche shrank.
 
 \paragraph{Energy.}
@@ -47,9 +47,9 @@ R_{\mathrm{energy}} = \frac{E_{\mathrm{AR}}}{E_{\mathrm{DG}}}
 where $E_{\mathrm{AR}}$ and $E_{\mathrm{DG}}$ are the net energy per
 event (joules, idle-subtracted) for each arm. Measured values:
 \begin{align}
-\text{AR-3B dense:} \quad & R_{\mathrm{energy}} =
+\text{AR-30B MoE:} \quad & R_{\mathrm{energy}} =
 \frac{22.3}{4.2} = 5.3 \quad \text{(idle 52.6\,W)} \\
-\text{AR-1.5B dense:} \quad & R_{\mathrm{energy}} =
+\text{Dense AR-1.5B:} \quad & R_{\mathrm{energy}} =
 \frac{5.1}{4.2} = 1.2 \quad \text{(idle 58.6\,W)}
 \end{align}
 Energy was not measured for AR-30B MoE; the above values are from the

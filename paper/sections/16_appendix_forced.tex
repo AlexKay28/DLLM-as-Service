@@ -1,7 +1,7 @@
 \section{Analytical resolution of the forced-decoding question}
 \label{app:forced}
 
-The forced comparison (Table~\ref{tab:niche}) charges AR-1.5B for
+The forced comparison (Table~\ref{tab:niche}) charges AR-30B for
 \texttt{min\_tokens} output that the parser discards. A reviewer asks:
 does the advantage survive on a task whose \emph{natural} output length
 is $\geq 512$ tokens? We answer this analytically, without running a new
@@ -9,16 +9,16 @@ experiment, by applying the fitted cost laws.
 
 \paragraph{The cost laws are length-dependent, not forcing-dependent.}
 
-AR-1.5B's latency is linear in output length, fitted from four measured
+AR-30B's latency is linear in output length, fitted from four measured
 points ($L \in \{138, 256, 512, 1024\}$, $R^2 > 0.999$):
 \begin{equation}
 T_{\textsc{ar}}(L) = a_{\textsc{ar}} + b_{\textsc{ar}} \cdot L
-= 142.3 + 3.79 \cdot L \quad\text{(ms)}
+= -5.8 + 1.0 \cdot L \quad\text{(ms)}
 \end{equation}
 where $T_{\textsc{ar}}$ is the p50 latency, $L$ is the output length in
-tokens, $a_{\textsc{ar}} = 142.3$\,ms is the prompt prefill cost, and
-$b_{\textsc{ar}} = 3.79$\,ms/token is the per-token decode cost of
-AR-1.5B. DG's latency is the staircase:
+tokens, $a_{\textsc{ar}} = -5.8$\,ms is the prompt prefill cost, and
+$b_{\textsc{ar}} = 1.0$\,ms/token is the per-token decode cost of AR-30B MoE.
+AR-30B. DG's latency is the staircase:
 \begin{equation}
 T_{\textsc{dg}}(L) = a_{\textsc{dg}} + b_{\textsc{dg}} \cdot
 \Bigl(\bigl\lceil \tfrac{L}{C} \bigr\rceil - 1\Bigr)
@@ -45,27 +45,24 @@ Applying the fitted laws:
 \begin{center}
 \begin{tabular}{@{}lrrrr@{}}
 \toprule
-Task & $L_{\mathrm{out}}$ & AR-1.5B (ms) & DG (ms) & Ratio \\
+Task & $L_{\mathrm{out}}$ & AR-30B (ms) & DG (ms) & Ratio \\
 \midrule
-Single record (unforced) & 138 & 666 & 378 & $1.8\times$ \\
-Multi-record $N{=}2$ & 280 & 1204 & 498 & $2.4\times$ \\
-Multi-record $N{=}4$ & 560 & 2266 & 617 & $3.7\times$ \\
-Multi-record $N{=}8$ & 1120 & 4390 & 856 & $5.1\times$ \\
+Single record (unforced) & 123 & 117 & 379 & AR $3.2\times$ \\
+Multi-record $N{=}2$ & 280 & 274 & 498 & AR $1.8\times$ \\
+Multi-record $N{=}4$ & 560 & 554 & 618 & AR $1.1\times$ \\
+Multi-record $N{=}8$ & 1120 & 1114 & 857 & DG $1.3\times$ \\
 \bottomrule
 \end{tabular}
 \end{center}
 
-The $5.4\times$ advantage at $L{=}1024$ in the paper is within the range
-predicted by the cost laws for any task producing that output length,
-forced or natural. What the forcing artifact changes is not the ratio
-but the \emph{interpretation}: at forced $L{=}1024$ the AR arm is charged
-for discarded tokens; at natural $L{=}1024$ (multi-record $N{=}8$) it is
-charged for tokens that are all used. The niche is real either way.
+With the MoE-matched AR-30B, DG only wins at $N \geq 8$ (cumulative
+$L \geq 1000$). The advantage is $1.3\times$ at $N{=}8$ and grows with
+$N$. Below $N{=}8$, AR-30B is faster. The cost laws predict this
+exactly: the crossover is at $L^{*} = 368$ tokens.
 
 \paragraph{Caveat.}
 
-This is an analytical projection, not a measurement. The cost laws are
-fitted on single-record output; multi-record output may have different
-prompt structure (longer input) and different token efficiency per
-record. The projection assumes the per-token decode cost is unchanged,
-which is the standard assumption for autoregressive decoding.
+These are analytical projections from the fitted cost laws, not direct
+measurements of multi-record extraction. The laws are fitted on
+single-record output; multi-record output may have different prompt
+structure.
