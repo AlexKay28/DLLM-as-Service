@@ -56,7 +56,7 @@
 \newcommand{\naturalLar}{123}      % AR natural output length (tokens)
 
 % --- Input length, the second variable ------ results/issue44_*_sweep.json --
-\newcommand{\arInputSlope}{0.0}  % ms per prompt token
+\newcommand{\arInputSlope}{0.038}  % ms per prompt token
 \newcommand{\dgInputSlope}{0.1}  % ms per prompt token
 \newcommand{\inputSlopeRatio}{2.6} % dgInputSlope / arInputSlope
 
@@ -121,11 +121,11 @@
 % --- Generalisation to HDFS ---------------------- results/issue67_*.json ----
 \newcommand{\hdfsStep}{120.5}     % ms, DG canvas step on HDFS
 \newcommand{\bglStep}{118.5}      % ms, DG canvas step on BGL (same cells)
-\newcommand{\arHdfs}{1616.5}      % ms, AR-30B L=256 on HDFS
-\newcommand{\arBgl}{1616.0}       % ms, AR-30B L=256 on BGL
+\newcommand{\arHdfs}{1616.5}      % ms, AR-3B L=256 on HDFS
+\newcommand{\arBgl}{1616.0}       % ms, AR-3B L=256 on BGL
 
 % --- Canvas tuning -------------------------- results/issue66_canvas_*.json --
-\newcommand{\canvasOneTwentyEightBase}{385.5}  % ms at canvas=128
+\newcommand{\canvasOneTwentyEightBase}{368.5}  % ms at canvas=128
 \newcommand{\canvasOneTwentyEightFone}{0.864} % 9-field F1 at canvas=128
 
 % --- K as a runtime quality knob --------- results/issue44_dg_ksweep_K*.json --
