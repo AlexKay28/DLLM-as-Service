@@ -9,3 +9,17 @@ a $\sim$\refPrompt-token prompt and shifts with input length. The AR--DG
 quality difference ($\Delta = \qualityGap$) has a 95\% CI of $[-0.012,
 +0.011]$ at $n=300$; the two are statistically equivalent at a $\pm 0.01$
 margin.
+
+The surviving niche has not been tested on a task whose natural output length
+is $\geq 512$ tokens. The forced comparison in Table~\ref{tab:niche} charges
+the AR arm for tokens that first-object-wins parsing discards, so the
+$5.4\times$ advantage is an upper bound on AR cost rather than a measurement
+of it. A task with genuinely long natural output --- multi-record extraction,
+incident reports --- would test the niche without this artifact.
+
+The niche has also not been tested against grammar-constrained AR decoding
+(outlines, xgrammar, llguidance), which would eliminate the over-generation
+the forced comparison charges for, guarantee 100\% schema validity, and
+remove the diffusion model's completeness advantage. Constrained decoding is
+the standard answer to the structured-output problem and is a stated
+limitation of this paper.

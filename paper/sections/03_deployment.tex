@@ -1,26 +1,39 @@
 \section{Where Diffusion Wins, and Where It Doesn't}
 \label{sec:fair}
 
-\subsection{The surviving advantage}
+\subsection{The surviving advantage, and what it is measured against}
 
-At forced output $L \geq 512$ tokens, the diffusion model is faster at
-matched quality. The advantage grows with output length because the AR model
-pays per token while the diffusion model pays per canvas.
+At its natural output length, AR-1.5B completes a record in 665.7\,ms at 138
+output tokens (unforced, \texttt{min\_tokens}\,$=$\,0). At forced output
+$L \geq 512$ tokens, the diffusion model is faster at matched quality. The
+advantage grows with output length because the AR model pays per token while
+the diffusion model pays per canvas.
 
 \begin{table}[h]
 \centering
-\caption{Latency at matched quality (AR-1.5B vs DG-26B-A4B, batch-1).}
+\caption{Latency at matched quality (AR-1.5B vs DG-26B-A4B, batch-1). AR
+cells are \emph{forced} (\texttt{min\_tokens}\,$=$\,$L$); unforced AR-1.5B
+completes in 665.7\,ms at 138 tokens.}
 \label{tab:niche}
-\begin{tabular}{@{}lrrr@{}}
+\begin{tabular}{@{}lrrrr@{}}
 \toprule
-$L_{\mathrm{out}}$ & AR-1.5B (ms) & DG (ms) & DG advantage \\
+$L_{\mathrm{out}}$ & AR-1.5B forced (ms) & AR-1.5B unforced & DG (ms) & DG advantage \\
 \midrule
-256  & \arOneFiveTwoFive{} & \dgTwoFive{}   & $2.7\times$ \\
-512  & \arOneFiveFiveOne{} & \dgFiveOne{}   & $4.0\times$ \\
-1024 & \arOneFiveTenTwoFour{} & \dgTenTwoFour{} & $5.4\times$ \\
+138 (natural) & --- & 665.7 & \dgTwoFive{} & $0.6\times$ \\
+256  & \arOneFiveTwoFive{} & --- & \dgTwoFive{}   & $2.7\times$ \\
+512  & \arOneFiveFiveOne{} & --- & \dgFiveOne{}   & $4.0\times$ \\
+1024 & \arOneFiveTenTwoFour{} & --- & \dgTenTwoFour{} & $5.4\times$ \\
 \bottomrule
 \end{tabular}
 \end{table}
+
+The forced comparison charges the AR arm for tokens it does not use:
+first-object-wins parsing (\S\ref{app:defects}, defect 3) discards the
+rambled continuation past the first JSON object. At $L{=}1024$ the AR arm is
+charged \arOneFiveTenTwoFour\,ms for output the scorer deletes. The
+$4.0$--$5.4\times$ advantage therefore measures the cost of
+\texttt{min\_tokens}, not the cost of autoregression --- it is an upper bound
+on AR cost, not a measurement of it.
 
 \begin{figure}[t]
 \centering
@@ -72,7 +85,8 @@ at $\leq$\dgBatchVllmHi$\times$, while the AR model on vLLM ranges from
 
 The diffusion model is the right choice only when all five hold:
 \begin{enumerate}[nosep]
-  \item Output length $\geq 512$ tokens, forced.
+  \item Output length $\geq 512$ tokens, forced (untested at naturally-long
+    output; see \S\ref{sec:threats}).
   \item Batch-1 by requirement (tenant isolation, interactivity).
   \item Completeness is validated against a schema.
   \item The quality floor exceeds what the AR model delivers.

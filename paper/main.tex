@@ -11,7 +11,7 @@
   {When diffusion language models win on latency, and why they usually don't}
   {Aleksandr Kaigorodov}
   {Yandex}
-  {Preprint \textperiodcentered\ August 2026 \textperiodcentered\ v2}
+  {Preprint \textperiodcentered\ August 2026 \textperiodcentered\ v3}
 
 % ---------------------------------------------------------------- abstract --
 \begingroup
@@ -30,13 +30,14 @@ block-diffusion cost is a staircase, flat inside a fixed-size block and
 stepping at each boundary. The shapes cross at \crossoverL\ output tokens,
 below which the autoregressive model is cheaper.
 
-The diffusion model's advantage grows with output length: at $L{=}1024$ it is
-$5.4\times$ faster at matched quality, uses less energy, and degrades under
-deadline pressure by losing quality rather than completeness. But the advantage
-does not survive deployment: at matched quality the autoregressive model is
-\footprintRatio$\times$ smaller and converts concurrency into throughput far
-better. What survives is one narrow regime --- long structured output under a
-batch-1 constraint --- and we state the five conditions it requires.
+The diffusion model's advantage grows with output length: at forced output
+$L{=}1024$ it is $5.4\times$ faster at matched quality, uses less energy, and
+degrades under deadline pressure by losing quality rather than completeness.
+But the advantage does not survive deployment: at matched quality the
+autoregressive model is \footprintRatio$\times$ smaller and converts
+concurrency into throughput far better. What survives is one narrow regime
+--- long structured output under a batch-1 constraint --- and we state the
+five conditions it requires.
 \endgroup
 
 \vspace{6pt}
@@ -85,5 +86,8 @@ deployment comparison behind it.}
 \input{sections/07_appendix_defects}
 \input{sections/08_appendix_decomp}
 \input{sections/09_appendix_batching}
+\input{sections/10_appendix_refuted}
+\input{sections/11_appendix_input_canvas}
+\input{sections/12_appendix_quality}
 
 \end{document}
