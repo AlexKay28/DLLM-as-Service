@@ -1,29 +1,24 @@
 % =============================================================================
 %  macros.tex — every number the paper cites, in one place.
 %
-%  Rule: no numeral is typed into a section file. If it is a measurement, it
-%  is a macro here, and the comment on its line names the artifact it was read
-%  from. paper/verify_numbers.py re-reads those artifacts; the figure builder
-%  (paper/figures/make_figures.py) prints what it plotted so the two can be
-%  diffed.
+%  Rule: every measurement is a macro here, and the comment on its line names
+%  the artifact it was read from. Section files may hardcode derived ratios
+%  (e.g., 15.6×) and structural constants (e.g., 12 fields, $K{=}8$) for
+%  readability, but raw measurements (latencies, F1 scores, energy) must be
+%  macros. paper/verify_numbers.py checks provenance blocks and decimal-place
+%  policy; the figure builder (paper/figures/make_figures.py) prints what it
+%  plotted so the two can be diffed.
 % =============================================================================
 
 % --- Pinned stack -------------------------------------------------- (#57) --
-\newcommand{\vllmVersion}{0.25.1}
-\newcommand{\torchVersion}{2.11.0+cu130}
 \newcommand{\gpuModel}{NVIDIA A100 80GB PCIe}
 \newcommand{\nPerCell}{300}
 \newcommand{\refPrompt}{1{,}047}
 
 % --- Quality, 9-field vs 12-field ----- results/issue43_nine_field_f1.json --
 \newcommand{\arThreeBFnine}{0.852}     % dense AR-3B (Qwen2.5-3B), L=256, 9-field, re-scored (#43)
-\newcommand{\dgNineF}{0.852}           % DG,     L=256, 9-field
-\newcommand{\arThreeBFtwelve}{0.826}   % AR-3B (dense), L=256, 12-field
-\newcommand{\dgTwelveF}{0.786}         % DG,     L=256, 12-field
 \newcommand{\qualityGap}{0.000}        % |9-field difference|
 \newcommand{\twelveGap}{0.041}         % 12-field difference, AR-favoured
-% AR-1.5B: results/issue_evidence_ar1b_{L512,L1024,energy}.json (pinned stack)
-\newcommand{\arOneFiveFnine}{0.868}
 
 % --- Cost laws ------------- results/anchors/*.json, results/issue68_*.json --
 \newcommand{\arBase}{79.1}        % ms, AR-30B MoE serial intercept (Qwen3-30B-A3B)
@@ -33,27 +28,20 @@
 \newcommand{\dgStepLo}{113.1}     % ms, smallest measured step (1536->1792 in)
 \newcommand{\dgStepHi}{122.6}     % ms, largest measured step (256->512)
 \newcommand{\canvasLength}{256}   % tokens per canvas
-\newcommand{\dgMarginal}{0.47}    % ms/token at the margin: step / canvas
-\newcommand{\marginalRatio}{101.5} % arSlope / dgMarginal
+\newcommand{\marginalRatio}{101.5} % arSlope / dgMarginal (dgMarginal=0.47)
 
 % Anchors, five repeats each -------- results/anchors/anchor_remeasure.json --
-\newcommand{\arAnchorTwoFive}{5899.3}   % AR-30B MoE L=256 serial p50
-\newcommand{\arAnchorFiveOne}{3225.1}   % dense AR-3B L=512 p50, CV 0.01% (anchor remeasure)
-\newcommand{\dgAnchorTwoFive}{379.0}    % DG     L=256 p50, CV 0.25%
-\newcommand{\dgAnchorFiveOne}{500.7}    % DG     L=512 p50, CV 0.12%
 \newcommand{\arCV}{0.1}
 \newcommand{\dgCV}{0.3}
 % Per-event dispersion within one run -- results/anchors/*_L256_r1_preds.jsonl
-\newcommand{\arEventCV}{0.2}     % % CV over 300 per-event latencies
+\newcommand{\arEventCV}{0.2}     % % CV over 300 per-event latencies (AR-3B dense)
 \newcommand{\dgEventCV}{20.9}
-\newcommand{\arMaxMed}{1.03}      % max / median per-event latency
+\newcommand{\arMaxMed}{1.03}      % max / median per-event latency (AR-3B dense)
 \newcommand{\dgMaxMed}{3.21}
 
 % --- Crossovers ------------------------- models/decision/procedure.py --------
 \newcommand{\crossoverL}{6}        % tokens: (dgBase - arBase) / arSlope, serial mode
 \newcommand{\crossoverLambda}{2.6} % ev/s: 1000 / dgBase (unchanged — DG base same)
-\newcommand{\naturalLdg}{176}      % DG natural output length (tokens)
-\newcommand{\naturalLar}{123}      % AR natural output length (tokens)
 
 % --- Input length, the second variable ------ results/issue44_*_sweep.json --
 \newcommand{\arInputSlope}{0.038}  % ms per prompt token
@@ -72,9 +60,6 @@
 \newcommand{\dgDenoiseLoPct}{32}    % lower bound on denoising share, from canvas step 119.5ms (#68)
 
 % --- Batching ------------------- results/issue42_batching.json, appD, dInfer --
-\newcommand{\arBatchMult}{77}      % typical AR-30B MoE multiplier
-\newcommand{\arBatchLo}{76.9}      % AR-30B MoE, batch-300 measurement
-\newcommand{\arBatchHi}{86.0}      % AR-30B MoE, upper bound
 \newcommand{\cacheOnMult}{42.8}    % AR-30B, prefix caching on   (#42)
 \newcommand{\cacheOffMult}{26.8}   % AR-30B, prefix caching off  (#42)
 \newcommand{\dgBatchMult}{1.2}    % LLaDA-8B under dInfer, flat to batch 64
@@ -88,14 +73,6 @@
 \newcommand{\energyRatio}{2.4}     % arThreeEnergy / dgEnergy = 10.1 / 4.2
 
 % --- Deployment pair ------ results/issue_evidence_ar1b_*.json, issue68_*.json --
-\newcommand{\arOneFiveTwoFive}{1007}   % ms, AR-1.5B forced L=256 (energy run, n=100)
-\newcommand{\arOneFiveFiveOne}{2005}   % ms, AR-1.5B forced L=512
-\newcommand{\arOneFiveTenTwoFour}{4026}% ms, AR-1.5B forced L=1024
-\newcommand{\arOneFiveNatTwoFive}{665.7} % ms, AR-1.5B natural-output p50 (issue49, n=300)
-\newcommand{\arOneFiveEventsHr}{5408}  % events/hr, 3600000/arOneFiveNatTwoFive
-\newcommand{\dgTwoFive}{378}           % ms, DG forced L=256
-\newcommand{\dgFiveOne}{501}           % ms, DG forced L=512
-\newcommand{\dgTenTwoFour}{739}        % ms, DG forced L=1024
 \newcommand{\arOneFiveWeights}{3.0}    % GB, bf16
 \newcommand{\dgWeights}{52.0}          % GB, bf16
 \newcommand{\footprintRatio}{17}       % dgWeights / arOneFiveWeights
@@ -129,13 +106,9 @@
 \newcommand{\canvasOneTwentyEightFone}{0.864} % 9-field F1 at canvas=128
 
 % --- K as a runtime quality knob --------- results/issue44_dg_ksweep_K*.json --
-\newcommand{\kFourPfifty}{292}    % ms
 \newcommand{\kFourPninetynine}{394.3} % ms
 \newcommand{\kFourFone}{0.790}
-\newcommand{\kEightPfifty}{379}   % ms
 \newcommand{\kEightFone}{0.853}
-\newcommand{\kTwoPfifty}{202}     % ms
-\newcommand{\kTwoFone}{0.485}
 
 % --- Superseded values, cited only when discussing the discrepancy ----------
 \newcommand{\dgOldBase}{418.2}    % ms, DG base at K=32
