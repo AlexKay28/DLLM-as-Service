@@ -40,32 +40,6 @@ batch-1 constraint --- and we state the five conditions it requires.
 
 \vspace{6pt}
 
-% ----------------------------------------------------- findings at a glance --
-\begin{keybox}
-\boxhead{The paper in one table}
-\vspace{-2pt}
-\begin{tabularx}{\linewidth}{@{}L r r@{}}
-\toprule
-\tabfont & \thead{\ARthree\,(active-param.)} & \thead{\DG-26B-A4B} \\
-\midrule
-\tabfont 9-field macro F1 ($L{=}\canvasLength$)      & \arThreeBFnine & \dgNineF \\
-\tabfont Active parameters                            & 3.0\,B & 4.0\,B \\
-\tabfont p50 latency at $L{=}\canvasLength$, batch-1  & \arAnchorTwoFive\,ms & \dgAnchorTwoFive\,ms \\
-\tabfont Within-block marginal cost per token          & \arSlope\,ms & 0.0\,ms \\
-\tabfont Block boundary cost (per \canvasLength\ tokens) & n/a & \dgStep\,ms \\
-\tabfont Marginal cost per prompt token               & \arInputSlope\,ms & \dgInputSlope\,ms \\
-\tabfont Batch-1 $\to$ peak throughput multiplier     & \arBatchLo--\arBatchHi$\times$ & $\leq$\dgBatchVllmHi$\times$ \\
-\tabfont Energy per event, net of idle (AR-3B / DG)     & \arThreeEnergy\,J ($5.3\times$) & \dgEnergy\,J \\
-\bottomrule
-\end{tabularx}
-\vspace{3pt}
-\par\footnotesize\textcolor{ink2}{%
-The diffusion model wins the first column of a latency table and loses the
-deployment comparison behind it.}
-\end{keybox}
-
-\vspace{2pt}
-
 \input{sections/01_introduction}
 \input{sections/02_cost_laws}
 \input{sections/03_deployment}

@@ -49,3 +49,24 @@ harness written by someone hoping the new architecture wins fails
 asymmetrically. The sample is too small (n=8) to distinguish from chance.}
 \label{fig:defects}
 \end{figure}
+
+\begin{table}[h]
+\centering
+\caption{The paper in one table. The diffusion model wins the latency
+column and loses the deployment comparison behind it.}
+\label{tab:summary}
+\begin{tabularx}{\linewidth}{@{}L r r@{}}
+\toprule
+& \thead{\ARthree\,(active-param.)} & \thead{\DG-26B-A4B} \\
+\midrule
+\tabfont 9-field macro F1 ($L{=}\canvasLength$)      & \arThreeBFnine & \dgNineF \\
+\tabfont Active parameters                            & 3.0\,B & 4.0\,B \\
+\tabfont p50 latency at $L{=}\canvasLength$, batch-1  & \arAnchorTwoFive\,ms & \dgAnchorTwoFive\,ms \\
+\tabfont Within-block marginal cost per token          & \arSlope\,ms & 0.0\,ms \\
+\tabfont Block boundary cost (per \canvasLength\ tokens) & n/a & \dgStep\,ms \\
+\tabfont Marginal cost per prompt token               & \arInputSlope\,ms & \dgInputSlope\,ms \\
+\tabfont Batch-1 $\to$ peak throughput multiplier     & \arBatchLo--\arBatchHi$\times$ & $\leq$\dgBatchVllmHi$\times$ \\
+\tabfont Energy per event, net of idle (AR-3B / DG)     & \arThreeEnergy\,J ($5.3\times$) & \dgEnergy\,J \\
+\bottomrule
+\end{tabularx}
+\end{table}
