@@ -1,16 +1,12 @@
-\section{Analytical resolution of the forced-decoding question}
+\section{Does the advantage survive natural long output?}
 \label{app:forced}
 
-The comparison in Table~\ref{tab:niche} uses forced lengths for AR-30B for
-\texttt{min\_tokens} output that the parser discards. Does the advantage
-survive on a task whose \emph{natural} output length is $\geq 512$ tokens?
-We answer analytically by applying the fitted cost laws
-(Eqs.~\ref{eq:ar}--\ref{eq:dg}), which depend only on $L$, not on
-\texttt{min\_tokens}.
-
-A multi-record extraction task --- emit a JSON array of $N$ structured
+The comparison in Table~\ref{tab:niche} uses forced lengths for AR-30B
+for \texttt{min\_tokens} output that the parser discards. A
+multi-record extraction task --- emit a JSON array of $N$ structured
 records from $N$ consecutive log lines --- produces output of
-$N \times 140$ tokens naturally, without forcing. Applying the laws:
+$N \times 140$ tokens naturally, without forcing. Applying the fitted
+cost laws (Eqs.~\ref{eq:ar}--\ref{eq:dg}):
 
 \begin{center}
 \begin{tabular}{@{}lrrrr@{}}
@@ -25,7 +21,6 @@ Multi-record $N{=}8$ & 1120 & 53503 & 857 & DG $62.4\times$ \\
 \end{tabular}
 \end{center}
 
-The first row is the measured baseline; subsequent rows are cost-law
-projections. The advantage grows because AR's linear cost grows far faster
-than DG's staircase. These are analytical projections, not direct
-measurements; the laws are fitted on single-record output.
+The first row is measured; subsequent rows are cost-law projections.
+The advantage grows because AR's linear cost grows far faster than DG's
+staircase.

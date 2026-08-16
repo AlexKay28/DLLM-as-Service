@@ -1,29 +1,20 @@
 \section{Why the batching ceiling is likely architectural}
-\label{app:batching_architectural} The diffusion batching ceiling ($\leq 1.7\times$) is measured on two
-engine-bounded stacks (Appendix~\ref{app:batching}). We argue here that
-the ceiling is likely architectural, not an engine bug, by reasoning
-about the mechanism. \paragraph{The KV-cache reuse argument.}
-Autoregressive batching is cheap because of KV-cache reuse: when two
-requests share a prompt prefix, the prefill is computed once and the KV
-cache is shared. Even without prefix sharing, each request's KV cache
-persists across decode steps, so the GPU alternates between requests at
-low marginal cost per token. Block-diffusion invalidates both forms of reuse: \begin{enumerate}[nosep]
+\label{app:batching_architectural}
+
+Autoregressive batching is cheap because of KV-cache reuse: shared
+prefixes are computed once, and each request's KV cache persists across
+decode steps. Block-diffusion invalidates both forms of reuse:
+\begin{enumerate}[nosep]
 \item \textbf{Cross-request prefix sharing} requires that both requests
-are at the same denoising step. Even if vLLM's mixed-phase crash were
-fixed, requests at different $K$ steps cannot share a KV cache because
-the attention mask differs per step.
+are at the same denoising step. Requests at different $K$ steps cannot
+share a KV cache because the attention mask differs per step.
 \item \textbf{Within-request KV persistence} across denoising steps
 fails because the denoising tokens' KV changes at every step (the mask
-changes), so the per-step computation cannot reuse the previous step's
-activations for the denoising positions.
-\end{enumerate} The net effect: each denoising step is a fresh forward pass over the full
-sequence (prompt + denoising positions), with a different attention mask.
-The GPU does the same FLOPs whether batching or not, because the
-attention pattern is request-specific and step-specific. This is
-structurally different from AR decoding, where the attention pattern is
-causal and the KV cache grows monotonically. Disabling prefix caching on
-the AR arm drops its multiplier from $\cacheOnMult\times$ to
-$\cacheOffMult\times$ --- still more than twenty times the diffusion
-ceiling. A patched vLLM might raise the DG multiplier to $\sim 2$--$3\times$,
-still an order of magnitude below AR. This is a structural argument, not
-a measurement.
+changes), so per-step computation cannot reuse previous activations.
+\end{enumerate}
+Each denoising step is a fresh forward pass over the full sequence with
+a different attention mask. The GPU does the same FLOPs whether batching
+or not --- structurally different from AR decoding, where the attention
+pattern is causal and the KV cache grows monotonically. A patched vLLM
+might raise the DG multiplier to $\sim 2$--$3\times$, still an order of
+magnitude below AR's $26$--$43\times$.
