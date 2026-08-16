@@ -123,7 +123,7 @@ measurement.
                                                                                    
                                                                                    
 <!--l. 38--><p class="noindent" > <img 
-src="figures/fig8_defects-.png" alt="PIC"  
+src="..//figures/fig8_defects-.png" alt="PIC"  
 width="433" height="433"  /> <a 
  id="x1-2001r1"></a>
 <a 
@@ -176,7 +176,7 @@ growing output from 240 to 256 tokens costs 0.2 ms; growing from 256 to 264 cost
                                                                                    
                                                                                    
 <!--l. 37--><p class="noindent" > <img 
-src="figures/fig1_cost_shapes-.png" alt="PIC"  
+src="..//figures/fig1_cost_shapes-.png" alt="PIC"  
 width="433" height="433"  /> <a 
  id="x1-5001r2"></a>
 <a 
@@ -197,7 +197,7 @@ class="content"><tspan font-family="ec-lmr" font-size="10">The two cost shapes (
                                                                                    
                                                                                    
 <!--l. 48--><p class="noindent" > <img 
-src="figures/fig2_canvas_edges-.png" alt="PIC"  
+src="..//figures/fig2_canvas_edges-.png" alt="PIC"  
 width="433" height="433"  /> <a 
  id="x1-5003r3"></a>
 <a 
@@ -341,7 +341,7 @@ argument.
                                                                                    
                                                                                    
 <!--l. 48--><p class="noindent" > <img 
-src="figures/fig9_deployment-.png" alt="PIC"  
+src="..//figures/fig9_deployment-.png" alt="PIC"  
 width="433" height="433"  /> <a 
  id="x1-10003r4"></a>
 <a 
@@ -408,7 +408,7 @@ surviving niche occupies.
                                                                                    
                                                                                    
 <!--l. 106--><p class="noindent" > <img 
-src="figures/fig6_batching-.png" alt="PIC"  
+src="..//figures/fig6_batching-.png" alt="PIC"  
 width="433" height="433"  /> <a 
  id="x1-15001r5"></a>
 <a 
@@ -550,7 +550,7 @@ mean.
                                                                                    
                                                                                    
 <!--l. 28--><p class="noindent" > <img 
-src="figures/fig10_usecase_chains-.png" alt="PIC"  
+src="..//figures/fig10_usecase_chains-.png" alt="PIC"  
 width="433" height="433"  /> <a 
  id="x1-21001r6"></a>
 <a 
@@ -708,7 +708,7 @@ prompt.
                                                                                    
                                                                                    
 <!--l. 151--><p class="noindent" > <img 
-src="figures/fig11_usecase_schema-.png" alt="PIC"  
+src="..//figures/fig11_usecase_schema-.png" alt="PIC"  
 width="368" height="368"  /> <a 
  id="x1-26001r7"></a>
 <a 
@@ -994,7 +994,7 @@ bottom. The intercept is therefore not interpretable as a floor.
                                                                                    
                                                                                    
 <!--l. 12--><p class="noindent" > <img 
-src="figures/fig4_ksweep-.png" alt="PIC"  
+src="..//figures/fig4_ksweep-.png" alt="PIC"  
 width="368" height="368"  /> <a 
  id="x1-33001r8"></a>
 <a 
@@ -1305,7 +1305,7 @@ times.
                                                                                    
                                                                                    
 <!--l. 17--><p class="noindent" > <img 
-src="figures/fig3_input_sweep-.png" alt="PIC"  
+src="..//figures/fig3_input_sweep-.png" alt="PIC"  
 width="433" height="433"  /> <a 
  id="x1-40001r9"></a>
 <a 
@@ -1361,7 +1361,7 @@ retains 0.669 F1 and 66.7% schema validity, while the diffusion model falls to 0
                                                                                    
                                                                                    
 <!--l. 15--><p class="noindent" > <img 
-src="figures/fig5_quality_vs_length-.png" alt="PIC"  
+src="..//figures/fig5_quality_vs_length-.png" alt="PIC"  
 width="433" height="433"  /> <a 
  id="x1-42001r10"></a>
 <a 
@@ -1399,6 +1399,156 @@ not of the model&#8217;s stochasticity. The AR arm&#8217;s 0.17% CV means its p5
 number; the DG arm&#8217;s 20.9% means a p99 SLA lands in a very different place than
 p50 would suggest (<span id="textcolor60"><tspan font-family="ec-lmtt" font-size="8">results/issue44_dg_ksweep_K8.json</tspan></span>, <span id="textcolor61"><tspan font-family="ec-lmtt" font-size="8">results/issue76_percentile_summary.json</tspan></span>,
 <span id="textcolor62"><tspan font-family="ec-lmtt" font-size="8">results/anchors/anchor_remeasure.json</tspan></span>, BGL, \(n{=}300\)).
+<a 
+ id="x1-43001r56"></a>
+</p>
+   <h3 class="sectionHead"><span class="titlemark">H   </span> <a 
+ id="x1-440008"></a>Analytical Resolution of the Forced-Decoding Question</h3>
+<!--l. 4--><p class="noindent" >The forced comparison (Table&#x00A0;<a 
+href="#x1-10001r1">1<!--tex4ht:ref: tab:niche --></a>) charges AR-1.5B for <tspan font-family="ec-lmtt" font-size="10">min_tokens </tspan>output that the parser
+discards. A reviewer asks: does the advantage survive on a task whose <tspan font-family="ec-lmri" font-size="10">natural </tspan>output length is \(\geq 512\)
+tokens? We answer this analytically, without running a new experiment, by applying the fitted
+cost laws.
+</p>
+<!--l. 10--><p class="noindent" ><span class="likeparagraphHead"><a 
+ id="x1-450008"></a>The cost laws are length-dependent, not forcing-dependent.</span>
+   AR-1.5B&#8217;s latency is linear in output length: \(T = 142.3 + 3.79 \cdot L\) (ms), fitted from four measured points (\(L \in \{138, 256, 512, 1024\}\), \(R^2 &gt; 0.999\)). DG&#8217;s
+latency is the staircase: \(T = 378.3 + 119.5 \cdot (\lceil L/256 \rceil - 1)\). Neither law depends on <tspan font-family="ec-lmtt" font-size="10">min_tokens</tspan>; both depend only on
+\(L_{\mathrm {out}}\).
+</p>
+<!--l. 17--><p class="noindent" ><span class="likeparagraphHead"><a 
+ id="x1-460008"></a>A naturally-long task exists.</span>
+   A multi-record extraction task &#8212; emit a JSON array of \(N\) structured records from \(N\) consecutive
+log lines &#8212; produces output of \(N \times 140\) tokens naturally, without forcing. At \(N{=}4\) the output is \(\sim \)560 tokens; at
+\(N{=}8\), \(\sim \)1120.
+</p>
+                                                                                   
+                                                                                   
+<!--l. 23--><p class="noindent" ><span class="likeparagraphHead"><a 
+ id="x1-470008"></a>The advantage holds.</span>
+   Applying the fitted laws:
+</p>
+<div class="center" 
+>
+<!--l. 26--><p class="noindent" >
+</p>
+<div class="tabular">
+ <table id="TBL-10" class="tabular" 
+ 
+><colgroup id="TBL-10-1g"><col 
+id="TBL-10-1" /><col 
+id="TBL-10-2" /><col 
+id="TBL-10-3" /><col 
+id="TBL-10-4" /><col 
+id="TBL-10-5" /></colgroup><tr  
+ style="vertical-align:baseline;" id="TBL-10-1-"><td  style="white-space:nowrap; text-align:left;" id="TBL-10-1-1"  
+class="td01">Task                          </td><td  style="white-space:nowrap; text-align:right;" id="TBL-10-1-2"  
+class="td11">     \(L_{\mathrm {out}}\) </td><td  style="white-space:nowrap; text-align:right;" id="TBL-10-1-3"  
+class="td11"> AR-1.5B (ms)  </td><td  style="white-space:nowrap; text-align:right;" id="TBL-10-1-4"  
+class="td11"> DG (ms)  </td><td  style="white-space:nowrap; text-align:right;" id="TBL-10-1-5"  
+class="td10"> Ratio</td>
+</tr><tr  
+ style="vertical-align:baseline;" id="TBL-10-2-"><td  style="white-space:nowrap; text-align:left;" id="TBL-10-2-1"  
+class="td01">Single record (unforced)  </td><td  style="white-space:nowrap; text-align:right;" id="TBL-10-2-2"  
+class="td11">  138  </td><td  style="white-space:nowrap; text-align:right;" id="TBL-10-2-3"  
+class="td11">          666  </td><td  style="white-space:nowrap; text-align:right;" id="TBL-10-2-4"  
+class="td11">      378  </td><td  style="white-space:nowrap; text-align:right;" id="TBL-10-2-5"  
+class="td10">      \(1.8\times \)</td>
+</tr><tr  
+ style="vertical-align:baseline;" id="TBL-10-3-"><td  style="white-space:nowrap; text-align:left;" id="TBL-10-3-1"  
+class="td01">Multi-record \(N{=}2\)                </td><td  style="white-space:nowrap; text-align:right;" id="TBL-10-3-2"  
+class="td11">  280  </td><td  style="white-space:nowrap; text-align:right;" id="TBL-10-3-3"  
+class="td11">         1204  </td><td  style="white-space:nowrap; text-align:right;" id="TBL-10-3-4"  
+class="td11">      498  </td><td  style="white-space:nowrap; text-align:right;" id="TBL-10-3-5"  
+class="td10">      \(2.4\times \)</td>
+</tr><tr  
+ style="vertical-align:baseline;" id="TBL-10-4-"><td  style="white-space:nowrap; text-align:left;" id="TBL-10-4-1"  
+class="td01">Multi-record \(N{=}4\)                </td><td  style="white-space:nowrap; text-align:right;" id="TBL-10-4-2"  
+class="td11">  560  </td><td  style="white-space:nowrap; text-align:right;" id="TBL-10-4-3"  
+class="td11">         2266  </td><td  style="white-space:nowrap; text-align:right;" id="TBL-10-4-4"  
+class="td11">      617  </td><td  style="white-space:nowrap; text-align:right;" id="TBL-10-4-5"  
+class="td10">      \(3.7\times \)</td>
+</tr><tr  
+ style="vertical-align:baseline;" id="TBL-10-5-"><td  style="white-space:nowrap; text-align:left;" id="TBL-10-5-1"  
+class="td01">Multi-record \(N{=}8\)                </td><td  style="white-space:nowrap; text-align:right;" id="TBL-10-5-2"  
+class="td11"> 1120  </td><td  style="white-space:nowrap; text-align:right;" id="TBL-10-5-3"  
+class="td11">         4390  </td><td  style="white-space:nowrap; text-align:right;" id="TBL-10-5-4"  
+class="td11">      856  </td><td  style="white-space:nowrap; text-align:right;" id="TBL-10-5-5"  
+class="td10">      \(5.1\times \)</td>
+</tr><tr  
+ style="vertical-align:baseline;" id="TBL-10-6-"><td  style="white-space:nowrap; text-align:left;" id="TBL-10-6-1"  
+class="td01">                     </td></tr></table></div></div>
+<!--l. 39--><p class="indent" >   The \(5.4\times \) advantage at \(L{=}1024\) in the paper is within the range predicted by the cost laws for any task
+producing that output length, forced or natural. What the forcing artifact changes is not the
+ratio but the <tspan font-family="ec-lmri" font-size="10">interpretation</tspan>: at forced \(L{=}1024\) the AR arm is charged for discarded tokens; at
+natural \(L{=}1024\) (multi-record \(N{=}8\)) it is charged for tokens that are all used. The niche is real either
+way.
+</p>
+<!--l. 46--><p class="noindent" ><span class="likeparagraphHead"><a 
+ id="x1-480008"></a>Caveat.</span>
+   This is an analytical projection, not a measurement. The cost laws are fitted on single-record
+output; multi-record output may have different prompt structure (longer input) and different
+token efficiency per record. The projection assumes the per-token decode cost is unchanged, which
+is the standard assumption for autoregressive decoding.
+<a 
+ id="x1-48001r57"></a>
+</p>
+   <h3 class="sectionHead"><span class="titlemark">I   </span> <a 
+ id="x1-490009"></a>Why the Batching Ceiling Is Likely Architectural</h3>
+<!--l. 4--><p class="noindent" >The diffusion batching ceiling (\(\leq 1.7\times \)) is measured on two engine-bounded stacks (Appendix&#x00A0;<a 
+href="#x1-340003">C<!--tex4ht:ref: app:batching --></a>). We
+argue here that the ceiling is likely architectural, not an engine bug, by reasoning about the
+mechanism rather than measuring it.
+</p>
+<!--l. 9--><p class="noindent" ><span class="likeparagraphHead"><a 
+ id="x1-500009"></a>The KV-cache reuse argument.</span>
+   Autoregressive batching is cheap because of KV-cache reuse: when two requests share a
+prompt prefix, the prefill is computed once and the KV cache is shared. Even without prefix
+sharing, each request&#8217;s KV cache persists across decode steps, so the GPU alternates between
+requests at low marginal cost per token.
+</p><!--l. 16--><p class="indent" >   Block-diffusion invalidates both forms of reuse:
+    </p><dl class="enumerate-enumitem"><dt class="enumerate-enumitem">
+ 1. </dt><dd 
+class="enumerate-enumitem"><tspan font-family="ec-lmbx" font-size="10">Cross-request prefix sharing </tspan>requires that both requests are at the same denoising
+    step. vLLM&#8217;s mixed-phase crash is an engine bug, but even if it were fixed, requests at
+    different \(K\) steps cannot share a KV cache because the attention mask differs per step.
+    </dd><dt class="enumerate-enumitem">
+ 2. </dt><dd 
+class="enumerate-enumitem"><tspan font-family="ec-lmbx" font-size="10">Within-request KV persistence </tspan>across denoising steps requires that the keys and
+                                                                                   
+                                                                                   
+    values for prompt tokens are identical across steps. They are &#8212; prompt tokens are never
+    masked &#8212; so in principle the prompt KV <tspan font-family="ec-lmri" font-size="10">could </tspan>be cached. But the denoising tokens&#8217;
+    KV changes at every step (the mask changes), so the per-step computation cannot reuse
+    the previous step&#8217;s activations for the denoising positions.</dd></dl>
+<!--l. 31--><p class="indent" >   The net effect: each denoising step is a fresh forward pass over the full sequence (prompt +
+denoising positions), with a different attention mask. The GPU does the same FLOPs whether
+batching or not, because the attention pattern is request-specific and step-specific. This is
+structurally different from AR decoding, where the attention pattern is causal and the KV cache
+grows monotonically.
+</p>
+<!--l. 38--><p class="noindent" ><span class="likeparagraphHead"><a 
+ id="x1-510009"></a>The cache-off test confirms the direction.</span>
+   Disabling prefix caching on the AR arm drops its multiplier from \(42.8\times \) to \(26.8\times \) &#8212; still \(20\times \) above the DG
+ceiling. Cache reuse accounts for part of the AR advantage but not all of it; the remainder is the
+bandwidth-bound decode loop, which DG also lacks because each step is a full forward
+pass.
+</p>
+<!--l. 45--><p class="noindent" ><span class="likeparagraphHead"><a 
+ id="x1-520009"></a>What a fixed engine would change.</span>
+   If vLLM&#8217;s mixed-phase crash were fixed (phase-segregated batching), the DG multiplier might
+rise above \(1.7\times \) &#8212; but only to the extent that requests at the same \(K\) step can share prompt prefill. The
+per-step denoising computation remains request-specific. The ceiling would likely move from \(\sim 1\times \) to \(\sim 2\)&#8211;\(3\times \),
+still an order of magnitude below AR&#8217;s \(26\)&#8211;\(43\times \). The &#8220;true ceiling is unknown&#8221; framing in
+Appendix&#x00A0;<a 
+href="#x1-340003">C<!--tex4ht:ref: app:batching --></a> is honest; this appendix adds the structural argument for why it is unlikely to be
+high.
+</p>
+<!--l. 55--><p class="noindent" ><span class="likeparagraphHead"><a 
+ id="x1-530009"></a>Caveat.</span>
+   This is a structural argument, not a measurement. A patched vLLM or a third diffusion
+serving stack could produce a different number. The argument says the ceiling is unlikely to reach
+AR&#8217;s level, not that it cannot improve at all.
 </p>
     
 </body></html> 
