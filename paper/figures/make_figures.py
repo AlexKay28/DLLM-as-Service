@@ -93,137 +93,156 @@ def staircase(lmax, lmin=1.0):
 # =============================================================== figure 0 ===
 
 def fig0_decoding_schematic():
-    """Schematic: AR token-by-token vs DG block denoising."""
-    import matplotlib.patches as mpatches
-    from matplotlib.patches import FancyBboxPatch, FancyArrowPatch
+    """Schematic: AR token-by-token vs DG block denoising. Vertical layout."""
+    from matplotlib.patches import FancyBboxPatch
 
     fig, (axA, axB) = plt.subplots(
-        1, 2, figsize=(S.FULL, 2.5),
-        gridspec_kw={"wspace": 0.18})
+        2, 1, figsize=(S.FULL, 4.8),
+        gridspec_kw={"hspace": 0.35})
+
+    W, H = 12, 5.5
 
     # --- Panel A: Autoregressive ---
-    axA.set_xlim(0, 10)
-    axA.set_ylim(0, 6)
+    axA.set_xlim(0, W)
+    axA.set_ylim(0, H)
     axA.set_aspect("equal")
     axA.axis("off")
     S.title(axA, "A  Autoregressive: token by token",
-            "Each token = one forward pass")
+            "Each token = one forward pass over the full model + KV cache")
 
     # Prompt box
-    axA.add_patch(FancyBboxPatch((0.3, 4.8), 2.2, 0.8,
+    axA.add_patch(FancyBboxPatch((0.3, 4.2), 2.0, 0.9,
                   boxstyle="round,pad=0.1", facecolor=S.WASH_NEUTRAL,
                   edgecolor=S.AXIS, lw=0.8))
-    axA.text(1.4, 5.2, "prompt", ha="center", va="center",
-             fontsize=7.5, color=S.MUTED)
+    axA.text(1.3, 4.65, "prompt", ha="center", va="center",
+             fontsize=8, color=S.MUTED)
 
     # Output tokens, generated one at a time
-    token_labels = ["t₁", "t₂", "t₃", "t₄", "t₅", "t₆"]
+    token_labels = ["$t_1$", "$t_2$", "$t_3$", "$t_4$", "$t_5$", "$t_6$"]
+    box_w, box_h = 1.0, 0.9
+    spacing = 1.35
+    start_x = 3.0
     for i, lab in enumerate(token_labels):
-        x = 3.0 + i * 1.15
-        color = S.AR if i > 0 else S.MUTED
-        axA.add_patch(FancyBboxPatch((x, 4.8), 0.9, 0.8,
-                      boxstyle="round,pad=0.08", facecolor=color,
+        x = start_x + i * spacing
+        axA.add_patch(FancyBboxPatch((x, 4.2), box_w, box_h,
+                      boxstyle="round,pad=0.08", facecolor=S.AR,
                       edgecolor="white", lw=1.0, alpha=0.85))
-        axA.text(x + 0.45, 5.2, lab, ha="center", va="center",
-                 fontsize=8, color="white", fontweight="medium")
+        axA.text(x + box_w / 2, 4.65, lab, ha="center", va="center",
+                 fontsize=9, color="white", fontweight="medium")
         # Forward-pass arrow
         if i < len(token_labels) - 1:
-            axA.annotate("", xy=(x + 1.05, 5.2), xytext=(x + 0.95, 5.2),
+            axA.annotate("", xy=(x + spacing - 0.05, 4.65),
+                         xytext=(x + box_w + 0.05, 4.65),
                          arrowprops=dict(arrowstyle="->", color=S.AR,
-                                         lw=1.2, shrinkA=0, shrinkB=0))
-        # Cost annotation below
-        axA.text(x + 0.45, 4.3, f"{LAWS['ar_b']:.0f}ms", ha="center",
-                 va="center", fontsize=6.5, color=S.AR)
+                                         lw=1.4, shrinkA=0, shrinkB=0))
+
+    # Per-token cost annotations
+    for i in range(len(token_labels)):
+        x = start_x + i * spacing + box_w / 2
+        axA.text(x, 3.7, f"{LAWS['ar_b']:.0f}ms", ha="center",
+                 va="center", fontsize=7.5, color=S.AR)
 
     # Cumulative cost line
     for i in range(len(token_labels)):
-        x = 3.0 + i * 1.15 + 0.45
-        cost = LAWS["ar_a"] + LAWS["ar_b"] * (i + 1)
-        axA.plot(x, 3.5, "o", color=S.AR, ms=3.5, zorder=3)
+        x = start_x + i * spacing + box_w / 2
+        axA.plot(x, 2.8, "o", color=S.AR, ms=4, zorder=3)
         if i > 0:
-            x_prev = 3.0 + (i - 1) * 1.15 + 0.45
-            axA.plot([x_prev, x], [3.5, 3.5], "-", color=S.AR, lw=1.4,
+            x_prev = start_x + (i - 1) * spacing + box_w / 2
+            axA.plot([x_prev, x], [2.8, 2.8], "-", color=S.AR, lw=1.6,
                      zorder=2)
-    axA.text(8.5, 3.5, "↗ linear", fontsize=7.5, color=S.AR,
-             va="center", fontweight="medium")
-    axA.text(5.0, 2.5, "cost grows with every token", ha="center",
-             fontsize=7.5, color=S.MUTED, style="italic")
+    axA.annotate("", xy=(start_x + len(token_labels) * spacing, 2.8),
+                 xytext=(start_x + (len(token_labels) - 1) * spacing + box_w, 2.8),
+                 arrowprops=dict(arrowstyle="->", color=S.AR, lw=1.6))
+    axA.text(start_x + len(token_labels) * spacing + 0.3, 2.8,
+             "linear", fontsize=8, color=S.AR, va="center",
+             fontweight="medium")
+    axA.text(W / 2, 1.8, "cost grows with every token", ha="center",
+             fontsize=8, color=S.MUTED, style="italic")
 
     # --- Panel B: Block diffusion ---
-    axB.set_xlim(0, 10)
-    axB.set_ylim(0, 6)
+    axB.set_xlim(0, W)
+    axB.set_ylim(0, H)
     axB.set_aspect("equal")
     axB.axis("off")
     S.title(axB, "B  Block-diffusion: canvas by canvas",
-            "Each canvas = $K$ denoising passes in parallel")
+            "Each canvas = $K$ denoising passes, all tokens in parallel")
 
     # Prompt box
-    axB.add_patch(FancyBboxPatch((0.3, 4.8), 2.2, 0.8,
+    axB.add_patch(FancyBboxPatch((0.3, 4.2), 2.0, 0.9,
                   boxstyle="round,pad=0.1", facecolor=S.WASH_NEUTRAL,
                   edgecolor=S.AXIS, lw=0.8))
-    axB.text(1.4, 5.2, "prompt", ha="center", va="center",
-             fontsize=7.5, color=S.MUTED)
+    axB.text(1.3, 4.65, "prompt", ha="center", va="center",
+             fontsize=8, color=S.MUTED)
 
-    # Canvas 1: all tokens generated in parallel
-    canvas1_tokens = ["t₁", "t₂", "t₃", "t₄"]
-    canvas2_tokens = ["t₅", "t₆", "t₇", "t₈"]
-
-    # Canvas 1 box
+    # Canvas 1
+    canvas1_tokens = ["$t_1$", "$t_2$", "$t_3$", "$t_4$"]
     cx1 = 3.0
-    axB.add_patch(FancyBboxPatch((cx1 - 0.15, 4.6), 4.4, 1.2,
+    cw1 = len(canvas1_tokens) * spacing + 0.3
+    axB.add_patch(FancyBboxPatch((cx1 - 0.15, 3.9), cw1, 1.5,
                   boxstyle="round,pad=0.12", facecolor=S.WASH_DG,
                   edgecolor=S.DG, lw=1.2, alpha=0.5))
-    axB.text(cx1 + 2.05, 5.55, "canvas 1 (256 tokens)", ha="center",
-             va="center", fontsize=7, color=S.DG, fontweight="medium")
+    axB.text(cx1 + cw1 / 2 - 0.15, 5.15, "canvas 1 ($C$ tokens)",
+             ha="center", va="center", fontsize=8, color=S.DG,
+             fontweight="medium")
     for i, lab in enumerate(canvas1_tokens):
-        x = cx1 + i * 1.05
-        axB.add_patch(FancyBboxPatch((x, 4.8), 0.85, 0.7,
+        x = cx1 + i * spacing
+        axB.add_patch(FancyBboxPatch((x, 4.2), box_w, box_h,
                       boxstyle="round,pad=0.06", facecolor=S.DG,
                       edgecolor="white", lw=0.8, alpha=0.85))
-        axB.text(x + 0.42, 5.15, lab, ha="center", va="center",
-                 fontsize=7.5, color="white", fontweight="medium")
+        axB.text(x + box_w / 2, 4.65, lab, ha="center", va="center",
+                 fontsize=9, color="white", fontweight="medium")
 
-    # Denoising loop arrows inside canvas 1
+    # Denoising loop indicator
     for k in range(3):
-        y = 4.0 - k * 0.5
-        axB.annotate("", xy=(cx1 + 4.0, y), xytext=(cx1 + 0.5, y),
+        y = 3.4 - k * 0.35
+        axB.annotate("", xy=(cx1 + cw1 - 0.3, y), xytext=(cx1 + 0.2, y),
                      arrowprops=dict(arrowstyle="->", color=S.DG,
                                      lw=0.8, ls="--", alpha=0.5))
-    axB.text(cx1 - 0.25, 3.0, "$K$=8\npasses", ha="center", va="center",
-             fontsize=6.5, color=S.DG, fontweight="medium", linespacing=1.2)
+    axB.text(cx1 - 0.6, 2.9, "$K{=}8$\npasses", ha="center", va="center",
+             fontsize=7.5, color=S.DG, fontweight="medium", linespacing=1.2)
 
-    # Canvas 2 box
-    cx2 = 7.6
-    axB.add_patch(FancyBboxPatch((cx2 - 0.15, 4.6), 2.5, 1.2,
+    # Canvas 2
+    canvas2_tokens = ["$t_5$", "$t_6$"]
+    cx2 = cx1 + cw1 + 0.8
+    cw2 = len(canvas2_tokens) * spacing + 0.3
+    axB.add_patch(FancyBboxPatch((cx2 - 0.15, 3.9), cw2, 1.5,
                   boxstyle="round,pad=0.12", facecolor=S.WASH_DG,
                   edgecolor=S.DG, lw=1.2, alpha=0.3))
-    axB.text(cx2 + 1.1, 5.55, "canvas 2", ha="center", va="center",
-             fontsize=7, color=S.DG, fontweight="medium")
-    for i, lab in enumerate(canvas2_tokens[:2]):
-        x = cx2 + i * 1.05
-        axB.add_patch(FancyBboxPatch((x, 4.8), 0.85, 0.7,
+    axB.text(cx2 + cw2 / 2 - 0.15, 5.15, "canvas 2",
+             ha="center", va="center", fontsize=8, color=S.DG,
+             fontweight="medium")
+    for i, lab in enumerate(canvas2_tokens):
+        x = cx2 + i * spacing
+        axB.add_patch(FancyBboxPatch((x, 4.2), box_w, box_h,
                       boxstyle="round,pad=0.06", facecolor=S.DG,
                       edgecolor="white", lw=0.8, alpha=0.5))
-        axB.text(x + 0.42, 5.15, lab, ha="center", va="center",
-                 fontsize=7.5, color="white", fontweight="medium")
+        axB.text(x + box_w / 2, 4.65, lab, ha="center", va="center",
+                 fontsize=9, color="white", fontweight="medium")
 
-    # Step between canvases
-    axB.annotate("", xy=(cx2 - 0.2, 5.2), xytext=(cx1 + 4.3, 5.2),
-                 arrowprops=dict(arrowstyle="->", color=S.DG, lw=1.5))
-    axB.text((cx1 + 4.3 + cx2 - 0.2) / 2, 5.55, f"+{LAWS['dg_step']:.0f}ms",
-             ha="center", va="bottom", fontsize=7, color=S.DG,
+    # Step arrow between canvases
+    axB.annotate("", xy=(cx2 - 0.2, 4.65), xytext=(cx1 + cw1 - 0.15, 4.65),
+                 arrowprops=dict(arrowstyle="->", color=S.DG, lw=1.8))
+    axB.text((cx1 + cw1 + cx2) / 2, 5.0, f"+{LAWS['dg_step']:.0f}ms",
+             ha="center", va="bottom", fontsize=8, color=S.DG,
              fontweight="medium")
 
     # Staircase cost below
-    axB.plot([3.45, 7.0], [3.5, 3.5], "-", color=S.DG, lw=2, zorder=3)
-    axB.plot([7.0, 7.0], [3.5, 2.7], "-", color=S.DG, lw=2, zorder=3)
-    axB.plot([7.0, 9.5], [2.7, 2.7], "-", color=S.DG, lw=2, zorder=3)
-    axB.text(5.0, 3.8, "flat (tokens are free)", ha="center",
-             fontsize=6.5, color=S.DG, style="italic")
-    axB.text(7.0, 2.35, "step", ha="center", fontsize=6.5, color=S.DG,
-             style="italic")
-    axB.text(8.5, 2.35, "flat again", ha="center", fontsize=6.5,
-             color=S.DG, style="italic")
+    y_flat1 = 2.2
+    y_flat2 = 1.4
+    x1_end = cx1 + cw1 - 0.15
+    x2_start = cx2
+    axB.plot([cx1 + 0.2, x1_end], [y_flat1, y_flat1], "-", color=S.DG,
+             lw=2.5, zorder=3)
+    axB.plot([x1_end, x1_end], [y_flat1, y_flat2], "-", color=S.DG,
+             lw=2.5, zorder=3)
+    axB.plot([x1_end, cx2 + cw2 - 0.15], [y_flat2, y_flat2], "-",
+             color=S.DG, lw=2.5, zorder=3)
+    axB.text(cx1 + cw1 / 2, y_flat1 + 0.3, "flat — tokens are free",
+             ha="center", fontsize=7.5, color=S.DG, style="italic")
+    axB.text(x1_end + 0.2, (y_flat1 + y_flat2) / 2, "step",
+             fontsize=7.5, color=S.DG, style="italic", va="center")
+    axB.text(cx2 + cw2 / 2, y_flat2 + 0.3, "flat again",
+             ha="center", fontsize=7.5, color=S.DG, style="italic")
 
     S.save(fig, "fig0_decoding_schematic", OUT)
 
