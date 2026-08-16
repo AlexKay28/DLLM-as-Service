@@ -1,22 +1,22 @@
 \documentclass[11pt,a4paper]{article}
 
-% --- Page Geometry & Layout ---
+%, Page Geometry & Layout ,
 \usepackage[margin=1in]{geometry}
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
 \usepackage{lmodern}
 
-% --- Core Math & Symbols ---
+%, Core Math & Symbols ,
 \usepackage{amsmath,amssymb,amsfonts,amsthm}
 
-% --- Graphics, Tables & Formatting ---
+%, Graphics, Tables & Formatting ,
 \usepackage{graphicx}
 \usepackage{booktabs}
 \usepackage{microtype}
 \usepackage{setspace}
 \onehalfspacing
 
-% --- Tables ---
+%, Tables ,
 \usepackage{array}
 \usepackage{multirow}
 \usepackage{tabularx}
@@ -27,23 +27,23 @@
 \newcommand{\tabfont}{\footnotesize}
 \newcommand{\thead}[1]{\footnotesize\textbf{#1}}
 
-% --- Captions ---
+%, Captions ,
 \usepackage{caption}
 \captionsetup{font=small, labelfont=bf}
 
-% --- Lists ---
+%, Lists ,
 \usepackage{enumitem}
 \setlist[itemize]{leftmargin=1.5em,itemsep=2pt,topsep=4pt,parsep=0pt}
 \setlist[enumerate]{leftmargin=1.8em,itemsep=2pt,topsep=4pt,parsep=0pt}
 
-% --- Colors ---
+%, Colors ,
 \usepackage[table,dvipsnames]{xcolor}
 \definecolor{arblue}{HTML}{2A78D6}
 \definecolor{dgorange}{HTML}{EB6834}
 \definecolor{llaqua}{HTML}{1BAF7A}
 \definecolor{linkc}{HTML}{1B3A5C}
 
-% --- Hyperlinks & Metadata ---
+%, Hyperlinks & Metadata ,
 \usepackage[
     colorlinks=true,
     linkcolor=linkc,
@@ -55,13 +55,13 @@
     pdfkeywords={diffusion LLM, block decoding, latency, structured output}
 ]{hyperref}
 
-% --- Model shorthands ---
+%, Model shorthands ,
 % NB: \ARthree renders AR-30B (the name is an AR-3B-era leftover).
 \newcommand{\ARthree}{\textsc{ar-30b}}
 \newcommand{\DG}{\textsc{dg}}
 \newcommand{\LLaDA}{\textsc{llada-8b}}
 
-% --- Macros (numbers from results/) ---
+%, Macros (numbers from results/) ,
 \input{../assets/macros.tex}
 
 \graphicspath{{../}{../figures/}}
@@ -82,18 +82,24 @@ The Cost Shape of Block-Structured Decoding}}
 \maketitle
 
 \begin{abstract}
-Autoregressive decoding pays per token; block-diffusion pays per
-block. We show this produces two fundamentally different cost shapes:
-AR latency is a line with no floor; block-diffusion latency is a
-staircase --- flat inside a fixed-size block, stepping at each
-boundary. The shapes cross at \crossoverL{} output tokens, above
-which diffusion is faster. Against a fair MoE-matched baseline
-(DiffusionGemma-26B-A4B vs Qwen3-30B-A3B), the diffusion model is
-fifteen times faster at natural output length and eight times faster
-at a thousand tokens. The advantage holds where batching is
-unavailable --- serial chains, autonomous driving, algorithmic trading
---- and degrades gracefully under deadline pressure by losing quality,
-not completeness.
+How much faster is block-diffusion than autoregressive decoding, and
+where does the advantage hold? We answer by pinning both
+architectures to the same vLLM serving stack on an A100 and deriving
+cost laws from measurement. The answer depends on output length: AR
+latency is a line that grows with every token, while block-diffusion
+latency is a staircase that is flat inside a 256-token canvas and
+steps only at the boundary. The two shapes cross at \crossoverL{}
+tokens. Above that, diffusion wins. Against a fair MoE-matched pair
+(DiffusionGemma-26B-A4B vs Qwen3-30B-A3B), the gap is fifteenfold at
+natural output length and still eightfold at a thousand tokens. The
+advantage narrows under two deployment pressures: AR batches far
+better, and DG's tail is wider. But in the batch-1 regime, serial
+investigation chains, autonomous driving, algorithmic trading, the
+staircase dominates. And when a deadline tightens, DG drops its
+denoising step count and returns a complete record at lower quality,
+while AR truncates mid-JSON. We state five conditions that define the
+regime where block diffusion is the right choice, and ground them in
+concrete workloads.
 \end{abstract}
 
 \begin{figure}[ht!]
@@ -107,7 +113,7 @@ $\sim$120\,ms wherever it falls. The gap therefore widens with output
 length, from $32\times$ at $L{=}256$ to $81\times$ at $L{=}2048$.
 These ratios are larger than the fifteenfold in the abstract because
 here AR is charged for every token it would have to emit: the AR bars
-are Eq.~\ref{eq:ar} extrapolated, whereas in practice AR stops at its
+are Eq.~\ref{eq:ar} extrapolated, whereas operationally AR stops at its
 natural EOS near 123 tokens and plateaus at 5.9\,s
 (Table~\ref{tab:niche}), which is where the fifteenfold comes from.
 DG measured (BGL, $n{=}200$, $K{=}8$); AR-30B MoE from the fitted
