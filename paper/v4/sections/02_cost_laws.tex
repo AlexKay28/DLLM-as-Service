@@ -44,7 +44,7 @@ canvas. The operating point $K{=}8$ was selected as the latency/quality
 knee: quality is approximately flat above $K{=}8$ while latency
 saturates above $K{=}16$.
 
-AR is a metered taxi: the fare climbs with every block. DG is a
+AR is a metered taxi: the fare climbs with every token. DG is a
 subway: flat fare per station, no matter how many tokens board. The
 line has no floor, but the staircase is bounded. The shapes cross
 where the two costs are equal. Solving for $L_{\mathrm{out}}$:
@@ -57,8 +57,10 @@ L^{*} = \frac{a_{\textsc{dg}} - a_{\textsc{ar}}}{b_{\textsc{ar}}}
 \end{equation}
 where $L^{*}$ is the crossover output length and $\lambda^{*}$ is the
 maximum serial event rate before a queue forms. Below $L^{*}$, AR is
-cheaper; above it, DG is --- until the next canvas edge, where the gap
-widens again. Figure~\ref{fig:shapes} (page~\pageref{fig:shapes})
+cheaper; above it, DG is --- permanently, though not smoothly: the
+advantage grows inside each canvas as AR climbs, then drops back at
+every canvas edge where DG pays for the next block, before climbing
+again. Figure~\ref{fig:shapes} (page~\pageref{fig:shapes})
 plots the two shapes against each other;
 Figure~\ref{fig:edges} probes the staircase at its boundaries to show
 the steps are regular enough to be one constant.
@@ -80,20 +82,26 @@ $n{=}200$).}
 
 \subsection{What the base is made of}
 
-The DG base is roughly two-fifths prefill ($\approx$38\%), by linear
-interpolation between
-$K{=}2$ and $K{=}8$; see Appendix~\ref{app:decomp}. Each denoising
-step re-attends the full prompt, so prefill is paid $K$ times. If the
-prompt KV were cached across denoising steps, the base could fall
-toward $\sim$150\,ms and $L^{*}$ would move downward. We treat the
-measured base as the operative number.
+Interpolating between $K{=}2$ and $K{=}8$ splits the base into a
+$K$-independent floor of $\approx$143\,ms ($38\%$) and per-step work of
+$\approx$236\,ms ($62\%$); see Appendix~\ref{app:decomp}. The per-step
+share is the larger one because each denoising step re-attends the
+whole prompt --- prefill is paid $K$ times, not once. So if the prompt
+KV were cached across denoising steps, most of that $62\%$ would
+collapse and the base could fall toward the $\sim$150\,ms floor, taking
+$L^{*}$ down with it. We treat the measured base as the operative
+number.
 
 \subsection{Generalisation}
 
 Both laws generalise from BGL to HDFS within 2\%: the DG canvas step
 is \bglStep\,ms on BGL against \hdfsStep\,ms on HDFS, a $1.7\%$
-difference on cells that are otherwise identical. The AR
-generalisation was measured on the dense AR-3B, not AR-30B, so the
-shape transfers across corpora on both arms but the AR constants do
-not transfer across model scales.
+difference at matched $K{=}8$ and canvas size. The step is a model
+property, not a data property, which is why it barely moves. Two
+caveats bound this: HDFS is the 2{,}000-line LOGHUB
+sample~\cite{loghub} rather than a full corpus, evaluated at
+$n{=}100$--$200$ per cell against BGL's $n{=}200$; and the AR
+generalisation was measured on the dense AR-3B, not AR-30B. So the
+\emph{shape} transfers across corpora on both arms, but the AR
+constants do not transfer across model scales.
 

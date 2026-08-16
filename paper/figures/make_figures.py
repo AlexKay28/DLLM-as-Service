@@ -479,7 +479,7 @@ def fig4_ksweep():
     axA.plot(kk, yy, "-", color=S.DG, marker=S.MARK["dg"], ms=4.2,
              mec=S.SURFACE, mew=0.9, zorder=3)
     axA.axhline(a, color=S.MUTED, lw=0.8, zorder=2)
-    axA.annotate(f"prefill + fixed floor  {a:.0f} ms", xy=(24, a),
+    axA.annotate(f"linear-fit intercept  {a:.0f} ms  (not a floor)", xy=(24, a),
                  xytext=(0, -13), textcoords="offset points", ha="center",
                  fontsize=7.6, color=S.INK2)
     axA.set_ylim(0, 520)
@@ -610,9 +610,15 @@ def fig6_batching():
     print(f"fig6 AR cache-on {on['multiplier']}x, cache-off {off['multiplier']}x, "
           f"LLaDA {lla_mult}x")
 
+    # NB: appD batching_multipliers are keyed ar3b_L128 / ar3b_L512 -- these two
+    # bars are the DENSE AR-3B, not the AR-30B MoE. The AR-30B MoE's own
+    # multiplier is 76.9x (issue111_qwen3_batch_sweep.json), plotted separately.
+    with open(RESULTS / "issue111_qwen3_batch_sweep.json") as f:
+        ar30 = json.load(f)
     rows = [
-        ("AR-30B  vLLM, $L\\!=\\!512$",        86.0, S.AR,    False),
-        ("AR-30B  vLLM, $L\\!=\\!128$",        77.1, S.AR,    False),
+        ("AR-30B MoE  vLLM, $L\\!=\\!256$", ar30["multiplier"], S.AR, False),
+        ("AR-3B (dense)  vLLM, $L\\!=\\!512$", 86.0, S.AR,    False),
+        ("AR-3B (dense)  vLLM, $L\\!=\\!128$", 77.1, S.AR,    False),
         ("AR-3B (dense)  prefix cache on",  on["multiplier"],  S.AR,    False),
         ("AR-3B (dense)  prefix cache off", off["multiplier"], S.AR,    False),
         ("DG-26B  vLLM, $L\\!=\\!128$",        1.7,  S.DG,    True),

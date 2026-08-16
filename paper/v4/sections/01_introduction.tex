@@ -2,9 +2,10 @@
 \label{sec:intro}
 
 Autoregressive language models generate text one token at a time;
-each token requires a forward pass over the growing KV cache. This is
-the decoding equivalent of a metered taxi: the fare climbs with every
-block. Block-diffusion models generate an entire block of tokens in
+each token requires a forward pass over the growing key-value (KV)
+cache. This is the decoding equivalent of a metered taxi: the fare
+climbs with every token. Block-diffusion models generate an entire
+block of tokens in
 parallel through iterative denoising, then step to the next block.
 The cost is a subway: flat fare per station, no matter how many
 tokens board. We call this second class \emph{block-diffusion} because
@@ -12,27 +13,52 @@ the block structure --- not the diffusion process --- is what
 determines its cost shape. Figure~\ref{fig:schematic} illustrates
 the two decoding patterns.
 
-We pinned both architectures to an identical vLLM serving stack on an
-\gpuModel{} to eliminate runtime noise. The task is structured
-log extraction from the LOGHUB BGL corpus --- system logs from the
-BlueGene/L supercomputer at Lawrence Livermore National Laboratory.
-Each raw log line describes a hardware or software event; the model
-must extract a structured JSON record with twelve fields spanning
-structural, semantic, anomaly, and action
-categories.\footnote{Structural fields require span-copying from the
-input; semantic fields require inference; anomaly fields require
-binary classification. Quality is macro-averaged token-level F1 across
-9 of the 12 fields; the other 3 have degenerate gold labels on BGL.
-All experiments use $n = 300$ test events per cell unless stated
-otherwise.}
+We ran both architectures on vLLM~\cite{vllm2023} on a single
+\gpuModel{} to remove the serving-path asymmetry that dominates naive
+comparisons --- though not on identical engine versions, which we
+return to in \S\ref{sec:threats}. The task is structured log
+extraction: each raw log line describes a hardware or software event,
+and the model must emit a JSON record with twelve fields spanning
+structural, semantic, anomaly, and action categories. Structural
+fields require span-copying from the input, semantic fields require
+inference, and anomaly fields require binary classification.
+
+\paragraph{Data.}
+
+The corpus is BGL from LOGHUB~\cite{loghub} --- 4{,}747{,}963 lines of
+console log from the BlueGene/L supercomputer at Lawrence Livermore
+National Laboratory, whose first column tags each line as an alert or
+non-alert. We sample 600{,}000 lines uniformly (reservoir sampling,
+seed 42) and split them temporally: the most recent 200{,}000 form the
+test split and the remaining 400{,}000 the train split. The test split
+carries 41{,}005 alert-tagged lines, an anomaly rate of $20.5\%$, so
+the two anomaly fields are not degenerate. Gold records are produced
+by parsing each line with Drain~\cite{drain} and carrying the native
+alert tags through as \texttt{is\_anomaly} and \texttt{anomaly\_score}.
+
+Quality is macro-averaged token-level F1 over 9 of the 12 fields. The
+three excluded --- \texttt{event\_type}, \texttt{affected\_entity} and
+\texttt{remediation\_hint} --- are the semantic fields whose gold
+labels are parser placeholders rather than ground truth, so scoring
+them measures agreement with Drain, not extraction quality; this was
+one of the eight corrections priced in Appendix~\ref{app:defects}.
+A record is \emph{schema-valid} if it parses as JSON and carries all
+twelve keys; schema completeness is the fraction of keys present, which
+is what separates a truncated record from a complete one. Latencies are
+reported as percentiles over per-event wall time --- p50 is the median,
+p99 and p99.9 the tail. Every evaluation cell draws $n = 300$ events
+from the test split unless stated otherwise. For the generalisation check in \S\ref{sec:laws} we
+additionally use the LOGHUB HDFS sample (2{,}000 lines, evaluation
+only).
 
 Both arms are Mixture-of-Experts models:
 \begin{itemize}[nosep]
-\item \DG\ (DiffusionGemma-26B-A4B, 4.0\,B active of 26\,B total,
-  52\,GB) --- the block-diffusion arm. Top-8 of 128 experts.
-\item \ARthree\ (Qwen3-30B-A3B, 3.0\,B active of 30\,B total,
-  60\,GB) --- the autoregressive arm. Matched to DG on architecture
-  class and active parameters.
+\item \DG\ (DiffusionGemma-26B-A4B~\cite{diffusiongemma}, 4.0\,B active
+  of 26\,B total, 52\,GB) --- the block-diffusion arm. Top-8 of 128
+  experts.
+\item \ARthree\ (Qwen3-30B-A3B~\cite{qwen25}, 3.0\,B active of 30\,B
+  total, 60\,GB) --- the autoregressive arm. Matched to DG on
+  architecture class and active parameters.
 \end{itemize}
 The cost shapes we derive are properties of the \emph{decoding
 paradigm}, not of model scale. A larger AR model would have a steeper
@@ -105,7 +131,7 @@ every other AR entry is the AR-30B MoE.}
 \tabfont Active parameters                            & 3.0\,B & 4.0\,B \\
 \tabfont Total parameters                             & 30\,B & 26\,B \\
 \tabfont Weights (bf16)                                & 60\,GB & 52\,GB \\
-\tabfont Cost law slope (ms/token, serial) & 47.7 & --- \\
+\tabfont Marginal cost (ms/token, serial) & \arSlope & 0.47 (amortised over a canvas) \\
 \tabfont Batch-1 $\to$ peak throughput multiplier     & 77$\times$ & $\leq$1.7$\times$ \\
 \tabfont Tail latency (max/median)                    & 1.03$\times$ & 3.21$\times$ \\
 \bottomrule

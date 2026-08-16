@@ -6,14 +6,18 @@ structurally different from the linear cost of autoregressive decoding.
 The taxi fare climbs with every token; the subway charges per station.
 The shapes cross at $L^{*} = \crossoverL$ output tokens, above which
 diffusion is faster. The advantage is large --- fifteenfold at natural
-output, eightfold at a thousand tokens --- and in cost terms, that is
-a fifteen-to-one gap per million events that does not close with a
-bigger model, only with batching.
+output, eightfold at a thousand tokens --- and in cost terms that is
+\$7{,}100 per million events, or \$26{,}000 a year on one GPU at ten
+thousand events a day. A bigger AR model does not close it. Two things
+do: batching, and co-residency with a model small enough to fit many
+copies on one GPU.
 
-Against a MoE-matched AR model, this is a fair comparison. Moving
-from the dense AR-3B to the MoE AR-30B raised the serial per-token
-cost sevenfold, pushing the crossover from 59 to 6 tokens. DG wins at
-every practical output length in serial mode.
+Against a MoE-matched AR model, this is a fair comparison, and the
+match is what makes the crossover interesting. The dense AR-3B decodes
+at 6.3\,ms/token against the MoE AR-30B's \arSlope\,ms/token, so moving
+to the matched baseline raised the serial per-token cost by more than
+sevenfold and pulled the crossover down from 59 tokens to
+\crossoverL. DG wins at every practical output length in serial mode.
 
 The advantage is limited where batching is available and where tail
 SLAs are tight. But in the batch-1 regime --- serial investigation
@@ -26,4 +30,3 @@ when output is long, batch-1 is required, and schema completeness
 matters. We have named five conditions and grounded them in concrete
 workloads.
 
-\FloatBarrier

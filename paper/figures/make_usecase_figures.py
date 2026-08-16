@@ -50,11 +50,12 @@ def fig10_chains():
 
     # Panel B: tail concentration
     axB.plot(tail_depths, p999_ratios, color=S.DG, lw=1.8, marker=S.MARK["dg"],
-             ms=5, mec=S.SURFACE, mew=0.8, zorder=4, label="p99.9/p50 ratio")
+             ms=5, mec=S.SURFACE, mew=0.8, zorder=4,
+             label="AR/DG ratio at p99.9")
     axB.axhline(1.93, color=S.AR, lw=1.4, ls="--", zorder=2,
-                label="AR mean ratio (1.93×)")
+                label="AR/DG median ratio (1.93×)")
     axB.set_xlabel("chain depth")
-    axB.set_ylabel("p99.9 / p50 ratio")
+    axB.set_ylabel("AR / DG latency ratio at p99.9")
     axB.set_xticks(tail_depths)
     axB.set_ylim(0.8, 2.3)
     S.title(axB, "B  DG tail penalty washes out with depth")

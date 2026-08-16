@@ -9,12 +9,17 @@ to \dgFOneTwentyEight{} and \dgValidTwentyEight\%. Which budget an
 application faces decides which architecture is safer;
 Figure~\ref{fig:quality} traces both curves.
 
-\begin{figure}[!htbp]
+\begin{figure}[ht!]
 \centering
-\includegraphics[width=\linewidth]{figures/fig5_quality_vs_length_hires.png}
+\includegraphics[width=\linewidth]{figures/fig5_quality_vs_length.png}
 \caption{Quality and schema validity vs forced output length (BGL,
-$n{=}300$; AR arm is dense AR-3B). The diffusion model's quality rises
-with $L$ and plateaus; AR-3B F1 is flat from $L{=}256$ to $L{=}512$
-because first-object-wins parsing discards the rambled continuation.}
+$n{=}300$; AR arm is dense AR-3B). \textbf{A:} DG's 9-field F1 rises
+with $L$ and plateaus, while AR-3B is flat from $L{=}256$ to $L{=}512$
+because first-object-wins parsing discards the rambled continuation.
+\textbf{B:} schema validity is the sharper split --- at $L{=}128$ DG
+returns a valid record \dgValidTwentyEight\% of the time against
+AR-3B's \arValidTwentyEight\%, because a canvas truncated below its
+length is not a complete JSON object. This is the hard floor on DG's
+completeness guarantee.}
 \label{fig:quality}
 \end{figure}

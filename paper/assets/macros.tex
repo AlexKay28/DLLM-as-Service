@@ -12,7 +12,10 @@
 
 % --- Pinned stack -------------------------------------------------- (#57) --
 \newcommand{\gpuModel}{NVIDIA A100 80GB PCIe}
-\newcommand{\refPrompt}{1{,}047}
+% prompt_token_count in every DG cell (issue68_dg_L*.json, 42 files). The AR
+% cells run shorter prompts (992); 1,077 is the DG figure the crossover is
+% calibrated at. Was 1,047 -- a stale constant from docs/edr/005, no artifact.
+\newcommand{\refPrompt}{1{,}077}
 
 % --- Quality, 9-field vs 12-field ----- results/issue43_nine_field_f1.json --
 \newcommand{\arThreeBFnine}{0.852}     % dense AR-3B (Qwen2.5-3B), L=256, 9-field, re-scored (#43)
@@ -24,7 +27,7 @@
 \newcommand{\arSlope}{47.7}      % ms/token, AR-30B MoE serial decode slope
 \newcommand{\dgBase}{378.8}       % ms, DG base at K=8
 \newcommand{\dgStep}{119.5}       % ms, median of the 7 measured canvas steps
-\newcommand{\dgStepLo}{113.1}     % ms, smallest measured step (1536->1792 in)
+\newcommand{\dgStepLo}{113.1}     % ms, smallest measured step (1280->1536)
 \newcommand{\dgStepHi}{122.6}     % ms, largest measured step (256->512)
 \newcommand{\canvasLength}{256}   % tokens per canvas
 
@@ -35,7 +38,9 @@
 \newcommand{\arMaxMed}{1.03}      % max / median per-event latency (AR-3B dense)
 \newcommand{\dgMaxMed}{3.21}
 
-% --- Crossovers ------------------------- models/decision/procedure.py --------
+% --- Crossovers ------- derived from arBase/arSlope/dgBase above --------------
+% NB: models/decision/procedure.py still records the AR-3B-era values
+% (l_cross_tokens=65, lambda_cross_ev_s=1.8); it is NOT the source of these.
 \newcommand{\crossoverL}{6}        % tokens: (dgBase - arBase) / arSlope, serial mode
 \newcommand{\crossoverLambda}{2.6} % ev/s: 1000 / dgBase (unchanged — DG base same)
 
@@ -54,13 +59,20 @@
 % Values are hardcoded in Appendix 10 (appendix_decomp.tex).
 
 % --- Batching ------------------- results/issue42_batching.json, appD, dInfer --
-\newcommand{\cacheOnMult}{42.8}    % AR-30B, prefix caching on   (#42)
-\newcommand{\cacheOffMult}{26.8}   % AR-30B, prefix caching off  (#42)
+% NB: #42 was run on the dense AR-3B (Qwen2.5-3B-Instruct), NOT the AR-30B MoE.
+% The AR-30B MoE multiplier is 77x (results/issue111_qwen3_batch_sweep.json).
+\newcommand{\cacheOnMult}{42.8}    % dense AR-3B, prefix caching on   (#42)
+\newcommand{\cacheOffMult}{26.8}   % dense AR-3B, prefix caching off  (#42)
 \newcommand{\dgBatchVllmHi}{1.7}   % DG under vLLM, L=128 (lower bound)
 
-% --- Energy -------------------------- results/issue_energy_measurement.json --
-% Values hardcoded in sec 03 (03_deployment.tex): AR-30B 10.1 J, DG 4.2 J,
-% AR-1.5B 5.1 J, ratio 2.4. Idle baselines: AR-30B 92.7W, AR-1.5B 58.6W, DG 52.6W.
+% --- Energy ------------------------------------- three separate artifacts ---
+% Values hardcoded in sec 03 (03_deployment.tex). Each comes from its own file:
+%   DG      4.2 J, idle 52.6W  -- results/issue_energy_measurement.json
+%   AR-30B 10.1 J, idle 92.7W  -- results/issue111_ar30b_energy.json (BATCH-served,
+%                                 147 ms/event wall; DG's run is serial, 386 ms/event)
+%   AR-1.5B 5.1 J, idle 58.6W  -- results/issue_evidence_ar1b_energy.json
+% Ratios 10.1/4.2 = 2.4 and 5.1/4.2 = 1.2. Different idle baselines and
+% different serving regimes: indicative, not controlled (see sec 07).
 
 % --- Deployment pair ------ results/issue_evidence_ar1b_*.json, issue68_*.json --
 \newcommand{\dgWeights}{52.0}          % GB, bf16

@@ -43,18 +43,6 @@
 \definecolor{llaqua}{HTML}{1BAF7A}
 \definecolor{linkc}{HTML}{1B3A5C}
 
-% --- Boxes ---
-\usepackage[most]{tcolorbox}
-\newtcolorbox{keybox}[1][]{
-  enhanced, breakable,
-  colback=black!3, colframe=black!40,
-  boxrule=0.5pt, arc=1pt,
-  left=8pt, right=8pt, top=5pt, bottom=5pt,
-  before skip=8pt, after skip=8pt,
-  fontupper=\small, #1
-}
-\newcommand{\boxhead}[1]{\textbf{\footnotesize\MakeUppercase{#1}}\par\vspace{2pt}}
-
 % --- Hyperlinks & Metadata ---
 \usepackage[
     colorlinks=true,
@@ -68,12 +56,10 @@
 ]{hyperref}
 
 % --- Model shorthands ---
+% NB: \ARthree renders AR-30B (the name is an AR-3B-era leftover).
 \newcommand{\ARthree}{\textsc{ar-30b}}
-\newcommand{\ARoneb}{\textsc{ar-1.5b}}
 \newcommand{\DG}{\textsc{dg}}
 \newcommand{\LLaDA}{\textsc{llada-8b}}
-\newcommand{\artag}{\textsc{ar}}
-\newcommand{\dgtag}{\textsc{dg}}
 
 % --- Macros (numbers from results/) ---
 \input{../assets/macros.tex}
@@ -113,12 +99,19 @@ not completeness.
 \begin{figure}[ht!]
 \centering
 \includegraphics[width=\linewidth]{figures/fig1_cost_shapes.png}
-\caption{The two cost shapes. AR latency grows linearly --- the line
-has no floor. DG latency is a staircase, flat inside a 256-token
-canvas and stepping at the boundary --- the staircase is bounded. The
-gap widens with $L$; the crossover is at $L^{*}\!=\!\crossoverL$
-tokens. AR values from the fitted cost law; DG measured (BGL,
-$n{=}200$, $K{=}8$).}
+\caption{The two cost shapes, priced at four output lengths (log
+scale). AR grows linearly and has no floor, so its bars climb from
+12.3\,s to 97.8\,s; DG is a bounded staircase and climbs only from
+378\,ms to 1.2\,s, because every 256-token canvas costs the same
+$\sim$120\,ms wherever it falls. The gap therefore widens with output
+length, from $32\times$ at $L{=}256$ to $81\times$ at $L{=}2048$.
+These ratios are larger than the fifteenfold in the abstract because
+here AR is charged for every token it would have to emit: the AR bars
+are Eq.~\ref{eq:ar} extrapolated, whereas in practice AR stops at its
+natural EOS near 123 tokens and plateaus at 5.9\,s
+(Table~\ref{tab:niche}), which is where the fifteenfold comes from.
+DG measured (BGL, $n{=}200$, $K{=}8$); AR-30B MoE from the fitted
+serial cost law.}
 \label{fig:shapes}
 \end{figure}
 

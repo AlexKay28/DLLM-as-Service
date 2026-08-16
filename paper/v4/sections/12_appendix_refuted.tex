@@ -8,17 +8,22 @@ Appendix~\ref{app:defects}: there the \emph{harness was wrong}; here the
 \emph{prediction was wrong}. Table~\ref{tab:refuted} lists all six.
 \begin{table}[h]
 \centering
-\caption{Six hypotheses that did not survive measurement
-(BGL, $n{=}300$).}
+\caption{Six hypotheses that did not survive measurement (BGL).
+Arms and sample sizes differ by row: the perturbation, refinement and
+bounded-deadline rows were measured on \LLaDA\ against the dense
+AR-3B ($n{=}100$--$500$); the infilling row is DG against the dense
+AR-3B ($n{=}50$); the wide-schema and output-length rows are DG
+($n{=}200$). $S$ is the number of suffix tokens held out for
+infilling, and the perturbation metric is 9-field F1.}
 \label{tab:refuted}
 \begin{tabularx}{\linewidth}{@{}p{4.6cm}L@{}}
 \toprule
 \thead{Hypothesis} & \thead{What we measured instead} \\
 \midrule
-\tabfont Joint denoising resists input perturbation & \tabfont The diffusion model degraded more in \textbf{10 of 10} categories, by up to $8.2\times$ the autoregressive drop. \\
-\tabfont Bidirectional conditioning wins at infilling & \tabfont The dense AR-3B scores $0.993$--$0.999$ across all suffix sizes; the diffusion model holds to $0.960$ then falls to $0.753$ at $S{=}8$. \\
-\tabfont Diffusion has a refinement mechanism that pays off & \tabfont Selective re-masking gains $+0.023$ F1 over three rounds, but still trails AR after one pass. The mechanism is real; the win is not. \\
-\tabfont Diffusion beats AR under bounded deadlines & \tabfont This was defect 4. The AR model does complete within the deadline; the metric had been counting valid falsy values as missing keys. \\
+\tabfont Joint denoising resists input perturbation & \tabfont \LLaDA\ degraded more in \textbf{10 of 10} categories, by up to $8.2\times$ the dense AR-3B's drop. \\
+\tabfont Bidirectional conditioning wins at infilling & \tabfont The dense AR-3B scores $0.993$--$0.999$ across all suffix sizes; DG holds to $0.960$ then falls to $0.753$ at $S{=}8$. \\
+\tabfont Diffusion has a refinement mechanism that pays off & \tabfont Selective re-masking gains \LLaDA\ $+0.023$ F1 over three rounds, but it still trails the dense AR-3B after one pass. The mechanism is real; the win is not. \\
+\tabfont Diffusion beats AR under bounded deadlines & \tabfont This was defect 4, measured on \LLaDA. The AR model does complete within the deadline; the metric had been counting valid falsy values as missing keys. \\
 \tabfont Wide-schema cost scales as $O(F^2)$ for diffusion & \tabfont Never measured. The consistency metric is three hardcoded rules over four fields at every schema width. The framing is dropped. \\
 \tabfont Quality is invariant to output length & \tabfont Quality rises steeply with $L$ and then plateaus. The apparent invariance came from the contaminated 12-field metric. \\
 \bottomrule

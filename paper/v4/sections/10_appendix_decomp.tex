@@ -2,19 +2,28 @@
 \label{app:decomp}
 
 Sweeping $K \in \{2,4,8,16,32,64\}$ fits $T(K) = \kfitBase + \kfitSlope
-\cdot K$ with $R^2 = \kfitRsq$. Latency saturates above $K{=}16$, so the
-intercept is not interpretable as a floor. Two measurement-based bounds
-constrain the split instead: from $T(2) = 202$\,ms the floor is at most
-$53\%$ of the base; from the canvas step denoising is at least $32\%$.
-Linear interpolation narrows this to prefill $\approx 38\%$, denoising
-$\approx 62\%$. Figure~\ref{fig:ksweep} shows the saturation that
+\cdot K$ with $R^2 = \kfitRsq$. The curve is not linear --- p50 barely
+moves from $K{=}8$ to $K{=}16$ (378.6 to 382.5\,ms) and then jumps
+$10\%$ to 421.8\,ms at $K{=}32$ before flattening at 423.9\,ms --- so
+the fitted intercept is not interpretable as a floor. Two
+measurement-based bounds constrain the split instead: from
+$T(2) = 201.7$\,ms the $K$-independent floor is at most $53.3\%$ of the
+base; from the canvas step, per-step work is at least $31.5\%$.
+Interpolating between $K{=}2$ and $K{=}8$ narrows this to a floor of
+$142.7$\,ms ($\approx 38\%$) and per-step work of $236.1$\,ms
+($\approx 62\%$) --- the latter being where the $K$-times-repeated
+prefill lives. Figure~\ref{fig:ksweep} shows the non-linearity that
 makes the intercept uninterpretable.
 
-\begin{figure}[!htbp]
+\begin{figure}[ht!]
 \centering
-\includegraphics[width=0.85\linewidth]{figures/fig4_ksweep_hires.png}
+\includegraphics[width=0.85\linewidth]{figures/fig4_ksweep.png}
 \caption{Denoising-step sweep at $L_{\mathrm{out}}{=}\canvasLength$
-(BGL, $n{=}200$). Latency saturates above $K{=}16$; quality is flat
-above $K{=}8$.}
+(BGL, $n{=}200$, DG-26B-A4B). \textbf{A:} latency is flat from $K{=}8$
+to $K{=}16$, jumps $10\%$ at $K{=}32$, then flattens --- the curve is
+not linear, which is why the fitted intercept is not a floor.
+\textbf{B:} 9-field F1 is flat above $K{=}8$ but collapses below
+$K{=}4$ (0.484 at $K{=}2$). Together these bracket $K{=}8$ as the
+latency/quality knee and set the floor of the $K$ deadline knob.}
 \label{fig:ksweep}
 \end{figure}

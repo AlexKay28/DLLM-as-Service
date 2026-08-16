@@ -1,23 +1,25 @@
 \section{Related work}
 \label{sec:related}
 
-Diffusion LM speedup claims (LLaDA~\cite{llada2025},
-DiffusionGemma~\cite{diffusiongemma}) are typically measured against
-author-built AR baselines. Our contribution is to pin both arms on the
-same serving stack and derive cost laws from measurement rather than
-from single-point comparisons.
+Diffusion language models claim large speedups. LLaDA~\cite{llada2025}
+and DiffusionGemma~\cite{diffusiongemma} both measure against
+author-built autoregressive baselines. We instead pin both arms to one
+serving stack and fit cost laws, so the comparison rests on a shape
+rather than on a single point.
 
-Constrained decoding (outlines~\cite{outlines2024},
-xgrammar~\cite{xgrammar2024}, llguidance~\cite{llguidance}) is the
-standard answer to the structured-output problem and is not measured
-here; it is a stated limitation (\S\ref{sec:threats}). Speculative
-decoding (Medusa~\cite{medusa2024}, EAGLE~\cite{eagle2024}) attacks the
-same per-token slope the AR cost law turns on; it changes the slope, not
-the shape.
+Constrained decoding is the standard answer to structured
+output. Outlines~\cite{outlines2024}, xgrammar~\cite{xgrammar2024} and
+llguidance~\cite{llguidance} all enforce a grammar during decoding. We
+do not measure it here, and say so in \S\ref{sec:threats}.
 
-\cite{hoefler2021} surveys reproducibility pitfalls in systems
-measurement. Our methodological contribution (Appendix~\ref{app:defects})
---- eight priced corrections found by re-reading committed artifacts ---
-is a case study in that tradition, not a general method.
+Speculative decoding attacks the same per-token slope our AR cost law
+turns on. Medusa~\cite{medusa2024} and EAGLE~\cite{eagle2024} make each
+token cheaper, but the cost stays linear in output length. They change
+the slope, not the shape --- which is the quantity that separates the
+two architectures here.
 
-\FloatBarrier
+Hoefler and Belli~\cite{hoefler2021} survey reproducibility pitfalls in
+systems measurement. Our eight priced corrections
+(Appendix~\ref{app:defects}) are a case study in that tradition rather
+than a general method.
+

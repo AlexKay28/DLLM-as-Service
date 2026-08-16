@@ -6,16 +6,62 @@ but the shapes should transfer. The crossover is calibrated at a
 reference prompt of $\sim$\refPrompt\,tokens and shifts with input
 length.
 
-The AR--DG quality difference is equivalent at a $\pm 0.015$ margin.
-This quality comparison uses the dense AR-3B baseline, not the AR-30B
-MoE: the 9-field F1 of \arThreeBFnine\ was re-scored with the corrected
-parser on the dense baseline, and the AR-30B was not re-scored at the
-same parser setting. The latency comparison uses the AR-30B MoE cost
-law, so the quality and latency arms are not the same model.
+\paragraph{The AR-30B arm is not yet verified.}
+
+The AR-30B measurements differ from every other arm in three ways at
+once, and all three plausibly slow the AR side. First, engine version:
+every DG, AR-3B and AR-1.5B cell ran on vLLM 0.25.1 (torch 2.11.0,
+CUDA 13.0), but the AR-30B ran on vLLM 0.11.0 (torch 2.8.0, CUDA
+12.8). Second, CUDA graphs: the AR-30B harness sets
+\texttt{enforce\_eager}, which the anchor harnesses do not, so the
+AR-30B decoded without graph capture. Third, and most seriously, the
+AR-30B harness read its inputs from the gold record file rather than
+the raw log file, so the model was prompted with the answer it was
+supposed to extract --- which is why its 9-field F1 is exactly
+$1.0$ in every cell, and why its outputs are near-copies of the gold.
+
+The consequence is that the AR-30B decodes at $48$\,ms/token against
+the dense AR-3B's $6.3$\,ms/token --- a $7.6\times$ per-token penalty
+for a model with the same active parameter count, which we do not
+believe. We therefore report the AR-30B comparison as
+\emph{unverified} rather than as a bound: the cost law
+(Eq.~\ref{eq:ar}), Table~\ref{tab:niche}, the fifteenfold and
+eightfold headline figures, the $77\times$ batching multiplier and the
+cost-per-event table all inherit these three confounds and require
+re-measurement on the pinned stack before they can be relied on. The
+DG-side constants, the canvas step, the $K$ sweep and every AR-3B and
+AR-1.5B result are unaffected, having been measured on the pinned
+stack from raw log lines. This is the same class of defect as
+correction~2 in Appendix~\ref{app:defects} --- a harness asymmetry
+flattering the architecture we hoped would win --- found, as those
+eight were, by re-reading committed artifacts.
+
+The AR--DG quality difference is equivalent at a $\pm 0.015$ margin
+($\Delta = \qualityGap$, 95\% CI $[-0.012, +0.011]$, $n = 300$). Note
+that $\pm 0.015$ is looser than the $\pm 0.010$ margin we
+pre-registered, at which the 95\% CI does not quite fit; equivalence
+holds at the pre-registered margin only on the 90\% CI. This quality
+comparison uses the dense AR-3B baseline, not the AR-30B MoE: the
+9-field F1 of \arThreeBFnine\ was re-scored with the corrected parser
+on the dense baseline, and the AR-30B was not re-scored at the same
+parser setting. The latency comparison uses the AR-30B MoE cost law, so
+the quality and latency arms are not the same model.
+
+Several secondary results come from arms other than the MoE-matched
+pair, and we flag them together rather than only at each use. The
+per-event tail statistics (CV, max/median) in Table~\ref{tab:summary}
+and Table~\ref{tab:contrast} are the dense AR-3B; the AR-30B was never
+run per-event. The BGL$\to$HDFS generalisation was measured on the
+dense AR-3B for the AR side. The perturbation, refinement and
+bounded-deadline probes in Appendix~\ref{app:refuted} were run on
+\LLaDA, a second diffusion model, against the dense AR-3B. And the
+serial headline is a batch-1 result: the same AR-30B batches
+$77\times$, so a deployment that can batch inverts the economics
+entirely (\S\ref{sec:limits}).
 
 The surviving niche has not been tested on a task whose natural output
 length is $\geq 512$ tokens. The AR-30B cost law is fitted from a
-five-point serial sweep with $R^2 = 1.0$, but the model stops at
+five-point serial sweep with $R^2 = 0.9996$, but the model stops at
 $\sim$123 tokens (EOS), so the slope is carried by the $L{=}32$ point
 and the cluster at natural output. The advantage in serial mode is the
 realized comparison; forcing AR to generate longer output would
@@ -26,13 +72,17 @@ task whose natural output is long.
 The niche has not been tested against grammar-constrained AR decoding,
 which would eliminate over-generation, guarantee 100\% schema
 validity, and remove the diffusion model's completeness advantage. An
-attempt to run grammar-constrained AR on vLLM produced 1.0\% schema-valid
-output --- the grammar enforced JSON structure but the model padded
-string fields it could not answer, preventing the JSON from closing.
-This is a stated limitation.
+attempt to run grammar-constrained decoding on the dense AR-1.5B
+(vLLM 0.10.2, using the outlines~\cite{outlines2024} backend) produced
+1.0\% schema-valid output --- the grammar enforced JSON structure but
+the model padded string fields it could not answer, preventing the JSON
+from closing. That is one model on one older engine, so it bounds
+nothing; the comparison against a properly tuned grammar-constrained
+AR remains untested.
 
 The batching ceiling reproduces across two runtimes and two model
-families, but both measurements are engine-bounded; see
+families --- DG on vLLM and \LLaDA\ on dInfer --- but both measurements
+are engine-bounded; see
 Appendix~\ref{app:batching}. A structural argument for why the ceiling
 is likely architectural is in Appendix~\ref{app:batching_architectural}.
 
@@ -48,4 +98,3 @@ DiffusionGemma-26B-A4B-it is available at
 \url{https://huggingface.co/google/}\\\url{diffusiongemma-26b-a4b-it}.
 All DG measurements are reproducible from this checkpoint.
 
-\FloatBarrier
