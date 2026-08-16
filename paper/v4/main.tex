@@ -82,25 +82,21 @@ The Cost Shape of Block-Structured Decoding}}
 \maketitle
 
 \begin{abstract}
-Language models generate text either one token at a time
-(autoregressive decoding) or a block of tokens at once (block-diffusion
-decoding). The choice changes the shape of inference cost. Autoregressive
-latency has a linear trend in output length. Block-diffusion latency is
-a staircase --- flat inside a fixed 256-token canvas, stepping once at
-each boundary.
-
-We measure both on a pinned vLLM stack with a Mixture-of-Experts-matched
-pair (DiffusionGemma-26B-A4B against Qwen3-30B-A3B) on structured log
-extraction. The two shapes cross at a short output length, above which
+Autoregressive decoding has linear latency in output length;
+block-diffusion decoding has a staircase latency --- flat inside a
+fixed 256-token canvas, stepping at each boundary. On a pinned vLLM
+stack with a Mixture-of-Experts-matched pair
+(DiffusionGemma-26B-A4B vs Qwen3-30B-A3B) on structured log
+extraction, the shapes cross at a short output length, above which
 block diffusion is fifteen times faster at the natural output length
 and eight times faster at a thousand tokens. The autoregressive model
-batches better and has a tighter tail, so it wins under high throughput.
-But where requests arrive serially --- investigation chains, autonomous
-driving, algorithmic trading --- the staircase gives block diffusion a
-structural advantage the linear shape cannot match. Under a tightening
-deadline, block diffusion lowers quality rather than truncating output;
-the autoregressive model does the reverse. We state five conditions that
-define the regime where block diffusion is the right choice.
+wins under high throughput (better batching, tighter tail); block
+diffusion wins where requests arrive serially --- investigation
+chains, autonomous driving, algorithmic trading. Under a tightening
+deadline, block diffusion lowers quality rather than truncating
+output; the autoregressive model does the reverse. We state five
+conditions defining the regime where block diffusion is the right
+choice.
 \end{abstract}
 
 \begin{figure}[ht!]
