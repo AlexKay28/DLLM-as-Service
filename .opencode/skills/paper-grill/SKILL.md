@@ -1,6 +1,6 @@
 ---
 name: paper-grill
-description: Use when reviewing a research paper for validity, consistency, and clarity. Runs a systematic 27-check audit across 6 dimensions — data integrity, narrative quality, mathematical correctness, presentation, completeness, and maintenance hygiene. Includes the arXiv storytelling-rigor trade-off: intuition-first methods, question-framed experiments, self-contained captions, and real-world context. Triggers on phrases like "grill the paper", "review the paper", "check for contradictions", "find issues", or "audit paper".
+description: Use when reviewing a research paper for validity, consistency, and clarity. Runs a systematic 28-check audit across 6 dimensions — data integrity, narrative quality, mathematical correctness, presentation, completeness, and maintenance hygiene. Includes the arXiv storytelling-rigor trade-off: intuition-first methods, question-framed experiments, self-contained captions, real-world context, and automated readability/density evaluation. Triggers on phrases like "grill the paper", "review the paper", "check for contradictions", "find issues", or "audit paper".
 ---
 
 # Paper Grill Skill
@@ -36,7 +36,7 @@ A systematic audit strategy for research papers that finds contradictions, unsup
 8. **Run self-audit** — verify every fix was applied correctly (see Self-Audit Checklist below)
 9. **Report** using the output format at the end
 
-## Audit Strategy: 27 Checks in 6 Groups
+## Audit Strategy: 28 Checks in 6 Groups
 
 ---
 
@@ -357,6 +357,51 @@ for f in sorted(os.listdir('paper/v4/sections')):
         print()
 "
 ```
+
+---
+
+### Group B-2: Automated Readability & Density Evaluation
+
+#### Check 28: Readability and Expression Density (Automated)
+
+**Question:** Does the paper pass automated readability and expression-density thresholds?
+
+This check runs `paper/eval_readability.py`, which computes Flesch Reading Ease, sentence length distribution, passive voice clusters, hedging, number density, bracket density, and words-per-number for every section. It strips LaTeX commands, equation/table environments, and footnotes before analysis, so only prose is measured.
+
+**Pass thresholds (all enforced by the script):**
+- Flesch Reading Ease: 18–55 for main text, 20+ for appendices
+- Median sentence length: 10–28 words
+- Sentences >40 words: ≤2 per section (excl. equation/table envs)
+- Sentences >60 words: 0 per section
+- Passive voice clusters: ≤3 consecutive
+- Hedging ratio: ≤0.5 per sentence
+- Number density: ≤4.0/100w main text, ≤5.0/100w any section
+- Bracket density: ≤1.5/100w main text (excludes citation brackets)
+- Words per number: ≥25 in main text
+- Abstract inline numbers: ≤3
+
+```bash
+# Run the full evaluation (exit 0 = pass, exit 1 = fail)
+python3 paper/eval_readability.py
+
+# Readability only
+python3 paper/eval_readability.py --read
+
+# Density only
+python3 paper/eval_readability.py --density
+
+# Machine-readable JSON output
+python3 paper/eval_readability.py --json
+```
+
+The script reports per-section metrics with PASS/FAIL status and the applicable threshold. If any check fails, the script exits with code 1. The grill agent should fix the failing section and re-run until all checks pass.
+
+**Common fixes for failures:**
+- Flesch too low (dense): shorten sentences, use simpler words, split long clauses
+- Number density too high: move numbers to tables/equations, use words ("fifteen times" not "15.6×")
+- Bracket density too high: expand acronyms inline, move context to footnotes/captions
+- Sentences >60 words: split at semicolons or em-dashes
+- Abstract numbers >3: replace inline ratios with word-form ("fifteenfold")
 
 ---
 
@@ -724,6 +769,7 @@ After all fixes are applied and the PDF is recompiled, verify:
 - [ ] Every figure caption is self-contained (re-run Check 27)
 - [ ] At least one real-world analogy in the paper (Check 25)
 - [ ] At least one dollar-cost translation in abstract + conclusion (Check 26)
+- [ ] `eval_readability.py` passes (exit 0)
 
 ### Compilation
 - [ ] 0 errors, 0 overfull, 0 undefined (recompile from scratch)
@@ -746,7 +792,7 @@ STATUS: [CRITICAL / IMPORTANT / OK]
 FIX: [What was done, or "no fix needed"]
 ```
 
-After all 27 checks, summarize:
+After all 28 checks, summarize:
 - Total issues found (by group)
 - Critical issues fixed
 - Remaining known limitations (acknowledged in paper)
@@ -761,5 +807,6 @@ After all 27 checks, summarize:
 - Question-framed: tables without "why" explanations (Check 26)
 - Self-contained captions: captions missing pattern or mechanism (Check 27)
 - Real-world context: analogies count, dollar translations count
+- Readability: `eval_readability.py` pass/fail count, Flesch range, density metrics
 - Self-audit: pass/fail per item
 - Fix-log: written / not written
