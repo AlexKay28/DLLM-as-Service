@@ -18,7 +18,7 @@
 % --- Quality, 9-field vs 12-field ----- results/issue43_nine_field_f1.json --
 \newcommand{\arThreeBFnine}{0.852}     % dense AR-3B (Qwen2.5-3B), L=256, 9-field, re-scored (#43)
 \newcommand{\dgNineF}{0.852}           % DG,     L=256, 9-field
-\newcommand{\arThreeBFtwelve}{0.826}   % AR-30B,  L=256, 12-field
+\newcommand{\arThreeBFtwelve}{0.826}   % AR-3B (dense), L=256, 12-field
 \newcommand{\dgTwelveF}{0.786}         % DG,     L=256, 12-field
 \newcommand{\qualityGap}{0.000}        % |9-field difference|
 \newcommand{\twelveGap}{0.041}         % 12-field difference, AR-favoured
@@ -113,9 +113,9 @@
 \newcommand{\rambleRate}{96}      % % of AR outputs with >1 JSON object at L=512
 
 % --- Truncation regime -------------------------- results/issue43/*.json -----
-\newcommand{\arFOneTwentyEight}{0.669}   % AR-30B 9-field F1 at L=128
+\newcommand{\arFOneTwentyEight}{0.669}   % AR-3B (dense) 9-field F1 at L=128
 \newcommand{\dgFOneTwentyEight}{0.311}   % DG    9-field F1 at L=128
-\newcommand{\arValidTwentyEight}{66.7}   % AR schema-valid % at L=128
+\newcommand{\arValidTwentyEight}{66.7}   % AR-3B (dense) schema-valid % at L=128
 \newcommand{\dgValidTwentyEight}{1.0}    % DG schema-valid % at L=128
 
 % --- Generalisation to HDFS ---------------------- results/issue67_*.json ----

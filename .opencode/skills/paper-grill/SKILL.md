@@ -1,13 +1,13 @@
 ---
 name: paper-grill
-description: Use when reviewing a research paper for validity, consistency, and clarity. Runs a systematic 15-check audit checking every number, claim, cross-reference, table consistency, figure alignment, equation validity, and narrative coherence. Triggers on phrases like "grill the paper", "review the paper", "check for contradictions", "find issues", or "audit paper".
+description: Use when reviewing a research paper for validity, consistency, and clarity. Runs a systematic 21-check audit checking every number, claim, cross-reference, table consistency, figure alignment, equation validity, narrative coherence, derived calculations, macro comments, crossover semantics, and per-event data attribution. Triggers on phrases like "grill the paper", "review the paper", "check for contradictions", "find issues", or "audit paper".
 ---
 
 # Paper Grill Skill
 
 A systematic audit strategy for research papers that finds contradictions, unsupported claims, broken numbers, and narrative inconsistencies before a reviewer does. Run every check. For each, ask the question, search the paper, flag issues, and fix critical ones before moving on.
 
-## Audit Strategy: 15 Checks
+## Audit Strategy: 21 Checks
 
 ### Check 1: Number Consistency — Macros vs Calculated vs Text
 
@@ -158,10 +158,21 @@ grep -n "p2_ar3b\|appD_ar3b\|issue111\|issue49" paper/figures/make_figures.py
 4. Search for old intercept values (e.g., "-5.8" or "7.3" if current is "79.1")
 5. Search for old batch multiplier values (e.g., "42.8" if current is "77")
 6. Check ALL sections — intro, conclusion, appendices, captions, contrast tables
+7. **Verify batch-throughput slopes:** if the text says "batch-throughput slope (1.0 ms/token)", check if 1.0 is derivable from the batch sweep JSON. Compute `batch300_per_event_ms / mean_output_tokens` and compare. If the text says "48× steeper" but the data gives 73×, the slope and ratio are both stale.
+8. **Check for orphaned macros files:** if `main.tex` loads `../assets/macros.tex`, verify no stale `paper/v4/macros.tex` exists with conflicting values.
 
 ```bash
 # Search for any old numbers
 grep -rn "old_value\|6\.3\b\|1\.0.*ms.*token\|385\|59\b" paper/sections/*.tex paper/main.tex | grep -v "dense\|baseline\|earlier\|from 59\|0\.059\|0\.159"
+# Verify batch-throughput slope
+python3 -c "
+import json
+d = json.load(open('results/issue111_qwen3_batch_sweep.json'))
+print(f'Batch per-token: {d[\"batch300_per_event_ms\"]}/123 = {d[\"batch300_per_event_ms\"]/123:.2f} ms/token')
+print(f'Serial/batch ratio: 47.7/{d[\"batch300_per_event_ms\"]/123:.2f} = {47.7/(d[\"batch300_per_event_ms\"]/123):.0f}x')
+"
+# Check for orphaned macros files
+ls paper/v4/macros.tex 2>/dev/null && echo 'WARNING: orphaned macros.tex exists' || echo 'OK: no orphan'
 ```
 
 ### Check 12: Cost-Per-Event Table Consistency
@@ -216,6 +227,156 @@ Also run:
 python3 paper/verify_numbers.py
 ```
 
+### Check 16: Derived Calculation Verification
+
+**Question:** Do all derived values (ratios, percentages, crossovers) actually compute to their stated values from their raw inputs?
+
+This check catches cases where a ratio macro (e.g., `energyRatio = 2.4`) doesn't match the division of its inputs (e.g., `arThreeEnergy / dgEnergy = 10.1 / 4.2`). The inputs may be correct individually, but the derived value may be stale from an older measurement.
+
+1. List every derived macro (ratios, percentages, crossovers) and identify its formula
+2. Recompute each from its stated inputs
+3. Flag any mismatch — the derived value is likely stale
+4. Check rounding-order issues: if `dgMarginal = 0.47` (rounded from `119.5/256 = 0.4668`), then `marginalRatio = arSlope / dgMarginal` depends on whether you use the rounded or unrounded value
+5. Verify cost-per-event table arithmetic: `events/hr = 3600000 / p50_ms`, `$/event = gpu_rate / events_hr`
+
+```bash
+python3 -c "
+# Recompute every derived macro
+checks = [
+    ('crossoverL', (378.8 - 79.1) / 47.7, 6),
+    ('energyRatio', 10.1 / 4.2, 2.4),
+    ('footprintRatio', 52.0 / 3.0, 17),
+    ('inputSlopeRatio', 0.1 / 0.038, 2.6),
+    ('marginalRatio', 47.7 / 0.47, 101.5),  # uses rounded dgMarginal
+    ('crossoverLambda', 1000 / 378.8, 2.6),
+    ('arOneFiveEventsHr', 3600000 / 665.7, 5408),
+    ('defectTwoRatio', 1841.6 / 413.3, 4.5),
+]
+for name, computed, macro_val in checks:
+    match = '✓' if abs(computed - macro_val) < 0.5 else '✗ MISMATCH'
+    print(f'{name}: computed={computed:.2f}, macro={macro_val} {match}')
+"
+```
+
+### Check 17: Macro Comment Accuracy
+
+**Question:** Do macro comments correctly identify the source model and artifact?
+
+A macro's VALUE may be correct, but its COMMENT may say "AR-30B" when the data is actually from the dense AR-3B. This is a maintenance hazard — a future editor trusts the comment, not the JSON.
+
+1. For every macro with a model name in its comment (e.g., "AR-30B", "AR-3B", "DG"), verify the source JSON's `provenance.model_name` matches
+2. Check: if the comment says "AR-30B" but the value is ~1616ms (AR-3B's p50), the comment is wrong
+3. Check: if the comment says "AR-30B" but the source file is `issue43/ar3b_L256.json`, the comment is wrong
+4. Verify: do `arHdfs`/`arBgl` comments match the actual model? (values ~1616ms = AR-3B, not AR-30B at ~5900ms)
+
+```bash
+# Cross-check macro comments against source file provenance
+grep "AR-30B\|AR-3B\|dense" paper/assets/macros.tex | while read line; do
+    macro=$(echo "$line" | grep -oP '\\\w+(?=\{)')
+    comment_model=$(echo "$line" | grep -oP 'AR-\d+B')
+    echo "Macro: $macro, Comment says: $comment_model"
+done
+# Then verify each against its source JSON's provenance.model_name
+```
+
+### Check 18: Crossover Semantics — Integer Safety
+
+**Question:** Are "above X" and "≥ X" claims integer-safe?
+
+If the crossover L* = 6.28 (rounded to 6 in the macro), then:
+- "above 6 tokens" is ambiguous: at L=6, AR is still faster (365ms vs 379ms)
+- "≥ 6 tokens" is WRONG: at L=6, AR is faster
+- "≥ 7 tokens" or "above L* ≈ 6" is correct
+
+1. Compute the TRUE crossover (not the rounded macro value)
+2. Check the crossover value in the text: does "above X" include the crossover point itself?
+3. Check condition lists (e.g., "five conditions"): does "≥ X" include a point where AR is still faster?
+4. Fix: use "≥ ⌈L*⌉" (ceiling) or "above L*" or "≥ 7 tokens" (integer-safe)
+
+```bash
+python3 -c "
+ar_base, ar_slope, dg_base = 79.1, 47.7, 378.8
+crossover = (dg_base - ar_base) / ar_slope
+print(f'True crossover: {crossover:.4f}')
+print(f'At L={int(crossover)}: AR={ar_base+ar_slope*int(crossover):.1f}, DG={dg_base} -> {\"AR faster\" if ar_base+ar_slope*int(crossover) < dg_base else \"DG faster\"}')
+print(f'At L={int(crossover)+1}: AR={ar_base+ar_slope*(int(crossover)+1):.1f}, DG={dg_base} -> {\"AR faster\" if ar_base+ar_slope*(int(crossover)+1) < dg_base else \"DG faster\"}')
+print(f'Integer-safe: >= {int(crossover)+1}')
+"
+# Check all "above N" and ">= N" claims in the paper
+grep -n 'above.*token\|≥.*token\|geq.*token' paper/v4/sections/*.tex
+```
+
+### Check 19: Per-Event Data Attribution
+
+**Question:** Do per-event prediction files (`.jsonl`) correspond to the model named in the text?
+
+A paper may label per-event statistics (CV, max/median) as "AR-30B" when the actual `.jsonl` file contains data from the dense AR-3B. The median latency in the file reveals the true model.
+
+1. For every per-event statistic cited in the paper, identify the source `.jsonl` file
+2. Compute the median latency from that file
+3. Compare: does the median match the named model's p50? (AR-3B ~1616ms, AR-30B ~5900ms)
+4. Check: does the file naming match the model? (`ar3b_L256_r1_preds.jsonl` = AR-3B, not AR-30B)
+5. Flag any mismatch between the text's model label and the data file's actual model
+
+```bash
+python3 -c "
+import json, statistics
+for f in ['results/anchors/ar3b_L256_r1_preds.jsonl', 'results/anchors/dg_L256_r1_preds.jsonl']:
+    lats = [json.loads(l)['latency_ms'] for l in open(f) if l.strip()]
+    print(f'{f}: n={len(lats)}, median={statistics.median(lats):.0f}ms')
+    # AR-3B p50 ~1616ms, AR-30B p50 ~5900ms, DG p50 ~379ms
+"
+# Check: are there AR-30B per-event files? If not, per-event stats can't be AR-30B
+ls results/anchors/ar*preds* results/issue111*preds* 2>/dev/null || echo 'No AR-30B per-event files'
+```
+
+### Check 20: Verify Script Reality Check
+
+**Question:** Does `verify_numbers.py` actually do what `macros.tex` claims it does?
+
+The `macros.tex` header says "verify_numbers.py re-reads those artifacts." If the script only checks provenance blocks and decimal-place policy (not actual values), the claim is false and value mismatches will go undetected.
+
+1. Read the `macros.tex` header comment — what does it claim `verify_numbers.py` does?
+2. Read `verify_numbers.py` — what does it actually check?
+3. If the script checks precision but not values, any value mismatch (e.g., macro says 385.5, JSON says 368.5) will pass
+4. Flag: the header comment overstates the script's capability
+5. Consider: add a value-verification pass to the script, or fix the comment
+
+```bash
+# Check what verify_numbers.py actually does
+grep -n 'def check\|json.load\|value.*macro\|re-read' paper/verify_numbers.py
+# Run it and see if it catches a deliberate error
+python3 paper/verify_numbers.py 2>&1 | tail -5
+```
+
+### Check 21: Dead Macro Detection
+
+**Question:** Are there macros defined but never used in any section file?
+
+Dead macros are maintenance hazards — they may contain stale values from previous versions and mislead anyone who reads `macros.tex` expecting all defined macros to be live.
+
+1. Extract all macro definitions from `macros.tex`
+2. Search all `.tex` files (sections + main) for each macro name
+3. Flag any macro that is defined but never referenced
+4. Check: are there model-specific macros (e.g., `arOneFiveTwoFive`) for a model that's no longer discussed?
+5. Consider: either remove dead macros or add a comment explaining why they're retained
+
+```bash
+python3 -c "
+import re, os
+defined = set(re.findall(r'\\\\newcommand\{\\\\(\w+)\}', open('paper/assets/macros.tex').read()))
+used = set()
+for root, dirs, files in os.walk('paper/v4'):
+    for f in files:
+        if f.endswith('.tex'):
+            used.update(re.findall(r'\\\\(\w+)', open(os.path.join(root, f)).read()))
+dead = defined - used
+print(f'Defined: {len(defined)}, Used: {len(defined & used)}, Dead: {len(dead)}')
+for m in sorted(dead):
+    print(f'  DEAD: \\\\{m}')
+"
+```
+
 ## Output Format
 
 For each check, report:
@@ -227,9 +388,11 @@ STATUS: [CRITICAL / IMPORTANT / OK]
 FIX: [What was done, or "no fix needed"]
 ```
 
-After all 15 checks, summarize:
+After all 21 checks, summarize:
 - Total issues found
 - Critical issues fixed
 - Remaining known limitations (acknowledged in paper)
 - Compilation status
 - verify_numbers.py status
+- Dead macros count
+- Derived calculation mismatches count

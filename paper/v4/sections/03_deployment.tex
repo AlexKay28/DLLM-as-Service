@@ -32,13 +32,15 @@ max\_tokens & AR-30B (ms) & AR actual out & DG (ms) & DG advantage \\
 \paragraph{DG wins at every practical output length.}
 
 The serial cost law gives crossover $L^{*} = \crossoverL$ tokens --- DG
-is faster at any output above 6 tokens. At the natural output length
+is faster at any output length above $L^{*}$ (integer-safe: $L \geq 7$).
+At the natural output length
 of 123 tokens, DG is $15.6\times$ faster. The advantage narrows at
 longer output (DG pays per canvas) but remains large: $8.0\times$ at
 $L{=}1024$.
 
-The AR-30B serial slope is \arSlope\,ms/token --- 48$\times$ steeper
-than the batch-throughput slope (1.0\,ms/token). This is because
+The AR-30B serial slope is \arSlope\,ms/token --- $73\times$ steeper
+than the batch-throughput slope (0.65\,ms/token, from the batch-300
+per-event time of 80\,ms over 123 output tokens). This is because
 serial mode pays full prefill and decode overhead per request, while
 batch mode amortises across concurrent requests. The batch-throughput
 projection severely understates AR serial latency.
