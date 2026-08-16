@@ -12,18 +12,19 @@ Table~\ref{tab:niche} shows the measured serial comparison.
 
 \begin{table}[h]
 \centering
-\caption{Latency at the MoE-matched pair (AR-30B vs DG, batch-1, BGL,
-$n{=}100$--$300$). DG wins at every output length in serial mode.}
+\caption{Serial latency at the MoE-matched pair (AR-30B vs DG, batch-1,
+BGL, $n{=}50$). AR-30B stops at $\sim$123 tokens (EOS); DG emits one
+canvas (256 tokens) per step.}
 \label{tab:niche}
-\begin{tabular}{@{}lrrr@{}}
+\begin{tabular}{@{}lrrrr@{}}
 \toprule
-$L_{\mathrm{out}}$ & AR-30B (ms) & DG (ms) & DG advantage \\
+max\_tokens & AR-30B (ms) & AR actual out & DG (ms) & DG advantage \\
 \midrule
-32   & 1604 & 379 & $4.2\times$ \\
-123 (natural)  & 5900 & 379 & $15.6\times$ \\
-256  & 5900 & 379 & $15.6\times$ \\
-512  & 5900 & 498 & $11.8\times$ \\
-1024 & 5910 & 737 & $8.0\times$ \\
+32   & 1604 & 32  & 379 & $4.2\times$ \\
+128  & 5923 & 121 & 379 & $6.5\times$ \\
+256  & 5899 & 123 & 379 & $15.6\times$ \\
+512  & 5898 & 123 & 498 & $11.8\times$ \\
+1024 & 5910 & 123 & 737 & $8.0\times$ \\
 \bottomrule
 \end{tabular}
 \end{table}
