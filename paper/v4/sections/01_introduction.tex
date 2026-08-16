@@ -140,20 +140,19 @@ every other AR entry is the AR-30B MoE.}
 
 \begin{table}[h]
 \centering
-\caption{The two decoding paradigms. AR pays per token; DG pays per
-canvas. Within a canvas, DG tokens are free.}
+\caption{The two decoding paradigms as cost laws. AR pays per token;
+DG pays per canvas. Within a canvas, DG tokens are free.}
 \label{fig:schematic}
+\renewcommand{\arraystretch}{1.4}
 \begin{tabularx}{\linewidth}{@{}L L L@{}}
 \toprule
 & \thead{Autoregressive} & \thead{Block-diffusion} \\
 \midrule
-\tabfont Decoding & one token at a time & one canvas at a time \\
-\tabfont Parallelism & none within sequence & all $C$ tokens in parallel \\
-\tabfont Per-token cost & $b$ ms (one forward pass) & 0 (denoised in parallel) \\
-\tabfont Per-canvas cost & --- & $K$ denoising passes \\
-\tabfont Cost shape & linear: $a + b \cdot L$ & staircase: flat, then step \\
-\tabfont Within a block & every token costs $b$ & tokens are free \\
-\tabfont At a boundary & cost unaffected & $+120$\,ms step \\
+\tabfont Decoding & $t_1 \to t_2 \to \cdots \to t_L$ & $\{t_1, \ldots, t_C\}_K \to \{t_{C+1}, \ldots\}_K$ \\
+\tabfont Cost law & $T = a + b \cdot L$ & $T = a + b \cdot \lceil L/C \rceil$ \\
+\tabfont Per-token cost & $b$ & $0$ \\
+\tabfont Per-canvas cost & --- & $b$ \\
+\tabfont Shape & linear & staircase \\
 \bottomrule
 \end{tabularx}
 \end{table}
