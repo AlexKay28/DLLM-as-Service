@@ -9,8 +9,12 @@ requires one forward pass over the growing KV cache. For block-diffusion
 decoding, each canvas of $C$ tokens is denoised in parallel through $K$
 steps, then the model steps to the next canvas.
 
-In general form, both cost laws share the structure $T = a + b \cdot
-f(L_{\mathrm{out}})$, where:
+In general form, both cost laws share the structure:
+\begin{equation}
+\label{eq:general}
+T = a + b \cdot f(L_{\mathrm{out}})
+\end{equation}
+where:
 \begin{itemize}[nosep]
 \item $T$ is the p50 latency in milliseconds,
 \item $L_{\mathrm{out}}$ is the output length in tokens,
@@ -66,11 +70,13 @@ L^{*} = \frac{a_{\textsc{dg}} - a_{\textsc{ar}}}{b_{\textsc{ar}}}
 \lambda^{*} = \frac{1000}{a_{\textsc{dg}}} = \frac{1000}{\dgBase} = \crossoverLambda \text{ events/s}
 \end{equation}
 where $L^{*}$ is the output length at which both architectures produce
-equal latency (the crossover point), and $\lambda^{*}$ is the maximum
-serial event rate before a queue forms (the reciprocal of the DG floor
-$a_{\textsc{dg}}$, in events per second). Below $L^{*}$, AR is cheaper;
-above it, DG is --- until the next canvas edge, where the gap widens
-again.
+equal latency (the crossover point), $a_{\textsc{ar}}$ and
+$a_{\textsc{dg}}$ are the fixed costs (intercepts) from
+Eqs.~\ref{eq:ar}--\ref{eq:dg}, $b_{\textsc{ar}}$ is the AR per-token
+slope, and $\lambda^{*}$ is the maximum serial event rate before a
+queue forms (the reciprocal of the DG floor $a_{\textsc{dg}}$, in
+events per second). Below $L^{*}$, AR is cheaper; above it, DG is ---
+until the next canvas edge, where the gap widens again.
 
 \begin{figure}[t]
 \centering
