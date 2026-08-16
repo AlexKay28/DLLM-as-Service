@@ -251,7 +251,7 @@ def check_precision_policy() -> bool:
 
     Returns True if every classified macro is within policy, False otherwise.
     """
-    macros_path = REPO_ROOT / "paper" / "macros.tex"
+    macros_path = REPO_ROOT / "paper" / "assets" / "macros.tex"
     print("Checking numeric precision policy (#85)...")
 
     if not macros_path.exists():
