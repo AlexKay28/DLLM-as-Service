@@ -18,7 +18,7 @@ measurement was sound, but the hypothesis it tested did not survive it. \begin{t
 \thead{Hypothesis} & \thead{What we measured instead} \\
 \midrule
 \tabfont Joint denoising resists input perturbation & \tabfont The diffusion model degraded more in \textbf{10 of 10} categories, by up to $8.2\times$ the autoregressive drop. \\
-\tabfont Bidirectional conditioning wins at infilling & \tabfont \ARthree\ scores $0.993$--$0.999$ across all suffix sizes; the diffusion model holds to $0.960$ then falls to $0.753$ at $S{=}8$. \\
+\tabfont Bidirectional conditioning wins at infilling & \tabfont The dense AR-3B scores $0.993$--$0.999$ across all suffix sizes; the diffusion model holds to $0.960$ then falls to $0.753$ at $S{=}8$. \\
 \tabfont Diffusion has a refinement mechanism that pays off & \tabfont Selective re-masking gains $+0.023$ F1 over three rounds, but after three rounds it still trails the AR model after one. The mechanism is real; the win is not. \\
 \tabfont Diffusion beats AR under bounded deadlines & \tabfont This was defect 4. The AR model does complete within the deadline; the metric had been counting valid falsy values as missing keys. \\
 \tabfont Wide-schema cost scales as $O(F^2)$ for diffusion & \tabfont Never measured. The consistency metric is three hardcoded rules over four fields at every schema width. The framing is dropped. \\
