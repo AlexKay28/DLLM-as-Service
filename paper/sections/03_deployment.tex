@@ -6,8 +6,8 @@ because AR pays per token while DG pays per canvas. But with the
 MoE-matched AR-30B (slope 1.0\,ms/token, six times faster than the
 dense AR's 6.3), the advantage grows with output length.
 
-Table~\ref{tab:niche} shows the measured comparison. AR cells are
-\emph{forced} ($\texttt{min\_tokens} = L$); the unforced row shows
+Table~\ref{tab:niche} shows the comparison. AR values are projected
+from the fitted cost law (Eq.~\ref{eq:ar}); the natural row shows
 AR-30B at its natural output length of $\sim$123 tokens.
 
 \begin{table}[h]
