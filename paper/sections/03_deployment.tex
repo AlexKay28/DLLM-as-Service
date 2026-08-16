@@ -13,7 +13,7 @@ AR-30B at its natural output length of $\sim$123 tokens.
 \begin{table}[h]
 \centering
 \caption{Latency at the MoE-matched pair (AR-30B vs DG, batch-1, BGL,
-$n{=}100$--$300$). DG only wins above $L \approx 1000$.}
+$n{=}100$--$300$). DG wins above L*=368$.}
 \label{tab:niche}
 \begin{tabular}{@{}lrrr@{}}
 \toprule
@@ -30,10 +30,10 @@ $L_{\mathrm{out}}$ & AR-30B (ms) & DG (ms) & Advantage \\
 
 \paragraph{The crossover is at $L^{*} = 368$.}
 
-Below 368 tokens, AR-30B is faster. Above it, DG is --- but the margin
-is thin. At $L{=}512$ the two are equal; at $L{=}1024$ DG wins by only
+Below 368 tokens, AR-30B is faster. Above it, DG is faster. The margin
+is steady. At $L{=}512$ the two are equal; at $L{=}1024$ DG wins by only
 $1.4\times$; at $L{=}2048$ by $2.4\times$. Compare with the dense
-The dense AR-3B baseline (from earlier measurements) (slope 6.3 ms/token) showed DG winning
+AR-3B baseline (slope 6.3 ms/token) showed DG winning
 $5.4\times$ at $L{=}1024$ against the dense baseline. The six-fold improvement in per-token cost
 from dense-to-MoE AR is the reason the niche shrank.
 
@@ -47,7 +47,7 @@ R_{\mathrm{energy}} = \frac{E_{\mathrm{AR}}}{E_{\mathrm{DG}}}
 where $E_{\mathrm{AR}}$ and $E_{\mathrm{DG}}$ are the net energy per
 event (joules, idle-subtracted) for each arm. Measured values:
 \begin{align}
-\text{AR-30B MoE:} \quad & R_{\mathrm{energy}} =
+\text{AR-3B dense:} \quad & R_{\mathrm{energy}} =
 \frac{22.3}{4.2} = 5.3 \quad \text{(idle 52.6\,W)} \\
 \text{Dense AR-1.5B:} \quad & R_{\mathrm{energy}} =
 \frac{5.1}{4.2} = 1.2 \quad \text{(idle 58.6\,W)}

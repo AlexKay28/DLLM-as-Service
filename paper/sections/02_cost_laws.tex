@@ -81,9 +81,9 @@ until the next canvas edge, where the gap widens again.
 \begin{figure}[t]
 \centering
 \includegraphics[width=\linewidth]{figures/fig1_cost_shapes.pdf}
-\caption{The two cost shapes as a grouped bar chart (BGL, $n{=}200$,
+\caption{The two cost shapes as a grouped bar chart (BGL, {=}200$, {=}8$; AR data from dense baseline).
 $K{=}8$). AR latency grows linearly; DG latency grows as a staircase.
-The gap widens from $4.3\times$ at $L{=}256$ to $10.6\times$ at
+The gap widens from AR .5\times$ faster at {=}256$ to DG .4\times$ faster at
 $L{=}2048$.}
 \label{fig:shapes}
 \end{figure}
@@ -110,6 +110,6 @@ the asymmetry with the batching caveat.
 
 \subsection{Generalisation}
 
-Both laws generalise from BGL to HDFS within 1.7\%. The AR p50 at
+Both laws generalise from BGL to HDFS within 1.7\%. The dense AR-3B p50 at
 $L{=}\canvasLength$ moves from \arBgl\,ms to \arHdfs\,ms ($+0.03\%$); the
 diffusion canvas step moves from \bglStep\,ms to \hdfsStep\,ms ($+1.7\%$).

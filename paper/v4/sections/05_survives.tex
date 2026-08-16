@@ -7,7 +7,7 @@ growing steadily: $1.4\times$ at $L{=}1024$, $2.4\times$ at
 $L{=}2048$. The five conditions that define the regime where block
 diffusion is the right choice are:
 \begin{enumerate}[nosep]
-  \item Output length $\geq 1000$ tokens (naturally long, not forced).
+  \item Output length $\geq 368$ tokens (naturally long; meaningful advantage above {=}1000$).
   \item Batch-1 by requirement (tenant isolation, interactivity, or
     serial chain structure).
   \item Completeness is validated against a schema.
@@ -53,8 +53,8 @@ provides faster end-to-end analysis.
 
 \textit{Wide-schema normalisation.} DG's joint-canvas denoising treats
 all fields as one structured object. We measured schema widths
-$F \in \{12, 25, 50, 100\}$: DG's latency advantage holds at
-$1.8$--$3.0\times$ across widths.
+$F \in \{12, 25, 50, 100\}$: DG's latency advantage was at
+$1.8hBc-.0\times$ across widths (measured against the dense AR-3B baseline, not AR-30B).
 
 \begin{figure}[t]
 \centering
@@ -66,7 +66,7 @@ $1.8$--$3.0\times$ across widths.
 \paragraph{Where diffusion does not win.}
 
 High-rate log streams ($\lambda \gg 2.6$ ev/s) favour AR's batching
-by $45\times$ or more. Tail-sensitive single-stream workloads with
+by 7\times$. Tail-sensitive single-stream workloads with
 strict p99 SLAs are hurt by DG's $3.21\times$ max/median ratio. And
 any workload that can batch favours AR regardless of output length.
 
