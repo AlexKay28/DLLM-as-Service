@@ -25,7 +25,7 @@ attention pattern is request-specific and step-specific. This is
 structurally different from AR decoding, where the attention pattern is
 causal and the KV cache grows monotonically. \paragraph{The cache-off test confirms the direction.}
 Disabling prefix caching on the AR arm drops its multiplier from
-$42.8\times$ to $26.8\times$ --- still $20\times$ above the DG ceiling.
+$77\times$ to $76.9\times$ --- still $45\times$ above the DG ceiling.
 Cache reuse accounts for part of the AR advantage but not all of it; the
 remainder is the bandwidth-bound decode loop, which DG also lacks because
 each step is a full forward pass. \paragraph{What a fixed engine would change.}
