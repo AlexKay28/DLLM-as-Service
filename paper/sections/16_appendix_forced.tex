@@ -12,21 +12,24 @@ experiment, by applying the fitted cost laws.
 AR-1.5B's latency is linear in output length, fitted from four measured
 points ($L \in \{138, 256, 512, 1024\}$, $R^2 > 0.999$):
 \begin{equation}
-T_{\textsc{ar}}(L) = 142.3 + 3.79 \cdot L \quad\text{(ms)}
+T_{\textsc{ar}}(L) = a_{\textsc{ar}} + b_{\textsc{ar}} \cdot L
+= 142.3 + 3.79 \cdot L \quad\text{(ms)}
 \end{equation}
-where $T_{\textsc{ar}}$ is the p50 latency in milliseconds, $L$ is the
-output length in tokens, the intercept 142.3\,ms is the prompt prefill
-cost, and the slope 3.79\,ms/token is the per-token decode cost of
+where $T_{\textsc{ar}}$ is the p50 latency, $L$ is the output length in
+tokens, $a_{\textsc{ar}} = 142.3$\,ms is the prompt prefill cost, and
+$b_{\textsc{ar}} = 3.79$\,ms/token is the per-token decode cost of
 AR-1.5B. DG's latency is the staircase:
 \begin{equation}
-T_{\textsc{dg}}(L) = 378.3 + 119.5 \cdot
+T_{\textsc{dg}}(L) = a_{\textsc{dg}} + b_{\textsc{dg}} \cdot
+\Bigl(\bigl\lceil \tfrac{L}{C} \bigr\rceil - 1\Bigr)
+= 378.3 + 119.5 \cdot
 \Bigl(\bigl\lceil \tfrac{L}{256} \bigr\rceil - 1\Bigr) \quad\text{(ms)}
 \end{equation}
-where 378.3\,ms is the first-canvas cost (prefill + $K{=}8$ denoising
-steps over 256 tokens), 119.5\,ms is the marginal cost per additional
-canvas, and $\lceil L/256 \rceil$ counts the number of canvases needed
-to emit $L$ tokens. Neither law depends on \texttt{min\_tokens}; both
-depend only on $L_{\mathrm{out}}$.
+where $a_{\textsc{dg}} = 378.3$\,ms is the first-canvas cost (prefill +
+$K{=}8$ denoising steps over $C = 256$ tokens), $b_{\textsc{dg}} =
+119.5$\,ms is the marginal cost per additional canvas, and
+$\lceil L/C \rceil$ counts the number of canvases needed. Neither law
+depends on \texttt{min\_tokens}; both depend only on $L$.
 
 \paragraph{A naturally-long task exists.}
 

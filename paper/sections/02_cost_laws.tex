@@ -6,10 +6,27 @@
 Both architectures decode output tokens from the same prompt, but their
 costs accumulate differently. For autoregressive decoding, each token
 requires one forward pass over the growing KV cache. For block-diffusion
-decoding, each canvas of \canvasLength{} tokens is denoised in parallel
-through $K$ steps, then the model steps to the next canvas. The two
-cost laws are:
+decoding, each canvas of $C$ tokens is denoised in parallel through $K$
+steps, then the model steps to the next canvas.
 
+In general form, both cost laws share the structure $T = a + b \cdot
+f(L_{\mathrm{out}})$, where:
+\begin{itemize}[nosep]
+\item $T$ is the p50 latency in milliseconds,
+\item $L_{\mathrm{out}}$ is the output length in tokens,
+\item $a$ is the fixed cost (intercept / floor) independent of output
+  length,
+\item $b$ is the marginal cost per unit of output,
+\item $f(L_{\mathrm{out}})$ is the output-length function: linear for
+  AR ($f = L_{\mathrm{out}}$), staircase for DG
+  ($f = \lceil L_{\mathrm{out}}/C \rceil - 1$),
+\item $C$ is the canvas size (tokens per block, $C = \canvasLength$ for
+  DiffusionGemma),
+\item $K$ is the number of denoising steps per canvas ($K = 8$ at the
+  operating point).
+\end{itemize}
+
+The measured cost laws are:
 \begin{align}
 \label{eq:ar}
 T_{\textsc{ar}}(L_{\mathrm{out}}) &= \arBase + \arSlope \cdot L_{\mathrm{out}} && \text{(ms, linear)} \\
@@ -17,26 +34,18 @@ T_{\textsc{ar}}(L_{\mathrm{out}}) &= \arBase + \arSlope \cdot L_{\mathrm{out}} &
 T_{\textsc{dg}}(L_{\mathrm{out}}) &= \dgBase + \dgStep \cdot \Bigl(\bigl\lceil \tfrac{L_{\mathrm{out}}}{\canvasLength}\bigr\rceil - 1\Bigr) && \text{(ms, staircase)}
 \end{align}
 
-where $L_{\mathrm{out}}$ is the output length in tokens. The two laws
-have the same form $T = a + b \cdot f(L)$ but differ in what $a$ and $b$
-represent physically:
+For AR: $a = \arBase$\,ms (prompt prefill, amortised by prefix
+caching), $b = \arSlope$\,ms (per-token decode cost --- one KV cache
+forward pass per token). Every output token costs exactly $b$,
+regardless of position.
 
-\begin{itemize}[nosep]
-\item \emph{AR:} $a = \arBase$\,ms is the prompt prefill cost
-  (amortised by prefix caching across requests). $b = \arSlope$\,ms is
-  the per-token decode cost --- one forward pass over the KV cache per
-  token. Every additional output token costs exactly $\arSlope$\,ms,
-  regardless of position.
-
-\item \emph{DG:} $a = \dgBase$\,ms is the first-canvas cost: prompt
-  prefill plus $K{=}8$ denoising steps over \canvasLength{} tokens.
-  Because each denoising step re-attends the full prompt, prefill is
-  paid $K$ times, making $a$ much larger than AR's. $b = \dgStep$\,ms
-  is the marginal cost of one additional canvas --- a fresh denoising
-  pass over a new block of \canvasLength{} tokens. Within a canvas, $b
-  = 0$: additional tokens are free because they are denoised in
-  parallel.
-\end{itemize}
+For DG: $a = \dgBase$\,ms (first-canvas cost: prompt prefill paid $K$
+times, once per denoising step, plus $K$ denoising passes over $C$
+tokens). $b = \dgStep$\,ms (marginal cost of one additional canvas ---
+a fresh denoising pass over a new block of $C$ tokens). Within a
+canvas, $b = 0$: additional tokens are free because they are denoised
+in parallel. This is why $a$ is much larger for DG than AR, while $b$
+is zero within a block.
 
 The operating point $K{=}8$ was selected as the latency/quality knee:
 quality is flat above $K{=}8$ (0.853 at $K{=}8$, 0.858 at $K{=}32$)
@@ -47,20 +56,21 @@ while latency saturates above $K{=}16$. Each additional canvas costs
 The key structural difference: within a canvas, DG emits tokens for free
 (parallel denoising), while AR pays $\arSlope$\,ms per token. At canvas
 boundaries, DG pays a fixed $\dgStep$\,ms step, while AR's cost is
-unaffected. The shapes cross where the accumulated per-token cost equals
-the staircase floor:
+unaffected. The shapes cross where the two costs are equal
+($T_{\textsc{ar}} = T_{\textsc{dg}}$). Solving for $L_{\mathrm{out}}$:
 \begin{equation}
 \label{eq:lcross}
-L^{*} = \frac{\dgBase - \arBase}{\arSlope} = \crossoverL \text{ tokens},
+L^{*} = \frac{a_{\textsc{dg}} - a_{\textsc{ar}}}{b_{\textsc{ar}}}
+= \frac{\dgBase - \arBase}{\arSlope} = \crossoverL \text{ tokens},
 \qquad
-\lambda^{*} = \frac{1000}{\dgBase} = \crossoverLambda \text{ events/s}
+\lambda^{*} = \frac{1000}{a_{\textsc{dg}}} = \frac{1000}{\dgBase} = \crossoverLambda \text{ events/s}
 \end{equation}
-where $L^{*}$ is the output length at which the two cost laws produce
-equal latency (i.e., $T_{\textsc{ar}}(L^{*}) = T_{\textsc{dg}}(L^{*})$),
-and $\lambda^{*}$ is the maximum serial event rate before a queue
-forms (the reciprocal of the DG base, in events per second). Below
-$L^{*}$, AR is cheaper; above it, DG is --- until the next canvas edge,
-where the gap widens again.
+where $L^{*}$ is the output length at which both architectures produce
+equal latency (the crossover point), and $\lambda^{*}$ is the maximum
+serial event rate before a queue forms (the reciprocal of the DG floor
+$a_{\textsc{dg}}$, in events per second). Below $L^{*}$, AR is cheaper;
+above it, DG is --- until the next canvas edge, where the gap widens
+again.
 
 \begin{figure}[t]
 \centering
