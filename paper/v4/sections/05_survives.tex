@@ -79,3 +79,25 @@ High-rate log streams ($\lambda \gg \crossoverLambda$ ev/s) favour AR's
 batching by 50--80$\times$. Tail-sensitive single-stream workloads with
 strict p99 SLAs are hurt by DG's $3.21\times$ max/median ratio. And any
 workload that can batch favours AR regardless of output length.
+
+\paragraph{Where diffusion fails.}
+
+Six hypotheses about diffusion's structural advantages were tested and
+refuted (Appendix~\ref{app:refuted}). The most instructive failures:
+
+\begin{itemize}[nosep]
+\item \textbf{Input perturbation robustness:} bidirectional attention
+  propagates input noise in both directions. DG degraded more than AR
+  in \emph{all 10} perturbation categories, by up to $8.2\times$ the AR
+  drop. Left-to-right conditioning propagates noise forward only.
+\item \textbf{Infilling:} DG's joint denoising should preserve suffix
+  tokens by construction. In practice, AR trivially regenerates the
+  whole record from the prompt (F1 0.99--1.0); the structural argument
+  may hold for long-suffix code infilling but not for short JSON fields.
+\item \textbf{Iterative refinement:} selective re-masking gains
+  $+0.023$ F1 over three rounds, but after three rounds DG still trails
+  AR after one pass. The mechanism is real; the win is not.
+\end{itemize}
+These failures define the operational boundary: block diffusion's
+advantage is in \emph{latency shape}, not in robustness, infilling, or
+iterative refinement.

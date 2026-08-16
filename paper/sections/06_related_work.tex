@@ -3,23 +3,19 @@
 
 Diffusion LM speedup claims (LLaDA~\cite{llada2025},
 DiffusionGemma~\cite{diffusiongemma}) are typically measured against
-author-built AR baselines. Constrained decoding
-(outlines~\cite{outlines2024}, xgrammar~\cite{xgrammar2024},
-llguidance~\cite{llguidance}) is the standard answer to the
-structured-output problem and is not measured here; it is a stated
-limitation. Speculative decoding (Medusa~\cite{medusa2024},
-EAGLE~\cite{eagle2024}) attacks the same per-token slope the AR cost law
-turns on.
+author-built AR baselines. Our contribution is to pin both arms on the
+same serving stack and derive cost laws from measurement rather than
+from single-point comparisons.
 
-Harness bias in systems benchmarking has a long history.
-\cite{hoefler2021} surveys reproducibility pitfalls in parallel and
-distributed systems measurement, including the confounds that arise when
-baseline and contender are measured under different stacks. The
-asymmetric-failure pattern we report --- where defects cluster on the
-arm the experimenter is not rooting for --- is related to confirmation
-bias in ML evaluation~\cite{hoefler2021}, but our contribution is
-narrower: a checklist that catches the specific failure mode (checkpoint
-defaults, parser policy, serving-engine parity, metric semantics,
-provenance) in under five minutes per check, using only committed
-artifacts. We do not claim generality beyond the structured-output
-serving setting we measured.
+Constrained decoding (outlines~\cite{outlines2024},
+xgrammar~\cite{xgrammar2024}, llguidance~\cite{llguidance}) is the
+standard answer to the structured-output problem and is not measured
+here; it is a stated limitation (\S\ref{sec:threats}). Speculative
+decoding (Medusa~\cite{medusa2024}, EAGLE~\cite{eagle2024}) attacks the
+same per-token slope the AR cost law turns on; it changes the slope, not
+the shape.
+
+\cite{hoefler2021} surveys reproducibility pitfalls in systems
+measurement. Our methodological contribution (Appendix~\ref{app:defects})
+--- eight priced corrections found by re-reading committed artifacts ---
+is a case study in that tradition, not a general method.

@@ -15,16 +15,24 @@ line from the LOGHUB BGL corpus, emit a JSON record with 12 fields
 macro-averaged token-level F1 across 9 of the 12 fields (the other 3
 have degenerate gold labels).
 
-Two AR models are used:
+The diffusion arm is \DG\ (DiffusionGemma-26B-A4B, 4.0\,B active of
+26\,B total, 52\,GB). It is a Mixture-of-Experts model: only 4.0\,B
+parameters are active per token (top-8 of 128 experts), so the per-token
+compute is comparable to a 3--4\,B dense model, not a 26\,B one.
+
+Two AR models serve as baselines:
 \begin{itemize}[nosep]
 \item \ARthree\ (Qwen2.5-3B-Instruct, 3.0\,B active, 6.0\,GB) ---
-  matched to DG on active parameters.
+  matched to DG on active parameters. This is the pair used to derive
+  the cost laws.
 \item \ARoneb\ (Qwen2.5-1.5B-Instruct, 1.5\,B active, 3.0\,GB) ---
-  matched to DG on quality.
+  matched to DG on quality (F1 0.868 vs 0.852). This is the pair used
+  for deployment claims.
 \end{itemize}
-The diffusion arm is \DG\ (DiffusionGemma-26B-A4B, 4.0\,B active of
-26\,B total, 52\,GB). At $L{=}256$ output tokens, \ARthree\ and \DG\
-reach quality equivalence:
+The cost shapes we derive are properties of the \emph{decoding paradigm}
+(token-by-token vs block-by-block), not of model scale. A larger AR
+model would have a steeper slope but the same linear shape; a larger
+diffusion model would have a higher floor but the same staircase.
 \begin{equation}
 \Delta_{\mathrm{F1}} = |\arThreeBFnine - \dgNineF| = \qualityGap, \quad
 \text{95\% CI } [-0.012, +0.011], \quad n = 300
