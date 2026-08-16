@@ -7,6 +7,23 @@ description: Use when reviewing a research paper for validity, consistency, and 
 
 A systematic audit strategy for research papers that finds contradictions, unsupported claims, broken numbers, narrative inconsistencies, and readability barriers before a reviewer does. Run every check. For each, ask the question, search the paper, flag issues, and fix critical ones before moving on.
 
+## What We Check vs What We Don't
+
+**We check:**
+- Numbers: macro values vs source JSONs, derived calculations, table cells
+- Claims: measured vs projected, model identity, data attribution
+- Narrative: story arc, setup-payoff closure, framing consistency
+- Readability: sentence length, jargon density, acronym expansion, definitions
+- Math: equation validity, crossover semantics, variable definitions
+- Hygiene: dead macros, stale references, compilation, verify scripts
+
+**We don't check:**
+- Whether the experimental design is sound (that's peer review, not grilling)
+- Whether the cited related work is comprehensive
+- Whether the chosen baselines are the right ones (we check if they're *disclosed*, not if they're *correct*)
+- LaTeX formatting style (font choices, spacing, color schemes)
+- Whether the figures look good (we check if captions match text, not aesthetics)
+
 ## Workflow
 
 1. **Read** `macros.tex`, all section files, and the `results/*.json` artifacts in parallel
@@ -15,7 +32,9 @@ A systematic audit strategy for research papers that finds contradictions, unsup
 4. **Run Group C** (math) — verify equations and derived calculations
 5. **Run Groups D–F** (presentation, completeness, hygiene) — can run in parallel
 6. **Compile** after all fixes
-7. **Report** using the output format at the end
+7. **Write fix-log** — record every change in `paper/v4/grill-fix-log.md` (see Fix-Log Format below)
+8. **Run self-audit** — verify every fix was applied correctly (see Self-Audit Checklist below)
+9. **Report** using the output format at the end
 
 ## Audit Strategy: 24 Checks in 6 Groups
 
@@ -26,6 +45,8 @@ A systematic audit strategy for research papers that finds contradictions, unsup
 #### Check 1: Number Consistency — Macros vs Calculated vs Text
 
 **Question:** Does every number in the paper match its source data?
+
+**Pass threshold:** 0 mismatches. Even a 0.1 difference between a macro and its JSON source is a fail.
 
 Steps:
 1. Read `paper/assets/macros.tex` — extract all numeric macros
@@ -142,6 +163,15 @@ grep -n 'textbf{.*}\|\\\\item' paper/v4/sections/01_introduction.tex | head -20
 
 **Question:** Is the prose clear and readable, or is it needlessly dense, jargon-stacked, and clause-nested?
 
+**Pass thresholds:**
+- Median sentence length: 15–25 words
+- Sentences >40 words: ≤2 per section (equations + where-blocks are exempt — inspect manually)
+- Sentences >60 words: 0 (after excluding equation blocks)
+- Flesch Reading Ease: 30–50 per section (main text); appendices may be denser (20+)
+- Bare acronyms before expansion: 0
+- Consecutive passive-voice sentences: ≤3
+- Hedging words per sentence: ≤1
+
 1. **Sentence length distribution:** Compute the word count of every sentence. Flag sentences over 40 words (hard to parse) and over 60 words (likely unreadable). The median should be 15–25 words. **Note:** equations + where-blocks may be parsed as single "sentences" by regex — inspect flagged sentences manually to filter false positives.
 2. **Nested clause depth:** Count subordinate clauses (indicated by "which", "where", "that", em-dashes, parentheticals). More than 3 levels of nesting makes a sentence hard to follow.
 3. **Jargon density per sentence:** Count domain-specific terms per sentence. A sentence with 5+ jargon terms and no plain-language restatement is a wall.
@@ -180,6 +210,13 @@ grep -n 'may be\|might be\|could be\|possibly\|it appears\|it seems' paper/v4/se
 #### Check 24: Information Completeness and Definitions
 
 **Question:** Does the paper define every term, variable, and concept before using it — and does it omit information a reviewer needs?
+
+**Pass thresholds:**
+- Equations without where-blocks: 0 (within 1000-char window; align environments whose variables are defined in a preceding equation are OK)
+- Undefined metrics: 0 (F1, CV, max/median, p50, p99 must be defined or explained before first numeric use)
+- Results cited without model identity: 0 (every cited measurement must name the model)
+- Results cited without n: 0 (every cited measurement must state n or reference the default \nPerCell)
+- Ambiguous antecedents ("this approach", "that model"): 0
 
 1. **Variable definition completeness:** For every equation, check that every variable is defined in the surrounding "where..." block. **Use a 1000-char search window** (not 500) after each equation to find the where-block; shorter windows cause false positives when the where-block follows a display break.
 2. **First-use definitions:** For every technical term (e.g., "canvas", "denoising step", "prefix caching", "first-object-wins parser", "p99", "max/median ratio"), verify it is defined or explained on first use.
@@ -320,6 +357,38 @@ grep -n 'above.*token\|≥.*token\|geq.*token' paper/v4/sections/*.tex
 4. Check: is there a "max_tokens" vs "actual output" distinction where needed?
 5. Verify: are events/hr calculations correct (3600000 / p50_ms)?
 
+#### Check 12: Cost-Per-Event Table Consistency
+
+**Question:** Are all cost calculations correct and complete?
+
+**Pass threshold:** Every events/hr and $/event value must recompute to within 1% of the stated value.
+
+1. Verify: events/hr = 3600000 / p50_ms (not 3600 / p50_seconds — unit trap)
+2. Verify: $/event = hourly_rate / events_hr
+3. Check: are ALL models in the table (AR-30B, AR-1.5B, DG)?
+4. Check: is the cost ratio R_cost calculated from the right pair? (if the equation says 0.0009/0.0005, verify those are the right rows)
+5. Verify: does the co-residency argument use the right model (smallest AR)?
+6. Check: are duty cycle calculations correct (25% = events_hr × 0.25)?
+7. Check: if the table says "AR-30B serial" but the events/hr implies a different p50, flag it
+
+```bash
+python3 -c "
+gpu_rate = 4.62
+# AR-30B serial: p50 ~5900ms
+ar30_events_hr = 3600000 / 5900
+ar30_cost = gpu_rate / ar30_events_hr
+print(f'AR-30B: {ar30_events_hr:.0f} ev/hr, \${ar30_cost:.4f}/ev')
+# AR-1.5B: p50 ~665.7ms
+ar1b_events_hr = 3600000 / 665.7
+ar1b_cost = gpu_rate / ar1b_events_hr
+print(f'AR-1.5B: {ar1b_events_hr:.0f} ev/hr, \${ar1b_cost:.4f}/ev')
+# DG: p50 ~379ms
+dg_events_hr = 3600000 / 379
+dg_cost = gpu_rate / dg_events_hr
+print(f'DG: {dg_events_hr:.0f} ev/hr, \${dg_cost:.4f}/ev')
+"
+```
+
 #### Check 13: Contrast Table Alignment
 
 **Question:** Does the practical challenge contrast table match the paper's claims?
@@ -455,6 +524,8 @@ python3 paper/verify_numbers.py 2>&1 | tail -5
 
 **Question:** Are there macros defined but never used in any section file?
 
+**Pass threshold:** 0 dead macros (macros used only in `macros.tex` comments, or only in figure scripts, count as used).
+
 1. Extract all macro definitions from `macros.tex`
 2. Search all `.tex` files (sections + main) for each macro name — **exclude `macros.tex` itself** (it references its own macros in comments)
 3. Flag any macro that is defined but never referenced in section files
@@ -484,7 +555,73 @@ for m in sorted(dead):
 
 ---
 
-## Output Format
+## False-Positive Catalog
+
+These patterns look like issues but are NOT. Skip them to avoid wasting time:
+
+| Pattern | Looks like | Why it's OK |
+|---------|-----------|-------------|
+| Equation + where-block parsed as one "sentence" | Readability check flags 90-word "sentence" | The where-block is a variable list, not prose. Exclude equation environments before sentence-length analysis. |
+| `align` environment without where-block | Definitions check flags missing where-block | If the `align` follows an `equation` that has a where-block defining shared variables, the `align` inherits those definitions. Check the preceding 1000 chars. |
+| Macro used only in `macros.tex` comments | Dead macro check flags it | Comments in `macros.tex` that reference macros are self-documentation, not usage. But the macro IS dead if no section file uses it. |
+| Hardcoded numbers in section files | "No numeral in section file" rule violation | Derived ratios (15.6×), structural constants (12 fields, K=8), and table values may be hardcoded for readability. Only raw measurements must be macros. |
+| Different F1 values for "same" config | Number mismatch | Same model + config measured in different runs (n=200 vs n=300) will differ by ~0.001–0.003. Flag only if the difference exceeds the stated SE. |
+| Superseded values cited in discrepancy discussion | Stale reference | If the paper explicitly says "old value was X, new value is Y" in an appendix, the old value is intentional. Don't flag it. |
+| Flesch Reading Ease >50 in appendices | Readability too informal | Appendices are denser by nature. Target 20+ for appendices, 30–50 for main text. |
+| `arHdfs`/`arBgl` macros dead but values in text | Dead macro | Values may be hardcoded in the section file. The macro is dead; the value is live. Remove the macro, keep the text. |
+
+---
+
+## Fix-Log Format
+
+After applying fixes, write `paper/v4/grill-fix-log.md` with this structure:
+
+```markdown
+# Grill Fix Log — [date]
+
+## Pass [N]
+
+| # | File | Change | Check | Severity |
+|---|------|--------|-------|----------|
+| 1 | paper/assets/macros.tex | `canvasOneTwentyEightBase` 385.5 → 368.5 | Check 1 | CRITICAL |
+| 2 | sections/02_cost_laws.tex | K=32 F1 0.858 → 0.862 | Check 1 | CRITICAL |
+| 3 | sections/15_appendix_distributions.tex | AR-30B → AR-3B (dense) | Check 4 | CRITICAL |
+
+## Compilation: [errors/overfull/undefined counts]
+## Dead macros removed: [count]
+## Self-audit: [pass/fail per item]
+```
+
+The fix-log serves the same purpose as paper-deck's `generation-log.md`: every change is traceable to a check and a severity, so a future pass can verify the fix was applied and didn't introduce new issues.
+
+---
+
+## Self-Audit Checklist
+
+After all fixes are applied and the PDF is recompiled, verify:
+
+### Data integrity
+- [ ] Every macro value matches its source JSON (re-run Check 1 verification)
+- [ ] No hardcoded numbers in sections that should be macros (raw measurements only)
+- [ ] All derived calculations recompute correctly (re-run Check 16 script)
+- [ ] Dead macros: 0 (re-run Check 21 script)
+
+### Narrative
+- [ ] Abstract, intro, conclusion cite the same numbers (re-run Check 14)
+- [ ] Crossover claims are integer-safe (re-run Check 18)
+- [ ] No contradictory framing (re-read abstract + conclusion first/last sentences)
+
+### Compilation
+- [ ] 0 errors, 0 overfull, 0 undefined (recompile from scratch)
+- [ ] `verify_numbers.py` passes (run it)
+- [ ] Fix-log written and complete
+
+### Regression check
+- [ ] No new dead macros introduced (removing a macro may orphan another)
+- [ ] No new undefined references (editing sections may break \ref)
+- [ ] No new stale numbers (fixing one number may reveal a dependent number that also needs updating)
+
+If any item fails, fix and re-audit before reporting completion.
 
 For each check, report:
 
@@ -504,5 +641,7 @@ After all 24 checks, summarize:
 - Dead macros count
 - Derived calculation mismatches count
 - Storytelling: setup-payoff closure gaps
-- Readability: sentences >40 words, Flesch score range
+- Readability: sentences >40 words, Flesch score range, sections outside 30–50
 - Definitions: undefined variables, undefined metrics, missing methodology context
+- Self-audit: pass/fail per item
+- Fix-log: written / not written
