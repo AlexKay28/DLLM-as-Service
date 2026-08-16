@@ -37,8 +37,12 @@ quoted as an order of magnitude, not a boundary.
 
 DiffusionGemma's canvas length is a configuration parameter, so we swept it.
 At canvas $=128$ the base falls to \canvasOneTwentyEightBase\,ms ($-2.0\%$
-relative to canvas $=256$ at 376.0\,ms) \emph{and} 9-field F1 rises to
-\canvasOneTwentyEightFone\ --- an improvement on both axes simultaneously.
+relative to the canvas $=256$ measurement of \dgBase\,ms from
+\artifact{results/issue44\_dg\_ksweep\_K8.json}; the canvas sweep's own
+$L{=}256$ point measured 376.0\,ms in a separate run,
+\artifact{results/issue66\_canvas\_256.json}, $n{=}200$) \emph{and} 9-field
+F1 rises to \canvasOneTwentyEightFone\ --- an improvement on both axes
+simultaneously.
 At canvas $=64$ the base rises $48\%$, because the per-canvas fixed overhead
 is paid twice as often; that setting is not viable. This is the only direct
 experimental evidence that block size, not denoising schedule, is the
