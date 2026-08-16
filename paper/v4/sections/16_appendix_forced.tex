@@ -2,47 +2,15 @@
 \label{app:forced}
 
 The comparison in Table~\ref{tab:niche} uses forced lengths for AR-30B for
-\texttt{min\_tokens} output that the parser discards. A reviewer asks:
-does the advantage survive on a task whose \emph{natural} output length
-is $\geq 512$ tokens? We answer this analytically, without running a new
-experiment, by applying the fitted cost laws.
-
-\paragraph{The cost laws are length-dependent, not forcing-dependent.}
-
-AR-30B's latency is linear in output length, fitted from a five-point
-serial (batch-1) output-length sweep with $R^2 = 1.0$. The model
-generates ${\sim}123$ tokens naturally, so four of the five points
-cluster at the plateau and the slope is carried by the $L{=}32$ point:
-\begin{equation}
-T_{\textsc{ar}}(L) = a_{\textsc{ar}} + b_{\textsc{ar}} \cdot L
-= 79.1 + 47.7 \cdot L \quad\text{(ms)}
-\end{equation}
-where $T_{\textsc{ar}}$ is the p50 latency, $L$ is the output length in
-tokens, $a_{\textsc{ar}} = 79.1$\,ms is the prompt prefill cost, and
-$b_{\textsc{ar}} = 47.7$\,ms/token is the per-token serial decode cost of AR-30B MoE.
-DG's latency is the staircase:
-\begin{equation}
-T_{\textsc{dg}}(L) = a_{\textsc{dg}} + b_{\textsc{dg}} \cdot
-\Bigl(\bigl\lceil \tfrac{L}{C} \bigr\rceil - 1\Bigr)
-= \dgBase + \dgStep \cdot
-\Bigl(\bigl\lceil \tfrac{L}{\canvasLength} \bigr\rceil - 1\Bigr) \quad\text{(ms)}
-\end{equation}
-where $a_{\textsc{dg}} = \dgBase$\,ms is the first-canvas cost (prefill +
-$K{=}8$ denoising steps over $C = \canvasLength$ tokens), $b_{\textsc{dg}} =
-\dgStep$\,ms is the marginal cost per additional canvas, and
-$\lceil L/C \rceil$ counts the number of canvases needed. Neither law
-depends on \texttt{min\_tokens}; both depend only on $L$.
-
-\paragraph{A naturally-long task exists.}
+\texttt{min\_tokens} output that the parser discards. Does the advantage
+survive on a task whose \emph{natural} output length is $\geq 512$ tokens?
+We answer analytically by applying the fitted cost laws
+(Eqs.~\ref{eq:ar}--\ref{eq:dg}), which depend only on $L$, not on
+\texttt{min\_tokens}.
 
 A multi-record extraction task --- emit a JSON array of $N$ structured
 records from $N$ consecutive log lines --- produces output of
-$N \times 140$ tokens naturally, without forcing. At $N{=}4$ the output
-is $\sim$560 tokens; at $N{=}8$, $\sim$1120.
-
-\paragraph{The advantage holds.}
-
-Applying the fitted laws:
+$N \times 140$ tokens naturally, without forcing. Applying the laws:
 
 \begin{center}
 \begin{tabular}{@{}lrrrr@{}}
@@ -57,16 +25,7 @@ Multi-record $N{=}8$ & 1120 & 53503 & 857 & DG $62.4\times$ \\
 \end{tabular}
 \end{center}
 
-With the MoE-matched AR-30B in serial mode, DG wins at every output
-length. The advantage is $15.6\times$ at natural output and grows to
-$62.4\times$ at $N{=}8$, because AR's linear cost ($47.7$\,ms/token)
-grows far faster than DG's staircase ($119.5$\,ms per $256$ tokens).
 The first row is the measured baseline; subsequent rows are cost-law
-projections at the multi-record output lengths.
-
-\paragraph{Caveat.}
-
-These are analytical projections from the fitted cost laws, not direct
-measurements of multi-record extraction. The laws are fitted on
-single-record output; multi-record output may have different prompt
-structure.
+projections. The advantage grows because AR's linear cost grows far faster
+than DG's staircase. These are analytical projections, not direct
+measurements; the laws are fitted on single-record output.
