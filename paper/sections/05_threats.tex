@@ -1,37 +1,27 @@
 \section{Threats to Validity}
-\label{sec:threats}
-
-All measurements are on one GPU (\gpuModel{}); the fitted constants are
+\label{sec:threats} All measurements are on one GPU (\gpuModel{}); the fitted constants are
 A100-specific but the shapes should transfer. The batching ceiling reproduces
 across two runtimes and two model families, but both measurements are
 engine-bounded (Appendix~\ref{app:batching}). The crossover is calibrated at
 a $\sim$\refPrompt-token prompt and shifts with input length. The AR--DG
 quality difference ($\Delta = \qualityGap$) has a 95\% CI of $[-0.012,
 +0.011]$ at $n=300$; the two are equivalent at a $\pm 0.015$ margin, which is
-the smallest F1 difference that would change a deployment decision.
-
-The surviving niche has not been tested on a task whose natural output length
+the smallest F1 difference that would change a deployment decision. The surviving niche has not been tested on a task whose natural output length
 is $\geq 512$ tokens. The forced comparison in Table~\ref{tab:niche} charges
 the AR arm for tokens that first-object-wins parsing discards, so the
 $5.4\times$ advantage is an upper bound on AR cost rather than a measurement
 of it. A task with genuinely long natural output --- multi-record extraction,
-incident reports --- would test the niche without this artifact.
-
-The niche has also not been tested against grammar-constrained AR decoding
+incident reports --- would test the niche without this artifact. The niche has also not been tested against grammar-constrained AR decoding
 (outlines, xgrammar, llguidance), which would eliminate the over-generation
 the forced comparison charges for, guarantee 100\% schema validity, and
 remove the diffusion model's completeness advantage. Constrained decoding is
 the standard answer to the structured-output problem and is a stated
-limitation of this paper.
-
-The cost-shape generalisation (``any decoder emitting fixed-size blocks would
+limitation of this paper. The cost-shape generalisation (``any decoder emitting fixed-size blocks would
 inherit the same shape'') is inferred from one block-diffusion model
 (DiffusionGemma-26B-A4B) measured against one AR family (Qwen2.5). The
 LLaDA-8B arm was measured under dInfer but is inconclusive due to the
 cache bug (Appendix~\ref{app:batching}). The shape claim is structural
 and should hold for any canvas-bound decoder, but it is not tested on a
-second diffusion family on a working serving stack.
-
-DiffusionGemma-26B-A4B-it is available at
+second diffusion family on a working serving stack. DiffusionGemma-26B-A4B-it is available at
 \url{https://huggingface.co/google/diffusiongemma-26b-a4b-it}. All DG
 measurements are reproducible from this checkpoint.

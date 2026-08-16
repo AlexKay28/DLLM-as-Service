@@ -1,16 +1,12 @@
 \section{Related Work}
-\label{sec:related}
-
-Diffusion LM speedup claims (LLaDA~\cite{llada2025},
+\label{sec:related} Diffusion LM speedup claims (LLaDA~\cite{llada2025},
 DiffusionGemma~\cite{diffusiongemma}) are typically measured against
 author-built AR baselines. Constrained decoding
 (outlines~\cite{outlines2024}, xgrammar~\cite{xgrammar2024},
 llguidance~\cite{llguidance}) is the standard answer to the structured-output
 problem and is not measured here; it is a limitation. Speculative decoding
 (Medusa~\cite{medusa2024}, EAGLE~\cite{eagle2024}) attacks the same per-token
-slope the AR cost law turns on.
-
-Harness bias in systems benchmarking has a long history.
+slope the AR cost law turns on. Harness bias in systems benchmarking has a long history.
 \cite{hoefler2021} surveys reproducibility pitfalls in parallel and
 distributed systems measurement, including the confounds that arise when
 baseline and contender are measured under different stacks. The
