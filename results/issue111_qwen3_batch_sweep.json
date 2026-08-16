@@ -1,0 +1,7 @@
+{
+  "model": "Qwen/Qwen3-30B-A3B",
+  "batch1_ms": 6148.1,
+  "batch300_per_event_ms": 80.0,
+  "multiplier": 76.9,
+  "tokens_per_s": 1538.0
+}
