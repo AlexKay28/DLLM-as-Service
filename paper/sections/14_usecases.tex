@@ -23,6 +23,18 @@ Appendix~\ref{app:distributions}) washes out under sequential composition:
 the p99.9/median ratio converges from 1.04$\times$ at $D{=}1$ to
 1.77--2.07$\times$ at $D{=}10$--$20$, against AR's 1.93$\times$ mean.
 
+\begin{figure}[t]
+\centering
+\includegraphics[width=\linewidth]{figures/fig10_usecase_chains.pdf}
+\caption{Serial investigation chains
+(\artifact{results/chain\_analysis.json}, BGL, $n{=}300$). \textbf{A:}
+per-hop p50 is constant across depth for both models; DG is $2.0\times$
+faster. \textbf{B:} DG's p99.9/p50 ratio (high in isolation) converges to
+AR's mean as depth increases --- the tail penalty washes out under
+sequential composition.}
+\label{fig:chains}
+\end{figure}
+
 The batching multiplier that makes AR dominant in aggregate throughput is
 unavailable here by construction. The serial-vs-serial comparison is the
 operative one, and DG leads it.
@@ -75,6 +87,16 @@ from 91\% to 87\% at 50 fields but plateaus --- the joint-canvas
 denoising (all fields denoised together) absorbs the structural coherence
 cost. AR generates fields one at a time with no mechanism to enforce
 inter-field constraints except through the prompt.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.85\linewidth]{figures/fig11_usecase_schema.pdf}
+\caption{Latency vs schema width
+(\artifact{results/wide\_schema\_\{ar3b,dg\}.json}, BGL, $n{=}300$). The
+gap widens with field count: AR's left-to-right generation pays per field,
+while DG's joint denoising treats all fields as one structured object.}
+\label{fig:schema}
+\end{figure}
 
 \subsection{Edge and single-tenant deployments}
 
