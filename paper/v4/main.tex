@@ -111,9 +111,12 @@ DiffusionGemma-26B-A4B (4\,B active of 26\,B) and Qwen3-30B-A3B (3\,B
 active of 30\,B). Against this fair MoE-vs-MoE baseline, the diffusion
 model wins at every practical output length in serial mode:
 $15.6\times$ faster at the natural output length of 123 tokens,
-$8.0\times$ at $L{=}1024$. It degrades under deadline pressure by
-losing quality rather than completeness --- a property AR decoding has
-no equivalent for.
+$8.0\times$ at $L{=}1024$. To put that in cost terms: at AWS
+on-demand rates, processing a million log events on the AR model costs
+\$7{,}600; the same workload on DG costs \$500 --- a \$7{,}100
+difference that compounds with every additional million. It degrades
+under deadline pressure by losing quality rather than completeness ---
+a property AR decoding has no equivalent for.
 
 The advantage is limited by deployment factors: the AR model batches
 $77\times$ better and has a $3.21\times$ tighter tail. But in the

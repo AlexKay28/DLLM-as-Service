@@ -4,9 +4,13 @@
 The diffusion model's latency advantage is dramatic in serial
 (batch-1) mode. The AR-30B MoE model takes $\sim$5900\,ms to
 produce a 123-token JSON record; DG completes the same task in
-379\,ms --- a $15.6\times$ advantage. The AR model stops at
-$\sim$123 tokens (EOS), so latency plateaus regardless of
-max\_tokens.
+379\,ms --- a $15.6\times$ advantage. To make this concrete: if
+both models serve a security operations centre processing alerts
+one at a time, DG handles \crossoverLambda{} alerts per second
+per GPU; the AR-30B handles 0.17. Or, in human terms: DG finishes
+before you can blink; AR-30B finishes before you finish reading
+this sentence. The AR model stops at $\sim$123 tokens (EOS), so
+latency plateaus regardless of max\_tokens.
 
 Table~\ref{tab:niche} shows the measured serial comparison.
 
@@ -48,7 +52,11 @@ projection severely understates AR serial latency.
 \paragraph{Energy.}
 
 The diffusion model uses less energy because it is busy for less time.
-The energy ratio is:
+At an A100 drawing 92.7\,W idle, the AR-30B burns 10.1\,J per event;
+DG burns 4.2\,J --- less than half. Over a million events that is
+28\,kWh saved, roughly \$3 at industrial electricity rates, or the
+difference between leaving a space heater on for 14 hours vs. turning
+it off. The energy ratio is:
 \begin{equation}
 R_{\mathrm{energy}} = \frac{E_{\mathrm{AR}}}{E_{\mathrm{DG}}}
 \end{equation}
@@ -69,10 +77,12 @@ ratio (2.4) is indicative rather than directly controlled.
 
 Under a tightened deadline the diffusion model returns a complete canvas
 at lower quality, while the AR model returns a truncated record that
-fails schema validation. At a p99 budget of 400\,ms, dropping $K$ from
-8 to 4 meets it at \kFourPninetynine\,ms p99 with F1 falling from
-\kEightFone\ to \kFourFone. Table~\ref{tab:contrast} summarises the
-contrast across practical challenges.
+fails schema validation. The $K$ knob is the difference: drop $K$ from
+8 to 4 and the model still fills every field --- just with slightly
+less precision --- instead of cutting the JSON in half mid-key. At a
+p99 budget of 400\,ms, this meets it at \kFourPninetynine\,ms p99 with
+F1 falling from \kEightFone\ to \kFourFone. Table~\ref{tab:contrast}
+summarises the contrast across practical challenges.
 
 \begin{table}[h]
 \centering

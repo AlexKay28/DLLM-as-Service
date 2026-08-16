@@ -19,14 +19,18 @@ diffusion is the right choice are:
 \textit{Serial investigation chains.} A security operations centre
 receives an alert, looks up threat intelligence, cross-references
 internal logs, and drills into the next layer. Each hop blocks on the
-previous; concurrency is 1 by construction. DG's per-hop p50 is
-$\sim$410\,ms (Figure~\ref{fig:chains}, recorded against the dense
-AR-3B baseline, not AR-30B). Against AR-30B the per-hop cost projected
-from the serial cost law (Eq.~\ref{eq:ar}) is $\sim$5946\,ms at natural record
-length, so DG is $\sim$14$\times$ faster per hop. The advantage
-compounds with chain depth: at $D \geq 8$ the cumulative output exceeds
-1000 tokens, where DG's staircase cost grows far more slowly than AR's
-linear per-token cost.
+previous; concurrency is 1 by construction. This is the natural habitat
+of the staircase. DG's per-hop p50 is $\sim$410\,ms
+(Figure~\ref{fig:chains}, recorded against the dense AR-3B baseline,
+not AR-30B). Against AR-30B the per-hop cost projected from the serial
+cost law (Eq.~\ref{eq:ar}) is $\sim$5946\,ms at natural record length,
+so DG is $\sim$14$\times$ faster per hop --- the difference between
+finishing an 8-hop investigation in 3.3 seconds vs. 47 seconds. In a
+security context where mean-time-to-detect is measured in minutes,
+that is the difference between catching an intruder in the act and
+finding the trail gone cold. The advantage compounds with chain depth:
+at $D \geq 8$ the cumulative output exceeds 1000 tokens, where DG's
+staircase cost grows far more slowly than AR's linear per-token cost.
 
 \begin{figure}[t]
 \centering
@@ -42,16 +46,23 @@ p99.9/p50 ratio converges to AR's mean as depth increases.}
 mid-stream. DG's bounded service time ($\sim$379\,ms at $L{=}256$,
 $K{=}8$) and complete-canvas guarantee make it suitable for priority
 preemption: a preempted request returns a valid record, not a
-truncated one.
+truncated one. The AR model, interrupted mid-generation, returns
+half a JSON object --- syntactically invalid, unusable downstream.
+In a system that must decide whether to page an on-call engineer
+at 3\,a.m., the difference between a complete record and a truncated
+one is the difference between an actionable alert and a false
+negative.
 
 \textit{Autonomous driving.} One vehicle, one scene, one decision:
-batch-1 by construction. Output is long (multi-object scene
-description, predicted trajectories). The $K$ knob is a per-request
-quality slider with two usable positions ($K{=}8$ and $K{=}4$): drop
-$K$ to meet a tightened deadline without truncating output. The
-completeness guarantee holds only above the canvas length; below
-$L{=}128$ DG's schema validity collapses (1.0\%, see
-Appendix~\ref{app:quality}).
+batch-1 by construction. There is no batching a braking decision ---
+the car either processes the scene or it does not. Output is long
+(multi-object scene description, predicted trajectories). The $K$
+knob is a per-request quality slider with two usable positions
+($K{=}8$ and $K{=}4$): drop $K$ to meet a tightened deadline without
+truncating output --- the model still describes every detected
+object, just with slightly coarser trajectories. The completeness
+guarantee holds only above the canvas length; below $L{=}128$ DG's
+schema validity collapses (1.0\%, see Appendix~\ref{app:quality}).
 
 \textit{Algorithmic trading.} A serial chain with a 1--5\,s market
 reaction window. At 8+ hops ($L \geq 1000$), DG's staircase advantage

@@ -2,11 +2,14 @@
 \label{sec:intro}
 
 Autoregressive (AR) language models generate text one token at a time;
-each token requires a forward pass over the growing KV cache.
-Block-diffusion models generate an entire block of tokens in parallel
-through iterative denoising, then step to the next block. We call this
-second class \emph{block-diffusion} because the block structure --- not
-the diffusion process --- is what determines its cost shape.
+each token requires a forward pass over the growing KV cache. This is
+the decoding equivalent of a toll road: every token pays a fare, and
+the fare never decreases. Block-diffusion models generate an entire
+block of tokens in parallel through iterative denoising, then step to
+the next block. The cost is a turnstile: pay once, pass through a
+whole block. We call this second class \emph{block-diffusion} because
+the block structure --- not the diffusion process --- is what
+determines its cost shape.
 
 We compare the two on a pinned serving stack: vLLM, NVIDIA A100 80GB
 PCIe, BF16. The task is structured log extraction from the LOGHUB BGL
@@ -62,8 +65,11 @@ $L^{*} = \crossoverL$ output tokens (\S\ref{sec:laws}).
 \item \textbf{Where is the diffusion model faster?}
 Above $L^{*} = \crossoverL$ tokens, DG is faster. The advantage remains
 large: $15.6\times$ at natural output, $8.0\times$ at
-$L{=}1024$. The advantage holds at naturally-long output (multi-record
-extraction) without forcing (\S\ref{sec:wins}).
+$L{=}1024$. In cost terms, that is the difference between \$0.0076
+per event (AR-30B) and \$0.0005 (DG) on an A100 at \$4.62/hr --- or,
+at million-event scale, \$7{,}100 saved per million. The advantage
+holds at naturally-long output (multi-record extraction) without
+forcing (\S\ref{sec:wins}).
 
 \item \textbf{What limits the diffusion model's advantage in practice?}
 The AR model batches $77\times$ better and has a $3.21\times$ tighter

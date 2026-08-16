@@ -63,7 +63,9 @@ while latency saturates above $K{=}16$. Each additional canvas costs
 The key structural difference: within a canvas, DG emits tokens for free
 (parallel denoising), while AR pays $\arSlope$\,ms per token. At canvas
 boundaries, DG pays a fixed $\dgStep$\,ms step, while AR's cost is
-unaffected. The shapes cross where the two costs are equal
+unaffected. AR is a metered taxi: the fare climbs with every block.
+DG is a subway: flat fare per station, no matter how many tokens board.
+The shapes cross where the two costs are equal
 ($T_{\textsc{ar}} = T_{\textsc{dg}}$). Solving for $L_{\mathrm{out}}$:
 \begin{equation}
 \label{eq:lcross}

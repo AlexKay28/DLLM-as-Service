@@ -6,7 +6,9 @@ structurally different from the linear cost of autoregressive decoding.
 The shapes cross at $L^{*} = \crossoverL$ output tokens, above which
 diffusion is faster. The advantage is large: $15.6\times$
 at natural output, $8.0\times$
-at $L{=}1024$.
+at $L{=}1024$. In cost terms, that is \$500 vs.\ \$7{,}600 per million
+events on an A100 --- a 15$\times$ gap that does not close with a
+bigger model, only with batching.
 
 Against a MoE-matched AR model (Qwen3-30B-A3B, 3\,B active of 30\,B),
 this is a fair comparison. Moving from the dense AR-3B to the MoE AR-30B
@@ -21,7 +23,8 @@ chains, autonomous driving, algorithmic trading --- the staircase
 shape provides a structural latency advantage that the line cannot
 match. The $K$ knob gives DG a per-request quality slider that AR has
 no equivalent for, and the complete-canvas guarantee under deadline
-pressure is a qualitative property.
+pressure is a qualitative property: when the deadline tightens, DG
+degrades gracefully; AR truncates.
 
 Block diffusion is the right choice when output is long, batch-1 is
 required, and schema completeness matters. We have named five
