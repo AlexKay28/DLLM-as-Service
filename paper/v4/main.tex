@@ -82,34 +82,29 @@ The Cost Shape of Block-Structured Decoding}}
 \maketitle
 
 \begin{abstract}
-AR latency is a line; block-diffusion latency is a staircase. The
-shapes cross at \crossoverL{} tokens, above which diffusion is
-fifteen times faster at natural output length and eight times faster
-at a thousand tokens, against a fair MoE-matched pair
-(DiffusionGemma-26B-A4B vs Qwen3-30B-A3B). The advantage narrows
-where AR batches better, but holds in the batch-1 regime: serial
+Autoregressive decoding latency is a line in output length;
+block-diffusion latency is a staircase --- flat inside a fixed-size
+canvas, stepping at each boundary. The shapes cross at a short
+output length, above which block diffusion is fifteen times faster
+at the natural output length and eight times faster at a thousand
+tokens, against a fair MoE-matched pair (DiffusionGemma-26B-A4B vs
+Qwen3-30B-A3B). The advantage narrows where the autoregressive model
+batches better, but holds in the batch-1 regime: serial investigation
 chains, autonomous driving, algorithmic trading. When a deadline
-tightens, DG drops quality, not completeness; AR truncates. We state
-five conditions for the regime where block diffusion is the right
-choice.
+tightens, block diffusion drops quality rather than completeness; the
+autoregressive model truncates. We state five conditions for the
+regime where block diffusion is the right choice.
 \end{abstract}
 
 \begin{figure}[ht!]
 \centering
 \includegraphics[width=\linewidth]{figures/fig1_cost_shapes.png}
-\caption{The two cost shapes, priced at four output lengths (log
-scale). AR grows linearly and has no floor, so its bars climb from
-12.3\,s to 97.8\,s; DG is a bounded staircase and climbs only from
-378\,ms to 1.2\,s, because every 256-token canvas costs the same
-$\sim$120\,ms wherever it falls. The gap therefore widens with output
-length, from $32\times$ at $L{=}256$ to $81\times$ at $L{=}2048$.
-These ratios are larger than the fifteenfold in the abstract because
-here AR is charged for every token it would have to emit: the AR bars
-are Eq.~\ref{eq:ar} extrapolated, whereas operationally AR stops at its
-natural EOS near 123 tokens and plateaus at 5.9\,s
-(Table~\ref{tab:niche}), which is where the fifteenfold comes from.
-DG measured (BGL, $n{=}200$, $K{=}8$); AR-30B MoE from the fitted
-serial cost law.}
+\caption{The two cost shapes, priced at four output lengths (log scale).
+Autoregressive cost grows linearly with no floor; block-diffusion cost
+is a bounded staircase, flat inside each 256-token canvas and stepping
+by $\sim$120\,ms at each boundary. The gap widens with output length.
+Block diffusion measured (BGL, $n{=}200$, $K{=}8$); autoregressive from
+the fitted serial cost law.}
 \label{fig:shapes}
 \end{figure}
 
