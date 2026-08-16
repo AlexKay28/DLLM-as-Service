@@ -115,7 +115,7 @@ outcome.}
 \midrule
 Long output, batch-1 & Pays per token; cost grows linearly & Pays per canvas; flat inside block & Staircase vs line \\
 Deadline pressure & Truncates output; fails schema & Drops $K$; complete but lower quality & Per-request quality knob \\
-High arrival rate & Batches 26--43$\times$ & Caps at $\leq$1.7$\times$ & KV-cache reuse \\
+High arrival rate & Batches 77$\times$ & Caps at $\leq$1.7$\times$ & KV-cache reuse \\
 Tail-sensitive SLA & CV 0.2\%, max/median 1.03$\times$ & CV 20.9\%, max/median 3.21$\times$ & MoE routing variability \\
 Long prompt & Prefill paid once & Prefill paid $K$ times & Re-attention per step \\
 \bottomrule

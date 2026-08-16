@@ -82,7 +82,7 @@ naturally-long output without forcing (\S\ref{sec:wins},
 Appendix~\ref{app:forced}).
 
 \item \textbf{What limits the diffusion model's advantage in practice?}
-The AR model batches $26$--$43\times$ better, and under tenant-isolated
+The AR model batches $77\times$ better, and under tenant-isolated
 batch-1 can run 16 co-resident copies of the quality-matched 3\,GB model
 in the same GPU for $9\times$ lower cost per event.
 A $3.21\times$ tail latency further narrows the niche (\S\ref{sec:limits}).
@@ -107,7 +107,7 @@ column and loses the deployment comparison behind it.}
 \tabfont Active parameters                            & 3.0\,B & 4.0\,B \\
 \tabfont Total parameters                             & 30\,B & 26\,B \\
 \tabfont Weights (bf16)                                & 60\,GB & 52\,GB \\
-\tabfont p50 latency at $L{=}\canvasLength$, batch-1  & \arAnchorTwoFive\,ms & \dgAnchorTwoFive\,ms \\
+\tabfont p50 latency at $L{=}\canvasLength$, batch-1  \tabfont p50 latency at $L{=}\canvasLength$, batch-1  & \arAnchorTwoFive\,ms & \dgAnchorTwoFive \arAnchorTwoFive\,ms \tabfont p50 latency at $L{=}\canvasLength$, batch-1  & \arAnchorTwoFive\,ms & \dgAnchorTwoFive \dgAnchorTwoFive\,ms \\
 \tabfont Within-block marginal cost per token          & \arSlope\,ms & 0.0\,ms \\
 \tabfont Block boundary cost (per \canvasLength\ tokens) & n/a & \dgStep\,ms \\
 \tabfont Marginal cost per prompt token               & \arInputSlope\,ms & \dgInputSlope\,ms \\

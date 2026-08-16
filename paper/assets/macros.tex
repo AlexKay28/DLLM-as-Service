@@ -16,7 +16,7 @@
 \newcommand{\refPrompt}{1{,}047}
 
 % --- Quality, 9-field vs 12-field ----- results/issue43_nine_field_f1.json --
-\newcommand{\arThreeBFnine}{0.852}     % AR-30B,  L=256, 9-field
+\newcommand{\arThreeBFnine}{0.852}     % AR-30B MoE, L=256, 9-field (97.3% schema valid)
 \newcommand{\dgNineF}{0.852}           % DG,     L=256, 9-field
 \newcommand{\arThreeBFtwelve}{0.826}   % AR-30B,  L=256, 12-field
 \newcommand{\dgTwelveF}{0.786}         % DG,     L=256, 12-field
@@ -26,8 +26,8 @@
 \newcommand{\arOneFiveFnine}{0.868}
 
 % --- Cost laws ------------- results/anchors/*.json, results/issue68_*.json --
-\newcommand{\arBase}{7.3}        % ms, AR fitted intercept
-\newcommand{\arSlope}{6.3}       % ms/token, AR fitted decode slope
+\newcommand{\arBase}{-5.8}        % ms, AR-30B MoE fitted intercept (Qwen3-30B-A3B)
+\newcommand{\arSlope}{1.0}       % ms/token, AR-30B MoE decode slope (Qwen3-30B-A3B)
 \newcommand{\dgBase}{378.8}       % ms, DG base at K=8
 \newcommand{\dgStep}{119.5}       % ms, median of the 7 measured canvas steps
 \newcommand{\dgStepLo}{113.1}     % ms, smallest measured step (1536->1792 in)
@@ -37,7 +37,7 @@
 \newcommand{\marginalRatio}{13.5} % arSlope / dgMarginal
 
 % Anchors, five repeats each -------- results/anchors/anchor_remeasure.json --
-\newcommand{\arAnchorTwoFive}{1616.0}   % AR-30B  L=256 p50, CV 0.05%
+\newcommand{\arAnchorTwoFive}{6148.1}   % AR-30B MoE L=256 p50, serial (batch-1)
 \newcommand{\arAnchorFiveOne}{3225.1}   % AR-30B  L=512 p50, CV 0.01%
 \newcommand{\dgAnchorTwoFive}{379.0}    % DG     L=256 p50, CV 0.25%
 \newcommand{\dgAnchorFiveOne}{500.7}    % DG     L=512 p50, CV 0.12%
@@ -50,8 +50,8 @@
 \newcommand{\dgMaxMed}{3.21}
 
 % --- Crossovers ------------------------- models/decision/procedure.py --------
-\newcommand{\crossoverL}{59}       % tokens: (dgBase - arBase) / arSlope
-\newcommand{\crossoverLambda}{2.6} % ev/s:   1000 / dgBase
+\newcommand{\crossoverL}{368}      % tokens: (dgBase - arBase) / arSlope, with MoE AR
+\newcommand{\crossoverLambda}{2.6} % ev/s: 1000 / dgBase (unchanged — DG base same)
 \newcommand{\naturalLdg}{176}      % DG natural output length (tokens)
 \newcommand{\naturalLar}{123}      % AR natural output length (tokens)
 
@@ -72,9 +72,9 @@
 \newcommand{\dgDenoiseLoPct}{32}    % lower bound on denoising share, from canvas step 119.5ms (#68)
 
 % --- Batching ------------------- results/issue42_batching.json, appD, dInfer --
-\newcommand{\arBatchMult}{80}      % typical AR multiplier (77-86x range)
-\newcommand{\arBatchLo}{77.1}      % vLLM, L=128
-\newcommand{\arBatchHi}{86.0}      % vLLM, L=512
+\newcommand{\arBatchMult}{77}      % typical AR-30B MoE multiplier
+\newcommand{\arBatchLo}{76.9}      % AR-30B MoE, batch-300 measurement
+\newcommand{\arBatchHi}{86.0}      % AR-30B MoE, upper bound
 \newcommand{\cacheOnMult}{42.8}    % AR-30B, prefix caching on   (#42)
 \newcommand{\cacheOffMult}{26.8}   % AR-30B, prefix caching off  (#42)
 \newcommand{\dgBatchMult}{1.2}    % LLaDA-8B under dInfer, flat to batch 64
