@@ -17,14 +17,32 @@ T_{\textsc{ar}}(L_{\mathrm{out}}) &= \arBase + \arSlope \cdot L_{\mathrm{out}} &
 T_{\textsc{dg}}(L_{\mathrm{out}}) &= \dgBase + \dgStep \cdot \Bigl(\bigl\lceil \tfrac{L_{\mathrm{out}}}{\canvasLength}\bigr\rceil - 1\Bigr) && \text{(ms, staircase)}
 \end{align}
 
-where $L_{\mathrm{out}}$ is the output length in tokens. The AR intercept
-$\arBase$ absorbs prompt prefill (amortised by prefix caching); the slope
-$\arSlope$ is the per-token decode cost. The DG base $\dgBase$ covers
-prefill plus $K{=}8$ denoising steps over the first canvas; each
-additional canvas costs $\dgStep$\,ms (median of 7 measured transitions,
-range \dgStepLo--\dgStepHi). The operating point $K{=}8$ was selected as
-the latency/quality knee: quality is flat above $K{=}8$ (0.853 at
-$K{=}8$, 0.858 at $K{=}32$) while latency saturates above $K{=}16$.
+where $L_{\mathrm{out}}$ is the output length in tokens. The two laws
+have the same form $T = a + b \cdot f(L)$ but differ in what $a$ and $b$
+represent physically:
+
+\begin{itemize}[nosep]
+\item \emph{AR:} $a = \arBase$\,ms is the prompt prefill cost
+  (amortised by prefix caching across requests). $b = \arSlope$\,ms is
+  the per-token decode cost --- one forward pass over the KV cache per
+  token. Every additional output token costs exactly $\arSlope$\,ms,
+  regardless of position.
+
+\item \emph{DG:} $a = \dgBase$\,ms is the first-canvas cost: prompt
+  prefill plus $K{=}8$ denoising steps over \canvasLength{} tokens.
+  Because each denoising step re-attends the full prompt, prefill is
+  paid $K$ times, making $a$ much larger than AR's. $b = \dgStep$\,ms
+  is the marginal cost of one additional canvas --- a fresh denoising
+  pass over a new block of \canvasLength{} tokens. Within a canvas, $b
+  = 0$: additional tokens are free because they are denoised in
+  parallel.
+\end{itemize}
+
+The operating point $K{=}8$ was selected as the latency/quality knee:
+quality is flat above $K{=}8$ (0.853 at $K{=}8$, 0.858 at $K{=}32$)
+while latency saturates above $K{=}16$. Each additional canvas costs
+\dgStep\,ms (median of 7 measured transitions, range
+\dgStepLo--\dgStepHi).
 
 The key structural difference: within a canvas, DG emits tokens for free
 (parallel denoising), while AR pays $\arSlope$\,ms per token. At canvas
