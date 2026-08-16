@@ -1,0 +1,14 @@
+{
+  "model": "Qwen/Qwen2.5-1.5B-Instruct",
+  "L": 256,
+  "n": 100,
+  "inference_duration_s": 100.78,
+  "avg_power_w": 63.7,
+  "idle_power_w": 58.6,
+  "net_power_w": 5.1,
+  "energy_per_event_j": 64.2,
+  "net_energy_per_event_j": 5.1,
+  "p50_ms": 1007.3,
+  "p99_ms": 1039.0,
+  "field_f1_9": 0.8679
+}

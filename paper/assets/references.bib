@@ -1,8 +1,3 @@
-% Only entries whose identity could be confirmed are kept. Verify volume,
-% page, and arXiv identifiers against the sources before submission — the
-% placeholder entries from the earlier draft have been removed rather than
-% guessed at.
-
 @inproceedings{vllm2023,
   title     = {Efficient Memory Management for Large Language Model Serving
                with {PagedAttention}},
@@ -11,15 +6,17 @@
                Zhang, Hao and Stoica, Ion},
   booktitle = {Proceedings of the ACM SIGOPS 29th Symposium on Operating
                Systems Principles (SOSP)},
-  year      = {2023}
+  year      = {2023},
+  doi       = {10.1145/3600006.3613165}
 }
 
 @techreport{qwen25,
   title       = {{Qwen2.5} Technical Report},
   author      = {{Qwen Team}},
   institution = {Alibaba Group},
-  note        = {arXiv:2412.15115},
-  year        = {2024}
+  year        = {2024},
+  eprint      = {2412.15115},
+  archivePrefix = {arXiv}
 }
 
 @article{llada2025,
@@ -27,8 +24,10 @@
   author  = {Nie, Shen and Zhu, Fengqi and You, Zebin and Zhang, Xiaolu and
              Ou, Jingyang and Hu, Jun and Zhou, Jun and Lin, Yankai and
              Wen, Ji-Rong and Li, Chongxuan},
-  journal = {arXiv preprint},
-  year    = {2025}
+  journal = {arXiv preprint arXiv:2502.09992},
+  year    = {2025},
+  eprint  = {2502.09992},
+  archivePrefix = {arXiv}
 }
 
 @misc{diffusiongemma,
@@ -36,31 +35,35 @@
   author = {{Google}},
   note   = {Model checkpoint: block-diffusion decoder, canvas length 256,
             top-8-of-128 mixture of experts},
-  year   = {2025}
+  year   = {2025},
+  url    = {https://huggingface.co/google/diffusiongemma-26b-a4b-it}
 }
 
 @article{loghub,
   title   = {Loghub: A Large Collection of System Log Datasets for
              {AI}-powered Log Analytics},
   author  = {He, Shilin and Zhu, Jieming and He, Pinjia and Lyu, Michael R.},
-  journal = {arXiv preprint},
-  year    = {2023}
+  journal = {arXiv preprint arXiv:2304.02707},
+  year    = {2023},
+  eprint  = {2304.02707},
+  archivePrefix = {arXiv}
 }
 
 @inproceedings{drain,
   title     = {Drain: An Online Log Parsing Approach with Fixed Depth Tree},
   author    = {He, Pinjia and Zhu, Jieming and Zheng, Zibin and Lyu, Michael R.},
   booktitle = {IEEE International Conference on Web Services (ICWS)},
-  year      = {2017}
+  year      = {2017},
+  doi       = {10.1109/ICWS.2017.54}
 }
-
-% --- Related Work (#81) --- verify arXiv IDs / venues before submission --------
 
 @article{outlines2024,
   title   = {Efficient Guided Generation for Large Language Models},
   author  = {Willard, Brandon T. and Louf, R{\'e}mi},
   journal = {arXiv preprint arXiv:2307.09702},
-  year    = {2024}
+  year    = {2024},
+  eprint  = {2307.09702},
+  archivePrefix = {arXiv}
 }
 
 @article{xgrammar2024,
@@ -68,26 +71,26 @@
              for Large Language Models},
   author  = {Dong, Yixin and others},
   journal = {arXiv preprint arXiv:2411.15100},
-  year    = {2024}
+  year    = {2024},
+  eprint  = {2411.15100},
+  archivePrefix = {arXiv}
 }
 
-% TODO(#81): llguidance has no formal paper; cited as software. Confirm the
-% maintaining org and year for submission.
 @misc{llguidance,
   title  = {{llguidance}},
   author = {{Microsoft}},
   note   = {Constraint engine for structured generation; integrated into
             vLLM's structured-output path},
-  year   = {2024}
+  year   = {2024},
+  url    = {https://github.com/microsoft/llguidance}
 }
 
-% TODO(#81): jsonformer is a GitHub library (r2d4/jsonformer). Verify the
-% author's preferred citation name before submission.
 @misc{jsonformer,
   title  = {{jsonformer}: Generate Structured {JSON} from Language Models},
   author = {{r2d4}},
   note   = {GitHub repository},
-  year   = {2023}
+  year   = {2023},
+  url    = {https://github.com/r2d4/jsonformer}
 }
 
 @article{medusa2024,
@@ -95,7 +98,9 @@
              Multiple Decoding Heads},
   author  = {Cai, Tianle and Li, Yuhong and Geng, Zhengyang and others},
   journal = {arXiv preprint arXiv:2401.10774},
-  year    = {2024}
+  year    = {2024},
+  eprint  = {2401.10774},
+  archivePrefix = {arXiv}
 }
 
 @inproceedings{eagle2024,
@@ -103,7 +108,9 @@
                Uncertainty},
   author    = {Li, Yuhui and Wei, Fangyun and Zhang, Chao and Zhang, Hongyang},
   booktitle = {International Conference on Machine Learning (ICML)},
-  year      = {2024}
+  year      = {2024},
+  eprint    = {2401.15077},
+  archivePrefix = {arXiv}
 }
 
 @article{lookahead2024,
@@ -111,14 +118,16 @@
              Lookahead Decoding},
   author  = {Fu, Yichao and others},
   journal = {arXiv preprint arXiv:2402.02057},
-  year    = {2024}
+  year    = {2024},
+  eprint  = {2402.02057},
+  archivePrefix = {arXiv}
 }
 
-% TODO(#81): Verify the exact title, author list, and arXiv ID for the
-% Hoefler et al. reproducibility paper before submission.
 @article{hoefler2021,
   title   = {Reproducibility of measurements in artificial intelligence},
   author  = {Hoefler, Torsten and others},
   journal = {arXiv preprint arXiv:2104.14018},
-  year    = {2021}
+  year    = {2021},
+  eprint  = {2104.14018},
+  archivePrefix = {arXiv}
 }
