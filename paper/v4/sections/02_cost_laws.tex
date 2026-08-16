@@ -105,3 +105,11 @@ generalisation was measured on the dense AR-3B, not AR-30B. So the
 \emph{shape} transfers across corpora on both arms, but the AR
 constants don't transfer across model scales.
 
+The shape also transfers across \emph{tasks}: on HumanEval code
+generation (Appendix~\ref{app:humaneval}), AR-30B decodes at
+6.4\,ms/token (vs 7.2 on logs) and DG is a flat 280\,ms staircase. The
+AR/DG ratio is 2.9$\times$ (vs 2.5$\times$ on logs), in the same range.
+Code is the ideal second task because truncation is catastrophic
+(\texttt{SyntaxError}), making the completeness guarantee concretely
+visible.
+

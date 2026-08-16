@@ -33,6 +33,14 @@ accumulate, at eight hops, the difference between three seconds and
 eight seconds is the difference between catching an intruder in
 the act and finding the trail gone cold.
 
+A multi-turn code correction chain on HumanEval
+(Appendix~\ref{app:humaneval}, Table~\ref{tab:chain}) confirms this
+with variable-content rounds (generate $\to$ execute $\to$ fix):
+DG's per-round p50 stays flat at 287--305\,ms ($+6\%$), while AR's
+grows from 511 to 620\,ms ($+21\%$) as fix prompts accumulate
+context. The staircase shape holds across hops that do different
+things, not just repeated identical calls.
+
 \begin{figure}[ht!]
 \centering
 \includegraphics[width=\linewidth]{figures/fig10_usecase_chains.png}
