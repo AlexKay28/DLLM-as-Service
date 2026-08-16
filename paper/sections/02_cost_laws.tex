@@ -16,7 +16,7 @@ T = a + b \cdot f(L_{\mathrm{out}})
 \end{equation}
 where:
 \begin{itemize}[nosep]
-\item $T$ is the p50 latency in milliseconds,
+\item $T$ is the per-event latency in milliseconds,
 \item $L_{\mathrm{out}}$ is the output length in tokens,
 \item $a$ is the fixed cost (intercept / floor) independent of output
   length,
@@ -113,6 +113,6 @@ the asymmetry with the batching caveat.
 
 \subsection{Generalisation}
 
-Both laws generalise from BGL to HDFS within 1.7\%. The dense AR-3B p50 at
-$L{=}\canvasLength$ moves from \arBgl\,ms to \arHdfs\,ms ($+0.03\%$); the
-diffusion canvas step moves from \bglStep\,ms to \hdfsStep\,ms ($+1.7\%$).
+Both laws generalise from BGL to HDFS within 1.7\%. The AR
+generalisation was measured on the dense AR-3B (not AR-30B); the DG
+canvas step moves from \bglStep\,ms to \hdfsStep\,ms ($+1.7\%$).
