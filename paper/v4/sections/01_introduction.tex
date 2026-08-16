@@ -32,12 +32,33 @@ reach quality equivalence:
 Differences below 0.006 fall within the standard error and are not
 statistically significant.
 
-The paper proceeds as follows. \S\ref{sec:laws} derives the two cost
-laws and the crossover point. \S\ref{sec:wins} shows where the diffusion
-model is faster. \S\ref{sec:loses} shows why the advantage does not
-survive deployment. \S\ref{sec:survives} states the conditions under
-which diffusion is the right choice and grounds them in concrete
-workloads. \S\ref{sec:threats} states what is not tested.
+Our contributions are as follows:
+\begin{itemize}[leftmargin=1.5em]
+\item \textbf{How do the two architectures differ in latency cost?}
+We derive two cost laws from measurement: AR latency is a line in output
+length with no floor; block-diffusion latency is a staircase, flat inside
+a fixed-size block and stepping at each boundary. The shapes cross at
+$L^{*} = \crossoverL$ output tokens (\S\ref{sec:laws}).
+
+\item \textbf{Where is the diffusion model faster?}
+At any output length above $L^{*}$, DG is faster. The real advantage is
+$1.8\times$ at natural output length (138 tokens), inflated to $5.4\times$
+under forced output $L{=}1024$. The advantage holds analytically at
+naturally-long output without forcing (\S\ref{sec:wins},
+Appendix~\ref{app:forced}).
+
+\item \textbf{Why does the advantage not survive deployment?}
+The AR model is $17\times$ smaller (3.0\,GB vs 52\,GB), batches
+$26$--$43\times$ better, and under tenant-isolated batch-1 can run 16
+co-resident copies in the same GPU for $9\times$ lower cost per event
+(\S\ref{sec:loses}).
+
+\item \textbf{When is block diffusion the right choice?}
+We state five conditions (long output, batch-1, schema validation, quality
+floor, data-centre footprint) and ground them in concrete workloads:
+security investigation chains, autonomous driving, algorithmic trading,
+and wide-schema normalisation (\S\ref{sec:survives}).
+\end{itemize}
 
 \begin{table}[h]
 \centering
