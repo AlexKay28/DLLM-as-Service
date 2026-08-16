@@ -1,0 +1,1681 @@
+{
+  "experiment": "issue115_humaneval",
+  "arm": "ar30b",
+  "model": "Qwen/Qwen3-30B-A3B",
+  "model_type": "ar30b",
+  "benchmark": "HumanEval",
+  "n_problems": 164,
+  "k_steps": null,
+  "canvas_length": null,
+  "max_new_tokens": 55,
+  "temperature": 0.0,
+  "serving": "serial (batch-1)",
+  "pass_at_1": 0.189,
+  "code_validity_pct": 33.5,
+  "completeness_pct": 26.8,
+  "latency_ms": {
+    "p50": 433.8,
+    "p99": 444.4,
+    "mean": 377.5
+  },
+  "mean_output_tokens": 47.0,
+  "predictions": [
+    {
+      "task_id": "HumanEval/0",
+      "entry_point": "has_close_elements",
+      "latency_ms": 392.0,
+      "token_count": 40,
+      "code_validity": true,
+      "completeness": true,
+      "pass_at_1": true,
+      "generated": "for i in range(len(numbers)):\n    for j in range(i + 1, len(numbers)):\n        if abs(numbers[i] - numbers[j]) < threshold:\n            return True\nreturn False"
+    },
+    {
+      "task_id": "HumanEval/1",
+      "entry_point": "separate_paren_groups",
+      "latency_ms": 435.7,
+      "token_count": 55,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "def separate_paren_groups(paren_string: str) -> List[str]:\n    \"\"\" Input to this function is a string containing multiple groups of nested parentheses. Your goal is to\n    separate those group into separate strings and return the list of those.\n    Separate groups are balanced ("
+    },
+    {
+      "task_id": "HumanEval/2",
+      "entry_point": "truncate_number",
+      "latency_ms": 83.2,
+      "token_count": 7,
+      "code_validity": true,
+      "completeness": true,
+      "pass_at_1": true,
+      "generated": "return number - int(number)"
+    },
+    {
+      "task_id": "HumanEval/3",
+      "entry_point": "below_zero",
+      "latency_ms": 282.7,
+      "token_count": 34,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "current_balance = 0\n    for op in operations:\n        current_balance += op\n        if current_balance < 0:\n            return True\n    return False"
+    },
+    {
+      "task_id": "HumanEval/4",
+      "entry_point": "mean_absolute_deviation",
+      "latency_ms": 234.7,
+      "token_count": 27,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "mean = sum(numbers) / len(numbers)\n    return sum(abs(x - mean) for x in numbers) / len(numbers)"
+    },
+    {
+      "task_id": "HumanEval/5",
+      "entry_point": "intersperse",
+      "latency_ms": 438.6,
+      "token_count": 55,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "def intersperse(numbers: List[int], delimeter: int) -> List[int]:\n    \"\"\" Insert a number 'delimeter' between every two consecutive elements of input list `numbers'\n    >>> intersperse([], 4)\n    []\n    >>> intersperse([1, "
+    },
+    {
+      "task_id": "HumanEval/6",
+      "entry_point": "parse_nested_parens",
+      "latency_ms": 432.8,
+      "token_count": 55,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "def parse_nested_parens(paren_string: str) -> List[int]:\n    groups = paren_string.split()\n    result = []\n    for group in groups:\n        max_depth = 0\n        current_depth = 0\n        for char in group:\n            if char"
+    },
+    {
+      "task_id": "HumanEval/7",
+      "entry_point": "filter_by_substring",
+      "latency_ms": 432.9,
+      "token_count": 55,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "def filter_by_substring(strings: List[str], substring: str) -> List[str]:\n    \"\"\" Filter an input list of strings only for ones that contain given substring\n    >>> filter_by_substring([], 'a')\n    []\n    >>> filter_by_substring(['abc',"
+    },
+    {
+      "task_id": "HumanEval/8",
+      "entry_point": "sum_product",
+      "latency_ms": 308.5,
+      "token_count": 38,
+      "code_validity": true,
+      "completeness": true,
+      "pass_at_1": true,
+      "generated": "sum_result = 0\nproduct_result = 1\nfor num in numbers:\n    sum_result += num\n    product_result *= num\nreturn (sum_result, product_result)"
+    },
+    {
+      "task_id": "HumanEval/9",
+      "entry_point": "rolling_max",
+      "latency_ms": 434.6,
+      "token_count": 55,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "def rolling_max(numbers: List[int]) -> List[int]:\n    \"\"\" From a given list of integers, generate a list of rolling maximum element found until given moment\n    in the sequence.\n    >>> rolling_max([1, 2, 3, 2, "
+    },
+    {
+      "task_id": "HumanEval/10",
+      "entry_point": "make_palindrome",
+      "latency_ms": 436.6,
+      "token_count": 55,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "def make_palindrome(string: str) -> str:\n    \"\"\" Find the shortest palindrome that begins with a supplied string.\n    Algorithm idea is simple:\n    - Find the longest postfix of supplied string that is a palindrome.\n    - Append to the end of the string reverse of"
+    },
+    {
+      "task_id": "HumanEval/11",
+      "entry_point": "string_xor",
+      "latency_ms": 430.2,
+      "token_count": 55,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "def string_xor(a: str, b: str) -> str:\n    \"\"\" Input are two strings a and b consisting only of 1s and 0s.\n    Perform binary XOR on these inputs and return result also as a string.\n    >>> string_xor('0"
+    },
+    {
+      "task_id": "HumanEval/12",
+      "entry_point": "longest",
+      "latency_ms": 331.9,
+      "token_count": 41,
+      "code_validity": true,
+      "completeness": true,
+      "pass_at_1": true,
+      "generated": "if not strings:\n    return None\nmax_len = max(len(s) for s in strings)\nfor s in strings:\n    if len(s) == max_len:\n        return s\nreturn None"
+    },
+    {
+      "task_id": "HumanEval/13",
+      "entry_point": "greatest_common_divisor",
+      "latency_ms": 431.4,
+      "token_count": 55,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "def greatest_common_divisor(a: int, b: int) -> int:\n    \"\"\" Return a greatest common divisor of two integers a and b\n    >>> greatest_common_divisor(3, 5)\n    1\n    >>> greatest_common_divisor(25"
+    },
+    {
+      "task_id": "HumanEval/14",
+      "entry_point": "all_prefixes",
+      "latency_ms": 182.8,
+      "token_count": 21,
+      "code_validity": true,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "for i in range(1, len(string) + 1):\n    yield string[:i]"
+    },
+    {
+      "task_id": "HumanEval/15",
+      "entry_point": "string_sequence",
+      "latency_ms": 432.5,
+      "token_count": 55,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "def string_sequence(n: int) -> str:\n    \"\"\" Return a string containing space-delimited numbers starting from 0 upto n inclusive.\n    >>> string_sequence(0)\n    '0'\n    >>> string_sequence(5)\n    '0 1 2 3"
+    },
+    {
+      "task_id": "HumanEval/16",
+      "entry_point": "count_distinct_characters",
+      "latency_ms": 81.1,
+      "token_count": 7,
+      "code_validity": true,
+      "completeness": true,
+      "pass_at_1": true,
+      "generated": "return len(set(string.lower()))"
+    },
+    {
+      "task_id": "HumanEval/17",
+      "entry_point": "parse_music",
+      "latency_ms": 437.8,
+      "token_count": 55,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "```python\n    notes = music_string.split()\n    result = []\n    for note in notes:\n        if note == 'o':\n            result.append(4)\n        elif note == 'o|':\n            result.append(2)\n        elif note == '.|':\n           "
+    },
+    {
+      "task_id": "HumanEval/18",
+      "entry_point": "how_many_times",
+      "latency_ms": 433.0,
+      "token_count": 55,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "def how_many_times(string: str, substring: str) -> int:\n    count = 0\n    start = 0\n    while True:\n        pos = string.find(substring, start)\n        if pos == -1:\n            break\n        count += "
+    },
+    {
+      "task_id": "HumanEval/19",
+      "entry_point": "sort_numbers",
+      "latency_ms": 431.7,
+      "token_count": 55,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "def sort_numbers(numbers: str) -> str:\n    \"\"\" Input is a space-delimited string of numberals from 'zero' to 'nine'.\n    Valid choices are 'zero', 'one', 'two', 'three', 'four', 'five', 'six',"
+    },
+    {
+      "task_id": "HumanEval/20",
+      "entry_point": "find_closest_elements",
+      "latency_ms": 436.8,
+      "token_count": 55,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "def find_closest_elements(numbers: List[float]) -> Tuple[float, float]:\n    numbers.sort()\n    min_diff = float('inf')\n    closest_pair = (numbers[0], numbers[1])\n    for i in range(1, len(numbers)):\n        diff ="
+    },
+    {
+      "task_id": "HumanEval/21",
+      "entry_point": "rescale_to_unit",
+      "latency_ms": 398.9,
+      "token_count": 50,
+      "code_validity": true,
+      "completeness": true,
+      "pass_at_1": false,
+      "generated": "def rescale_to_unit(numbers: List[float]) -> List[float]:\n    min_val = min(numbers)\n    max_val = max(numbers)\n    return [(x - min_val) / (max_val - min_val) for x in numbers]"
+    },
+    {
+      "task_id": "HumanEval/22",
+      "entry_point": "filter_integers",
+      "latency_ms": 434.1,
+      "token_count": 55,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "def filter_integers(values: List[Any]) -> List[int]:\n    \"\"\" Filter given list of any python values only for integers\n    >>> filter_integers(['a', 3.14, 5])\n    [5]\n    >>> filter_integers([1,"
+    },
+    {
+      "task_id": "HumanEval/23",
+      "entry_point": "strlen",
+      "latency_ms": 181.0,
+      "token_count": 21,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "count = 0\n    for _ in string:\n        count += 1\n    return count"
+    },
+    {
+      "task_id": "HumanEval/24",
+      "entry_point": "largest_divisor",
+      "latency_ms": 435.5,
+      "token_count": 55,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "def largest_divisor(n: int) -> int:\n    \"\"\" For a given number n, find the largest number that divides n evenly, smaller than n\n    >>> largest_divisor(15)\n    5\n    \"\"\"\n    for i in range(n-1"
+    },
+    {
+      "task_id": "HumanEval/25",
+      "entry_point": "factorize",
+      "latency_ms": 434.6,
+      "token_count": 55,
+      "code_validity": true,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "def factorize(n: int) -> List[int]:\n    factors = []\n    i = 2\n    while i * i <= n:\n        while n % i == 0:\n            factors.append(i)\n            n //= i\n        i += 1\n   "
+    },
+    {
+      "task_id": "HumanEval/26",
+      "entry_point": "remove_duplicates",
+      "latency_ms": 331.6,
+      "token_count": 41,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "```python\n    seen = set()\n    result = []\n    for num in numbers:\n        if num not in seen:\n            seen.add(num)\n            result.append(num)\n    return result\n```"
+    },
+    {
+      "task_id": "HumanEval/27",
+      "entry_point": "flip_case",
+      "latency_ms": 432.7,
+      "token_count": 55,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "def flip_case(string: str) -> str:\n    \"\"\" For a given string, flip lowercase characters to uppercase and uppercase to lowercase.\n    >>> flip_case('Hello')\n    'hELLO'\n    \"\"\"\n    return ''.join(char.lower() if char.isupper() else"
+    },
+    {
+      "task_id": "HumanEval/28",
+      "entry_point": "concatenate",
+      "latency_ms": 187.1,
+      "token_count": 22,
+      "code_validity": true,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "\"\"\"\n    result = \"\"\n    for s in strings:\n        result += s\n    return result\n\"\"\""
+    },
+    {
+      "task_id": "HumanEval/29",
+      "entry_point": "filter_by_prefix",
+      "latency_ms": 432.1,
+      "token_count": 55,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "def filter_by_prefix(strings: List[str], prefix: str) -> List[str]:\n    \"\"\" Filter an input list of strings only for ones that start with a given prefix.\n    >>> filter_by_prefix([], 'a')\n    []\n    >>> filter_by_prefix(['abc', '"
+    },
+    {
+      "task_id": "HumanEval/30",
+      "entry_point": "get_positive",
+      "latency_ms": 127.8,
+      "token_count": 13,
+      "code_validity": true,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "[ num for num in l if num > 0 ]"
+    },
+    {
+      "task_id": "HumanEval/31",
+      "entry_point": "is_prime",
+      "latency_ms": 430.8,
+      "token_count": 55,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "def is_prime(n):\n    \"\"\"Return true if a given number is prime, and false otherwise.\n    >>> is_prime(6)\n    False\n    >>> is_prime(101)\n    True\n    >>> is_prime(11)\n    True\n    >>>"
+    },
+    {
+      "task_id": "HumanEval/32",
+      "entry_point": "find_zero",
+      "latency_ms": 441.0,
+      "token_count": 55,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "def find_zero(xs: list):\n    \"\"\" xs are coefficients of a polynomial.\n    find_zero find x such that poly(x) = 0.\n    find_zero returns only only zero point, even if there are many.\n    Moreover, find_zero only takes list xs having"
+    },
+    {
+      "task_id": "HumanEval/33",
+      "entry_point": "sort_third",
+      "latency_ms": 437.0,
+      "token_count": 55,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "def sort_third(l: list):\n    \"\"\"This function takes a list l and returns a list l' such that\n    l' is identical to l in the indicies that are not divisible by three, while its values at the indicies that are divisible by three are"
+    },
+    {
+      "task_id": "HumanEval/34",
+      "entry_point": "unique",
+      "latency_ms": 72.8,
+      "token_count": 6,
+      "code_validity": true,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "sorted(list(set(l)))"
+    },
+    {
+      "task_id": "HumanEval/35",
+      "entry_point": "max_element",
+      "latency_ms": 433.3,
+      "token_count": 55,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "def max_element(l: list):\n    \"\"\"Return maximum element in the list.\n    >>> max_element([1, 2, 3])\n    3\n    >>> max_element([5, 3, -5, 2, -3, 3,"
+    },
+    {
+      "task_id": "HumanEval/36",
+      "entry_point": "fizz_buzz",
+      "latency_ms": 353.3,
+      "token_count": 44,
+      "code_validity": true,
+      "completeness": true,
+      "pass_at_1": false,
+      "generated": "for i in range(n):\n    if i % 11 == 0 or i % 13 == 0:\n        if '7' in str(i):\n            count += 1\nreturn count"
+    },
+    {
+      "task_id": "HumanEval/37",
+      "entry_point": "sort_even",
+      "latency_ms": 436.2,
+      "token_count": 55,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "def sort_even(l: list):\n    \"\"\"This function takes a list l and returns a list l' such that\n    l' is identical to l in the odd indicies, while its values at the even indicies are equal\n    to the values of the even"
+    },
+    {
+      "task_id": "HumanEval/38",
+      "entry_point": "decode_cyclic",
+      "latency_ms": 437.0,
+      "token_count": 55,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "def decode_cyclic(s: str):\n    \"\"\"\n    takes as input string encoded with encode_cyclic function. Returns decoded string.\n    \"\"\"\n    # split string to groups. Each of length 3.\n    groups = [s[(3 * i):min((3 *"
+    },
+    {
+      "task_id": "HumanEval/39",
+      "entry_point": "prime_fib",
+      "latency_ms": 434.4,
+      "token_count": 55,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "def prime_fib(n: int):\n    \"\"\"\n    prime_fib returns n-th number that is a Fibonacci number and it's also prime.\n    >>> prime_fib(1)\n    2\n    >>> prime_fib(2)\n    3\n    >>>"
+    },
+    {
+      "task_id": "HumanEval/40",
+      "entry_point": "triples_sum_to_zero",
+      "latency_ms": 436.1,
+      "token_count": 55,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "def triples_sum_to_zero(l: list):\n    \"\"\"\n    triples_sum_to_zero takes a list of integers as an input.\n    it returns True if there are three distinct elements in the list that\n    sum to zero, and False otherwise.\n\n    >>> triples_sum_to_zero"
+    },
+    {
+      "task_id": "HumanEval/41",
+      "entry_point": "car_race_collision",
+      "latency_ms": 436.6,
+      "token_count": 55,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "def car_race_collision(n: int):\n    \"\"\"\n    Imagine a road that's a perfectly straight infinitely long line.\n    n cars are driving left to right;  simultaneously, a different set of n cars\n    are driving right to left.   The two sets of cars"
+    },
+    {
+      "task_id": "HumanEval/42",
+      "entry_point": "incr_list",
+      "latency_ms": 111.0,
+      "token_count": 11,
+      "code_validity": true,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "[ x + 1 for x in l ]"
+    },
+    {
+      "task_id": "HumanEval/43",
+      "entry_point": "pairs_sum_to_zero",
+      "latency_ms": 436.8,
+      "token_count": 55,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "def pairs_sum_to_zero(l):\n    \"\"\"\n    pairs_sum_to_zero takes a list of integers as an input.\n    it returns True if there are two distinct elements in the list that\n    sum to zero, and False otherwise.\n    >>> pairs_sum_to_zero([1"
+    },
+    {
+      "task_id": "HumanEval/44",
+      "entry_point": "change_base",
+      "latency_ms": 432.0,
+      "token_count": 55,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "def change_base(x: int, base: int):\n    \"\"\"Change numerical base of input number x to base.\n    return string representation after the conversion.\n    base numbers are less than 10.\n    >>> change_base(8, 3)\n    '22"
+    },
+    {
+      "task_id": "HumanEval/45",
+      "entry_point": "triangle_area",
+      "latency_ms": 101.2,
+      "token_count": 10,
+      "code_validity": true,
+      "completeness": true,
+      "pass_at_1": true,
+      "generated": "return (a * h) / 2"
+    },
+    {
+      "task_id": "HumanEval/46",
+      "entry_point": "fib4",
+      "latency_ms": 438.4,
+      "token_count": 55,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "def fib4(n: int):\n    \"\"\"The Fib4 number sequence is a sequence similar to the Fibbonacci sequnece that's defined as follows:\n    fib4(0) -> 0\n    fib4(1) -> 0\n    fib4"
+    },
+    {
+      "task_id": "HumanEval/47",
+      "entry_point": "median",
+      "latency_ms": 430.5,
+      "token_count": 55,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "    l.sort()\n    n = len(l)\n    if n % 2 == 1:\n        return l[n // 2]\n    else:\n        return (l[n // 2 - 1] + l[n // 2]) / 2.0"
+    },
+    {
+      "task_id": "HumanEval/48",
+      "entry_point": "is_palindrome",
+      "latency_ms": 430.6,
+      "token_count": 55,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "def is_palindrome(text: str):\n    \"\"\"\n    Checks if given string is a palindrome\n    >>> is_palindrome('')\n    True\n    >>> is_palindrome('aba')\n    True\n    >>> is_palindrome('aaaaa')\n    True\n    >>> is_pal"
+    },
+    {
+      "task_id": "HumanEval/49",
+      "entry_point": "modp",
+      "latency_ms": 434.4,
+      "token_count": 55,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "def modp(n: int, p: int):\n    \"\"\"Return 2^n modulo p (be aware of numerics).\n    >>> modp(3, 5)\n    3\n    >>> modp(1101, 101)\n"
+    },
+    {
+      "task_id": "HumanEval/50",
+      "entry_point": "decode_shift",
+      "latency_ms": 433.8,
+      "token_count": 55,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "def decode_shift(s: str):\n    \"\"\"\n    takes as input string encoded with encode_shift function. Returns decoded string.\n    \"\"\"\n    return \"\".join([chr(((ord(ch) - 5 - ord(\"a\")) % 26) + ord(\"a\")) for"
+    },
+    {
+      "task_id": "HumanEval/51",
+      "entry_point": "remove_vowels",
+      "latency_ms": 271.6,
+      "token_count": 33,
+      "code_validity": true,
+      "completeness": true,
+      "pass_at_1": true,
+      "generated": "def remove_vowels(text):\n    vowels = \"aeiouAEIOU\"\n    return ''.join(char for char in text if char not in vowels)"
+    },
+    {
+      "task_id": "HumanEval/52",
+      "entry_point": "below_threshold",
+      "latency_ms": 163.5,
+      "token_count": 18,
+      "code_validity": true,
+      "completeness": true,
+      "pass_at_1": true,
+      "generated": "for num in l:\n    if num >= t:\n        return False\nreturn True"
+    },
+    {
+      "task_id": "HumanEval/53",
+      "entry_point": "add",
+      "latency_ms": 65.6,
+      "token_count": 5,
+      "code_validity": true,
+      "completeness": true,
+      "pass_at_1": true,
+      "generated": "return x + y"
+    },
+    {
+      "task_id": "HumanEval/54",
+      "entry_point": "same_chars",
+      "latency_ms": 113.7,
+      "token_count": 11,
+      "code_validity": true,
+      "completeness": true,
+      "pass_at_1": false,
+      "generated": "return sorted(s0) == sorted(s1)"
+    },
+    {
+      "task_id": "HumanEval/55",
+      "entry_point": "fib",
+      "latency_ms": 430.6,
+      "token_count": 55,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "def fib(n: int):\n    \"\"\"Return n-th Fibonacci number.\n    >>> fib(10)\n    55\n    >>> fib(1)\n    1\n    >>> fib(8)\n    21\n    \"\"\"\n    a, b = "
+    },
+    {
+      "task_id": "HumanEval/56",
+      "entry_point": "correct_bracketing",
+      "latency_ms": 434.8,
+      "token_count": 55,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "def correct_bracketing(brackets: str):\n    \"\"\" brackets is a string of \"<\" and \">\".\n    return True if every opening bracket has a corresponding closing bracket.\n\n    >>> correct_bracketing(\"<\")\n    False\n    >>> correct_bracketing(\"<>\")\n   "
+    },
+    {
+      "task_id": "HumanEval/57",
+      "entry_point": "monotonic",
+      "latency_ms": 435.2,
+      "token_count": 55,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "def monotonic(l: list):\n    \"\"\"Return True is list elements are monotonically increasing or decreasing.\n    >>> monotonic([1, 2, 4, 20])\n    True\n    >>> monotonic([1, 20, 4"
+    },
+    {
+      "task_id": "HumanEval/58",
+      "entry_point": "common",
+      "latency_ms": 186.4,
+      "token_count": 21,
+      "code_validity": true,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "set(l1) & set(l2) and sorted(set(l1) & set(l2))"
+    },
+    {
+      "task_id": "HumanEval/59",
+      "entry_point": "largest_prime_factor",
+      "latency_ms": 432.5,
+      "token_count": 55,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "def largest_prime_factor(n: int):\n    \"\"\"Return the largest prime factor of n. Assume n > 1 and is not a prime.\n    >>> largest_prime_factor(13195)\n    29\n    >>> largest_prime_factor(204"
+    },
+    {
+      "task_id": "HumanEval/60",
+      "entry_point": "sum_to_n",
+      "latency_ms": 118.3,
+      "token_count": 12,
+      "code_validity": true,
+      "completeness": true,
+      "pass_at_1": true,
+      "generated": "return sum(range(1, n + 1))"
+    },
+    {
+      "task_id": "HumanEval/61",
+      "entry_point": "correct_bracketing",
+      "latency_ms": 430.1,
+      "token_count": 55,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "def correct_bracketing(brackets: str):\n    \"\"\" brackets is a string of \"(\" and \")\".\n    return True if every opening bracket has a corresponding closing bracket.\n\n    >>> correct_bracketing(\"(\")\n    False\n    >>> correct_bracketing(\"()\")\n    True"
+    },
+    {
+      "task_id": "HumanEval/62",
+      "entry_point": "derivative",
+      "latency_ms": 140.8,
+      "token_count": 15,
+      "code_validity": true,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "[1, 4, 12, 20]"
+    },
+    {
+      "task_id": "HumanEval/63",
+      "entry_point": "fibfib",
+      "latency_ms": 437.3,
+      "token_count": 55,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "def fibfib(n: int):\n    \"\"\"The FibFib number sequence is a sequence similar to the Fibbonacci sequnece that's defined as follows:\n    fibfib(0) == 0\n    fibfib(1) == 0\n    fib"
+    },
+    {
+      "task_id": "HumanEval/64",
+      "entry_point": "vowels_count",
+      "latency_ms": 435.8,
+      "token_count": 55,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "def vowels_count(s):\n    \"\"\"Write a function vowels_count which takes a string representing\n    a word as input and returns the number of vowels in the string.\n    Vowels in this case are 'a', 'e', 'i', 'o', 'u"
+    },
+    {
+      "task_id": "HumanEval/65",
+      "entry_point": "circular_shift",
+      "latency_ms": 397.8,
+      "token_count": 50,
+      "code_validity": true,
+      "completeness": true,
+      "pass_at_1": true,
+      "generated": "def circular_shift(x, shift):\n    s = str(x)\n    n = len(s)\n    if shift > n:\n        return s[::-1]\n    shift = shift % n\n    return s[-shift:] + s[:-shift]"
+    },
+    {
+      "task_id": "HumanEval/66",
+      "entry_point": "digitSum",
+      "latency_ms": 134.1,
+      "token_count": 14,
+      "code_validity": true,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "sum(ord(c) for c in s if c.isupper())"
+    },
+    {
+      "task_id": "HumanEval/67",
+      "entry_point": "fruit_distribution",
+      "latency_ms": 439.0,
+      "token_count": 55,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "def fruit_distribution(s,n):\n    \"\"\"\n    In this task, you will be given a string that represents a number of apples and oranges \n    that are distributed in a basket of fruit this basket contains \n    apples, oranges, and mango fruits. Given the string that represents"
+    },
+    {
+      "task_id": "HumanEval/68",
+      "entry_point": "pluck",
+      "latency_ms": 444.4,
+      "token_count": 55,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "def pluck(arr):\n    \"\"\"\n    \"Given an array representing a branch of a tree that has non-negative integer nodes\n    your task is to pluck one of the nodes and return it.\n    The plucked node should be the node with the smallest even value.\n"
+    },
+    {
+      "task_id": "HumanEval/69",
+      "entry_point": "search",
+      "latency_ms": 409.4,
+      "token_count": 51,
+      "code_validity": true,
+      "completeness": true,
+      "pass_at_1": true,
+      "generated": "def search(lst):\n    from collections import Counter\n\n    freq = Counter(lst)\n    max_num = -1\n    for num in freq:\n        if num <= freq[num]:\n            max_num = max(max_num, num)\n    return max_num"
+    },
+    {
+      "task_id": "HumanEval/70",
+      "entry_point": "strange_sort_list",
+      "latency_ms": 435.4,
+      "token_count": 55,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "def strange_sort_list(lst):\n    '''\n    Given list of integers, return list in strange order.\n    Strange sorting, is when you start with the minimum value,\n    then maximum of the remaining integers, then minimum and so on.\n\n    Examples:\n    strange_sort_list(["
+    },
+    {
+      "task_id": "HumanEval/71",
+      "entry_point": "triangle_area",
+      "latency_ms": 436.1,
+      "token_count": 55,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "    if a + b > c and a + c > b and b + c > a:\n        s = (a + b + c) / 2\n        area = (s * (s - a) * (s - b) * (s -"
+    },
+    {
+      "task_id": "HumanEval/72",
+      "entry_point": "will_it_fly",
+      "latency_ms": 207.5,
+      "token_count": 23,
+      "code_validity": true,
+      "completeness": true,
+      "pass_at_1": true,
+      "generated": "def will_it_fly(q,w):\n    return q == q[::-1] and sum(q) <= w"
+    },
+    {
+      "task_id": "HumanEval/73",
+      "entry_point": "smallest_change",
+      "latency_ms": 437.2,
+      "token_count": 55,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "def smallest_change(arr):\n    \"\"\"\n    Given an array arr of integers, find the minimum number of elements that\n    need to be changed to make the array palindromic. A palindromic array is an array that\n    is read the same backwards and"
+    },
+    {
+      "task_id": "HumanEval/74",
+      "entry_point": "total_match",
+      "latency_ms": 407.9,
+      "token_count": 51,
+      "code_validity": true,
+      "completeness": true,
+      "pass_at_1": false,
+      "generated": "def total_match(lst1, lst2):\n    total1 = sum(len(s) for s in lst1)\n    total2 = sum(len(s) for s in lst2)\n    return lst1 if total1 < total2 else lst2"
+    },
+    {
+      "task_id": "HumanEval/75",
+      "entry_point": "is_multiply_prime",
+      "latency_ms": 434.5,
+      "token_count": 55,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "def is_multiply_prime(a):\n    \"\"\"Write a function that returns true if the given number is the multiplication of 3 prime numbers\n    and false otherwise.\n    Knowing that (a) is less than 100. \n    Example:\n    is_multiply_prime("
+    },
+    {
+      "task_id": "HumanEval/76",
+      "entry_point": "is_simple_power",
+      "latency_ms": 362.3,
+      "token_count": 45,
+      "code_validity": true,
+      "completeness": true,
+      "pass_at_1": true,
+      "generated": "def is_simple_power(x, n):\n    if n == 1:\n        return x == 1\n    power = 1\n    while power < x:\n        power *= n\n    return power == x"
+    },
+    {
+      "task_id": "HumanEval/77",
+      "entry_point": "iscube",
+      "latency_ms": 432.8,
+      "token_count": 55,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "def iscube(a):\n    '''\n    Write a function that takes an integer a and returns True \n    if this ingeger is a cube of some integer number.\n    Note: you may assume the input is always valid.\n    Examples:\n    iscube(1) ==>"
+    },
+    {
+      "task_id": "HumanEval/78",
+      "entry_point": "hex_key",
+      "latency_ms": 340.8,
+      "token_count": 41,
+      "code_validity": true,
+      "completeness": true,
+      "pass_at_1": true,
+      "generated": "def hex_key(num):\n    primes = {'2', '3', '5', '7', 'B', 'D'}\n    return sum(1 for c in num if c in primes)"
+    },
+    {
+      "task_id": "HumanEval/79",
+      "entry_point": "decimal_to_binary",
+      "latency_ms": 175.1,
+      "token_count": 19,
+      "code_validity": true,
+      "completeness": true,
+      "pass_at_1": true,
+      "generated": "binary_str = bin(decimal)[2:]\nreturn f\"db{binary_str}db\""
+    },
+    {
+      "task_id": "HumanEval/80",
+      "entry_point": "is_happy",
+      "latency_ms": 433.9,
+      "token_count": 55,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "if len(s) < 3:\n    return False\nfor i in range(len(s) - 2):\n    if s[i] == s[i+1] or s[i] == s[i+2] or s[i+1] == s[i+2"
+    },
+    {
+      "task_id": "HumanEval/81",
+      "entry_point": "numerical_letter_grade",
+      "latency_ms": 442.0,
+      "token_count": 55,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "def numerical_letter_grade(grades):\n    letter_grades = []\n    for gpa in grades:\n        if gpa >= 4.0:\n            letter_grades.append('A+')\n        elif gpa > 3.7:\n            letter_grades.append('"
+    },
+    {
+      "task_id": "HumanEval/82",
+      "entry_point": "prime_length",
+      "latency_ms": 430.3,
+      "token_count": 55,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "def prime_length(string):\n    \"\"\"Write a function that takes a string and returns True if the string\n    length is a prime number or False otherwise\n    Examples\n    prime_length('Hello') == True\n    prime_length('abcdcba') == True\n    prime"
+    },
+    {
+      "task_id": "HumanEval/83",
+      "entry_point": "starts_one_ends",
+      "latency_ms": 430.1,
+      "token_count": 55,
+      "code_validity": true,
+      "completeness": true,
+      "pass_at_1": false,
+      "generated": "def starts_one_ends(n):\n    \"\"\"\n    Given a positive integer n, return the count of the numbers of n-digit\n    positive integers that start or end with 1.\n    \"\"\"\n    if n == 1:\n        return 1\n    # Numbers that start"
+    },
+    {
+      "task_id": "HumanEval/84",
+      "entry_point": "solve",
+      "latency_ms": 240.0,
+      "token_count": 28,
+      "code_validity": true,
+      "completeness": true,
+      "pass_at_1": true,
+      "generated": "def solve(N):\n    digit_sum = sum(int(d) for d in str(N))\n    return bin(digit_sum)[2:]"
+    },
+    {
+      "task_id": "HumanEval/85",
+      "entry_point": "add",
+      "latency_ms": 430.3,
+      "token_count": 55,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "def add(lst):\n    \"\"\"Given a non-empty list of integers lst. add the even elements that are at odd indices..\n\n\n    Examples:\n        add([4, 2, 6, 7]) ==> 2 \n    \"\"\"\n    return sum(x for i"
+    },
+    {
+      "task_id": "HumanEval/86",
+      "entry_point": "anti_shuffle",
+      "latency_ms": 214.4,
+      "token_count": 25,
+      "code_validity": true,
+      "completeness": true,
+      "pass_at_1": true,
+      "generated": "def anti_shuffle(s):\n    return ' '.join(''.join(sorted(word)) for word in s.split(' '))"
+    },
+    {
+      "task_id": "HumanEval/87",
+      "entry_point": "get_row",
+      "latency_ms": 443.5,
+      "token_count": 55,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "def get_row(lst, x):\n    result = []\n    for i, row in enumerate(lst):\n        for j, val in enumerate(row):\n            if val == x:\n                result.append((i, j))\n    result.sort(key=lambda coord: (coord[0],"
+    },
+    {
+      "task_id": "HumanEval/88",
+      "entry_point": "sort_array",
+      "latency_ms": 427.2,
+      "token_count": 53,
+      "code_validity": true,
+      "completeness": true,
+      "pass_at_1": true,
+      "generated": "if len(array) < 2:\n    return array.copy()\nsum_first_last = array[0] + array[-1]\nif sum_first_last % 2 == 1:\n    return sorted(array)\nelse:\n    return sorted(array, reverse=True)"
+    },
+    {
+      "task_id": "HumanEval/89",
+      "entry_point": "encrypt",
+      "latency_ms": 434.7,
+      "token_count": 55,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "def encrypt(s):\n    \"\"\"Create a function encrypt that takes a string as an argument and\n    returns a string encrypted with the alphabet being rotated. \n    The alphabet should be rotated in a manner such that the letters \n    shift down by two multiplied to two places.\n"
+    },
+    {
+      "task_id": "HumanEval/90",
+      "entry_point": "next_smallest",
+      "latency_ms": 434.3,
+      "token_count": 55,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "def next_smallest(lst):\n    \"\"\"\n    You are given a list of integers.\n    Write a function next_smallest() that returns the 2nd smallest element of the list.\n    Return None if there is no such element.\n    \n    next_smallest([1,"
+    },
+    {
+      "task_id": "HumanEval/91",
+      "entry_point": "is_bored",
+      "latency_ms": 435.9,
+      "token_count": 55,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "def is_bored(S):\n    \"\"\"\n    You'll be given a string of words, and your task is to count the number\n    of boredoms. A boredom is a sentence that starts with the word \"I\".\n    Sentences are delimited by '.', '?' or '!"
+    },
+    {
+      "task_id": "HumanEval/92",
+      "entry_point": "any_int",
+      "latency_ms": 406.1,
+      "token_count": 51,
+      "code_validity": true,
+      "completeness": true,
+      "pass_at_1": true,
+      "generated": "def any_int(x, y, z):\n    if all(isinstance(num, int) for num in [x, y, z]):\n        return x == y + z or y == x + z or z == x + y\n    return False"
+    },
+    {
+      "task_id": "HumanEval/93",
+      "entry_point": "encode",
+      "latency_ms": 435.4,
+      "token_count": 55,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "def encode(message):\n    \"\"\"\n    Write a function that takes a message, and encodes in such a \n    way that it swaps case of all letters, replaces all vowels in \n    the message with the letter that appears 2 places ahead of that \n    vowel in"
+    },
+    {
+      "task_id": "HumanEval/94",
+      "entry_point": "skjkasdkd",
+      "latency_ms": 443.8,
+      "token_count": 55,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "def skjkasdkd(lst):\n    \"\"\"You are given a list of integers.\n    You need to find the largest prime value and return the sum of its digits.\n\n    Examples:\n    For lst = [0,3,2,1,3,5,"
+    },
+    {
+      "task_id": "HumanEval/95",
+      "entry_point": "check_dict_case",
+      "latency_ms": 439.0,
+      "token_count": 55,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "def check_dict_case(dict):\n    \"\"\"\n    Given a dictionary, return True if all keys are strings in lower \n    case or all keys are strings in upper case, else return False.\n    The function should return False is the given dictionary is empty.\n    Examples:\n   "
+    },
+    {
+      "task_id": "HumanEval/96",
+      "entry_point": "count_up_to",
+      "latency_ms": 437.1,
+      "token_count": 55,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "def count_up_to(n):\n    \"\"\"Implement a function that takes an non-negative integer and returns an array of the first n\n    integers that are prime numbers and less than n.\n    for example:\n    count_up_to(5) => [2,3]\n   "
+    },
+    {
+      "task_id": "HumanEval/97",
+      "entry_point": "multiply",
+      "latency_ms": 433.6,
+      "token_count": 55,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "def multiply(a, b):\n    \"\"\"Complete the function that takes two integers and returns \n    the product of their unit digits.\n    Assume the input is always valid.\n    Examples:\n    multiply(148, 412) should return 16.\n"
+    },
+    {
+      "task_id": "HumanEval/98",
+      "entry_point": "count_upper",
+      "latency_ms": 431.0,
+      "token_count": 55,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "def count_upper(s):\n    \"\"\"\n    Given a string s, count the number of uppercase vowels in even indices.\n    \n    For example:\n    count_upper('aBCdEf') returns 1\n    count_upper('abcdefg') returns 0\n    count_upper"
+    },
+    {
+      "task_id": "HumanEval/99",
+      "entry_point": "closest_integer",
+      "latency_ms": 335.9,
+      "token_count": 41,
+      "code_validity": true,
+      "completeness": true,
+      "pass_at_1": true,
+      "generated": "return int(round(float(value))) if abs(float(value) - round(float(value))) != 0.5 else int(float(value) + (1 if float(value) > 0 else -1))"
+    },
+    {
+      "task_id": "HumanEval/100",
+      "entry_point": "make_a_pile",
+      "latency_ms": 438.5,
+      "token_count": 55,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "def make_a_pile(n):\n    \"\"\"\n    Given a positive integer n, you have to make a pile of n levels of stones.\n    The first level has n stones.\n    The number of stones in the next level is:\n        - the next odd number if n"
+    },
+    {
+      "task_id": "HumanEval/101",
+      "entry_point": "words_string",
+      "latency_ms": 193.2,
+      "token_count": 22,
+      "code_validity": true,
+      "completeness": true,
+      "pass_at_1": false,
+      "generated": "return s.split() if ',' not in s else [word.strip() for word in s.split(',')]"
+    },
+    {
+      "task_id": "HumanEval/102",
+      "entry_point": "choose_num",
+      "latency_ms": 434.7,
+      "token_count": 55,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "def choose_num(x, y):\n    \"\"\"This function takes two positive numbers x and y and returns the\n    biggest even integer number that is in the range [x, y] inclusive. If \n    there's no such number, then the function should return -1"
+    },
+    {
+      "task_id": "HumanEval/103",
+      "entry_point": "rounded_avg",
+      "latency_ms": 240.1,
+      "token_count": 28,
+      "code_validity": true,
+      "completeness": true,
+      "pass_at_1": true,
+      "generated": "if n > m:\n    return -1\naverage = round((n + m) / 2)\nreturn bin(average)"
+    },
+    {
+      "task_id": "HumanEval/104",
+      "entry_point": "unique_digits",
+      "latency_ms": 435.3,
+      "token_count": 55,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "def unique_digits(x):\n    \"\"\"Given a list of positive integers x. return a sorted list of all \n    elements that hasn't any even digit.\n\n    Note: Returned list should be sorted in increasing order.\n    \n    For example:\n    >>> unique_digits([15"
+    },
+    {
+      "task_id": "HumanEval/105",
+      "entry_point": "by_length",
+      "latency_ms": 442.9,
+      "token_count": 55,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "def by_length(arr):\n    \"\"\"\n    Given an array of integers, sort the integers that are between 1 and 9 inclusive,\n    reverse the resulting array, and then replace each digit by its corresponding name from\n    \"One\", \"Two\", \"Three\", \""
+    },
+    {
+      "task_id": "HumanEval/106",
+      "entry_point": "f",
+      "latency_ms": 436.4,
+      "token_count": 55,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "def f(n):\n    \"\"\" Implement the function f that takes n as a parameter,\n    and returns a list of size n, such that the value of the element at index i is the factorial of i if i is even\n    or the sum of numbers from 1"
+    },
+    {
+      "task_id": "HumanEval/107",
+      "entry_point": "even_odd_palindrome",
+      "latency_ms": 439.9,
+      "token_count": 55,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "def even_odd_palindrome(n):\n    \"\"\"\n    Given a positive integer n, return a tuple that has the number of even and odd\n    integer palindromes that fall within the range(1, n), inclusive.\n\n    Example 1:\n\n        Input: "
+    },
+    {
+      "task_id": "HumanEval/108",
+      "entry_point": "count_nums",
+      "latency_ms": 434.6,
+      "token_count": 55,
+      "code_validity": true,
+      "completeness": true,
+      "pass_at_1": false,
+      "generated": "def count_nums(arr):\n    def sum_digits(n):\n        if n < 0:\n            return int(str(n)[0]) + sum(int(d) for d in str(n)[1:])\n        return sum(int(d) for d in str(n))\n    \n    return sum"
+    },
+    {
+      "task_id": "HumanEval/109",
+      "entry_point": "move_one_ball",
+      "latency_ms": 408.2,
+      "token_count": 50,
+      "code_validity": true,
+      "completeness": true,
+      "pass_at_1": true,
+      "generated": "def move_one_ball(arr):\n    if not arr:\n        return True\n    n = len(arr)\n    for i in range(n):\n        if arr[i:] + arr[:i] == sorted(arr):\n            return True\n    return False"
+    },
+    {
+      "task_id": "HumanEval/110",
+      "entry_point": "exchange",
+      "latency_ms": 440.3,
+      "token_count": 55,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "def exchange(lst1, lst2):\n    \"\"\"In this problem, you will implement a function that takes two lists of numbers,\n    and determines whether it is possible to perform an exchange of elements\n    between them to make lst1 a list of only even numbers.\n   "
+    },
+    {
+      "task_id": "HumanEval/111",
+      "entry_point": "histogram",
+      "latency_ms": 436.2,
+      "token_count": 55,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "from collections import Counter\n\ndef histogram(test):\n    \"\"\"Given a string representing a space separated lowercase letters, return a dictionary\n    of the letter with the most repetition and containing the corresponding count.\n    If several letters have the same occurrence, return all of them.\n    \n   "
+    },
+    {
+      "task_id": "HumanEval/112",
+      "entry_point": "reverse_delete",
+      "latency_ms": 435.6,
+      "token_count": 55,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "def reverse_delete(s,c):\n    # Remove all characters in s that are present in c\n    result = ''.join([char for char in s if char not in c])\n    # Check if the result is a palindrome\n    is_palindrome = result == result[::-"
+    },
+    {
+      "task_id": "HumanEval/113",
+      "entry_point": "odd_count",
+      "latency_ms": 437.0,
+      "token_count": 55,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "def odd_count(lst):\n    result = []\n    for i, s in enumerate(lst):\n        count = sum(1 for c in s if int(c) % 2 != 0)\n        sentence = f\"the number of odd elements {count}n the str"
+    },
+    {
+      "task_id": "HumanEval/114",
+      "entry_point": "minSubArraySum",
+      "latency_ms": 433.9,
+      "token_count": 55,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "def minSubArraySum(nums):\n    \"\"\"\n    Given an array of integers nums, find the minimum sum of any non-empty sub-array\n    of nums.\n    Example\n    minSubArraySum([2, 3, 4, 1, 2,"
+    },
+    {
+      "task_id": "HumanEval/115",
+      "entry_point": "max_fill",
+      "latency_ms": 343.2,
+      "token_count": 41,
+      "code_validity": true,
+      "completeness": true,
+      "pass_at_1": false,
+      "generated": "def max_fill(grid, capacity):\n    import math\n    total_water = 0\n    for row in grid:\n        total_water += sum(row)\n    return math.ceil(total_water / capacity)"
+    },
+    {
+      "task_id": "HumanEval/116",
+      "entry_point": "sort_array",
+      "latency_ms": 218.5,
+      "token_count": 25,
+      "code_validity": true,
+      "completeness": true,
+      "pass_at_1": true,
+      "generated": "def sort_array(arr):\n    return sorted(arr, key=lambda x: (bin(x).count('1'), x))"
+    },
+    {
+      "task_id": "HumanEval/117",
+      "entry_point": "select_words",
+      "latency_ms": 439.6,
+      "token_count": 55,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "def select_words(s, n):\n    \"\"\"Given a string s and a natural number n, you have been tasked to implement \n    a function that returns a list of all words from string s that contain exactly \n    n consonants, in order these words appear in the"
+    },
+    {
+      "task_id": "HumanEval/118",
+      "entry_point": "get_closest_vowel",
+      "latency_ms": 437.1,
+      "token_count": 55,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "def get_closest_vowel(word):\n    \"\"\"You are given a word. Your task is to find the closest vowel that stands between \n    two consonants from the right side of the word (case sensitive).\n    \n    Vowels in the beginning and ending doesn't"
+    },
+    {
+      "task_id": "HumanEval/119",
+      "entry_point": "match_parens",
+      "latency_ms": 437.3,
+      "token_count": 55,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "def match_parens(lst):\n    '''\n    You are given a list of two strings, both strings consist of open\n    parentheses '(' or close parentheses ')' only.\n    Your job is to check if it is possible to concatenate the two strings in\n    some order,"
+    },
+    {
+      "task_id": "HumanEval/120",
+      "entry_point": "maximum",
+      "latency_ms": 439.9,
+      "token_count": 55,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "def maximum(arr, k):\n    \"\"\"\n    Given an array arr of integers and a positive integer k, return a sorted list \n    of length k with the maximum k numbers in arr.\n\n    Example 1:\n\n        Input: arr = [-3, -4, "
+    },
+    {
+      "task_id": "HumanEval/121",
+      "entry_point": "solution",
+      "latency_ms": 280.3,
+      "token_count": 34,
+      "code_validity": true,
+      "completeness": true,
+      "pass_at_1": true,
+      "generated": "def solution(lst):\n    return sum(x for i, x in enumerate(lst) if i % 2 == 0 and x % 2 == 1)"
+    },
+    {
+      "task_id": "HumanEval/122",
+      "entry_point": "add_elements",
+      "latency_ms": 252.4,
+      "token_count": 30,
+      "code_validity": true,
+      "completeness": true,
+      "pass_at_1": true,
+      "generated": "def add_elements(arr, k):\n    return sum(x for x in arr[:k] if -99 <= x <= 99)"
+    },
+    {
+      "task_id": "HumanEval/123",
+      "entry_point": "get_odd_collatz",
+      "latency_ms": 440.8,
+      "token_count": 55,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "def get_odd_collatz(n):\n    \"\"\"\n    Given a positive integer n, return a sorted list that has the odd numbers in collatz sequence.\n\n    The Collatz conjecture is a conjecture in mathematics that concerns a sequence defined\n    as follows: start with any"
+    },
+    {
+      "task_id": "HumanEval/124",
+      "entry_point": "valid_date",
+      "latency_ms": 441.2,
+      "token_count": 55,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "```python\n    if not date:\n        return False\n    if len(date) != 10 or date[2] != '-' or date[5] != '-':\n        return False\n    month_str, day_str, year_str = date.split('-')\n   "
+    },
+    {
+      "task_id": "HumanEval/125",
+      "entry_point": "split_words",
+      "latency_ms": 438.5,
+      "token_count": 55,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "def split_words(txt):\n    '''\n    Given a string of words, return a list of words split on whitespace, if no whitespaces exists in the text you\n    should split on commas ',' if no commas exists you should return the number of lower-case letters with odd order"
+    },
+    {
+      "task_id": "HumanEval/126",
+      "entry_point": "is_sorted",
+      "latency_ms": 442.7,
+      "token_count": 55,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "def is_sorted(lst):\n    '''\n    Given a list of numbers, return whether or not they are sorted\n    in ascending order. If list has more than 1 duplicate of the same\n    number, return False. Assume no negative numbers and only integers.\n\n    Examples"
+    },
+    {
+      "task_id": "HumanEval/127",
+      "entry_point": "intersection",
+      "latency_ms": 442.0,
+      "token_count": 55,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "def intersection(interval1, interval2):\n    start1, end1 = interval1\n    start2, end2 = interval2\n    start = max(start1, start2)\n    end = min(end1, end2)\n    if start > end:\n       "
+    },
+    {
+      "task_id": "HumanEval/128",
+      "entry_point": "prod_signs",
+      "latency_ms": 434.3,
+      "token_count": 55,
+      "code_validity": true,
+      "completeness": true,
+      "pass_at_1": false,
+      "generated": "def prod_signs(arr):\n    if not arr:\n        return None\n    product_of_signs = 1\n    sum_of_magnitudes = 0\n    for num in arr:\n        if num > 0:\n            product_of_signs *= 1"
+    },
+    {
+      "task_id": "HumanEval/129",
+      "entry_point": "minPath",
+      "latency_ms": 449.6,
+      "token_count": 55,
+      "code_validity": true,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "def minPath(grid, k):\n    import heapq\n\n    N = len(grid)\n    directions = [(-1, 0), (1, 0), (0, -1), (0, 1)]\n\n    # Priority queue: (path_values, x"
+    },
+    {
+      "task_id": "HumanEval/130",
+      "entry_point": "tri",
+      "latency_ms": 443.3,
+      "token_count": 55,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "def tri(n):\n    \"\"\"Everyone knows Fibonacci sequence, it was studied deeply by mathematicians in \n    the last couple centuries. However, what people don't know is Tribonacci sequence.\n    Tribonacci sequence is defined by the recurrence:\n    tri(1) = "
+    },
+    {
+      "task_id": "HumanEval/131",
+      "entry_point": "digits",
+      "latency_ms": 429.7,
+      "token_count": 55,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "def digits(n):\n    product = 1\n    has_odd = False\n    for digit in str(n):\n        d = int(digit)\n        if d % 2 == 1:\n            product *= d\n            has_odd = True\n    return product if"
+    },
+    {
+      "task_id": "HumanEval/132",
+      "entry_point": "is_nested",
+      "latency_ms": 435.3,
+      "token_count": 55,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "def is_nested(string):\n    '''\n    Create a function that takes a string as input which contains only square brackets.\n    The function should return True if and only if there is a valid subsequence of brackets \n    where at least one bracket in the subsequence is nested.\n\n"
+    },
+    {
+      "task_id": "HumanEval/133",
+      "entry_point": "sum_squares",
+      "latency_ms": 202.4,
+      "token_count": 23,
+      "code_validity": true,
+      "completeness": true,
+      "pass_at_1": true,
+      "generated": "import math\n\ndef sum_squares(lst):\n    return sum(math.ceil(x)**2 for x in lst)"
+    },
+    {
+      "task_id": "HumanEval/134",
+      "entry_point": "check_if_last_char_is_a_letter",
+      "latency_ms": 434.6,
+      "token_count": 55,
+      "code_validity": true,
+      "completeness": true,
+      "pass_at_1": false,
+      "generated": "def check_if_last_char_is_a_letter(txt):\n    if not txt:\n        return False\n    last_char = txt[-1]\n    if not last_char.isalpha():\n        return False\n    words = txt.split()\n    if not words:\n        return False\n   "
+    },
+    {
+      "task_id": "HumanEval/135",
+      "entry_point": "can_arrange",
+      "latency_ms": 245.0,
+      "token_count": 29,
+      "code_validity": true,
+      "completeness": true,
+      "pass_at_1": false,
+      "generated": "for i in range(1, len(arr)):\n    if arr[i] < arr[i-1]:\n        return i\nreturn -1"
+    },
+    {
+      "task_id": "HumanEval/136",
+      "entry_point": "largest_smallest_integers",
+      "latency_ms": 435.6,
+      "token_count": 55,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "def largest_smallest_integers(lst):\n    '''\n    Create a function that returns a tuple (a, b), where 'a' is\n    the largest of negative integers, and 'b' is the smallest\n    of positive integers in a list.\n    If there"
+    },
+    {
+      "task_id": "HumanEval/137",
+      "entry_point": "compare_one",
+      "latency_ms": 436.1,
+      "token_count": 55,
+      "code_validity": true,
+      "completeness": true,
+      "pass_at_1": false,
+      "generated": "def compare_one(a, b):\n    def to_float(value):\n        if isinstance(value, (int, float)):\n            return float(value)\n        elif isinstance(value, str):\n            return float(value.replace(',', '.'))\n        else:\n            raise ValueError(\"Unsupported type\")\n    \n   "
+    },
+    {
+      "task_id": "HumanEval/138",
+      "entry_point": "is_equal_to_sum_even",
+      "latency_ms": 432.5,
+      "token_count": 55,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "def is_equal_to_sum_even(n):\n    \"\"\"Evaluate whether the given number n can be written as the sum of exactly 4 positive even numbers\n    Example\n    is_equal_to_sum_even(4) == False\n    is_equal_to_sum_even(6) =="
+    },
+    {
+      "task_id": "HumanEval/139",
+      "entry_point": "special_factorial",
+      "latency_ms": 433.3,
+      "token_count": 55,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "def special_factorial(n):\n    \"\"\"The Brazilian factorial is defined as:\n    brazilian_factorial(n) = n! * (n-1)! * (n-2)! * ... * 1!\n    where n > 0\n\n    For example:\n   "
+    },
+    {
+      "task_id": "HumanEval/140",
+      "entry_point": "fix_spaces",
+      "latency_ms": 431.6,
+      "token_count": 55,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "def fix_spaces(text):\n    \"\"\"\n    Given a string text, replace all spaces in it with underscores, \n    and if a string has more than 2 consecutive spaces, \n    then replace all consecutive spaces with - \n    \n    fix_spaces(\"Example\") == \"Example\"\n"
+    },
+    {
+      "task_id": "HumanEval/141",
+      "entry_point": "file_name_check",
+      "latency_ms": 438.9,
+      "token_count": 55,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "def file_name_check(file_name):\n    \"\"\"Create a function which takes a string representing a file's name, and returns\n    'Yes' if the the file's name is valid, and returns 'No' otherwise.\n    A file's name is considered to be valid"
+    },
+    {
+      "task_id": "HumanEval/142",
+      "entry_point": "sum_squares",
+      "latency_ms": 437.5,
+      "token_count": 55,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "def sum_squares(lst):\n    \"\"\"\n    This function will take a list of integers. For all entries in the list, the function shall square the integer entry if its index is a \n    multiple of 3 and will cube the integer entry if its index is a multiple"
+    },
+    {
+      "task_id": "HumanEval/143",
+      "entry_point": "words_in_sentence",
+      "latency_ms": 436.7,
+      "token_count": 55,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "def words_in_sentence(sentence):\n    \"\"\"\n    You are given a string representing a sentence,\n    the sentence contains some words separated by a space,\n    and you have to return a string that contains the words from the original sentence,\n    whose lengths are prime numbers,\n    the"
+    },
+    {
+      "task_id": "HumanEval/144",
+      "entry_point": "simplify",
+      "latency_ms": 436.3,
+      "token_count": 55,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "\"\"\"Your task is to implement a function that will simplify the expression\n    x * n. The function returns True if x * n evaluates to a whole number and False\n    otherwise. Both x and n, are string representation of a fraction, and have the following format"
+    },
+    {
+      "task_id": "HumanEval/145",
+      "entry_point": "order_by_points",
+      "latency_ms": 433.8,
+      "token_count": 55,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "def order_by_points(nums):\n    \"\"\"\n    Write a function which sorts the given list of integers\n    in ascending order according to the sum of their digits.\n    Note: if there are several items with similar sum of their digits,\n    order them based on their index in"
+    },
+    {
+      "task_id": "HumanEval/146",
+      "entry_point": "specialFilter",
+      "latency_ms": 434.3,
+      "token_count": 55,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "def specialFilter(nums):\n    count = 0\n    for num in nums:\n        if num > 10:\n            s = str(abs(num))\n            if len(s) > 1 and int(s[0]) % 2 == 1 and int(s"
+    },
+    {
+      "task_id": "HumanEval/147",
+      "entry_point": "get_max_triples",
+      "latency_ms": 437.7,
+      "token_count": 55,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "def get_max_triples(n):\n    \"\"\"\n    You are given a positive integer n. You have to create an integer array a of length n.\n        For each i (1 \u2264 i \u2264 n), the value of a[i] = i * i - i + "
+    },
+    {
+      "task_id": "HumanEval/148",
+      "entry_point": "bf",
+      "latency_ms": 440.7,
+      "token_count": 55,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "def bf(planet1, planet2):\n    planets = [\"Mercury\", \"Venus\", \"Earth\", \"Mars\", \"Jupiter\", \"Saturn\", \"Uranus\", \"Neptune\"]\n    if planet1 not in planets or planet2 not"
+    },
+    {
+      "task_id": "HumanEval/149",
+      "entry_point": "sorted_list_sum",
+      "latency_ms": 343.0,
+      "token_count": 42,
+      "code_validity": true,
+      "completeness": true,
+      "pass_at_1": true,
+      "generated": "def sorted_list_sum(lst):\n    lst = [s for s in lst if len(s) % 2 == 0]\n    return sorted(lst, key=lambda x: (len(x), x))"
+    },
+    {
+      "task_id": "HumanEval/150",
+      "entry_point": "x_or_y",
+      "latency_ms": 432.0,
+      "token_count": 55,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "def x_or_y(n, x, y):\n    \"\"\"A simple program which should return the value of x if n is \n    a prime number and should return the value of y otherwise.\n\n    Examples:\n    for x_or_y(7, 34, "
+    },
+    {
+      "task_id": "HumanEval/151",
+      "entry_point": "double_the_difference",
+      "latency_ms": 305.1,
+      "token_count": 37,
+      "code_validity": true,
+      "completeness": true,
+      "pass_at_1": true,
+      "generated": "def double_the_difference(lst):\n    return sum(x**2 for x in lst if isinstance(x, int) and x > 0 and x % 2 == 1)"
+    },
+    {
+      "task_id": "HumanEval/152",
+      "entry_point": "compare",
+      "latency_ms": 222.0,
+      "token_count": 25,
+      "code_validity": true,
+      "completeness": true,
+      "pass_at_1": true,
+      "generated": "def compare(game, guess):\n    return [abs(g - s) for g, s in zip(game, guess)]"
+    },
+    {
+      "task_id": "HumanEval/153",
+      "entry_point": "Strongest_Extension",
+      "latency_ms": 444.0,
+      "token_count": 55,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "def Strongest_Extension(class_name, extensions):\n    strongest = None\n    max_strength = None\n    for ext in extensions:\n        cap = sum(1 for c in ext if c.isupper())\n        sm = sum(1 for c in ext if c.is"
+    },
+    {
+      "task_id": "HumanEval/154",
+      "entry_point": "cycpattern_check",
+      "latency_ms": 434.8,
+      "token_count": 55,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "def cycpattern_check(a , b):\n    \"\"\"You are given 2 words. You need to return True if the second word or any of its rotations is a substring in the first word\n    cycpattern_check(\"abcd\",\"abd\") => False\n    cycpattern_check"
+    },
+    {
+      "task_id": "HumanEval/155",
+      "entry_point": "even_odd_count",
+      "latency_ms": 432.0,
+      "token_count": 55,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "def even_odd_count(num):\n    \"\"\"Given an integer. return a tuple that has the number of even and odd digits respectively.\n\n     Example:\n        even_odd_count(-12) ==> (1, 1)\n        even_odd_count(123) ==> ("
+    },
+    {
+      "task_id": "HumanEval/156",
+      "entry_point": "int_to_mini_roman",
+      "latency_ms": 434.2,
+      "token_count": 55,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "def int_to_mini_roman(number):\n    \"\"\"\n    Given a positive integer, obtain its roman numeral equivalent as a string,\n    and return it in lowercase.\n    Restrictions: 1 <= num <= 1000\n\n    Examples:\n    >>> int_to_mini_"
+    },
+    {
+      "task_id": "HumanEval/157",
+      "entry_point": "right_angle_triangle",
+      "latency_ms": 434.6,
+      "token_count": 55,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "def right_angle_triangle(a, b, c):\n    '''\n    Given the lengths of the three sides of a triangle. Return True if the three\n    sides form a right-angled triangle, False otherwise.\n    A right-angled triangle is a triangle in which one angle"
+    },
+    {
+      "task_id": "HumanEval/158",
+      "entry_point": "find_max",
+      "latency_ms": 434.8,
+      "token_count": 55,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "def find_max(words):\n    \"\"\"Write a function that accepts a list of strings.\n    The list contains different words. Return the word with maximum number\n    of unique characters. If multiple strings have maximum number of unique\n    characters, return the one which comes first in"
+    },
+    {
+      "task_id": "HumanEval/159",
+      "entry_point": "eat",
+      "latency_ms": 310.4,
+      "token_count": 37,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "    total_eaten = number + min(need, remaining)\n    remaining_after = max(remaining - need, 0)\n    return [total_eaten, remaining_after]"
+    },
+    {
+      "task_id": "HumanEval/160",
+      "entry_point": "do_algebra",
+      "latency_ms": 442.1,
+      "token_count": 55,
+      "code_validity": true,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "def do_algebra(operator, operand):\n    result = operand[0]\n    for i in range(len(operator)):\n        if operator[i] == '+':\n            result += operand[i+1]\n        elif operator[i] == '-':\n            result -= operand[i+1]\n"
+    },
+    {
+      "task_id": "HumanEval/161",
+      "entry_point": "solve",
+      "latency_ms": 434.2,
+      "token_count": 55,
+      "code_validity": false,
+      "completeness": false,
+      "pass_at_1": false,
+      "generated": "def solve(s):\n    \"\"\"You are given a string s.\n    if s[i] is a letter, reverse its case from lower to upper or vise versa, \n    otherwise keep it as it is.\n    If the string contains no letters, reverse the string.\n"
+    },
+    {
+      "task_id": "HumanEval/162",
+      "entry_point": "string_to_md5",
+      "latency_ms": 250.7,
+      "token_count": 30,
+      "code_validity": true,
+      "completeness": true,
+      "pass_at_1": true,
+      "generated": "import hashlib\n\ndef string_to_md5(text):\n    if not text:\n        return None\n    return hashlib.md5(text.encode()).hexdigest()"
+    },
+    {
+      "task_id": "HumanEval/163",
+      "entry_point": "generate_integers",
+      "latency_ms": 390.2,
+      "token_count": 49,
+      "code_validity": true,
+      "completeness": true,
+      "pass_at_1": false,
+      "generated": "def generate_integers(a, b):\n    start = min(a, b)\n    end = max(a, b)\n    return [i for i in range(start, end + 1) if i % 2 == 0]"
+    }
+  ],
+  "provenance": {
+    "model_name": "Qwen/Qwen3-30B-A3B",
+    "model_type": "ar30b",
+    "backend": "vllm",
+    "max_new_tokens": 55,
+    "parser_policy": "ast_parse",
+    "scoring_fields": "pass_at_1",
+    "vllm_version": "0.25.1",
+    "torch_version": "2.11.0+cu130",
+    "transformers_version": "5.15.0",
+    "cuda_version": "13.0",
+    "gpu_model": "NVIDIA A100 80GB PCIe",
+    "python_version": "3.10.12",
+    "platform": "Linux-5.15.179-15.mofed2407ya-x86_64-with-glibc2.35",
+    "timestamp": "2026-08-16T19:35:25Z",
+    "repo_commit": "af11759"
+  }
+}

@@ -137,13 +137,23 @@ def run_tests(problem, code, timeout=10):
             os.unlink(f.name)
 
 
-def run_experiment(arm, k_steps=8, n=None, max_tokens=512):
+def run_experiment(arm, k_steps=8, n=None, max_tokens=512, deadline_ms=None):
     from vllm import LLM, SamplingParams
 
     problems = load_humaneval()
     if n:
         problems = problems[:n]
     print(f"Loaded {len(problems)} HumanEval problems")
+
+    # Deadline mode (#116): AR gets truncated max_tokens, DG always full canvas
+    if deadline_ms is not None:
+        ar_slope = 7.2  # ms/token (from issue #112)
+        deadline_max_tokens = max(1, int(deadline_ms / ar_slope))
+        if arm != "dg":
+            max_tokens = deadline_max_tokens
+            print(f"Deadline mode: {deadline_ms}ms -> AR max_tokens={max_tokens}")
+        else:
+            print(f"Deadline mode: {deadline_ms}ms -> DG full canvas (K={k_steps})")
 
     models = {
         "dg": ("google/diffusiongemma-26B-A4B-it", True),
@@ -262,6 +272,8 @@ def run_experiment(arm, k_steps=8, n=None, max_tokens=512):
     out_dir = REPO / "results" / "issue115_humaneval"
     out_dir.mkdir(parents=True, exist_ok=True)
     suffix = f"_K{k_steps}" if is_diffusion else ""
+    if deadline_ms is not None:
+        suffix += f"_D{deadline_ms}"
     out_path = out_dir / f"{arm}{suffix}.json"
     with open(out_path, "w") as f:
         json.dump(result, f, indent=2)
@@ -287,5 +299,8 @@ if __name__ == "__main__":
     ap.add_argument("--k-steps", type=int, default=8)
     ap.add_argument("--n", type=int, default=None, help="limit problems (default: all 164)")
     ap.add_argument("--max-tokens", type=int, default=512)
+    ap.add_argument("--deadline", type=int, default=None,
+                    help="deadline in ms (#116): AR truncates max_tokens, DG full canvas")
     args = ap.parse_args()
-    run_experiment(args.arm, k_steps=args.k_steps, n=args.n, max_tokens=args.max_tokens)
+    run_experiment(args.arm, k_steps=args.k_steps, n=args.n,
+                  max_tokens=args.max_tokens, deadline_ms=args.deadline)
