@@ -1,50 +1,52 @@
 \section{The two cost laws: a line and a staircase}
 \label{sec:laws}
 
-\subsection{Autoregressive: a line with no floor}
+\subsection{Parallel formulation}
 
-AR latency is linear in output length. The intercept absorbs prompt
-prefill (amortised by prefix caching across requests); the slope is the
-per-token decode cost:
-\begin{equation}
+Both architectures decode output tokens from the same prompt, but their
+costs accumulate differently. For autoregressive decoding, each token
+requires one forward pass over the growing KV cache. For block-diffusion
+decoding, each canvas of \canvasLength{} tokens is denoised in parallel
+through $K$ steps, then the model steps to the next canvas. The two
+cost laws are:
+
+\begin{align}
 \label{eq:ar}
-T_{\textsc{ar}}(L_{\mathrm{out}}) = \arBase + \arSlope \cdot L_{\mathrm{out}}
-\quad\text{(ms)}
-\end{equation}
-Five repeats at $L{=}\canvasLength$ give p50 $=$ \arAnchorTwoFive\,ms
-(CV \arCV\%).
-
-\subsection{Block diffusion: a staircase}
-
-DiffusionGemma writes onto fixed-size canvases of \canvasLength{} tokens.
-Within one canvas every position is denoised in parallel; crossing a
-boundary triggers a fresh denoising pass. Cost is stepwise:
-\begin{equation}
+T_{\textsc{ar}}(L_{\mathrm{out}}) &= \arBase + \arSlope \cdot L_{\mathrm{out}} && \text{(ms, linear)} \\
 \label{eq:dg}
-T_{\textsc{dg}}(L_{\mathrm{out}}) = \dgBase +
-\dgStep \cdot \Bigl(\bigl\lceil \tfrac{L_{\mathrm{out}}}{\canvasLength}\bigr\rceil - 1\Bigr)
-\quad\text{(ms)}
-\end{equation}
-The operating point $K{=}8$ was selected as the latency/quality knee:
-quality is flat above $K{=}8$ (0.853 at $K{=}8$, 0.858 at $K{=}32$) while
-latency saturates above $K{=}16$. Below $K{=}4$ quality collapses
-(0.485 at $K{=}2$).
+T_{\textsc{dg}}(L_{\mathrm{out}}) &= \dgBase + \dgStep \cdot \Bigl(\bigl\lceil \tfrac{L_{\mathrm{out}}}{\canvasLength}\bigr\rceil - 1\Bigr) && \text{(ms, staircase)}
+\end{align}
 
-The \dgBase\,ms base at $K{=}8$ is 37--53\% prefill (by linear
-interpolation between $K{=}2$ and $K{=}8$; see
-Appendix~\ref{app:decomp} for the full derivation). Each additional
-canvas costs \dgStep\,ms (median of 7 measured transitions, range
-\dgStepLo--\dgStepHi). The staircase has sharp edges: growing output
-from 240 to \canvasLength{} tokens costs 0.2\,ms; growing from
-\canvasLength{} to 264 costs 121.7\,ms.
+where $L_{\mathrm{out}}$ is the output length in tokens. The AR intercept
+$\arBase$ absorbs prompt prefill (amortised by prefix caching); the slope
+$\arSlope$ is the per-token decode cost. The DG base $\dgBase$ covers
+prefill plus $K{=}8$ denoising steps over the first canvas; each
+additional canvas costs $\dgStep$\,ms (median of 7 measured transitions,
+range \dgStepLo--\dgStepHi). The operating point $K{=}8$ was selected as
+the latency/quality knee: quality is flat above $K{=}8$ (0.853 at
+$K{=}8$, 0.858 at $K{=}32$) while latency saturates above $K{=}16$.
+
+The key structural difference: within a canvas, DG emits tokens for free
+(parallel denoising), while AR pays $\arSlope$\,ms per token. At canvas
+boundaries, DG pays a fixed $\dgStep$\,ms step, while AR's cost is
+unaffected. The shapes cross where the accumulated per-token cost equals
+the staircase floor:
+\begin{equation}
+\label{eq:lcross}
+L^{*} = \frac{\dgBase - \arBase}{\arSlope} = \crossoverL \text{ tokens},
+\qquad
+\lambda^{*} = \frac{1000}{\dgBase} = \crossoverLambda \text{ events/s}
+\end{equation}
+Below $L^{*}$, AR is cheaper; above it, DG is --- until the next canvas
+edge, where the gap widens again.
 
 \begin{figure}[t]
 \centering
 \includegraphics[width=\linewidth]{figures/fig1_cost_shapes.pdf}
 \caption{The two cost shapes as a grouped bar chart (BGL, $n{=}200$,
-$K{=}8$). AR latency grows linearly with output length; DG latency grows
-as a staircase. The gap widens from $4.3\times$ at $L{=}256$ to
-$10.6\times$ at $L{=}2048$.}
+$K{=}8$). AR latency grows linearly; DG latency grows as a staircase.
+The gap widens from $4.3\times$ at $L{=}256$ to $10.6\times$ at
+$L{=}2048$.}
 \label{fig:shapes}
 \end{figure}
 
@@ -58,27 +60,15 @@ within run-to-run noise (range \dgStepLo--\dgStepHi\,ms, median \dgStep\,ms).}
 \label{fig:edges}
 \end{figure}
 
-\subsection{The crossover}
+\subsection{What the base is made of}
 
-At the reference prompt the crossing point is analytic:
-\begin{equation}
-\label{eq:lcross}
-L^{*} = \frac{\dgBase - \arBase}{\arSlope} = \crossoverL \text{ tokens},
-\qquad
-\lambda^{*} = \frac{1000}{\dgBase} = \crossoverLambda \text{ events/s}
-\end{equation}
-Below $L^{*}$ the AR model is cheaper per event; above it the diffusion
-model is, until the next canvas edge. The parameter $\lambda^{*}$ is the
-serial throughput ceiling: with one event in flight, the reciprocal of
-the diffusion base is the maximum event rate before a queue forms.
-
-\paragraph{Caveat.}
-The base may be inflated by the serving stack: each denoising step
-re-attends the full prompt, so prefill is paid $K$ times. If the prompt
-KV were cached across denoising steps, the base could fall toward
-$\sim$150\,ms and $L^{*}$ would move downward. We treat the measured
-base as the operative number; see Appendix~\ref{app:forced} for the
-asymmetry with the batching caveat.
+The \dgBase\,ms base is 37--53\% prefill (by linear interpolation
+between $K{=}2$ and $K{=}8$; see Appendix~\ref{app:decomp}). Each
+denoising step re-attends the full prompt, so prefill is paid $K$ times.
+If the prompt KV were cached across denoising steps, the base could fall
+toward $\sim$150\,ms and $L^{*}$ would move downward. We treat the
+measured base as the operative number; see Appendix~\ref{app:forced} for
+the asymmetry with the batching caveat.
 
 \subsection{Generalisation}
 

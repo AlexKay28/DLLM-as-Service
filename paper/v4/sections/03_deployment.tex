@@ -1,13 +1,11 @@
 \section{Where the diffusion model wins}
 \label{sec:wins}
 
-The diffusion model is faster than AR at any output length above the
-crossover $L^{*} = \crossoverL$ tokens. The advantage grows with output
-length because AR pays per token while DG pays per canvas.
-
-Table~\ref{tab:niche} shows the comparison at the quality-comparable pair
-(\ARoneb\ vs \DG). AR cells are \emph{forced} ($\texttt{min\_tokens} = L$);
-the unforced row shows AR-1.5B at its natural output length of 138 tokens.
+The diffusion model's latency advantage grows with output length because
+AR pays per token while DG pays per canvas. Table~\ref{tab:niche} shows
+the comparison at the quality-comparable pair (\ARoneb\ vs \DG). AR
+cells are \emph{forced} ($\texttt{min\_tokens} = L$); the unforced row
+shows AR-1.5B at its natural output length of 138 tokens.
 
 \begin{table}[h]
 \centering
@@ -36,8 +34,8 @@ headline at $L{=}1024$ is inflated by forcing: the parser
 object, so the AR arm is charged \arOneFiveTenTwoFour\,ms for output the
 scorer deletes. The forced comparison is an upper bound on AR cost, not a
 measurement of it. Appendix~\ref{app:forced} shows analytically that the
-advantage holds at naturally-long output (multi-record extraction) without
-forcing.
+advantage holds at naturally-long output (multi-record extraction)
+without forcing.
 
 \begin{figure}[t]
 \centering
@@ -46,9 +44,7 @@ forcing.
 $K{=}8$). \textbf{A:} at forced output lengths the diffusion model's
 advantage is real and grows, because the AR model rambles well past its
 natural length ($\sim$138 tokens). \textbf{B:} the standing cost of
-keeping each model resident. Energy per event is net of idle draw; the
-two energy runs recorded different idle baselines (52.6\,W and 58.6\,W),
-so treat the energy comparison as indicative.}
+keeping each model resident.}
 \label{fig:deploy}
 \end{figure}
 
@@ -65,10 +61,30 @@ At the compute-matched pair (\ARthree\ vs \DG):
 The two energy runs had different idle baselines, so the
 quality-comparable comparison is indicative.
 
-\paragraph{Graceful degradation.}
+\paragraph{Graceful degradation under deadline pressure.}
 
-Under deadline pressure the diffusion model returns a complete canvas at
-lower quality, while the AR model returns a truncated record that fails
-schema validation. At a p99 budget of 400\,ms, dropping $K$ from 8 to 4
-meets it at \kFourPninetynine\,ms p99 with F1 falling from \kEightFone\
-to \kFourFone.
+Under a tightened deadline the diffusion model returns a complete canvas
+at lower quality, while the AR model returns a truncated record that
+fails schema validation. At a p99 budget of 400\,ms, dropping $K$ from
+8 to 4 meets it at \kFourPninetynine\,ms p99 with F1 falling from
+\kEightFone\ to \kFourFone. Table~\ref{tab:contrast} summarises the
+contrast across practical challenges.
+
+\begin{table}[h]
+\centering
+\caption{Practical challenge contrast. Each row is a deployment scenario;
+the right column names the architectural property that drives the
+outcome.}
+\label{tab:contrast}
+\begin{tabularx}{\linewidth}{@{}L L L L@{}}
+\toprule
+\thead{Challenge} & \thead{AR behaviour} & \thead{DG behaviour} & \thead{Key driver} \\
+\midrule
+Long output, batch-1 & Pays per token; cost grows linearly & Pays per canvas; flat inside block & Staircase vs line \\
+Deadline pressure & Truncates output; fails schema & Drops $K$; complete but lower quality & Per-request quality knob \\
+High arrival rate & Batches 26--43$\times$ & Caps at $\leq$1.7$\times$ & KV-cache reuse \\
+Tail-sensitive SLA & CV 0.2\%, max/median 1.03$\times$ & CV 20.9\%, max/median 3.21$\times$ & MoE routing variability \\
+Long prompt & Prefill paid once & Prefill paid $K$ times & Re-attention per step \\
+\bottomrule
+\end{tabularx}
+\end{table}
