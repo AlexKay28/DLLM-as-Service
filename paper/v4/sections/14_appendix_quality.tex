@@ -6,9 +6,10 @@ and catastrophically against an \emph{output-length} budget. At
 $L{=}128$ the AR model retains \arFOneTwentyEight{} F1 and
 \arValidTwentyEight\% schema validity, while the diffusion model falls
 to \dgFOneTwentyEight{} and \dgValidTwentyEight\%. Which budget an
-application faces decides which architecture is safer.
+application faces decides which architecture is safer;
+Figure~\ref{fig:quality} traces both curves.
 
-\begin{figure}[t]
+\begin{figure}[!htbp]
 \centering
 \includegraphics[width=\linewidth]{figures/fig5_quality_vs_length_hires.png}
 \caption{Quality and schema validity vs forced output length (BGL,

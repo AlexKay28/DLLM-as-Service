@@ -3,7 +3,11 @@
 two runtimes and two model families. Both measurements are engine-bounded
 (vLLM caps mixed-phase batches at 8; dInfer runs cache-less), so the
 true ceiling is unknown but lies at or above \dgBatchVllmHi$\times$.
-Disabling prefix caching on the AR arm drops its multiplier from
-\cacheOnMult$\times$ to \cacheOffMult$\times$ --- still more than twenty
-times the diffusion ceiling. The structural reason is in
+Disabling prefix caching on the dense AR-3B --- the only arm measured
+with the cache toggled, so these two figures are not the AR-30B MoE's
+$77\times$ --- drops its multiplier from \cacheOnMult$\times$ to
+\cacheOffMult$\times$, still more than twenty times the diffusion
+ceiling. Prefix caching therefore accounts for well under half of AR's
+batching advantage; the rest is KV persistence, which diffusion cannot
+use at all. The structural reason is in
 Appendix~\ref{app:batching_architectural}.

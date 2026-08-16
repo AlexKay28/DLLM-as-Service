@@ -20,6 +20,8 @@ $\sim$123 tokens (EOS), so the slope is carried by the $L{=}32$ point
 and the cluster at natural output. The advantage in serial mode is the
 realized comparison; forcing AR to generate longer output would
 increase its latency per the cost law, making DG's advantage larger.
+Appendix~\ref{app:forced} works that projection through a multi-record
+task whose natural output is long.
 
 The niche has not been tested against grammar-constrained AR decoding,
 which would eliminate over-generation, guarantee 100\% schema
@@ -45,3 +47,5 @@ DG ratio is indicative rather than directly controlled.
 DiffusionGemma-26B-A4B-it is available at
 \url{https://huggingface.co/google/}\\\url{diffusiongemma-26b-a4b-it}.
 All DG measurements are reproducible from this checkpoint.
+
+\FloatBarrier

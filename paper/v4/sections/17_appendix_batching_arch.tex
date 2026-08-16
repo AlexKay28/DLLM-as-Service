@@ -17,4 +17,5 @@ a different attention mask. The GPU does the same FLOPs whether batching
 or not --- structurally different from AR decoding, where the attention
 pattern is causal and the KV cache grows monotonically. A patched vLLM
 might raise the DG multiplier to $\sim 2$--$3\times$, still an order of
-magnitude below AR's $26$--$43\times$.
+magnitude below the dense AR-3B's $26$--$43\times$ and more than an
+order below the AR-30B MoE's $77\times$.

@@ -20,19 +20,25 @@ A security operations centre receives an alert, looks up threat
 intelligence, cross-references internal logs, and drills into the next
 layer. Each hop blocks on the previous; concurrency is 1 by
 construction. Against AR-30B, DG is roughly fourteen times faster per
-hop. The advantage compounds with chain depth: at eight hops, the
+hop --- the chain harness measures DG at 419\,ms per hop rather than
+the 379\,ms anchor, because each hop re-prefills a longer accumulated
+prompt. The gap widens in absolute terms with depth: at eight hops, the
 difference between three seconds and forty-seven seconds is the
 difference between catching an intruder in the act and finding the
-trail gone cold.
+trail gone cold. Figure~\ref{fig:chains} shows that neither the
+per-hop cost nor DG's tail penalty grows with depth.
 
-\begin{figure}[t]
+\begin{figure}[!htbp]
 \centering
 \includegraphics[width=\linewidth]{figures/fig10_usecase_chains_hires.png}
 \caption{Serial investigation chains. \textbf{A:} per-hop p50 is
-constant across depth --- the staircase does not steepen.
-\textbf{B:} DG's p99.9/p50 ratio converges to AR's mean as depth
-increases, so the tail advantage disappears with chain length (BGL,
-$n{=}300$, $K{=}8$; AR arm is the dense AR-3B baseline).}
+constant across depth --- the staircase does not steepen. \textbf{B:}
+the AR/DG latency ratio at p99.9 climbs from $1.04\times$ at one hop
+to the median ratio ($\sim$$1.9\times$) by ten hops. DG's fat tail
+almost erases its advantage on a single hop, but independent hops
+average out, so the longer the chain the more of its median advantage
+DG keeps (BGL, $n{=}300$, $K{=}8$; AR arm is the dense AR-3B
+baseline).}
 \label{fig:chains}
 \end{figure}
 
@@ -52,7 +58,10 @@ $K$ from 8 to 4 and the model still fills every field --- just with
 slightly less precision --- instead of cutting the JSON in half
 mid-key. AR has no equivalent; its only response to a deadline is
 truncation. The completeness guarantee holds only above the canvas
-length; below $L{=}128$ DG's schema validity collapses.
+length; below $L{=}128$ DG's schema validity collapses to
+\dgValidTwentyEight\% against AR's \arValidTwentyEight\%
+(Appendix~\ref{app:quality}). Graceful degradation is a property of
+the \emph{time} budget, not the output-length budget.
 
 \paragraph{Why autonomous driving is batch-1 by construction.}
 
@@ -73,10 +82,11 @@ The taxi fare compounds; the subway fare does not.
 
 DG's joint-canvas denoising treats all fields as one structured
 object. Across schema widths from 12 to 100 fields, DG's latency
-advantage held at roughly two- to threefold (measured against the
-dense AR-3B baseline, not AR-30B).
+advantage held at roughly two- to threefold
+(Figure~\ref{fig:schema}; measured against the dense AR-3B baseline,
+not AR-30B).
 
-\begin{figure}[t]
+\begin{figure}[!htbp]
 \centering
 \includegraphics[width=0.85\linewidth]{figures/fig11_usecase_schema_hires.png}
 \caption{Latency vs schema width (BGL, $n{=}300$). DG's advantage
@@ -104,3 +114,5 @@ three rounds, but still trails AR after a single pass. These failures
 define the operational boundary: block diffusion's advantage is in
 \emph{latency shape at long output}, not in robustness, infilling, or
 iterative refinement.
+
+\FloatBarrier

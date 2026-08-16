@@ -105,8 +105,10 @@ from the dense AR-3B baseline; energy is AR-30B MoE.}
 Long output, batch-1 & 47.7\,ms/token (serial) & Staircase, 119\,ms/canvas & Crossover at $L{=}6$ \\
 Deadline pressure & Truncates output & Drops $K$; complete canvas & Per-request quality knob \\
 High arrival rate & Batches $77\times$ & Caps at $\leq$1.7$\times$ & KV-cache reuse \\
-Tail-sensitive SLA & CV 0.2\%, max/med $1.03\times$, energy 10.1\,J & CV 20.9\%, max/med $3.21\times$ & MoE routing variability \\
+Tail-sensitive SLA & Coefficient of variation (CV) 0.2\%, max/med $1.03\times$, energy 10.1\,J & CV 20.9\%, max/med $3.21\times$ & MoE routing variability \\
 Long prompt & Prefill paid once & Prefill paid $K$ times & Re-attention per step \\
 \bottomrule
 \end{tabularx}
 \end{table}
+
+\FloatBarrier

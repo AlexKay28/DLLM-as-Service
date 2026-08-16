@@ -24,7 +24,7 @@ passes begins.
 Figure~\ref{fig:schematic} contrasts the two patterns. The taxi fare
 climbs with every token; the subway charges per station.
 
-\begin{figure}[t]
+\begin{figure}[!htbp]
 \centering
 \includegraphics[width=\linewidth]{figures/fig0_decoding_schematic_hires.png}
 \caption{Decoding schematics. \textbf{A:} Autoregressive decoding
@@ -70,9 +70,11 @@ L^{*} = \frac{a_{\textsc{dg}} - a_{\textsc{ar}}}{b_{\textsc{ar}}}
 where $L^{*}$ is the crossover output length and $\lambda^{*}$ is the
 maximum serial event rate before a queue forms. Below $L^{*}$, AR is
 cheaper; above it, DG is --- until the next canvas edge, where the gap
-widens again.
+widens again. Figure~\ref{fig:shapes} plots the two shapes against
+each other; Figure~\ref{fig:edges} probes the staircase at its
+boundaries to show the steps are regular enough to be one constant.
 
-\begin{figure}[t]
+\begin{figure}[!htbp]
 \centering
 \includegraphics[width=\linewidth]{figures/fig1_cost_shapes_hires.png}
 \caption{The two cost shapes. AR latency grows linearly with output
@@ -86,7 +88,7 @@ $K{=}8$).}
 \label{fig:shapes}
 \end{figure}
 
-\begin{figure}[t]
+\begin{figure}[!htbp]
 \centering
 \includegraphics[width=\linewidth]{figures/fig2_canvas_edges_hires.png}
 \caption{The staircase probed at canvas boundaries. \textbf{A:}
@@ -113,6 +115,11 @@ measured base as the operative number.
 
 \subsection{Generalisation}
 
-Both laws generalise from BGL to HDFS within 2\%. The AR generalisation
-was measured on the dense AR-3B, not AR-30B; the DG canvas step is
-within 2\% across the two log corpora.
+Both laws generalise from BGL to HDFS within 2\%: the DG canvas step
+is \bglStep\,ms on BGL against \hdfsStep\,ms on HDFS, a $1.7\%$
+difference on cells that are otherwise identical. The AR
+generalisation was measured on the dense AR-3B, not AR-30B, so the
+shape transfers across corpora on both arms but the AR constants do
+not transfer across model scales.
+
+\FloatBarrier

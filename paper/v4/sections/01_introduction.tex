@@ -13,7 +13,7 @@ determines its cost shape. Figure~\ref{fig:schematic} illustrates
 the two decoding patterns.
 
 We pinned both architectures to an identical vLLM serving stack on an
-NVIDIA A100 80GB to eliminate runtime noise. The task is structured
+\gpuModel{} to eliminate runtime noise. The task is structured
 log extraction from the LOGHUB BGL corpus --- system logs from the
 BlueGene/L supercomputer at Lawrence Livermore National Laboratory.
 Each raw log line describes a hardware or software event; the model
@@ -85,6 +85,10 @@ matters. We state five conditions and ground them in concrete
 workloads (\S\ref{sec:survives}).
 \end{itemize}
 
+Table~\ref{tab:summary} states the whole comparison in one place: the
+two arms are matched on architecture class and footprint, and every
+line after it either explains one of these rows or bounds it.
+
 \begin{table}[h]
 \centering
 \caption{The paper in one table. The diffusion model's latency
@@ -107,3 +111,5 @@ every other AR entry is the AR-30B MoE.}
 \bottomrule
 \end{tabularx}
 \end{table}
+
+\FloatBarrier

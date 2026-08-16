@@ -7,9 +7,10 @@ intercept is not interpretable as a floor. Two measurement-based bounds
 constrain the split instead: from $T(2) = 202$\,ms the floor is at most
 $53\%$ of the base; from the canvas step denoising is at least $32\%$.
 Linear interpolation narrows this to prefill $\approx 38\%$, denoising
-$\approx 62\%$.
+$\approx 62\%$. Figure~\ref{fig:ksweep} shows the saturation that
+makes the intercept uninterpretable.
 
-\begin{figure}[h]
+\begin{figure}[!htbp]
 \centering
 \includegraphics[width=0.85\linewidth]{figures/fig4_ksweep_hires.png}
 \caption{Denoising-step sweep at $L_{\mathrm{out}}{=}\canvasLength$

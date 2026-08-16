@@ -6,9 +6,10 @@
 Each denoising step re-attends the full prompt, so prefill is paid $K$
 times. The diffusion model's prefill slope is \inputSlopeRatio$\times$
 steeper than the autoregressive model's. At longer inputs the diffusion
-base rises faster and pushes $L^{*}$ upward.
+base rises faster and pushes $L^{*}$ upward
+(Figure~\ref{fig:input}).
 
-\begin{figure}[h]
+\begin{figure}[!htbp]
 \centering
 \includegraphics[width=\linewidth]{figures/fig3_input_sweep_hires.png}
 \caption{Input-length sweep at fixed $L_{\mathrm{out}}{=}\canvasLength$
