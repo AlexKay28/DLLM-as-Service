@@ -35,11 +35,14 @@ costs 121.7\,ms.
 \begin{figure}[t]
 \centering
 \includegraphics[width=\linewidth]{figures/fig1_cost_shapes.pdf}
-\caption{The two cost shapes
-(\artifact{results/anchors/anchor\_remeasure.json},
-\artifact{results/issue68\_dg\_L*.json}, BGL, $n{=}200$ per point, $K{=}8$).
-AR is a line with no floor; DG is a staircase with a prefill-dominated floor.
-The shapes cross at $L^{*} = \crossoverL$ output tokens.}
+\caption{The two cost shapes as a grouped bar chart
+(\artifact{results/p2\_ar3b\_L*.json},
+\artifact{results/appD\_ar3b\_L*.json},
+\artifact{results/issue68\_dg\_L*.json},
+BGL, $n{=}200$ per point, $K{=}8$).
+AR latency grows linearly with output length; DG latency grows as a
+staircase. The gap widens from $4.3\times$ at $L{=}256$ to $10.6\times$ at
+$L{=}2048$.}
 \label{fig:shapes}
 \end{figure}
 

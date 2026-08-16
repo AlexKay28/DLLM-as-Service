@@ -89,7 +89,7 @@ def staircase(lmax, lmin=1.0):
 # =============================================================== figure 1 ===
 
 def fig1_cost_shapes():
-    """The two cost shapes: a line with no floor vs a staircase with one."""
+    """The two cost shapes: grouped bar chart of p50 latency at key output lengths."""
     ar_pts = {}
     for L in (32, 64, 128, 256, 512):
         p = RESULTS / f"p2_ar3b_L{L}.json"
@@ -109,102 +109,47 @@ def fig1_cost_shapes():
     print("fig1 AR:", {k: round(v, 1) for k, v in ar_pts.items()})
     print("fig1 DG:", {k: round(v, 1) for k, v in dg_pts.items()})
 
-    fig, (axA, axB) = plt.subplots(
-        1, 2, figsize=(S.FULL, 2.75),
-        gridspec_kw={"width_ratios": [1.35, 1.0], "wspace": 0.30})
+    # Select key output lengths where both arms have data
+    key_Ls = [128, 256, 512, 1024, 2048]
+    ar_vals = [ar_pts.get(L, 0) for L in key_Ls]
+    dg_vals = [dg_pts.get(L, 0) for L in key_Ls]
 
-    # ---- Panel A: the whole range -----------------------------------------
-    Ls = np.linspace(1, 2100, 800)
-    axA.plot(Ls, t_ar(Ls), color=S.AR, lw=1.6, zorder=3)
-    sx, sy = staircase(2100)
-    axA.plot(sx, sy, color=S.DG, lw=1.6, zorder=3)
+    fig, ax = plt.subplots(figsize=(S.FULL, 2.8))
 
-    axA.plot(list(ar_pts), list(ar_pts.values()), S.MARK["ar"], color=S.AR,
-             ms=4.0, mec=S.SURFACE, mew=0.9, ls="none", zorder=4)
-    axA.plot(list(dg_pts), list(dg_pts.values()), S.MARK["dg"], color=S.DG,
-             ms=4.0, mec=S.SURFACE, mew=0.9, ls="none", zorder=4)
+    x = np.arange(len(key_Ls))
+    width = 0.35
 
-    axA.set_xlim(0, 2320)
-    axA.set_ylim(0, 13800)
-    axA.set_xticks([0, 512, 1024, 1536, 2048])
-    axA.set_yticks([0, 4000, 8000, 12000])
-    axA.set_yticklabels(["0", "4,000", "8,000", "12,000"])
-    axA.set_xlabel("output length $L_{\\mathrm{out}}$  (tokens)")
-    axA.set_ylabel("p50 latency  (ms)")
-    S.title(axA, "A  Two shapes, one axis")
-    S.despine(axA)
-    axA.grid(axis="x", visible=False)
+    bars_ar = ax.bar(x - width/2, ar_vals, width, color=S.AR, label="AR-3B", zorder=3)
+    bars_dg = ax.bar(x + width/2, dg_vals, width, color=S.DG, label="DG-26B-A4B", zorder=3)
 
-    S.label_end(axA, 2048, t_ar(2048), "AR-3B\n12,889 ms", S.AR,
-                dx=6, dy=-2, va="top", size=8.0)
-    S.label_end(axA, 2048, 1212, "DG-26B-A4B\n1,212 ms", S.DG,
-                dx=6, dy=2, va="bottom", size=8.0)
-    axA.annotate("", xy=(2048, 12889), xytext=(2048, 1212),
-                 arrowprops=dict(arrowstyle="<->", color=S.MUTED, lw=0.7,
-                                 shrinkA=1, shrinkB=1))
-    axA.text(1990, 6800, "10.6$\\times$", ha="right", va="center",
-             fontsize=8.2, color=S.INK2, fontweight="medium")
+    # Add value labels on bars
+    for bar, val in zip(bars_ar, ar_vals):
+        if val > 0:
+            ax.text(bar.get_x() + bar.get_width()/2, val + 200,
+                    f"{val:,.0f}", ha="center", va="bottom", fontsize=7.0,
+                    color=S.AR, fontweight="medium")
+    for bar, val in zip(bars_dg, dg_vals):
+        if val > 0:
+            ax.text(bar.get_x() + bar.get_width()/2, val + 200,
+                    f"{val:,.0f}", ha="center", va="bottom", fontsize=7.0,
+                    color=S.DG, fontweight="medium")
 
-    # marker for the zoom region shown in panel B
-    axA.add_patch(plt.Rectangle((0, 0), 600, 900, facecolor=S.WASH_NEUTRAL,
-                                ec=S.MUTED, lw=0.7, zorder=1))
-    axA.annotate("panel B", xy=(600, 450), xytext=(24, 26),
-                 textcoords="offset points", fontsize=7.6, color=S.MUTED,
-                 arrowprops=dict(arrowstyle="-", color=S.MUTED, lw=0.6))
+    # Add ratio annotations
+    for i, L in enumerate(key_Ls):
+        if ar_vals[i] > 0 and dg_vals[i] > 0:
+            ratio = ar_vals[i] / dg_vals[i]
+            ymax = max(ar_vals[i], dg_vals[i])
+            ax.text(i, ymax + 1200, f"{ratio:.1f}×", ha="center", va="bottom",
+                    fontsize=8.2, color=S.INK2, fontweight="medium")
 
-    # ---- Panel B: the crossover -------------------------------------------
-    Ls = np.linspace(1, 600, 600)
-    axB.fill_between(Ls, 0, 760, where=(Ls < LAWS["l_star"]),
-                     color=S.WASH_AR, lw=0, zorder=0)
-    axB.fill_between(Ls, 0, 760, where=(Ls >= LAWS["l_star"]),
-                     color=S.WASH_DG, lw=0, zorder=0)
-
-    axB.plot(Ls, t_ar(Ls), color=S.AR, lw=1.6, zorder=3)
-    sx, sy = staircase(600)
-    axB.plot(sx, sy, color=S.DG, lw=1.6, zorder=3)
-
-    for L, v in ar_pts.items():
-        if L <= 512:
-            axB.plot([L], [v], S.MARK["ar"], color=S.AR, ms=4.0,
-                     mec=S.SURFACE, mew=0.9, zorder=4)
-    for L, v in dg_pts.items():
-        if L <= 512:
-            axB.plot([L], [v], S.MARK["dg"], color=S.DG, ms=4.0,
-                     mec=S.SURFACE, mew=0.9, zorder=4)
-
-    axB.axvline(LAWS["l_star"], color=S.INK2, lw=0.7, zorder=2)
-    axB.plot([LAWS["l_star"]], [t_ar(LAWS["l_star"])], "o", ms=4.5,
-             mfc=S.SURFACE, mec=S.INK, mew=1.1, zorder=6)
-    axB.annotate("$L^{*}\\!=\\!59$", xy=(LAWS["l_star"], 378.8),
-                 xytext=(8, 26), textcoords="offset points",
-                 fontsize=8.2, color=S.INK, fontweight="medium")
-
-    axB.set_xlim(0, 600)
-    axB.set_ylim(0, 760)
-    axB.set_xticks([0, 128, 256, 384, 512])
-    axB.set_xlabel("output length $L_{\\mathrm{out}}$  (tokens)")
-    axB.set_ylabel("p50 latency  (ms)")
-    S.title(axB, "B  Where the shapes cross")
-    S.despine(axB)
-    axB.grid(axis="x", visible=False)
-
-    axB.text(52, 40, "AR\ncheaper", fontsize=7.6, color=S.AR,
-             fontweight="medium", ha="right", va="bottom", linespacing=1.25)
-    axB.text(72, 40, "DG cheaper", fontsize=7.6, color=S.DG,
-             fontweight="medium", va="bottom")
-    axB.annotate("canvas edge", xy=(256, 440), xytext=(30, -6),
-                 textcoords="offset points", fontsize=7.4, color=S.MUTED,
-                 ha="left", va="center",
-                 arrowprops=dict(arrowstyle="-", color=S.MUTED, lw=0.6))
-
-    handles = [
-        Line2D([], [], color=S.AR, lw=1.6, marker=S.MARK["ar"], ms=4.0,
-               label="AR-3B  (Qwen2.5-3B, vLLM)"),
-        Line2D([], [], color=S.DG, lw=1.6, marker=S.MARK["dg"], ms=4.0,
-               label="DG-26B-A4B  (DiffusionGemma, $K\\!=\\!8$)"),
-    ]
-    fig.legend(handles=handles, loc="lower center", ncol=2,
-               bbox_to_anchor=(0.5, -0.10), frameon=False)
+    ax.set_xticks(x)
+    ax.set_xticklabels([str(L) for L in key_Ls])
+    ax.set_xlabel("output length $L_{\\mathrm{out}}$  (tokens)")
+    ax.set_ylabel("p50 latency  (ms)")
+    S.title(ax, "The two cost shapes: a line vs a staircase")
+    S.despine(ax)
+    ax.set_ylim(0, max(max(ar_vals), max(dg_vals)) * 1.25)
+    ax.legend(loc="upper left", fontsize=8.0)
 
     S.save(fig, "fig1_cost_shapes", OUT)
 
