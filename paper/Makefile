@@ -24,8 +24,9 @@ TECTONIC  ?= tectonic
 FIGSRC    := figures/make_figures.py figures/style.py
 FIGS      := $(patsubst %,figures/%.pdf, \
                fig1_cost_shapes fig2_canvas_edges fig3_input_sweep fig4_ksweep \
-               fig5_quality_vs_length fig6_batching fig7_decision_map \
-               fig8_defects fig9_deployment)
+               fig5_quality_vs_length fig6_batching \
+               fig8_defects fig9_deployment \
+               fig10_usecase_chains fig11_usecase_schema)
 TEXSRC    := $(PAPER).tex assets/style.tex assets/macros.tex assets/references.bib $(wildcard sections/*.tex)
 
 .PHONY: all figures paper verify publish check clean distclean html

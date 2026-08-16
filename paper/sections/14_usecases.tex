@@ -71,9 +71,13 @@ drop $K$ from 8 to 4 and the record arrives in \kFourPfifty\,ms at
 \kFourFone\ F1, meeting a tightened deadline without truncating the output.
 An AR model under the same deadline returns a truncated record that fails
 schema validation --- a partial scene description is not a partial plan, it
-is a failed plan. And the diffusion model always returns a complete canvas,
+is a failed plan. The diffusion model always returns a complete canvas,
 which for a safety-critical consumer that validates against a schema is a
-qualitative rather than quantitative guarantee.
+qualitative rather than quantitative guarantee --- \emph{provided the output
+length budget is sufficient}. Below the natural record length the diffusion
+model's schema validity collapses (1.0\% at $L{=}128$, see
+Appendix~\ref{app:quality}); the completeness guarantee holds only at or
+above the canvas length where the model was calibrated.
 
 The tail latency (Appendix~\ref{app:distributions}) is the counterargument:
 DG's 3.21$\times$ max/median ratio means a p99 SLA lands far above p50. For
@@ -102,7 +106,7 @@ acting before and after the market moves. The tail penalty that makes DG
 risky in single-hop, hard-deadline settings washes out under sequential
 composition: the p99.9/p50 ratio converges to the AR mean at depth 10+.
 
-The quality-matched AR model (1.5B, \arOneFiveFnine\ F1) is $1.8\times$
+The quality-comparable AR model (1.5B, \arOneFiveFnine\ F1) is $1.8\times$
 slower per hop even unforced. In a market where the first analysis wins,
 that margin is the trade.
 
@@ -118,7 +122,7 @@ produce output that naturally exceeds 256 tokens. At forced $L{=}512$
  & AR-3B & DG & \\
 \midrule
 p50 (ms)    & 3223 & 524  & DG $6.2\times$ faster \\
-9-field F1  & 0.599 & 0.795 & DG wins quality too \\
+9-field F1  & 0.852 & 0.855 & comparable \\
 \bottomrule
 \end{tabular}
 \end{center}

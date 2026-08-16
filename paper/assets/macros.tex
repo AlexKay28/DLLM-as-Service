@@ -16,18 +16,18 @@
 \newcommand{\refPrompt}{1{,}047}
 
 % --- Quality, 9-field vs 12-field ----- results/issue43_nine_field_f1.json --
-\newcommand{\arThreeBFnine}{0.8516}     % AR-3B,  L=256, 9-field
-\newcommand{\dgNineF}{0.8518}           % DG,     L=256, 9-field
-\newcommand{\arThreeBFtwelve}{0.8263}   % AR-3B,  L=256, 12-field
-\newcommand{\dgTwelveF}{0.7858}         % DG,     L=256, 12-field
-\newcommand{\qualityGap}{0.0002}        % |9-field difference|
-\newcommand{\twelveGap}{0.0405}         % 12-field difference, AR-favoured
+\newcommand{\arThreeBFnine}{0.852}     % AR-3B,  L=256, 9-field
+\newcommand{\dgNineF}{0.852}           % DG,     L=256, 9-field
+\newcommand{\arThreeBFtwelve}{0.826}   % AR-3B,  L=256, 12-field
+\newcommand{\dgTwelveF}{0.786}         % DG,     L=256, 12-field
+\newcommand{\qualityGap}{0.000}        % |9-field difference|
+\newcommand{\twelveGap}{0.041}         % 12-field difference, AR-favoured
 % AR-1.5B: results/issue_evidence_ar1b_{L512,L1024,energy}.json (pinned stack)
-\newcommand{\arOneFiveFnine}{0.8679}
+\newcommand{\arOneFiveFnine}{0.868}
 
 % --- Cost laws ------------- results/anchors/*.json, results/issue68_*.json --
-\newcommand{\arBase}{7.27}        % ms, AR fitted intercept
-\newcommand{\arSlope}{6.29}       % ms/token, AR fitted decode slope
+\newcommand{\arBase}{7.3}        % ms, AR fitted intercept
+\newcommand{\arSlope}{6.3}       % ms/token, AR fitted decode slope
 \newcommand{\dgBase}{378.8}       % ms, DG base at K=8
 \newcommand{\dgStep}{119.5}       % ms, median of the 7 measured canvas steps
 \newcommand{\dgStepLo}{113.1}     % ms, smallest measured step (1536->1792 in)
@@ -41,10 +41,10 @@
 \newcommand{\arAnchorFiveOne}{3225.1}   % AR-3B  L=512 p50, CV 0.01%
 \newcommand{\dgAnchorTwoFive}{379.0}    % DG     L=256 p50, CV 0.25%
 \newcommand{\dgAnchorFiveOne}{500.7}    % DG     L=512 p50, CV 0.12%
-\newcommand{\arCV}{0.05}
-\newcommand{\dgCV}{0.25}
+\newcommand{\arCV}{0.1}
+\newcommand{\dgCV}{0.3}
 % Per-event dispersion within one run -- results/anchors/*_L256_r1_preds.jsonl
-\newcommand{\arEventCV}{0.17}     % % CV over 300 per-event latencies
+\newcommand{\arEventCV}{0.2}     % % CV over 300 per-event latencies
 \newcommand{\dgEventCV}{20.9}
 \newcommand{\arMaxMed}{1.03}      % max / median per-event latency
 \newcommand{\dgMaxMed}{3.21}
@@ -56,13 +56,13 @@
 \newcommand{\naturalLar}{123}      % AR natural output length (tokens)
 
 % --- Input length, the second variable ------ results/issue44_*_sweep.json --
-\newcommand{\arInputSlope}{0.047}  % ms per prompt token
-\newcommand{\dgInputSlope}{0.123}  % ms per prompt token
+\newcommand{\arInputSlope}{0.0}  % ms per prompt token
+\newcommand{\dgInputSlope}{0.1}  % ms per prompt token
 \newcommand{\inputSlopeRatio}{2.6} % dgInputSlope / arInputSlope
 
 % --- Base decomposition ------------------- results/issue44_dg_ksweep_K*.json --
 \newcommand{\kfitBase}{296.1}      % ms, K-independent term (NOT interpretable as a floor; see #70)
-\newcommand{\kfitSlope}{2.57}      % ms per denoising step
+\newcommand{\kfitSlope}{2.6}      % ms per denoising step
 \newcommand{\kfitRsq}{0.49}
 % Superseded: the fitted intercept (296.1) is not a measured floor. R^2=0.49
 % and the curve saturates above K=16, so the linear term is a poor description.
@@ -77,7 +77,7 @@
 \newcommand{\arBatchHi}{86.0}      % vLLM, L=512
 \newcommand{\cacheOnMult}{42.8}    % AR-3B, prefix caching on   (#42)
 \newcommand{\cacheOffMult}{26.8}   % AR-3B, prefix caching off  (#42)
-\newcommand{\dgBatchMult}{1.18}    % LLaDA-8B under dInfer, flat to batch 64
+\newcommand{\dgBatchMult}{1.2}    % LLaDA-8B under dInfer, flat to batch 64
 \newcommand{\dgBatchVllmLo}{1.5}   % DG under vLLM, L=512 (lower bound)
 \newcommand{\dgBatchVllmHi}{1.7}   % DG under vLLM, L=128 (lower bound)
 
@@ -124,7 +124,7 @@
 
 % --- Canvas tuning -------------------------- results/issue66_canvas_*.json --
 \newcommand{\canvasOneTwentyEightBase}{368.5}  % ms at canvas=128
-\newcommand{\canvasOneTwentyEightFone}{0.8644} % 9-field F1 at canvas=128
+\newcommand{\canvasOneTwentyEightFone}{0.864} % 9-field F1 at canvas=128
 
 % --- K as a runtime quality knob --------- results/issue44_dg_ksweep_K*.json --
 \newcommand{\kFourPfifty}{292}    % ms

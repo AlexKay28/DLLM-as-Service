@@ -31,7 +31,7 @@ The diffusion model's advantage grows with output length: $1.8\times$ faster
 even at the AR model's natural output length, inflated to $5.4\times$ at
 forced output $L{=}1024$. It uses less energy and degrades under deadline
 pressure by losing quality rather than completeness. But the advantage does
-not survive deployment: at matched quality the autoregressive model is
+not survive deployment: at comparable quality the autoregressive model is
 \footprintRatio$\times$ smaller and converts concurrency into throughput far
 better. What survives is one narrow regime --- long structured output under a
 batch-1 constraint --- and we state the five conditions it requires.
@@ -45,7 +45,7 @@ batch-1 constraint --- and we state the five conditions it requires.
 \vspace{-2pt}
 \begin{tabularx}{\linewidth}{@{}L r r@{}}
 \toprule
-\tabfont & \thead{\ARthree} & \thead{\DG-26B-A4B} \\
+\tabfont & \thead{\ARthree\,(active-param.)} & \thead{\DG-26B-A4B} \\
 \midrule
 \tabfont 9-field macro F1 ($L{=}\canvasLength$)      & \arThreeBFnine & \dgNineF \\
 \tabfont Active parameters                            & 3.0\,B & 4.0\,B \\
@@ -70,10 +70,11 @@ deployment comparison behind it.}
 \input{sections/03_deployment}
 \input{sections/04_related_work}
 \input{sections/05_threats}
-\input{sections/06_conclusion}
 
 % ========================================================== use cases ==
 \input{sections/14_usecases}
+
+\input{sections/06_conclusion}
 
 % ======================================================================
 %                          APPENDICES

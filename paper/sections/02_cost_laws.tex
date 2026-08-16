@@ -67,6 +67,18 @@ is, until the next canvas edge. $\lambda^{*}$ is the other boundary: with one
 event in flight, the reciprocal of the diffusion base is the ceiling on its
 serial throughput, and above that rate a queue forms.
 
+\paragraph{Caveat: the base may be inflated by the serving stack.}
+The \dgBase\,ms base is 53--68\% prefill. Each denoising step re-attends the
+full prompt, so prefill is paid $K$ times. Whether the prompt KV could be
+cached across denoising steps is a property of the serving implementation
+(vLLM's DiffusionGemma path), not obviously a property of masked diffusion
+itself. If it were cached, the base could fall toward $\sim$150\,ms and
+$L^{*}$ would move downward, widening the region where diffusion wins. We
+treat the measured base as the operative number --- it is what the pinned
+stack produces --- but note the asymmetry: in Appendix~\ref{app:batching} we
+decline to treat engine-bounded batching as a ceiling; here we absorb an
+engine-bounded prefill cost into the crossover without the same scrutiny.
+
 \subsection{Generalisation}
 
 Both laws generalise from BGL to HDFS within 1.7\%. The AR p50 at

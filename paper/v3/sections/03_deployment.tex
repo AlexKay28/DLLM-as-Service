@@ -5,13 +5,13 @@
 
 At its natural output length, AR-1.5B completes a record in 665.7\,ms at 138
 output tokens (unforced, \texttt{min\_tokens}\,$=$\,0). At forced output
-$L \geq 512$ tokens, the diffusion model is faster at matched quality. The
+$L \geq 512$ tokens, the diffusion model is faster at comparable quality. The
 advantage grows with output length because the AR model pays per token while
 the diffusion model pays per canvas.
 
 \begin{table}[h]
 \centering
-\caption{Latency at matched quality (AR-1.5B vs DG-26B-A4B, batch-1, BGL).
+\caption{Latency at comparable quality (AR-1.5B F1 0.868 vs DG 0.852; within the 0.016 margin) (AR-1.5B vs DG-26B-A4B, batch-1, BGL).
 AR cells are \emph{forced} (\texttt{min\_tokens}\,$=$\,$L$); unforced AR-1.5B
 completes in 665.7\,ms at 138 tokens. Sources:
 \artifact{results/issue49\_ar1b.json} (unforced),
@@ -46,7 +46,7 @@ deployment argument.
 \begin{figure}[t]
 \centering
 \includegraphics[width=\linewidth]{figures/fig9_deployment.pdf}
-\caption{The quality-matched deployment pair
+\caption{The quality-comparable deployment pair
 (\artifact{results/issue\_evidence\_ar1b\_*.json},
 \artifact{results/issue68\_dg\_L*.json}, BGL, $n{=}100$). \textbf{A:} at
 forced output lengths the diffusion model's advantage is real and grows,
@@ -62,10 +62,10 @@ indicative.}
 The diffusion model uses less energy: at the compute-matched pair, \dgEnergy\,J
 per event against \arThreeEnergy\,J for AR-3B ($5.3\times$,
 \artifact{results/issue\_energy\_measurement.json}, idle 52.6\,W, $n{=}100$,
-BGL). At the quality-matched pair, AR-1.5B uses \arOneFiveEnergy\,J against
+BGL). At the quality-comparable pair, AR-1.5B uses \arOneFiveEnergy\,J against
 \dgEnergy\,J ($1.2\times$,
 \artifact{results/issue\_evidence\_ar1b\_energy.json}, idle 58.6\,W, $n{=}100$).
-The two energy runs had different idle baselines, so the quality-matched
+The two energy runs had different idle baselines, so the quality-comparable
 comparison is indicative rather than tight. The advantage tracks latency
 rather than adding to it --- both models draw comparable power, and the
 diffusion model is simply busy for less time.
@@ -80,7 +80,7 @@ from \kEightFone\ to \kFourFone.
 
 Three factors close the niche, and a fourth narrows it:
 
-\paragraph{Footprint.} The quality-matched AR model (Qwen2.5-1.5B, F1
+\paragraph{Footprint.} The quality-comparable AR model (Qwen2.5-1.5B, F1
 \arOneFiveFnine) is \arOneFiveWeights\,GB; the diffusion model is
 \dgWeights\,GB --- a \footprintRatio$\times$ difference.
 
