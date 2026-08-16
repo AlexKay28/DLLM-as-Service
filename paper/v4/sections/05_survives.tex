@@ -6,7 +6,7 @@ serial mode. DG wins at every practical output length. The five
 conditions that define the regime where block diffusion is the right
 choice are:
 \begin{enumerate}[nosep]
-  \item Output length $\geq 7$ tokens (DG crossover in serial).
+  \item Output length $\geq 49$ tokens (DG crossover in serial).
   \item Batch-1 by requirement: tenant isolation, interactivity, or
     serial chain structure.
   \item Completeness is validated against a schema.
@@ -19,18 +19,18 @@ choice are:
 A security operations centre receives an alert, looks up threat
 intelligence, cross-references internal logs, and drills into the next
 layer. Each hop blocks on the previous; concurrency is 1 by
-construction. Against AR-30B, DG is roughly fourteen times faster per
+construction. Against AR-30B, DG is roughly two and a half times faster per
 hop. The chain harness measures DG at 419\,ms per hop instead of the
 379\,ms anchor, because each hop re-prefills a longer accumulated
-prompt. AR-30B side is its 5{,}899\,ms single-shot anchor rather
+prompt. AR-30B side is its 945\,ms single-shot anchor rather
 than a chain run, only the dense AR-3B was run through the chain
-harness, at 808\,ms per hop. So the $14\times$ is a cross-harness
+harness, at 808\,ms per hop. So the $2.3\times$ is a cross-harness
 figure. Figure~\ref{fig:chains} plots the measured AR-3B chain and
 shows the $1.9\times$ ratio of that pairing. What the figure
 establishes is the \emph{shape}: neither the per-hop cost nor DG's tail
 penalty grows with depth. The gap widens in absolute terms as hops
 accumulate, at eight hops, the difference between three seconds and
-forty-seven seconds is the difference between catching an intruder in
+eight seconds is the difference between catching an intruder in
 the act and finding the trail gone cold.
 
 \begin{figure}[ht!]
@@ -44,7 +44,7 @@ $2.07\times$ at five, settling near the median ratio
 advantage on a single hop, but independent hops average out, so the
 longer the chain the more of its median advantage DG keeps. Note the
 arm: this is the dense AR-3B at 808\,ms/hop, hence $1.9\times$ here
-against the $14\times$ in the text, which is the AR-30B anchor (BGL,
+against the $2.3\times$ in the text, which is the AR-30B anchor (BGL,
 $n{=}100$ chains per depth, $K{=}8$).}
 \label{fig:chains}
 \end{figure}

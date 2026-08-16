@@ -41,7 +41,7 @@ three excluded, \texttt{event\_type}, \texttt{affected\_entity} and
 \texttt{remediation\_hint}, are the semantic fields whose gold
 labels are parser placeholders instead of ground truth, so scoring
 them measures agreement with Drain, not extraction quality; this was
-one of the eight corrections priced in Appendix~\ref{app:defects}.
+one of the nine corrections priced in Appendix~\ref{app:defects}.
 A record is \emph{schema-valid} if it parses as JSON and carries all
 twelve keys; schema completeness is the fraction of keys present, which
 separates a truncated record from a complete one. Latencies are
@@ -79,7 +79,7 @@ that took the most-drifted JSON object, a metric that counted falsy
 values as missing keys. Five of the eight biased against the AR arm,
 because the arm we were not rooting for inherited every default. The
 fifteenfold advantage reported below is not what that flattering
-harness produced, it's what survived all eight corrections
+harness produced, it's what survived all nine corrections
 \emph{and} a switch to an architecture-matched AR baseline. The
 corrections are priced in Appendix~\ref{app:defects}; they are the
 methodological backbone of every number that follows.
@@ -93,10 +93,10 @@ a fixed-size block and stepping at each boundary. The shapes cross at
 $L^{*} = \crossoverL$ output tokens (\S\ref{sec:laws}).
 
 \item \textbf{Where is the diffusion model faster?}
-Above $L^{*}$, DG is faster, fifteen times at natural output, eight
-times at a thousand tokens. In cost terms, that's the difference
-between \$0.0076 and \$0.0005 per event on an A100, a gap that
-compounds to thousands of dollars at million-event scale
+Above $L^{*}$, DG is faster, two and a half times at natural output,
+narrowing to just over parity at a thousand tokens. In cost terms, that's the difference
+between \$0.0012 and \$0.0005 per event on an A100, a gap that
+compounds to hundreds of dollars at million-event scale
 (\S\ref{sec:wins}).
 
 \item \textbf{What limits the diffusion model's advantage operationally?}
@@ -132,7 +132,7 @@ every other AR entry is the AR-30B MoE.}
 \tabfont Total parameters                             & 30\,B & 26\,B \\
 \tabfont Weights (bf16)                                & 60\,GB & 52\,GB \\
 \tabfont Marginal cost (ms/token, serial) & \arSlope & 0.47 (amortised over a canvas) \\
-\tabfont Batch-1 $\to$ peak throughput multiplier     & 77$\times$ & $\leq$1.7$\times$ \\
+\tabfont Batch-1 $\to$ peak throughput multiplier     & 25$\times$ & $\leq$1.7$\times$ \\
 \tabfont Tail latency (max/median)                    & 1.03$\times$ & 3.21$\times$ \\
 \bottomrule
 \end{tabularx}

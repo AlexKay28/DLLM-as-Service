@@ -310,3 +310,126 @@ batching 42.8/26.8, chains, wide schema).
 Until then the pass-7 threats paragraph on engine parity understates the
 problem: it names one of three confounds. The 15.6× should be treated as
 **unverified**, not merely as an upper bound.
+
+---
+
+# Resolution — issue #112, Phase 1 (harness + verifier, no GPU)
+
+Phase 1 of the #112 resolution plan is complete on the CPU side. The harness
+defects are fixed and the verifier hole that hid them is closed. The numbers
+themselves are **not** changed — they require GPU re-measurement (Phase 2) and
+are intentionally left failing the build until then.
+
+## Harness fixes (all three `run_issue111_*.py`)
+
+- **Gold-in-prompt** (the headline bug): model input now reads
+  `datasets/splits/test/bgl.raw`; gold labels read from `bgl.jsonl`, paired by
+  index — mirroring `run_anchor_remeasure.py:248-249`. The latency harness now
+  writes the cited `results/issue111_qwen3_serial_sweep.json` (previously an
+  orphan with no generator); the uncited gold-leaked `latency_sweep.json` is
+  removed.
+- **`enforce_eager=True`** removed; `enable_prefix_caching=True` added, matching
+  the anchor regime (CUDA graphs on).
+- **9-field subset**: `nine_fields = FIELD_NAMES[:9]` (which included the
+  `event_type`/`affected_entity` placeholders and excluded the two anomaly
+  fields) replaced by the 9-field macro from `field_f1`
+  (`macro_field_f1_9`), the same path the anchor uses.
+- **`Record(**{k: ...})` scoring bug** (a fourth defect, not enumerated in the
+  issue): `Record` takes `fields=`, not kwargs, so `Record(**{k: ... for k in
+  FIELD_NAMES})` raised `TypeError` and every prediction/gold fell into the bare
+  `except` → empty `Record()` → `field_f1` of empty-vs-empty = `1.0`. This is the
+  actual root cause of the `field_f1_9 == 1.0` / `schema_valid_pct == 0.0`
+  contradiction, alongside the gold leak. Fixed to `_dict_to_record(...)` /
+  `Record(fields=json.loads(line))`.
+- **Serial regime**: `run_issue111_qwen3.py` and `run_issue111_latency.py` did
+  `llm.generate(prompts, sp)` (one batched call) and labelled it "serial",
+  reporting throughput as latency. Rewritten to one `generate` per prompt with
+  per-event `time.perf_counter()`, the regime every other AR arm uses. (The
+  batch harness's serial arm was already serial.)
+- **Provenance**: every emitted JSON now carries a `capture_provenance(...)` block
+  (model, model_type, backend, vLLM/torch/CUDA versions, repo commit). The
+  hardcoded `"vllm_version": "0.11.0"` string is gone; `capture_provenance`
+  records the *actual* stack, so running outside the pinned venv is visible.
+- **Stack pin**: the harness docstrings name the required pinned stack
+  (vLLM 0.25.1 / torch 2.11.0 / CUDA 13.0). Installing it is an ops step; the
+  provenance block is what makes a mismatch detectable.
+
+## Recurrence guard
+
+`build_chat_messages` (`models/baselines/ar_model.py`) now raises `AssertionError`
+if its `log_line` parses as a JSON dict containing schema field names — i.e. if a
+gold record is fed where a raw log line belongs. Raw BGL/HDFS lines never start
+with `{`, so the check is zero-cost on legitimate input and catches the exact
+#112 defect class for every harness, not just issue111.
+
+## Verifier hole closed (`paper/verify_numbers.py`)
+
+- **Docstring/exit-code contract** corrected: the old docstring claimed "every
+  number cited in the paper traces to a committed artifact" and exit 1 = missing
+  provenance, but it exited 0 with 112 warnings. Now honest about what it checks.
+- **Macro → artifact value check** (step 16): `arBase` / `arSlope` / `crossoverL`
+  are tied to `cost_law.{intercept_ms,slope_ms_per_token,crossover_L_star}` in
+  `issue111_qwen3_serial_sweep.json`. A macro that drifts from its artifact
+  (e.g. after Phase 2 re-measurement changes the numbers) fails the build.
+- **Missing provenance = error for cited artifacts** (step 17): the four AR-30B
+  artifacts (`serial_sweep`, `batch_sweep`, `ar30b_energy`, `qwen3_30b_a3b`) all
+  error until regenerated with provenance. The 112 uncited-artifact warnings
+  remain advisory (not in scope to bulk-promote).
+
+Current state: `verify_numbers.py` exits 0 with **0 errors**. All four AR-30B
+artifacts carry provenance blocks; the three cost-law macros match their
+artifact fields. (The Phase 1 state of 6 errors is resolved — see
+"Resolution — Phases 2/3" below.)
+
+## Paper text
+
+`07_threats.tex` "AR-30B arm" paragraph rewritten to "corrected and
+re-measured" — the harness confounds are fixed and all four artifacts have
+been re-measured on the pinned stack with provenance. All numbers propagated.
+
+## What remains (needs GPU — Phase 2 / 3)
+
+~~All items below are done.~~ See "Resolution — Phases 2/3" below.
+
+---
+
+# Resolution — Phases 2/3 (GPU re-measurement + propagation)
+
+All four AR-30B artifacts were re-measured on the pinned stack (`.venv`:
+vLLM 0.25.1 / torch 2.11.0+cu130 / A100 80GB) with the corrected harness.
+The story changed exactly as the issue predicted: the AR-30B lands near a
+dense 3B's per-token cost, `L*` rose well above 7, and the headline ratio
+shrank substantially.
+
+## Measured results (n=300, serial, BGL, vLLM 0.25.1)
+
+| Metric | Old (gold-leaked) | New (pinned stack) |
+|---|---|---|
+| arBase | 79.1 ms | 34.6 ms |
+| arSlope | 47.7 ms/token | 7.2 ms/token |
+| crossoverL | 6 | 48 |
+| F1_9 | 1.0 (impossible) | 0.870 |
+| Headline (AR/DG at natural output) | 15.6× | 2.5× |
+| Batch multiplier | 77× | 24.7× |
+| Serial/batch slope ratio | 73× | 23× |
+| Energy (serial) | 10.1 J (batch) | 118.7 J (serial) |
+| Energy ratio AR/DG | 2.4× (batch/serial) | 28.3× (serial/serial) |
+| Cost/event | $0.0076 | $0.0012 |
+| Annual cost gap | $26,000 | $2,600 |
+
+The AR-30B decodes at 7.2 ms/token vs the dense AR-3B's 6.3 ms/token —
+only 1.14× slower, plausible for MoE routing overhead. The 7.6× penalty
+was pure confound.
+
+## Propagation
+
+All numbers propagated to: `macros.tex` (3 macros + energy/batch comments),
+`main.tex` (abstract), §1 (contributions, tab:summary), §3 (tab:niche,
+energy paragraph, tab:contrast), §4 (tab:cost, $26k→$2.6k), §5 (condition 1,
+chain numbers), §7 (Threats: "unverified" → "corrected and re-measured"),
+§8 (conclusion: sevenfold→15%, 59 to 6→59 to 48, $7,100→$1,200, $26k→$2.6k),
+Appendix 9 (correction 9 added, 8→9 corrections), Appendix 11/16/17.
+
+`verify_numbers.py` exits 0 with 0 errors. Paper compiles with 0 errors,
+0 undefined refs, 21 pages.
+

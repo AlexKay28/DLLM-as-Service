@@ -2,6 +2,82 @@
 
 All notable changes to this project. Dates are 2026-08-15 unless noted.
 
+## 2026-08-16 — Issue #112 resolved: AR-30B re-measured, headline corrected
+
+The AR-30B arm was re-measured on the pinned stack (vLLM 0.25.1, torch
+2.11.0+cu130, A100 80GB) with the corrected harness. All four artifacts
+now carry provenance blocks; `verify_numbers.py` exits 0. The paper
+compiles with 0 errors, 0 undefined refs, 21 pages.
+
+### What changed (old → new)
+
+| Quantity | Old (gold-leaked) | New (pinned stack) |
+|---|---|---|
+| arBase | 79.1 ms | 34.6 ms |
+| arSlope | 47.7 ms/token | 7.2 ms/token |
+| crossoverL | 6 | 48 |
+| F1_9 (AR-30B) | 1.0 (impossible) | 0.870 |
+| Headline ratio | 15.6× | 2.5× |
+| Batch multiplier | 77× | 24.7× |
+| Serial/batch slope ratio | 73× | 23× |
+| Energy (AR-30B) | 10.1 J (batch) | 118.7 J (serial) |
+| Energy ratio AR/DG | 2.4× (batch/serial) | 28.3× (serial/serial) |
+| Cost/event | $0.0076 | $0.0012 |
+| Annual cost gap | $26,000 | $2,600 |
+| Per-million cost | $7,100 | $1,200 |
+
+### What was fixed
+
+- **Harnesses** (`run_issue111_{qwen3,latency,batch}.py`, `run_energy.py`): raw
+  input (`bgl.raw`), gold paired by index, no `enforce_eager`, serial per-event
+  timing, `_dict_to_record`, `capture_provenance`, `enable_thinking=False`.
+- **Recurrence guard** in `build_chat_messages`: rejects gold JSON records.
+- **Verifier** (`verify_numbers.py`): macro→artifact value check, provenance
+  required for cited artifacts.
+- **Appendix I**: correction 9 added (8→9 priced corrections).
+- **Paper**: all AR-30B numbers propagated to macros, tab:niche, tab:cost,
+  tab:contrast, tab:summary, abstract, §1, §3, §4, §5, §7, §8, Appendix 11/16/17.
+  Threats paragraph rewritten from "unverified" to "corrected and re-measured."
+
+### What survived
+
+The qualitative contribution: DG's staircase cost shape wins at typical
+output lengths (crossover at L=48, natural output at ~126 tokens). The
+margin is narrower (2.5× not 15.6×) but the architecture is structural.
+
+---
+
+## 2026-08-16 — Issue #112 Phase 1: AR-30B harness fixed, verifier hole closed (no GPU)
+
+The AR-30B arm was measured on a harness that (a) fed the gold record file to
+the model as input, (b) disabled CUDA graphs (`enforce_eager`), (c) ran vLLM
+0.11.0 vs the pinned 0.25.1, and (d) scored a wrong 9-field subset via a broken
+`Record(**kwargs)` constructor that silently emptied every prediction — so
+`field_f1_9` was `1.0` in every cell. Phase 1 (code) is done; the numbers are
+**not** changed and now fail the build until GPU re-measurement.
+
+- **Harnesses** (`run_issue111_{qwen3,latency,batch}.py`): raw input
+  (`bgl.raw`) + gold (`bgl.jsonl`) paired by index; `enforce_eager` dropped,
+  `enable_prefix_caching` on; serial per-event timing (was batched throughput
+  labelled "serial"); `_dict_to_record` + 9-field macro from `field_f1`;
+  `capture_provenance` block on every artifact. Latency harness now writes the
+  cited `issue111_qwen3_serial_sweep.json` (was an orphan); gold-leaked
+  `issue111_qwen3_latency_sweep.json` removed.
+- **Recurrence guard**: `build_chat_messages` raises if its input parses as a
+  gold JSON record — catches the #112 defect class for every harness.
+- **Verifier** (`paper/verify_numbers.py`): docstring/exit-code made honest;
+  macro→artifact value check for `arBase`/`arSlope`/`crossoverL`; missing
+  provenance is now an ERROR (not a warning) for the four cited AR-30B
+  artifacts. Exits 1 with 6 errors until re-measured.
+- **Paper**: `07_threats.tex` paragraph updated to past tense (harness fixed,
+  figures inherited, re-measurement pending); "unverified over as a bound" typo
+  → "unverified upper bound". No numbers changed.
+- **Remaining (GPU)**: re-run the three harnesses + `run_energy.py` (serial) on
+  vLLM 0.25.1; refit cost law; propagate to macros/tables/prose; Appendix I
+  correction 9.
+
+---
+
 ## 2026-08-16 — Evidence gaps filled, application claims strengthened
 
 ### Issue #69: AR-1.5B measured at L=512/1024, energy, K=4 p99

@@ -612,7 +612,7 @@ def fig6_batching():
 
     # NB: appD batching_multipliers are keyed ar3b_L128 / ar3b_L512 -- these two
     # bars are the DENSE AR-3B, not the AR-30B MoE. The AR-30B MoE's own
-    # multiplier is 76.9x (issue111_qwen3_batch_sweep.json), plotted separately.
+    # multiplier is 24.7x (issue111_qwen3_batch_sweep.json), plotted separately.
     with open(RESULTS / "issue111_qwen3_batch_sweep.json") as f:
         ar30 = json.load(f)
     rows = [

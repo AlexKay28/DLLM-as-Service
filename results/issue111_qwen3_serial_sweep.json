@@ -1,58 +1,208 @@
 {
   "L32": {
     "max_tokens": 32,
-    "n_events": 50,
-    "p50_ms": 1603.8,
-    "p99_ms": 1697.6,
-    "mean_ms": 1608.7,
+    "n_events": 300,
+    "serving": "serial (batch-1)",
+    "wall_time_s": 79.55,
+    "per_event_ms": 265.1,
     "mean_output_tokens": 32.0,
-    "field_f1_9": 1.0,
-    "schema_valid_pct": 0.0
+    "ramble_rate_pct": 100.0,
+    "latency_ms": {
+      "p50": 264.8,
+      "p99": 277.3,
+      "mean": 265.1
+    },
+    "field_f1_9": 0.3111,
+    "field_f1_12": 0.3167,
+    "schema_valid_pct": 0.0,
+    "per_field_f1": {
+      "f1_timestamp_norm": 0.0,
+      "f1_host": 0.0,
+      "f1_component": 0.0,
+      "f1_severity": 0.0,
+      "f1_event_type": 0.0,
+      "f1_message_template": 0.0,
+      "f1_error_code": 0.9933,
+      "f1_affected_entity": 1.0,
+      "f1_metric_value": 0.2333,
+      "f1_is_anomaly": 0.7867,
+      "f1_anomaly_score": 0.7867,
+      "f1_remediation_hint": 0.0
+    }
   },
   "L128": {
     "max_tokens": 128,
-    "n_events": 50,
-    "p50_ms": 5923.0,
-    "p99_ms": 6499.8,
-    "mean_ms": 6019.9,
-    "mean_output_tokens": 121.1,
-    "field_f1_9": 1.0,
-    "schema_valid_pct": 76.0
+    "n_events": 300,
+    "serving": "serial (batch-1)",
+    "wall_time_s": 272.0,
+    "per_event_ms": 906.6,
+    "mean_output_tokens": 121.3,
+    "ramble_rate_pct": 41.7,
+    "latency_ms": {
+      "p50": 911.5,
+      "p99": 962.2,
+      "mean": 906.6
+    },
+    "field_f1_9": 0.6729,
+    "field_f1_12": 0.6674,
+    "schema_valid_pct": 66.3,
+    "per_field_f1": {
+      "f1_timestamp_norm": 0.6633,
+      "f1_host": 0.6633,
+      "f1_component": 0.6633,
+      "f1_severity": 0.6533,
+      "f1_event_type": 0.3695,
+      "f1_message_template": 0.4158,
+      "f1_error_code": 0.9867,
+      "f1_affected_entity": 0.92,
+      "f1_metric_value": 0.2667,
+      "f1_is_anomaly": 0.8733,
+      "f1_anomaly_score": 0.87,
+      "f1_remediation_hint": 0.6633
+    }
   },
   "L256": {
     "max_tokens": 256,
-    "n_events": 50,
-    "p50_ms": 5899.3,
-    "p99_ms": 6979.2,
-    "mean_ms": 6037.5,
-    "mean_output_tokens": 122.6,
-    "field_f1_9": 1.0,
-    "schema_valid_pct": 100.0
+    "n_events": 300,
+    "serving": "serial (batch-1)",
+    "wall_time_s": 283.58,
+    "per_event_ms": 945.2,
+    "mean_output_tokens": 126.4,
+    "ramble_rate_pct": 0.0,
+    "latency_ms": {
+      "p50": 911.7,
+      "p99": 1379.1,
+      "mean": 945.2
+    },
+    "field_f1_9": 0.8702,
+    "field_f1_12": 0.8435,
+    "schema_valid_pct": 100.0,
+    "per_field_f1": {
+      "f1_timestamp_norm": 1.0,
+      "f1_host": 0.97,
+      "f1_component": 1.0,
+      "f1_severity": 0.99,
+      "f1_event_type": 0.4771,
+      "f1_message_template": 0.658,
+      "f1_error_code": 0.9567,
+      "f1_affected_entity": 0.8367,
+      "f1_metric_value": 0.2733,
+      "f1_is_anomaly": 0.9933,
+      "f1_anomaly_score": 0.99,
+      "f1_remediation_hint": 0.9767
+    }
   },
   "L512": {
     "max_tokens": 512,
-    "n_events": 50,
-    "p50_ms": 5897.5,
-    "p99_ms": 6991.4,
-    "mean_ms": 6056.1,
-    "mean_output_tokens": 122.6,
-    "field_f1_9": 1.0,
-    "schema_valid_pct": 100.0
+    "n_events": 300,
+    "serving": "serial (batch-1)",
+    "wall_time_s": 283.59,
+    "per_event_ms": 945.2,
+    "mean_output_tokens": 126.4,
+    "ramble_rate_pct": 0.0,
+    "latency_ms": {
+      "p50": 911.7,
+      "p99": 1378.5,
+      "mean": 945.2
+    },
+    "field_f1_9": 0.8702,
+    "field_f1_12": 0.8435,
+    "schema_valid_pct": 100.0,
+    "per_field_f1": {
+      "f1_timestamp_norm": 1.0,
+      "f1_host": 0.97,
+      "f1_component": 1.0,
+      "f1_severity": 0.99,
+      "f1_event_type": 0.4771,
+      "f1_message_template": 0.658,
+      "f1_error_code": 0.9567,
+      "f1_affected_entity": 0.8367,
+      "f1_metric_value": 0.2733,
+      "f1_is_anomaly": 0.9933,
+      "f1_anomaly_score": 0.99,
+      "f1_remediation_hint": 0.9767
+    }
   },
   "L1024": {
     "max_tokens": 1024,
-    "n_events": 50,
-    "p50_ms": 5910.2,
-    "p99_ms": 6927.6,
-    "mean_ms": 6020.6,
-    "mean_output_tokens": 122.6,
-    "field_f1_9": 1.0,
-    "schema_valid_pct": 100.0
+    "n_events": 300,
+    "serving": "serial (batch-1)",
+    "wall_time_s": 283.59,
+    "per_event_ms": 945.2,
+    "mean_output_tokens": 126.4,
+    "ramble_rate_pct": 0.0,
+    "latency_ms": {
+      "p50": 911.7,
+      "p99": 1378.6,
+      "mean": 945.2
+    },
+    "field_f1_9": 0.8702,
+    "field_f1_12": 0.8435,
+    "schema_valid_pct": 100.0,
+    "per_field_f1": {
+      "f1_timestamp_norm": 1.0,
+      "f1_host": 0.97,
+      "f1_component": 1.0,
+      "f1_severity": 0.99,
+      "f1_event_type": 0.4771,
+      "f1_message_template": 0.658,
+      "f1_error_code": 0.9567,
+      "f1_affected_entity": 0.8367,
+      "f1_metric_value": 0.2733,
+      "f1_is_anomaly": 0.9933,
+      "f1_anomaly_score": 0.99,
+      "f1_remediation_hint": 0.9767
+    }
   },
   "cost_law": {
-    "intercept_ms": 79.1,
-    "slope_ms_per_token": 47.68,
-    "r_squared": 1.0,
-    "crossover_L_star": 6.0
+    "intercept_ms": 34.6,
+    "slope_ms_per_token": 7.2,
+    "crossover_L_star": 48.0,
+    "dg_base_ms": 378.8,
+    "dg_step_ms": 119.5,
+    "fit_L_values": [
+      32.0,
+      121.3,
+      126.4,
+      126.4,
+      126.4
+    ],
+    "fit_T_values": [
+      265.1,
+      906.6,
+      945.2,
+      945.2,
+      945.2
+    ]
+  },
+  "experiment": "issue111_ar30b_serial_sweep",
+  "model": "Qwen/Qwen3-30B-A3B",
+  "model_type": "ar30b",
+  "corpus": "BGL",
+  "n_events": 300,
+  "serving": "serial (batch-1)",
+  "lengths": [
+    32,
+    128,
+    256,
+    512,
+    1024
+  ],
+  "provenance": {
+    "model_name": "Qwen/Qwen3-30B-A3B",
+    "model_type": "ar30b",
+    "backend": "vllm",
+    "max_new_tokens": 1024,
+    "parser_policy": "first_object_wins",
+    "scoring_fields": "9",
+    "vllm_version": "0.25.1",
+    "torch_version": "2.11.0+cu130",
+    "transformers_version": "5.15.0",
+    "cuda_version": "13.0",
+    "gpu_model": "NVIDIA A100 80GB PCIe",
+    "python_version": "3.10.12",
+    "platform": "Linux-5.15.179-15.mofed2407ya-x86_64-with-glibc2.35",
+    "timestamp": "2026-08-16T17:30:40Z",
+    "repo_commit": "9976ecb"
   }
 }

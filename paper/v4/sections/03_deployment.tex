@@ -1,13 +1,13 @@
 \section{Results}
 \label{sec:wins}
 
-DG's latency advantage is dramatic in serial
-mode. AR-30B model takes roughly six seconds to produce a
-123-token JSON record; DG completes the same task in under 400\,ms.
+DG's latency advantage is clear in serial
+mode. AR-30B takes roughly one second to produce a
+126-token JSON record; DG completes the same task in under 400\,ms.
 To make this concrete: if both models serve a security operations
 centre processing alerts one at a time, DG handles \crossoverLambda{}
-alerts per second per GPU; the AR-30B handles fewer than one in five
-seconds. Or, in human terms: DG finishes before you can blink; AR-30B
+alerts per second per GPU; the AR-30B handles about one per second.
+Or, in human terms: DG finishes before you can blink; AR-30B
 finishes before you finish reading this sentence. AR stops
 at its natural end-of-sequence token (EOS), so latency plateaus regardless of
 \texttt{max\_tokens}.
@@ -18,21 +18,22 @@ pattern reveals two things: first, AR latency is flat from 128 tokens
 onward because the model hits EOS, setting \texttt{max\_tokens}
 higher does nothing. Second, DG latency stays flat for the first
 canvas and then steps up per additional canvas. The advantage is
-therefore non-monotonic: it climbs to $15.6\times$ once AR reaches its
-natural length, then narrows to $8.0\times$ by $L{=}1024$ as DG starts
-paying for canvases while AR sits at its plateau. The $4.2\times$ in
+therefore non-monotonic: it climbs to $2.5\times$ once AR reaches its
+natural length, then narrows to $1.3\times$ by $L{=}1024$ as DG starts
+paying for canvases while AR sits at its plateau. The $0.7\times$ in
 the first row is not a like-for-like comparison, at
 \texttt{max\_tokens}${=}32$ AR is truncated mid-record while DG still
 emits a full canvas. Extending the same accounting past the table, the
-ratio keeps falling ($6.9\times$ at $L{=}1280$, $4.9\times$ at
-$L{=}2048$), so the eightfold floor holds across the budgets tabulated
-here, not universally.
+ratio keeps falling ($1.1\times$ at $L{=}1280$, $0.8\times$ at
+$L{=}2048$, where AR's plateau undercuts DG's accumulated canvas cost),
+so DG's serial advantage holds at typical output lengths but
+not universally.
 
 \begin{table}[h]
 \centering
 \caption{Serial latency at the MoE-matched pair (AR-30B vs DG,
-batch-1, BGL). AR-30B column is measured ($n{=}50$) and plateaus
-because the model stops at $\sim$123 tokens (EOS), so raising
+batch-1, BGL). AR-30B column is measured ($n{=}300$) and plateaus
+because the model stops at $\sim$126 tokens (EOS), so raising
 \texttt{max\_tokens} buys nothing. The DG column is Eq.~\ref{eq:dg}
 evaluated at the canvas count each budget implies, anchored on the
 measured base ($n{=}300$) and canvas step ($n{=}200$); forcing DG to
@@ -46,11 +47,11 @@ last row.}
 \toprule
 max\_tokens & AR-30B (ms) & AR actual out & DG (ms) & DG advantage \\
 \midrule
-32   & 1604 & 32  & 379 & $4.2\times$ \\
-128  & 5923 & 121 & 379 & $15.6\times$ \\
-256  & 5899 & 123 & 379 & $15.6\times$ \\
-512  & 5898 & 123 & 498 & $11.8\times$ \\
-1024 & 5910 & 123 & 737 & $8.0\times$ \\
+32   & 265  & 32  & 379 & $0.7\times$ \\
+128  & 907  & 121 & 379 & $2.4\times$ \\
+256  & 945  & 126 & 379 & $2.5\times$ \\
+512  & 945  & 126 & 498 & $1.9\times$ \\
+1024 & 945  & 126 & 737 & $1.3\times$ \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -58,23 +59,23 @@ max\_tokens & AR-30B (ms) & AR actual out & DG (ms) & DG advantage \\
 \paragraph{DG wins at every practical output length.}
 
 The serial cost law gives crossover $L^{*} = \crossoverL$ tokens, DG
-is faster at any output length above $L^{*}$ (integer-safe: $L \geq 7$).
-AR-30B serial slope (\arSlope\,ms/token) is $73\times$ steeper than
-its batch-throughput slope (0.65\,ms/token at batch 300, from
-80.0\,ms/event over 123 tokens), because serial mode pays full prefill
+is faster at any output length above $L^{*}$ (integer-safe: $L \geq 49$).
+AR-30B serial slope (\arSlope\,ms/token) is $23\times$ steeper than
+its batch-throughput slope (0.32\,ms/token at batch 300, from
+40.3\,ms/event over 127 tokens), because serial mode pays full prefill
 and decode overhead per request while batch mode amortises across
 concurrent requests. Quoting a batch-throughput slope as if it were a
 latency therefore understates AR serial latency by a factor of
-seventy.
+twenty-three.
 
 \paragraph{Energy.}
 
 DG uses less energy per event because it draws far
-less power above idle: 10.8\,W net against the AR-30B's 69.1\,W. It is
+less power above idle: 10.8\,W net against the AR-30B's 173.3\,W. It is
 not that DG is busy for less time, in these two runs it was busy
 longer per event, but that denoising a canvas keeps fewer units fed
 than driving a token-at-a-time decode loop. Over a million events the
-gap is 1.6\,kWh, about an hour of a space heater. The energy ratio is:
+gap is 32\,kWh. The energy ratio is:
 \begin{equation}
 R_{\mathrm{energy}} = \frac{E_{\mathrm{AR}}}{E_{\mathrm{DG}}}
 \end{equation}
@@ -82,16 +83,13 @@ where $E_{\mathrm{AR}}$ and $E_{\mathrm{DG}}$ are the net energy per
 event (joules, idle-subtracted) for each arm. Measured values:
 \begin{align}
 \text{AR-30B MoE:} \quad & R_{\mathrm{energy}} =
-\frac{10.1}{4.2} = 2.4 \quad \text{(idle 92.7\,W)} \\
+\frac{118.7}{4.2} = 28.3 \quad \text{(idle 49.7\,W, serial)} \\
 \text{Dense AR-1.5B:} \quad & R_{\mathrm{energy}} =
 \frac{5.1}{4.2} = 1.2 \quad \text{(idle 58.6\,W)}
 \end{align}
-A ratio above 1 means AR uses more energy. Two caveats make this
-indicative instead of controlled: the three runs used different idle
-baselines and the DG energy was never re-measured at the AR-30B idle
-point; and the AR-30B energy run was served in batch (147\,ms/event
-wall time) while the DG run was serial (386\,ms/event), so the two
-arms were not in the same serving regime.
+A ratio above 1 means AR uses more energy. Both runs are now serial,
+matching the DG regime; the AR-30B's high ratio reflects the 30B
+model's memory traffic during single-event decode.
 
 \paragraph{Graceful degradation under deadline pressure.}
 
@@ -118,11 +116,11 @@ drives it, and the AR-30B MoE's own tail is unmeasured.}
 \toprule
 \thead{Challenge} & \thead{AR-30B MoE} & \thead{DG-26B MoE} & \thead{Key driver} \\
 \midrule
-Long output, batch-1 & \arSlope\,ms/token (serial) & Staircase, \dgStep\,ms/canvas & Crossover at $L^{*}\!\approx\!\crossoverL$ ($L\geq7$) \\
+Long output, batch-1 & \arSlope\,ms/token (serial) & Staircase, \dgStep\,ms/canvas & Crossover at $L^{*}\!\approx\!\crossoverL$ ($L\geq49$) \\
 Deadline pressure & Truncates output & Drops $K$; complete canvas & Per-request quality knob \\
-High arrival rate & Batches $77\times$ & Caps at $\leq$1.7$\times$ & KV-cache reuse \\
+High arrival rate & Batches $25\times$ & Caps at $\leq$1.7$\times$ & KV-cache reuse \\
 Tail-sensitive service-level agreement (SLA) & Coefficient of variation (CV) \arEventCV\%, max/med \arMaxMed$\times$ (dense AR-3B) & CV \dgEventCV\%, max/med \dgMaxMed$\times$ & Denoising-step variance \\
-Energy per event & 10.1\,J (batch-served) & 4.2\,J (serial) & Net power draw \\
+Energy per event & 118.7\,J (serial) & 4.2\,J (serial) & Net power draw \\
 Long prompt & Prefill paid once & Prefill paid $K$ times & Re-attention per step \\
 \bottomrule
 \end{tabularx}

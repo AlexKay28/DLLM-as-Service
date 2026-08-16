@@ -1,13 +1,34 @@
 #!/usr/bin/env python3
 """
-Verify that every number cited in the paper traces to a committed artifact
-with a provenance block (#57 R7).
+Provenance + value verification for the paper's numeric claims.
+
+What this script actually checks (issue #112, grill-pass7 finding 36 -- the
+old docstring oversold it):
+
+  1. Provenance presence. Every result JSON that carries model info should
+     have a ``provenance`` block (#57 R1/R7). For an *uncited* artifact this
+     is a WARNING (advisory). For an artifact a macro in ``macros.tex`` cites
+     it is an ERROR -- a cited number with no provenance is exactly the hole
+     that hid the AR-30B gold-leak (issue #112).
+  2. Model/model_type consistency (#57 R1 amended).
+  3. 9-field F1 presence (#57 R4).
+  4. CHECKLIST defect magnitudes (#65).
+  5. Numeric precision policy (#85).
+  6. Macro -> artifact value check (#112 Phase 4 step 16). Selected macros
+     are tied to a field in a committed artifact, so a macro that drifts from
+     its measurement (or whose artifact was never re-measured on the pinned
+     stack) fails the build.
+
+It does NOT open every ``.tex`` section or check every prose number; it checks
+``paper/assets/macros.tex`` and the artifacts named in MACRO_ARTIFACTS below.
 
 Usage:
     python3 paper/verify_numbers.py
 
-Exit code 0 = all checks pass with zero warnings.
-Exit code 1 = one or more artifacts lack provenance or fail consistency.
+Exit 0 = no errors (warnings may remain; they are advisory).
+Exit 1 = at least one error: a cited artifact lacks provenance or fails the
+         value check, a model is inconsistent, or a precision/defect check
+         failed.
 """
 
 import json
@@ -253,6 +274,21 @@ def _classify_macro(name: str) -> str | None:
     return None
 
 
+def _parse_macros(macros_path: Path) -> dict[str, str]:
+    """Parse ``\\newcommand{\\name}{value}`` pairs from macros.tex.
+
+    Tolerates one level of nested braces in the value (e.g. refPrompt =
+    1{,}077). Returns {macro_name: raw_value_string}.
+    """
+    if not macros_path.exists():
+        return {}
+    text = macros_path.read_text()
+    pattern = re.compile(
+        r"\\newcommand\{\\(\w+)\}\{([^{}]*(?:\{[^{}]*\}[^{}]*)*)\}"
+    )
+    return {name: raw for name, raw in pattern.findall(text)}
+
+
 def check_precision_policy() -> bool:
     """Lint paper/macros.tex against the numeric precision policy (#85).
 
@@ -265,19 +301,12 @@ def check_precision_policy() -> bool:
         error(f"macros.tex not found at {macros_path}")
         return False
 
-    text = macros_path.read_text()
-    # \newcommand{\name}{value}, tolerating one level of nested braces
-    # (e.g. refPrompt = 1{,}047).
-    pattern = re.compile(
-        r"\\newcommand\{\\(\w+)\}\{([^{}]*(?:\{[^{}]*\}[^{}]*)*)\}"
-    )
-
     checked = 0
     passed = 0
     PRECISION_VIOLATIONS.clear()
 
     print(f"  {'macro':<34} {'value':<10} {'type':<8} {'dec':>3}  status")
-    for name, raw_value in pattern.findall(text):
+    for name, raw_value in _parse_macros(macros_path).items():
         value = raw_value.strip()
         if not _is_numeric(value):
             continue
@@ -303,6 +332,154 @@ def check_precision_policy() -> bool:
         f"{passed} pass, {failed} violation(s)."
     )
     return failed == 0
+
+
+# --- Macro -> artifact value verification (#112 Phase 4) ---------------------
+# Each entry ties a macro in macros.tex to the field in a committed artifact
+# that the macro's value must equal. This is the check that was missing when
+# the AR-30B gold-leak shipped: the cost-law macros traced to
+# issue111_qwen3_serial_sweep.json, but that artifact had no provenance and no
+# verifier opened it, so a macro drifting from (or never re-measured against)
+# its measurement was invisible. A cited artifact that lacks a provenance
+# block is an ERROR here, not a warning (issue #112 step 17).
+#
+# Tolerance is half a unit of the macro's last reported decimal, so rounding
+# does not cause spurious failures.
+MACRO_ARTIFACTS = [
+    # (macro, artifact relpath, dotted field path, abs tolerance)
+    ("arBase",      "issue111_qwen3_serial_sweep.json",
+     "cost_law.intercept_ms",        0.05),
+    ("arSlope",     "issue111_qwen3_serial_sweep.json",
+     "cost_law.slope_ms_per_token",  0.05),
+    ("crossoverL",  "issue111_qwen3_serial_sweep.json",
+     "cost_law.crossover_L_star",   0.5),
+]
+
+# Other AR-30B (issue #111/#112) artifacts the paper cites that must carry
+# provenance even though they back no \\newcommand macro (their values appear
+# in prose / figure code / macros.tex comments).
+CITED_AR30B_ARTIFACTS = [
+    "issue111_qwen3_batch_sweep.json",   # 77x batch multiplier (make_figures.py)
+    "issue111_ar30b_energy.json",         # 10.1 J/event (macros.tex comment)
+    "issue111_qwen3_30b_a3b.json",        # AR-30B quality + single-cell latency
+]
+
+# Stack every cited AR-30B artifact must have been measured on (issue #112
+# step 4). Provenance records the actual installed version; a mismatch is a
+# WARNING (advisory -- it may flag a legitimate re-run on a different stack).
+PINNED_VLLM = "0.25.1"
+
+
+def _dotted_get(obj, dotted: str):
+    cur = obj
+    for part in dotted.split("."):
+        if not isinstance(cur, dict) or part not in cur:
+            return None, False
+        cur = cur[part]
+    return cur, True
+
+
+def check_macro_values() -> bool:
+    """Verify selected macros equal their cited artifact field (#112 step 16).
+
+    For each mapped macro: load the cited artifact, require a provenance block
+    (ERROR if missing -- step 17), and require the macro value to match the
+    artifact field within tolerance (ERROR on drift, or on a missing field,
+    which is the signal that the artifact has not been re-measured on the
+    pinned stack since the harness was fixed).
+    """
+    print("Checking macro -> artifact values (#112)...")
+    macros_path = REPO_ROOT / "paper" / "assets" / "macros.tex"
+    macros = _parse_macros(macros_path)
+
+    ok = True
+    for macro, relpath, field, tol in MACRO_ARTIFACTS:
+        arti_path = RESULTS / relpath
+        label = f"\\{macro} -> {relpath}:{field}"
+
+        if macro not in macros:
+            error(f"{label}: macro not defined in macros.tex")
+            ok = False
+            continue
+
+        macro_val = macros[macro].strip()
+        if not _is_numeric(macro_val):
+            error(f"{label}: macro value {macro_val!r} is not numeric")
+            ok = False
+            continue
+
+        data = load_json(arti_path)
+        if data is None:
+            error(f"{label}: cited artifact not found at {arti_path}")
+            ok = False
+            continue
+
+        # Step 17: a cited artifact MUST have provenance.
+        prov = data.get("provenance") if isinstance(data, dict) else None
+        if not prov:
+            error(
+                f"{label}: cited artifact lacks a provenance block (#112 "
+                f"step 17). Re-measure on the pinned stack (vLLM "
+                f"{PINNED_VLLM}) with the corrected harness."
+            )
+            ok = False
+        else:
+            vllm = prov.get("vllm_version")
+            if vllm and vllm != PINNED_VLLM:
+                warn(
+                    f"{relpath}: provenance.vllm_version={vllm} != pinned "
+                    f"{PINNED_VLLM} (stack asymmetry, issue #112 step 4)"
+                )
+
+        field_val, found = _dotted_get(data, field)
+        if not found or field_val is None:
+            error(
+                f"{label}: field missing -- artifact not yet re-measured "
+                f"with the fixed harness (issue #112)."
+            )
+            ok = False
+            continue
+
+        try:
+            delta = abs(float(macro_val) - float(field_val))
+        except (TypeError, ValueError):
+            error(f"{label}: artifact field {field_val!r} not numeric")
+            ok = False
+            continue
+
+        if delta <= tol:
+            print(f"  {label:<58} {macro_val} == {field_val}  ok")
+        else:
+            error(
+                f"{label}: macro={macro_val} drifts from artifact={field_val} "
+                f"(Δ={delta:.4g} > {tol}). Update the macro or re-measure."
+            )
+            ok = False
+
+    # Step 17 for the rest of the AR-30B arm: these artifacts are cited by the
+    # paper (batch multiplier, energy, quality cell) but carry no \\newcommand
+    # macro to value-check. They still MUST have provenance -- a cited AR-30B
+    # number with no provenance is the hole that hid the gold-leak.
+    cited = {a for _, a, _, _ in MACRO_ARTIFACTS}
+    for relpath in CITED_AR30B_ARTIFACTS:
+        if relpath in cited:
+            continue
+        arti_path = RESULTS / relpath
+        data = load_json(arti_path)
+        if data is None:
+            error(f"{relpath}: cited AR-30B artifact not found")
+            ok = False
+            continue
+        if not (isinstance(data, dict) and data.get("provenance")):
+            error(
+                f"{relpath}: cited AR-30B artifact lacks a provenance block "
+                f"(#112 step 17). Re-measure on the pinned stack (vLLM "
+                f"{PINNED_VLLM}) with the corrected harness."
+            )
+            ok = False
+
+    print(f"  Macro/value check: {'pass' if ok else 'FAILED'}")
+    return ok
 
 
 def main():
@@ -331,6 +508,7 @@ def main():
     check_defect_magnitudes()
 
     precision_ok = check_precision_policy()
+    values_ok = check_macro_values()
 
     print()
     print(f"=== Summary ===")
@@ -338,12 +516,14 @@ def main():
     print(f"  Errors:   {len(ERRORS)}")
     print(f"  Precision violations: {len(PRECISION_VIOLATIONS)}")
 
-    if ERRORS or not precision_ok:
+    if ERRORS or not precision_ok or not values_ok:
         parts = []
         if ERRORS:
             parts.append(f"{len(ERRORS)} error(s)")
         if not precision_ok:
             parts.append(f"{len(PRECISION_VIOLATIONS)} precision violation(s)")
+        if not values_ok:
+            parts.append("macro/value check failed")
         print(f"\n  Failing — {' and '.join(parts)} must be fixed.")
         sys.exit(1)
 

@@ -110,6 +110,28 @@ def build_prompt(log_line: str, source: str = "hdfs",
     return "\n".join(parts)
 
 
+def _looks_like_gold_record(log_line: str) -> bool:
+    """Return True if ``log_line`` is a gold JSON record rather than a raw log
+    line.
+
+    Raw BGL/HDFS log lines are whitespace-delimited text and never start with
+    ``{``; a gold record (from ``datasets/splits/test/*.jsonl``) always does.
+    This guards against the issue-#112 defect class: a harness that loads the
+    gold file and feeds it here as ``log_line`` prompts the model with the
+    answer it was supposed to extract. The bug is otherwise silent -- the model
+    scores perfect F1 by copying the input -- so this assertion is the only
+    detector at the shared entry point.
+    """
+    s = log_line.strip()
+    if not s or s[0] != "{":
+        return False
+    try:
+        obj = json.loads(s)
+    except (json.JSONDecodeError, ValueError):
+        return False
+    return isinstance(obj, dict) and any(f in obj for f in FIELD_NAMES)
+
+
 def build_chat_messages(log_line: str, source: str = "hdfs",
                         few_shot: bool = True, n_few_shot: int = None) -> list[dict]:
     """Build chat-format messages for models that use chat templates.
@@ -124,6 +146,13 @@ def build_chat_messages(log_line: str, source: str = "hdfs",
     Returns:
         List of {"role": "system"/"user", "content": str} messages.
     """
+    if _looks_like_gold_record(log_line):
+        raise AssertionError(
+            f"build_chat_messages received a gold JSON record instead of a raw "
+            f"log line (issue #112): the model would be prompted with the "
+            f"answer. Pass a line from datasets/splits/test/*.raw, not *.jsonl. "
+            f"Got: {log_line[:120]!r}"
+        )
     user_content = ""
     if few_shot:
         examples = FEW_SHOT_EXAMPLES

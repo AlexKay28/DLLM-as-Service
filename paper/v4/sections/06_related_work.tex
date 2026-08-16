@@ -5,21 +5,21 @@ Diffusion language models claim large speedups. LLaDA~\cite{llada2025}
 and DiffusionGemma~\cite{diffusiongemma} both measure against
 author-built autoregressive baselines. We instead pin both arms to one
 serving stack and fit cost laws, so the comparison rests on a shape
-rather than on a single point.
+instead of on a single point.
 
 Constrained decoding is the standard answer to structured
 output. Outlines~\cite{outlines2024}, xgrammar~\cite{xgrammar2024} and
 llguidance~\cite{llguidance} all enforce a grammar during decoding. We
-do not measure it here, and say so in \S\ref{sec:threats}.
+don't measure it here, and say so in \S\ref{sec:threats}.
 
 Speculative decoding attacks the same per-token slope our AR cost law
 turns on. Medusa~\cite{medusa2024} and EAGLE~\cite{eagle2024} make each
 token cheaper, but the cost stays linear in output length. They change
-the slope, not the shape --- which is the quantity that separates the
+the slope, not the shape, which is the quantity that separates the
 two architectures here.
 
 Hoefler and Belli~\cite{hoefler2021} survey reproducibility pitfalls in
-systems measurement. Our eight priced corrections
+systems measurement. Our nine priced corrections
 (Appendix~\ref{app:defects}) are a case study in that tradition rather
 than a general method.
 

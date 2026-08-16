@@ -97,8 +97,14 @@ def main():
     prompts = []
     for line in log_lines:
         messages = build_chat_messages(line, source=args.source, few_shot=True)
-        prompts.append(tok.apply_chat_template(
-            messages, tokenize=False, add_generation_prompt=True))
+        try:
+            text = tok.apply_chat_template(
+                messages, tokenize=False, add_generation_prompt=True,
+                enable_thinking=False)
+        except TypeError:
+            text = tok.apply_chat_template(
+                messages, tokenize=False, add_generation_prompt=True)
+        prompts.append(text)
 
     sp = SamplingParams(
         max_tokens=args.max_new_tokens, min_tokens=args.min_tokens,
@@ -142,11 +148,20 @@ def main():
     costs = cost_per_event(j_per_event, args.gpu_rate, args.electricity_rate)
 
     import statistics as st
+    from models.baselines.provenance import capture_provenance
+    prov = capture_provenance(
+        model_name=args.model, model_type="ar30b", backend="vllm",
+        max_new_tokens=args.max_new_tokens, parser_policy="first_object_wins",
+        scoring_fields="9",
+    )
     result = {
+        "experiment": "issue111_ar30b_energy",
         "model": args.model,
+        "model_type": "ar30b",
         "n_events": len(records),
         "max_new_tokens": args.max_new_tokens,
         "min_tokens": args.min_tokens,
+        "serving": "serial (batch-1)",
         "cold_start_s": round(cold_start_s, 2),
         "power": pm.summary(idle_power_w=idle_power, n_events=len(records)),
         "peak_mem_gb": peak_mem,
@@ -161,6 +176,7 @@ def main():
         "cost": costs,
         "wall_time_s": round(wall_s, 2),
         "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "provenance": prov.to_dict(),
     }
     if args.denoising_steps is not None:
         result["max_denoising_steps"] = args.denoising_steps

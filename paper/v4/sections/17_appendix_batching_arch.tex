@@ -6,16 +6,16 @@ prefixes are computed once, and each request's KV cache persists across
 decode steps. Block-diffusion invalidates both forms of reuse:
 \begin{enumerate}[nosep]
 \item \textbf{Cross-request prefix sharing} requires that both requests
-are at the same denoising step. Requests at different $K$ steps cannot
+are at the same denoising step. Requests at different $K$ steps can't
 share a KV cache because the attention mask differs per step.
 \item \textbf{Within-request KV persistence} across denoising steps
 fails because the denoising tokens' KV changes at every step (the mask
-changes), so per-step computation cannot reuse previous activations.
+changes), so per-step computation can't reuse previous activations.
 \end{enumerate}
 Each denoising step is a fresh forward pass over the full sequence with
 a different attention mask. The GPU does the same FLOPs whether batching
-or not --- structurally different from AR decoding, where the attention
+or not, different from AR decoding, where the attention
 pattern is causal and the KV cache grows monotonically. A patched vLLM
 might raise the DG multiplier to $\sim 2$--$3\times$, still an order of
 magnitude below the dense AR-3B's $26$--$43\times$ and more than an
-order below the AR-30B MoE's $77\times$.
+order below the AR-30B MoE's $25\times$.

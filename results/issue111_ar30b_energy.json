@@ -1,10 +1,56 @@
 {
+  "experiment": "issue111_ar30b_energy",
   "model": "Qwen/Qwen3-30B-A3B",
-  "n_events": 100,
-  "wall_time_s": 14.7,
-  "avg_power_w": 161.7,
-  "idle_power_w": 92.7,
-  "net_power_w": 69.1,
-  "energy_per_event_j": 23.7,
-  "net_energy_per_event_j": 10.1
+  "model_type": "ar30b",
+  "n_events": 300,
+  "max_new_tokens": 256,
+  "min_tokens": 0,
+  "serving": "serial (batch-1)",
+  "cold_start_s": 49.69,
+  "power": {
+    "avg_power_w": 223.0,
+    "peak_power_w": 355.55,
+    "idle_power_w": 49.73,
+    "duration_s": 288.249,
+    "n_readings": 3205,
+    "energy_j_total": 49946.29,
+    "j_per_event": 166.4876
+  },
+  "peak_mem_gb": 0.0,
+  "latency_ms": {
+    "p50": 928.2,
+    "p99": 1407.6,
+    "mean": 960.8
+  },
+  "mean_output_tokens": 126.3,
+  "quality": {
+    "field_f1": 0.8436,
+    "schema_valid_pct": 99.33,
+    "consistency_pct": 96.33
+  },
+  "energy_per_event_j": 166.4876,
+  "cost": {
+    "gpu_cost_per_event": 0.000694,
+    "electricity_cost_per_event": 5.55e-06,
+    "total_per_event": 0.0007
+  },
+  "wall_time_s": 288.25,
+  "timestamp": "2026-08-16T20:55:49Z",
+  "provenance": {
+    "model_name": "Qwen/Qwen3-30B-A3B",
+    "model_type": "ar30b",
+    "backend": "vllm",
+    "max_new_tokens": 256,
+    "parser_policy": "first_object_wins",
+    "scoring_fields": "9",
+    "vllm_version": "0.25.1",
+    "torch_version": "2.11.0+cu130",
+    "transformers_version": "5.15.0",
+    "cuda_version": "13.0",
+    "gpu_model": "NVIDIA A100 80GB PCIe",
+    "python_version": "3.10.12",
+    "platform": "Linux-5.15.179-15.mofed2407ya-x86_64-with-glibc2.35",
+    "timestamp": "2026-08-16T17:55:49Z",
+    "repo_commit": "6f17364"
+  }
 }

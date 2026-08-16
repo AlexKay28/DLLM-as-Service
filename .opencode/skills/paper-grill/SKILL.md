@@ -1,6 +1,6 @@
 ---
 name: paper-grill
-description: Use when reviewing a research paper for validity, consistency, and clarity. Runs a systematic 28-check audit across 6 dimensions — data integrity, narrative quality, mathematical correctness, presentation, completeness, and maintenance hygiene. Includes the arXiv storytelling-rigor trade-off: intuition-first methods, question-framed experiments, self-contained captions, real-world context, and automated readability/density evaluation. Triggers on phrases like "grill the paper", "review the paper", "check for contradictions", "find issues", or "audit paper".
+description: Use when reviewing a research paper for validity, consistency, and clarity. Runs a systematic 37-check audit across 7 dimensions — data integrity, narrative quality, mathematical correctness, presentation, completeness, and maintenance hygiene. Includes the arXiv storytelling-rigor trade-off: intuition-first methods, question-framed experiments, self-contained captions, real-world context, and automated readability/density evaluation. Triggers on phrases like "grill the paper", "review the paper", "check for contradictions", "find issues", or "audit paper".
 ---
 
 # Paper Grill Skill
@@ -16,6 +16,7 @@ A systematic audit strategy for research papers that finds contradictions, unsup
 - Readability: sentence length, jargon density, acronym expansion, definitions
 - Math: equation validity, crossover semantics, variable definitions
 - Hygiene: dead macros, stale references, compilation, verify scripts
+- Structural integrity: duplicate content, self-contradiction, arm mismatch, equation disclosure, citation accuracy, register, table cells, model name precision
 
 **We don't check:**
 - Whether the experimental design is sound (that's peer review, not grilling)
@@ -31,12 +32,13 @@ A systematic audit strategy for research papers that finds contradictions, unsup
 3. **Run Group B** (narrative) — assess storytelling, readability, definitions
 4. **Run Group C** (math) — verify equations and derived calculations
 5. **Run Groups D–F** (presentation, completeness, hygiene) — can run in parallel
-6. **Compile** after all fixes
-7. **Write fix-log** — record every change in `paper/v4/grill-fix-log.md` (see Fix-Log Format below)
-8. **Run self-audit** — verify every fix was applied correctly (see Self-Audit Checklist below)
-9. **Report** using the output format at the end
+6. **Run Group G** (structural integrity) — duplicate content, self-contradiction, arm mismatch, equation disclosure, citations, register, table cells, model names
+7. **Compile** after all fixes
+8. **Write fix-log** — record every change in `paper/v4/grill-fix-log.md` (see Fix-Log Format below)
+9. **Run self-audit** — verify every fix was applied correctly (see Self-Audit Checklist below)
+10. **Report** using the output format at the end
 
-## Audit Strategy: 28 Checks in 6 Groups
+## Audit Strategy: 37 Checks in 7 Groups
 
 ---
 
@@ -249,7 +251,94 @@ grep -n 'canvas\|denoising\|prefix caching\|first-object-wins\|p99\|max/median\|
 grep -n 'this approach\|that model\|the baseline\|this method\|that result' paper/v4/sections/*.tex
 ```
 
-#### Check 25: Intuition Before Formalism — The arXiv Dual-Layer Test
+#### Check 25: Forward-Use of Abbreviations and Paper-Specific Terms Before Definition
+
+**Question:** Are any abbreviations or paper-specific terms used before they are defined?
+
+A reader hitting the introduction should not encounter `L*`, `batch-1 regime`, `DG`, `AR`, `canvas`, `K`, `λ*`, `p99`, `CV`, `MoE`, or any other specialized token without first seeing its straight definition in plain language. The introduction sets up the paper's vocabulary; if it borrows from later sections without defining, the reader is lost before the story begins.
+
+**Pass threshold:** 0 forward uses. Every abbreviation and paper-specific term must be defined in plain English **at or before** its first occurrence in every section. A definition that lives in §3 does not cover a use in §1.
+
+1. **Abbreviation-first scan:** For every abbreviation found in the paper (two-or-more capital letters, or mixed-case shorthand like `L*`), locate its first occurrence in the full document. Verify that the expansion appears in the same sentence or the sentence immediately preceding. Flag any abbreviation whose first use is bare.
+2. **Paper-specific term scan:** Build a glossary of terms this paper invents or repurposes: `L*`, `λ*`, `batch-1 regime`, `canvas`, `denoising step`, `K` (as a step count), `serial mode`, `packed mode`, `first-object-wins`, `natural output length`, `ramble rate`, `bounded deadline`, `cost shape`, `staircase`, `floor`. For each, find its first occurrence in each section and verify a plain-English definition precedes or accompanies it. Flag forward uses.
+3. **Cross-section independence:** A term defined in §2 and used in §1 is a forward use — the definition must appear in §1 (or the abstract) too, or the use must be removed. The abstract and introduction are read first and must be self-contained.
+4. **Math notation before definition:** Symbols like `L*`, `K=8`, `B` (blocks), `n_c` (canvas count) must not appear in prose before the equation or sentence that defines them. Flag any symbol that appears in the introduction or abstract without a preceding definition.
+5. **Abstract-specific rule:** The abstract is the widest-read part of the paper. It must contain **zero** undefined abbreviations and **zero** undefined paper-specific terms. Model names (e.g., DiffusionGemma-26B-A4B) are permitted; shorthands (AR, DG, MoE) are not, unless spelled out in the same sentence.
+
+```bash
+# Build the glossary and scan for first-use-before-definition
+python3 -c "
+import re, os
+
+# Terms to check (add more as the paper evolves)
+TERMS = {
+    'abbreviations': ['AR', 'DG', 'MoE', 'KV', 'F1', 'CV', 'p50', 'p99', 'p99.9', 'SLA', 'IQR', 'BF16'],
+    'paper_specific': ['L*', 'lambda*', 'batch-1', 'batch-1 regime', 'canvas', 'K=8', 'K steps',
+                       'denoising step', 'serial mode', 'packed mode', 'first-object-wins',
+                       'natural output length', 'ramble rate', 'bounded deadline',
+                       'cost shape', 'staircase', 'floor', 'n_c'],
+}
+
+# Read sections in document order
+section_order = sorted(os.listdir('paper/v4/sections'))
+all_text = {}
+for f in section_order:
+    if f.endswith('.tex'):
+        all_text[f] = open(f'paper/v4/sections/{f}').read()
+
+# Check abstract separately
+abstract = open('paper/v4/main.tex').read()
+abs_match = re.search(r'\\\\begin\{abstract\}(.*?)\\\\end\{abstract\}', abstract, re.DOTALL)
+abs_text = abs_match.group(1) if abs_match else ''
+
+print('=== ABSTRACT ===')
+for category, terms in TERMS.items():
+    for term in terms:
+        if term in abs_text:
+            # Check if defined in the same sentence or the one before
+            sentences = re.split(r'(?<=[.!?])\s+', abs_text)
+            for i, s in enumerate(sentences):
+                if term in s:
+                    # Check if the term is expanded/defined in this or preceding sentence
+                    context = (sentences[i-1] if i > 0 else '') + ' ' + s
+                    expanded = any(w in context.lower() for w in
+                        ['autoregressive', 'block diffusion', 'block-diffusion',
+                         'mixture of experts', 'key-value', 'field-f1', 'coefficient',
+                         'percentile', 'service level', 'interquartile', 'bfloat16'])
+                    if not expanded and term in ('AR', 'DG', 'MoE', 'KV', 'BF16'):
+                        print(f'  BARE ABBR in abstract: {term!r} — define or spell out')
+                    break
+
+print()
+print('=== SECTION SCAN (first occurrence per section) ===')
+for fname, text in all_text.items():
+    issues = []
+    for term in TERMS['paper_specific'] + TERMS['abbreviations']:
+        if term in text:
+            # Find the first occurrence
+            idx = text.find(term)
+            # Get the 200-char window before it
+            before = text[max(0, idx-200):idx]
+            # Check if a definition-like phrase appears before
+            defined = any(d in before.lower() for d in [
+                'is defined as', 'we define', 'denotes', 'where ', 'let ', 'i.e.,',
+                'that is,', 'we call', 'we term', 'refers to',
+                'autoregressive', 'block diffusion', 'block-diffusion',
+                'mixture of experts', 'key-value', 'percentile',
+            ])
+            if not defined:
+                issues.append(term)
+    if issues:
+        print(f'  {fname}: forward-use before definition: {issues}')
+"
+```
+
+**Common fixes:**
+- Spell out the abbreviation at first use in each section where it appears: "autoregressive (AR)" → then use AR freely in that section.
+- For paper-specific terms (L*, batch-1 regime), add a one-clause definition at first use: "the crossover length $L^*$ (where the two cost curves meet)".
+- In the abstract, prefer full terms over abbreviations entirely.
+
+#### Check 26: Intuition Before Formalism — The arXiv Dual-Layer Test
 
 **Question:** Does every methods subsection open with plain-English intuition before equations arrive?
 
@@ -284,7 +373,7 @@ for f in sorted(os.listdir('paper/v4/sections')):
 grep -n 'like a\|think of\|analogy\|equivalent of\|to put this\|in human terms\|in cost terms\|to make this concrete' paper/v4/sections/*.tex
 ```
 
-#### Check 26: Question-Framed Experiments — "Why" Not "What"
+#### Check 27: Question-Framed Experiments — "Why" Not "What"
 
 **Question:** Are tables and experiments framed by the question they answer, and does the text after each table explain *why* the pattern exists?
 
@@ -321,7 +410,7 @@ grep -n 'cost\|dollar\|\\$\|kWh\|human\|blink\|second\|minute\|hour\|day\|year\|
 grep -B2 'begin{table}' paper/v4/sections/*.tex
 ```
 
-#### Check 27: Self-Contained Figure Captions
+#### Check 28: Self-Contained Figure Captions
 
 **Question:** Can a reviewer understand the finding from the caption alone, without reading the body text?
 
@@ -362,7 +451,7 @@ for f in sorted(os.listdir('paper/v4/sections')):
 
 ### Group B-2: Automated Readability & Density Evaluation
 
-#### Check 28: Readability and Expression Density (Automated)
+#### Check 29: Readability and Expression Density (Automated)
 
 **Question:** Does the paper pass automated readability and expression-density thresholds?
 
@@ -709,6 +798,351 @@ for m in sorted(dead):
 
 ---
 
+### Group G: Structural Integrity and Reproducibility
+
+#### Check 30: Duplicate Content Across Sections
+
+**Question:** Is any block of text (paragraph, list, table) duplicated — or near-duplicated — across sections?
+
+Duplicate content signals a structural problem: either a section was copy-pasted during restructuring and never cleaned up, or two sections serve the same purpose. Both confuse the reader about which version is authoritative.
+
+**Pass threshold:** 0 duplicated paragraphs (≥3 consecutive sentences matching another section) outside deliberate cross-references.
+
+1. **Fuzzy paragraph matching:** Extract every paragraph (text block separated by blank lines) from each section. Normalize (strip LaTeX commands, lowercase, collapse whitespace). Compare every pair of paragraphs across different sections. Flag pairs with >60% token overlap.
+2. **Duplicate lists:** The same enumerated/itemized list appearing in two sections is a strong signal of duplication. Compare list item sets across sections.
+3. **Section role overlap:** If two sections have the same title or the same opening sentence, one is likely redundant.
+4. **Cross-reference vs duplicate:** A deliberate cross-reference ("as stated in §X") is fine; a full re-statement of the same content is a duplicate.
+
+```bash
+python3 -c "
+import re, os
+from difflib import SequenceMatcher
+
+sections = {}
+for f in sorted(os.listdir('paper/v4/sections')):
+    if not f.endswith('.tex'): continue
+    text = open(f'paper/v4/sections/{f}').read()
+    # Split into paragraphs
+    paras = [p.strip() for p in text.split('\n\n') if len(p.strip()) > 50]
+    # Normalize for comparison
+    normalized = []
+    for p in paras:
+        clean = re.sub(r'\\\\\w+(\[[^\]]*\])?(\{[^}]*\})?', '', p)
+        clean = re.sub(r'%.*', '', clean).lower().strip()
+        clean = re.sub(r'\s+', ' ', clean)
+        normalized.append(clean)
+    sections[f] = list(zip(paras, normalized))
+
+# Compare every pair of sections
+files = list(sections.keys())
+for i in range(len(files)):
+    for j in range(i+1, len(files)):
+        for p1, n1 in sections[files[i]]:
+            for p2, n2 in sections[files[j]]:
+                if len(n1) < 80 or len(n2) < 80: continue
+                ratio = SequenceMatcher(None, n1, n2).ratio()
+                if ratio > 0.6:
+                    print(f'DUPLICATE ({ratio:.0%} match):')
+                    print(f'  {files[i]}: {p1[:100]}...')
+                    print(f'  {files[j]}: {p2[:100]}...')
+                    print()
+"
+```
+
+#### Check 31: Self-Contradiction Between Threats and Headline Claims
+
+**Question:** Does the paper's own threats section contradict a claim stated as fact elsewhere?
+
+The most dangerous inconsistency is one the paper itself acknowledges but doesn't propagate. If the threats section says "these numbers are unverified" but the abstract/intro/conclusion state them as fact, the paper contradicts itself.
+
+**Pass threshold:** 0 contradictions. Every claim flagged as uncertain in the threats section must be hedged wherever it appears.
+
+1. **Threats claim extraction:** Read the threats section. For every sentence that qualifies, limits, or retracts a claim (keywords: "not yet", "unverified", "requires re-measurement", "indicative", "not controlled", "not tested", "not measured", "upper bound"), record the claim and the qualification.
+2. **Headline scan:** For each qualified claim, search the abstract, intro contributions, and conclusion for the same claim. Is it stated with the same qualification, or as flat fact? Flag any unqualified restatement.
+3. **Cross-section propagation:** If the threats section says "X is unverified," every use of X in the body must carry a hedge (e.g., "unverified", "projected", "pending re-measurement").
+4. **Direction consistency:** If the threats section says a number "plausibly" inflates the diffusion advantage, the body text must not present that number as a lower bound.
+
+```bash
+# Extract threat qualifications and search for unqualified restatements
+python3 -c "
+import re, os
+
+threats = open('paper/v4/sections/07_threats.tex').read()
+# Find qualifying phrases
+qualifiers = re.findall(r'(not yet|unverified|requires? re-measurement|indicative|not controlled|not tested|not measured|upper bound|inherited from|have not been)', threats, re.IGNORECASE)
+print(f'Threats section has {len(qualifiers)} qualifying phrases')
+
+# Extract claims near each qualifier
+sentences = re.split(r'(?<=[.!?])\s+', re.sub(r'\\\\\w+(\{[^}]*\})?', '', threats))
+flagged = [s.strip() for s in sentences if any(q in s.lower() for q in ['not yet', 'unverified', 'requires re-measurement', 'indicative', 'not controlled', 'not tested', 'not measured', 'upper bound', 'inherited from', 'have not been'])]
+print('Qualified claims in threats:')
+for s in flagged:
+    print(f'  - {s[:150]}')
+print()
+
+# Check abstract, intro, conclusion for numbers cited as fact
+for f in ['paper/v4/main.tex', 'paper/v4/sections/01_introduction.tex', 'paper/v4/sections/08_conclusion.tex']:
+    text = open(f).read()
+    # Look for headline numbers without hedge words
+    for pattern in [r'15\.6', r'8\.0\\\\times', r'eightfold', r'fifteenfold', r'77\\\\times', r'seventy']:
+        matches = re.findall(f'.{{0,80}}{pattern}.{{0,80}}', text)
+        for m in matches:
+            has_hedge = any(h in m.lower() for h in ['unverified', 'projected', 'pending', 'upper bound', 'not yet'])
+            if not has_hedge:
+                print(f'  UNQUALIFIED in {f}: ...{m.strip()[:100]}...')
+"
+```
+
+#### Check 32: Quality-vs-Latency Arm Mismatch
+
+**Question:** Are quality (F1) and latency (ms) numbers for the same comparison drawn from the same model?
+
+A common pattern: the paper claims "the two models are quality-matched" using F1 from model A, then presents latency from model B as if the comparison were one-model-vs-one-model. This is invisible unless you trace which model produced each metric.
+
+**Pass threshold:** 0 mismatches. Every table or claim that pairs quality and latency for a single comparison must use the same model for both axes.
+
+1. **Arm tracing:** For every comparison table or claim, identify which model produced the quality metric and which produced the latency metric. If they differ, flag it.
+2. **Matched-pair verification:** If the paper says "matched pair" or "fair comparison," verify that both quality and latency come from the same pair of models.
+3. **Inline disclosure:** If arms must differ (e.g., quality was only measured on a smaller model), is this disclosed at the point of the claim, not only in the threats section?
+
+```bash
+python3 -c "
+import re, os
+
+# Search for quality claims and latency claims, trace the model
+for f in sorted(os.listdir('paper/v4/sections')):
+    if not f.endswith('.tex'): continue
+    text = open(f'paper/v4/sections/{f}').read()
+    # Find paragraphs mentioning both F1/quality and latency/ms together
+    paras = text.split('\n\n')
+    for p in paras:
+        has_quality = bool(re.search(r'F1|field.f1|quality|equivalen', p, re.IGNORECASE))
+        has_latency = bool(re.search(r'ms|latency|p50|p99|faster|slower', p, re.IGNORECASE))
+        if has_quality and has_latency:
+            models_mentioned = re.findall(r'AR-3B|AR-30B|AR-1.5B|Qwen2.5-3B|Qwen3-30B|dense', p)
+            if len(set(models_mentioned)) > 1:
+                clean = re.sub(r'\\\\\w+(\{[^}]*\})?', '', p)[:200]
+                print(f'{f}: MIXED ARMS in quality+latency paragraph:')
+                print(f'  Models: {set(models_mentioned)}')
+                print(f'  Text: {clean.strip()}...')
+                print()
+"
+```
+
+#### Check 33: Equation Simplification Disclosure
+
+**Question:** Does every equation disclose known simplifications at the point of use?
+
+If the paper knows a cost law depends on two variables but writes it as a one-variable equation, the simplification must be disclosed at the equation, not deferred to a later paragraph or a footnote in an appendix.
+
+**Pass threshold:** 0 undisclosed simplifications. Every equation that omits a known variable must state the omission and its scope.
+
+1. **Known-variable audit:** For each equation, check whether the paper elsewhere acknowledges variables that the equation doesn't include. If the text says "cost depends on X and Y" but the equation only has X, flag it.
+2. **Scope disclosure:** The equation must state its validity scope (e.g., "valid at the reference prompt length of 1077 tokens; see Appendix X for the two-variable form").
+3. **Direction of simplification:** Does the simplification favor one arm? If the omitted variable makes one architecture look better, the disclosure must say so.
+
+```bash
+python3 -c "
+import re, os
+
+# Find all equations and check for two-variable/two-variable mentions nearby
+for f in sorted(os.listdir('paper/v4/sections')):
+    if not f.endswith('.tex'): continue
+    text = open(f'paper/v4/sections/{f}').read()
+    # Find equation environments
+    for m in re.finditer(r'\\\\begin\{(equation|align)\*?\}(.*?)\\\\end\{\1\*?\}', text, re.DOTALL):
+        eq = m.group(2)
+        # Check if the equation has only one variable (L_out) but paper mentions L_in
+        has_l_out = 'L_{\\\\mathrm{out}}' in eq or 'L_{out}' in eq or 'L_out' in eq
+        has_l_in = 'L_{\\\\mathrm{in}}' in eq or 'L_{in}' in eq or 'L_in' in eq
+        if has_l_out and not has_l_in:
+            # Check if input length is mentioned elsewhere in the paper
+            full_text = open(f'paper/v4/sections/{f}').read()
+            input_mentions = re.findall(r'input length|input slope|prompt length|prefill slope|two.variable|L_\\\\mathrm\{in\}', full_text, re.IGNORECASE)
+            if input_mentions:
+                print(f'{f}: equation has L_out only, but section mentions input length {len(input_mentions)} times')
+                print(f'  Equation: {eq.strip()[:150]}')
+                print(f'  → Disclose simplification at the equation')
+                print()
+"
+```
+
+#### Check 34: Stale or Wrong Citations
+
+**Question:** Does every citation match the model, method, or tool it's attached to?
+
+Citations drift during model switches. A paper that switches from Qwen2.5 to Qwen3 may forget to update the `\cite{}`, leaving a Qwen2.5 reference on a Qwen3 model name.
+
+**Pass threshold:** 0 mismatches. Every `\cite{}` must reference the correct version of the model/method/tool it's attached to.
+
+1. **Citation-model pairing:** For every model name in the text, check that the adjacent `\cite{}` references the correct model family and version.
+2. **Version drift:** If the text says "Qwen3-30B-A3B" but the citation key is `qwen25`, that's a mismatch. Build a map of model-name → expected-citation-key and verify.
+3. **Tool version drift:** If the text says "vLLM 0.25.1" but cites `vllm2023` (the 2023 paper, not the 0.25.1 release), verify the citation refers to the right thing.
+
+```bash
+python3 -c "
+import re, os
+
+# Map of model names to expected citation fragments
+MODEL_CITATIONS = {
+    'Qwen3': 'qwen3',
+    'Qwen2.5': 'qwen25',
+    'DiffusionGemma': 'diffusiongemma',
+    'LLaDA': 'llada',
+    'Drain': 'drain',
+}
+
+for f in sorted(os.listdir('paper/v4/sections')):
+    if not f.endswith('.tex'): continue
+    text = open(f'paper/v4/sections/{f}').read()
+    # Find model name + adjacent citation
+    for model, expected_key in MODEL_CITATIONS.items():
+        for m in re.finditer(rf'{model}\S*~?\\\\cite\{{([^}}]+)\}}', text):
+            cite_key = m.group(1)
+            if expected_key not in cite_key:
+                print(f'{f}: MODEL-CITATION MISMATCH')
+                print(f'  Model: {model}, citation: \\\\cite{{{cite_key}}}')
+                print(f'  Expected key containing: {expected_key}')
+                print()
+        # Also check the reverse: citation without the right model
+        for m in re.finditer(rf'\\\\cite\{{{expected_key}\}}}.*?{model}', text[:m.start()+200] if m else ''):
+            pass  # forward reference is fine
+"
+```
+
+#### Check 35: Register Consistency and Proofreading
+
+**Question:** Is the writing register (formal/informal) consistent across sections, and are there stray punctuation errors?
+
+A paper that uses contractions in the conclusion but not in the introduction has a register shift. Stray commas, missing commas, and doubled spaces are proofreading errors that erode credibility.
+
+**Pass threshold:** 0 register shifts (contractions in one section but not others); 0 stray punctuation.
+
+1. **Contraction scan:** Find all contractions ("it's", "can't", "doesn't", "that's", "isn't", "won't"). If they appear in some sections but not others, that's a register shift. Either use contractions throughout or not at all.
+2. **Stray punctuation:** Find " ," (space before comma), " ." (space before period), ",," (doubled comma), "  " (doubled space between words, not after periods).
+3. **Em-dash consistency:** If the paper uses "---" (em-dash) in some places and "--" (en-dash) in others for the same purpose, flag it.
+4. **Missing commas after introductory clauses:** Sentences starting with "At eight hops," or "In serial mode," need the comma; flag its absence.
+
+```bash
+python3 -c "
+import re, os
+
+contractions_by_section = {}
+for f in sorted(os.listdir('paper/v4/sections')):
+    if not f.endswith('.tex'): continue
+    text = open(f'paper/v4/sections/{f}').read()
+    clean = re.sub(r'\\\\\w+(\[[^\]]*\])?(\{[^}]*\})?', '', text)
+    clean = re.sub(r'%.*', '', clean)
+    
+    contractions = re.findall(r\"\\b(it's|can't|doesn't|that's|isn't|won't|don't|aren't|wasn't|weren't|hasn't|haven't|wouldn't|couldn't|shouldn't|didn't)\", clean, re.IGNORECASE)
+    if contractions:
+        contractions_by_section[f] = contractions
+        print(f'{f}: {len(contractions)} contractions: {contractions[:5]}')
+
+if len(set(contractions_by_section.keys())) > 0 and len(set(contractions_by_section.keys())) < len([f for f in os.listdir('paper/v4/sections') if f.endswith('.tex')]):
+    print()
+    print('REGISTER SHIFT: contractions in some sections but not others')
+    print(f'  Sections with contractions: {list(contractions_by_section.keys())}')
+
+print()
+print('=== Stray punctuation ===')
+for f in sorted(os.listdir('paper/v4/sections')):
+    if not f.endswith('.tex'): continue
+    text = open(f'paper/v4/sections/{f}').read()
+    issues = []
+    if re.search(r' ,', text): issues.append('space-before-comma')
+    if re.search(r' \.', text) and not re.search(r'e\.g\.', text): issues.append('space-before-period')
+    if re.search(r',,', text): issues.append('doubled-comma')
+    if re.search(r'  [a-z]', text): issues.append('doubled-space')
+    if issues:
+        print(f'  {f}: {issues}')
+"
+```
+
+#### Check 36: Degenerate Table Cells
+
+**Question:** Are there empty, placeholder, or degenerate cells in any table?
+
+A table cell that contains only a comma, an empty string, or "N/A" without explanation is a rendering artifact or a missing value. The reader shouldn't have to guess.
+
+**Pass threshold:** 0 degenerate cells. Every cell must contain a value, a macro, or an explicit "—" (em-dash) with a caption note explaining what it means.
+
+1. **Empty cell scan:** Parse every `\begin{tabular}` environment. For each row, split by `&`. Flag cells that are empty, contain only whitespace, or contain only a comma/punctuation.
+2. **Placeholder detection:** Flag cells containing "TODO", "TBD", "XXX", "?", or a bare comma.
+3. **Asymmetry check:** If a row has N columns but a cell produces fewer than expected values (missing `&`), flag it.
+
+```bash
+python3 -c "
+import re, os
+
+for f in sorted(os.listdir('paper/v4/sections')):
+    if not f.endswith('.tex'): continue
+    text = open(f'paper/v4/sections/{f}').read()
+    for m in re.finditer(r'\\\\begin\{tabular[x]?\}\{[^}]*\}(.*?)\\\\end\{tabular[x]?\}', text, re.DOTALL):
+        table = m.group(1)
+        rows = [r.strip() for r in table.split('\\\\\\\\') if r.strip()]
+        for i, row in enumerate(rows):
+            cells = [c.strip() for c in row.split('&')]
+            for j, cell in enumerate(cells):
+                clean = re.sub(r'\\\\\w+(\{[^}]*\})?', '', cell).strip()
+                if not clean or clean in (',', '.', '-', '?'):
+                    print(f'{f}: row {i}, col {j}: DEGENERATE CELL: {cell!r}')
+                if clean in ('TODO', 'TBD', 'XXX', 'N/A'):
+                    print(f'{f}: row {i}, col {j}: PLACEHOLDER: {cell!r}')
+"
+```
+
+#### Check 37: Model Name Precision and Reproducibility
+
+**Question:** Do the model names in the paper match the HuggingFace IDs exactly enough to reproduce the results?
+
+A model called "DiffusionGemma-26B-A4B" in the paper might be `google/diffusiongemma-26b-a4b-it` on HuggingFace — the missing `-it` (instruction-tuned) suffix changes the model. The paper must use names precise enough for a reader to load the exact checkpoint.
+
+**Pass threshold:** 0 ambiguous model names. Every model name in the text must either (a) match a HuggingFace ID exactly, or (b) be accompanied by the full HF ID in parentheses or a footnote.
+
+1. **Name-to-ID mapping:** Build a map of every model name used in the paper to its HuggingFace ID (from `results/*.json` provenance blocks or `models/baselines/*.py` defaults). Verify the paper's name is unambiguous.
+2. **Suffix check:** Common suffixes that change behavior: `-it` (instruction-tuned), `-Instruct`, `-chat`, `-base`. If the paper drops a suffix, flag it.
+3. **Version check:** If the paper says "Qwen2.5-3B" but the provenance says "Qwen/Qwen2.5-3B-Instruct", flag the missing `-Instruct`.
+4. **Case sensitivity:** Model IDs on HuggingFace are case-sensitive. Flag case mismatches between the paper and the HF ID.
+
+```bash
+python3 -c "
+import json, os, re
+
+# Build model name -> HF ID map from provenance blocks
+hf_map = {}
+for root, dirs, files in os.walk('results'):
+    for f in files:
+        if f.endswith('.json') and 'provenance' not in f:
+            try:
+                d = json.load(open(os.path.join(root, f)))
+                prov = d.get('provenance', {})
+                if isinstance(prov, dict) and prov.get('model_name'):
+                    hf_map[prov['model_name']] = f
+            except: pass
+
+# Check paper text for model names
+for sec_f in sorted(os.listdir('paper/v4/sections')):
+    if not sec_f.endswith('.tex'): continue
+    text = open(f'paper/v4/sections/{sec_f}').read()
+    for hf_id, artifact in hf_map.items():
+        # Extract the short name from the HF ID
+        short_name = hf_id.split('/')[-1]
+        if short_name in text:
+            # Check if the full HF ID appears nearby
+            idx = text.find(short_name)
+            context = text[max(0,idx-200):idx+len(short_name)+200]
+            if hf_id not in context:
+                print(f'{sec_f}: MODEL NAME IMPRECISE')
+                print(f'  Paper uses: {short_name}')
+                print(f'  HF ID: {hf_id}')
+                print(f'  → Add full HF ID or verify suffix')
+                print()
+" 2>/dev/null || echo 'Run from repo root'
+```
+
+---
+
 ## False-Positive Catalog
 
 These patterns look like issues but are NOT. Skip them to avoid wasting time:
@@ -764,11 +1198,12 @@ After all fixes are applied and the PDF is recompiled, verify:
 - [ ] Abstract, intro, conclusion cite the same numbers (re-run Check 14)
 - [ ] Crossover claims are integer-safe (re-run Check 18)
 - [ ] No contradictory framing (re-read abstract + conclusion first/last sentences)
-- [ ] Every equation has intuition before it (re-run Check 25)
-- [ ] Every table has a "why" explanation after it (re-run Check 26)
-- [ ] Every figure caption is self-contained (re-run Check 27)
-- [ ] At least one real-world analogy in the paper (Check 25)
-- [ ] At least one dollar-cost translation in abstract + conclusion (Check 26)
+- [ ] No abbreviations or paper-specific terms used before their definition (re-run Check 25)
+- [ ] Every equation has intuition before it (re-run Check 26)
+- [ ] Every table has a "why" explanation after it (re-run Check 27)
+- [ ] Every figure caption is self-contained (re-run Check 28)
+- [ ] At least one real-world analogy in the paper (Check 26)
+- [ ] At least one dollar-cost translation in abstract + conclusion (Check 27)
 - [ ] `eval_readability.py` passes (exit 0)
 
 ### Compilation
@@ -781,6 +1216,16 @@ After all fixes are applied and the PDF is recompiled, verify:
 - [ ] No new undefined references (editing sections may break \ref)
 - [ ] No new stale numbers (fixing one number may reveal a dependent number that also needs updating)
 
+### Structural integrity
+- [ ] No duplicated paragraphs across sections (re-run Check 30)
+- [ ] No self-contradiction between threats and headline claims (re-run Check 31)
+- [ ] No quality-vs-latency arm mismatch in paired comparisons (re-run Check 32)
+- [ ] Every equation discloses known simplifications at the point of use (re-run Check 33)
+- [ ] No stale or wrong citations (re-run Check 34)
+- [ ] No register shifts or stray punctuation (re-run Check 35)
+- [ ] No degenerate table cells (re-run Check 36)
+- [ ] Every model name traces to a precise HuggingFace ID (re-run Check 37)
+
 If any item fails, fix and re-audit before reporting completion.
 
 For each check, report:
@@ -792,7 +1237,7 @@ STATUS: [CRITICAL / IMPORTANT / OK]
 FIX: [What was done, or "no fix needed"]
 ```
 
-After all 28 checks, summarize:
+After all 37 checks, summarize:
 - Total issues found (by group)
 - Critical issues fixed
 - Remaining known limitations (acknowledged in paper)
@@ -803,10 +1248,19 @@ After all 28 checks, summarize:
 - Storytelling: setup-payoff closure gaps
 - Readability: sentences >40 words, Flesch score range, sections outside 30–50
 - Definitions: undefined variables, undefined metrics, missing methodology context
-- Intuition-first: equations without plain-English preamble (Check 25)
-- Question-framed: tables without "why" explanations (Check 26)
-- Self-contained captions: captions missing pattern or mechanism (Check 27)
+- Forward-use: abbreviations and paper-specific terms used before definition (Check 25)
+- Intuition-first: equations without plain-English preamble (Check 26)
+- Question-framed: tables without "why" explanations (Check 27)
+- Self-contained captions: captions missing pattern or mechanism (Check 28)
 - Real-world context: analogies count, dollar translations count
 - Readability: `eval_readability.py` pass/fail count, Flesch range, density metrics
+- Duplicate content: duplicated paragraphs across sections (Check 30)
+- Self-contradiction: threats vs headline claims (Check 31)
+- Arm mismatch: quality vs latency model mismatch (Check 32)
+- Equation disclosure: undisclosed simplifications (Check 33)
+- Citations: stale or wrong model/method citations (Check 34)
+- Register: contractions, stray punctuation, tone shifts (Check 35)
+- Table cells: degenerate/empty cells (Check 36)
+- Model name precision: ambiguous names missing HF ID suffix (Check 37)
 - Self-audit: pass/fail per item
 - Fix-log: written / not written

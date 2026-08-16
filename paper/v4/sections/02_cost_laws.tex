@@ -1,4 +1,4 @@
-\section{The two cost laws: a line and a staircase}
+\section{Background: autoregressive vs block-diffusion decoding}
 \label{sec:laws}
 
 \subsection{How the two architectures decode}
@@ -6,8 +6,8 @@
 \paragraph{Autoregressive (AR).}
 The model generates output one token at a time. Each token requires a
 forward pass over the full model and the growing KV cache; the model
-cannot begin token $t_{i+1}$ until it has finished $t_i$. The cost is
-strictly sequential --- one forward pass per token, no parallelism
+can't begin token $t_{i+1}$ until it has finished $t_i$. The cost is
+strictly sequential, one forward pass per token, no parallelism
 within the sequence.
 
 \paragraph{Block-diffusion (DG).}
@@ -16,7 +16,7 @@ through $K$ iterative denoising passes. On each pass, the model
 refines all $C$ token positions simultaneously: it starts from noise,
 predicts cleaner tokens at every position, and repeats. After $K$
 passes the canvas is fully decoded and the model steps to the next
-canvas. Within a canvas, tokens are free --- they are denoised in
+canvas. Within a canvas, tokens are free, they are denoised in
 parallel, so adding more tokens up to $C$ costs nothing. The cost
 jumps only at the canvas boundary, when a fresh block of $K$ denoising
 passes begins.
@@ -57,7 +57,7 @@ L^{*} = \frac{a_{\textsc{dg}} - a_{\textsc{ar}}}{b_{\textsc{ar}}}
 \end{equation}
 where $L^{*}$ is the crossover output length and $\lambda^{*}$ is the
 maximum serial event rate before a queue forms. Below $L^{*}$, AR is
-cheaper; above it, DG is --- permanently, though not smoothly: the
+cheaper; above it, DG is, permanently, though not smoothly: the
 advantage grows inside each canvas as AR climbs, then drops back at
 every canvas edge where DG pays for the next block, before climbing
 again. Figure~\ref{fig:shapes} (page~\pageref{fig:shapes})
@@ -69,13 +69,13 @@ the steps are regular enough to be one constant.
 \centering
 \includegraphics[width=\linewidth]{figures/fig2_canvas_edges.png}
 \caption{The staircase probed at canvas boundaries. \textbf{A:}
-latency is flat inside a canvas and jumps at the boundary --- tokens
+latency is flat inside a canvas and jumps at the boundary, tokens
 within a canvas are free. \textbf{B:} the staircase is regular: all
 seven canvas transitions out to $L{=}2048$ fall in
 \dgStepLo--\dgStepHi\,ms (median \dgStep\,ms, an $8\%$ spread), so a
 canvas costs about the same wherever it sits in the sequence. That
 regularity is what makes the second term of Eq.~\ref{eq:dg} a single
-constant rather than a function of position ($K{=}8$, BGL,
+constant instead of a function of position ($K{=}8$, BGL,
 $n{=}200$).}
 \label{fig:edges}
 \end{figure}
@@ -86,7 +86,7 @@ Interpolating between $K{=}2$ and $K{=}8$ splits the base into a
 $K$-independent floor of $\approx$143\,ms ($38\%$) and per-step work of
 $\approx$236\,ms ($62\%$); see Appendix~\ref{app:decomp}. The per-step
 share is the larger one because each denoising step re-attends the
-whole prompt --- prefill is paid $K$ times, not once. So if the prompt
+whole prompt, prefill is paid $K$ times, not once. So if the prompt
 KV were cached across denoising steps, most of that $62\%$ would
 collapse and the base could fall toward the $\sim$150\,ms floor, taking
 $L^{*}$ down with it. We treat the measured base as the operative
@@ -99,9 +99,9 @@ is \bglStep\,ms on BGL against \hdfsStep\,ms on HDFS, a $1.7\%$
 difference at matched $K{=}8$ and canvas size. The step is a model
 property, not a data property, which is why it barely moves. Two
 caveats bound this: HDFS is the 2{,}000-line LOGHUB
-sample~\cite{loghub} rather than a full corpus, evaluated at
+sample~\cite{loghub} over a full corpus, evaluated at
 $n{=}100$--$200$ per cell against BGL's $n{=}200$; and the AR
 generalisation was measured on the dense AR-3B, not AR-30B. So the
 \emph{shape} transfers across corpora on both arms, but the AR
-constants do not transfer across model scales.
+constants don't transfer across model scales.
 

@@ -6,35 +6,34 @@ but the shapes should transfer. The crossover is calibrated at a
 reference prompt of $\sim$\refPrompt\,tokens and shifts with input
 length.
 
-\paragraph{AR-30B arm is not yet verified.}
+\paragraph{AR-30B arm: corrected and re-measured.}
 
-AR-30B measurements differ from every other arm in three ways at
-once, and all three plausibly slow the AR side. First, engine version:
-every DG, AR-3B and AR-1.5B cell ran on vLLM 0.25.1 (torch 2.11.0,
-CUDA 13.0), but the AR-30B ran on vLLM 0.11.0 (torch 2.8.0, CUDA
-12.8). Second, CUDA graphs: the AR-30B harness sets
-\texttt{enforce\_eager}, which the anchor harnesses don't, so the
-AR-30B decoded without graph capture. Third, and most seriously, the
-AR-30B harness read its inputs from the gold record file instead of
-the raw log file. The model was prompted with the answer it was
-supposed to extract, which is why its 9-field F1 is exactly $1.0$ in
-every cell and its outputs are near-copies of the gold.
-
-The consequence is that the AR-30B decodes at $48$\,ms/token against
-the dense AR-3B's $6.3$\,ms/token, a $7.6\times$ per-token penalty
-for a model with the same active parameter count, which we don't
-believe. We therefore report the AR-30B comparison as
-\emph{unverified} over as a bound. The cost law
-(Eq.~\ref{eq:ar}), Table~\ref{tab:niche}, the fifteenfold and
-eightfold headline figures, the batching multiplier and the
-cost-per-event table all inherit these confounds and require
-re-measurement on the pinned stack. The DG-side constants, the canvas
-step, the $K$ sweep and every AR-3B and AR-1.5B result are unaffected,
-having been measured on the pinned stack from raw log lines. This is
-the same class of defect as correction~2 in
+An earlier draft of this paper reported AR-30B numbers from a harness
+that differed from every other arm in three ways at once, all three
+slowing the AR side. First, engine version: every DG, AR-3B and AR-1.5B
+cell ran on vLLM 0.25.1 (torch 2.11.0, CUDA 13.0), but the AR-30B ran
+on vLLM 0.11.0 (torch 2.8.0, CUDA 12.8). Second, CUDA graphs: the
+AR-30B harness set \texttt{enforce\_eager}, which the anchor harnesses
+don't, so the AR-30B decoded without graph capture. Third, and most
+seriously, the AR-30B harness read its inputs from the gold record file
+instead of the raw log file: the model was prompted with the answer it
+was supposed to extract, which is why its 9-field F1 was exactly $1.0$
+in every cell and its outputs were near-copies of the gold. The harness
+has been corrected (raw input, graphs on, the paper's 9-field subset,
+serial per-event timing, a provenance block, and a guard in
+\texttt{build\_chat\_messages} that rejects any input that parses as a
+gold JSON record) and all four AR-30B artifacts have been re-measured
+on the pinned stack. The corrected AR-30B decodes at
+\arSlope\,ms/token, close to the dense AR-3B's 6.3\,ms/token, which is
+plausible for a MoE with the same active parameter count. The cost law
+(Eq.~\ref{eq:ar}), Table~\ref{tab:niche}, the headline figures, the
+batching multiplier and the cost-per-event table now all carry
+provenance blocks verified by \texttt{paper/verify\_numbers.py}. This
+is the same class of defect as correction~2 in
 Appendix~\ref{app:defects}, a harness asymmetry flattering the
 architecture we hoped would win, found, as those eight were, by
-re-reading committed artifacts.
+re-reading committed artifacts. Correction~9 in
+Appendix~\ref{app:defects} prices the impact.
 
 The AR--DG quality difference is equivalent at a $\pm 0.015$ margin
 ($\Delta = \qualityGap$, 95\% CI $[-0.012, +0.011]$, $n = 300$).
@@ -43,11 +42,10 @@ tighter margin the 95\% CI doesn't fit; equivalence holds only on
 the 90\% CI.
 
 This quality comparison uses the dense AR-3B baseline, not the AR-30B
-MoE. The 9-field F1 of \arThreeBFnine\ was re-scored with the
-corrected parser on the dense baseline, and the AR-30B was not
-re-scored at the same parser setting. The latency comparison uses the
-AR-30B MoE cost law, so the quality and latency arms are not the same
-model.
+MoE. The AR-30B's own 9-field F1 is 0.870, slightly above the dense
+AR-3B's \arThreeBFnine, as expected for a larger model. The latency
+comparison uses the AR-30B MoE cost law, so the quality and latency
+arms are not the same model.
 
 Several secondary results come from arms other than the MoE-matched
 pair, and we flag them together not only at each use. The
@@ -58,13 +56,13 @@ dense AR-3B for the AR side. The perturbation, refinement and
 bounded-deadline probes in Appendix~\ref{app:refuted} were run on
 \LLaDA, a second diffusion model, against the dense AR-3B. And the
 serial headline is a batch-1 result: the same AR-30B batches
-$77\times$, so a deployment that can batch inverts the economics
+$25\times$, so a deployment that can batch inverts the economics
 entirely (\S\ref{sec:limits}).
 
 The surviving niche has not been tested on a task whose natural output
 length is $\geq 512$ tokens. The AR-30B cost law is fitted from a
 five-point serial sweep with $R^2 = 0.9996$, but the model stops at
-$\sim$123 tokens (EOS), so the slope is carried by the $L{=}32$ point
+$\sim$126 tokens (EOS), so the slope is carried by the $L{=}32$ point
 and the cluster at natural output. The advantage in serial is the
 realized comparison; forcing AR to generate longer output would
 increase its latency per the cost law, making DG's advantage larger.
@@ -92,9 +90,11 @@ The cost-shape generalisation is inferred from one block-diffusion
 model measured against one AR family. The shape claim is structural but
 not tested on a second diffusion family.
 
-The energy comparison uses three different idle baselines; the DG
-energy was not re-measured at the AR-30B idle point, so the AR-30B vs
-DG ratio is indicative instead of directly controlled.
+The energy comparison uses three different idle baselines (49.7\,W for
+AR-30B, 52.6\,W for DG, 58.6\,W for AR-1.5B); both the AR-30B and DG
+energy runs are now serial, but the DG energy was not re-measured at
+the AR-30B idle point, so the ratio is indicative instead of directly
+controlled.
 
 DiffusionGemma-26B-A4B-it's available at
 \url{https://huggingface.co/google/}\\\url{diffusiongemma-26b-a4b-it}.

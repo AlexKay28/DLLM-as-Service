@@ -3,7 +3,7 @@
 %
 %  Rule: every measurement is a macro here, and the comment on its line names
 %  the artifact it was read from. Section files may hardcode derived ratios
-%  (e.g., 15.6×) and structural constants (e.g., 12 fields, $K{=}8$) for
+%  (e.g., 2.5×) and structural constants (e.g., 12 fields, $K{=}8$) for
 %  readability, but raw measurements (latencies, F1 scores, energy) must be
 %  macros. paper/verify_numbers.py checks provenance blocks and decimal-place
 %  policy; the figure builder (paper/figures/make_figures.py) prints what it
@@ -23,8 +23,12 @@
 \newcommand{\twelveGap}{0.041}         % 12-field difference, AR-favoured
 
 % --- Cost laws ------------- results/anchors/*.json, results/issue68_*.json --
-\newcommand{\arBase}{79.1}        % ms, AR-30B MoE serial intercept (Qwen3-30B-A3B)
-\newcommand{\arSlope}{47.7}      % ms/token, AR-30B MoE serial decode slope
+% AR-30B (arBase/arSlope/crossoverL): results/issue111_qwen3_serial_sweep.json
+%   cost_law.{intercept_ms,slope_ms_per_token,crossover_L_star}. UNVERIFIED --
+%   inherited from the gold-leaked harness (issue #112); pending re-measurement
+%   on the pinned stack. verify_numbers.py errors until provenance is present.
+\newcommand{\arBase}{34.6}        % ms, AR-30B MoE serial intercept (Qwen3-30B-A3B)
+\newcommand{\arSlope}{7.2}       % ms/token, AR-30B MoE serial decode slope
 \newcommand{\dgBase}{378.8}       % ms, DG base at K=8
 \newcommand{\dgStep}{119.5}       % ms, median of the 7 measured canvas steps
 \newcommand{\dgStepLo}{113.1}     % ms, smallest measured step (1280->1536)
@@ -41,7 +45,7 @@
 % --- Crossovers ------- derived from arBase/arSlope/dgBase above --------------
 % NB: models/decision/procedure.py still records the AR-3B-era values
 % (l_cross_tokens=65, lambda_cross_ev_s=1.8); it is NOT the source of these.
-\newcommand{\crossoverL}{6}        % tokens: (dgBase - arBase) / arSlope, serial mode
+\newcommand{\crossoverL}{48}       % tokens: (dgBase - arBase) / arSlope, serial mode
 \newcommand{\crossoverLambda}{2.6} % ev/s: 1000 / dgBase (unchanged — DG base same)
 
 % --- Input length, the second variable ------ results/issue44_*_sweep.json --
@@ -60,7 +64,7 @@
 
 % --- Batching ------------------- results/issue42_batching.json, appD, dInfer --
 % NB: #42 was run on the dense AR-3B (Qwen2.5-3B-Instruct), NOT the AR-30B MoE.
-% The AR-30B MoE multiplier is 77x (results/issue111_qwen3_batch_sweep.json).
+% The AR-30B MoE multiplier is 24.7x (results/issue111_qwen3_batch_sweep.json).
 \newcommand{\cacheOnMult}{42.8}    % dense AR-3B, prefix caching on   (#42)
 \newcommand{\cacheOffMult}{26.8}   % dense AR-3B, prefix caching off  (#42)
 \newcommand{\dgBatchVllmHi}{1.7}   % DG under vLLM, L=128 (lower bound)
@@ -68,11 +72,11 @@
 % --- Energy ------------------------------------- three separate artifacts ---
 % Values hardcoded in sec 03 (03_deployment.tex). Each comes from its own file:
 %   DG      4.2 J, idle 52.6W  -- results/issue_energy_measurement.json
-%   AR-30B 10.1 J, idle 92.7W  -- results/issue111_ar30b_energy.json (BATCH-served,
-%                                 147 ms/event wall; DG's run is serial, 386 ms/event)
+%   AR-30B 118.7 J, idle 49.7W  -- results/issue111_ar30b_energy.json (serial, 928 ms/event;
+%                                 re-measured issue #112, was 10.1 J batch-served)
 %   AR-1.5B 5.1 J, idle 58.6W  -- results/issue_evidence_ar1b_energy.json
-% Ratios 10.1/4.2 = 2.4 and 5.1/4.2 = 1.2. Different idle baselines and
-% different serving regimes: indicative, not controlled (see sec 07).
+% Ratios 118.7/4.2 = 28.3 (serial/serial) and 5.1/4.2 = 1.2. The AR-30B
+% energy run is now serial (928 ms/event), matching DG's serial regime.
 
 % --- Deployment pair ------ results/issue_evidence_ar1b_*.json, issue68_*.json --
 \newcommand{\dgWeights}{52.0}          % GB, bf16

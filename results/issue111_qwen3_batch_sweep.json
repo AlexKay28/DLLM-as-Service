@@ -1,7 +1,39 @@
 {
+  "experiment": "issue111_ar30b_batch_sweep",
   "model": "Qwen/Qwen3-30B-A3B",
-  "batch1_ms": 6148.1,
-  "batch300_per_event_ms": 80.0,
-  "multiplier": 76.9,
-  "tokens_per_s": 1538.0
+  "model_type": "ar30b",
+  "corpus": "BGL",
+  "n_events": 300,
+  "serial_n": 20,
+  "max_new_tokens": 256,
+  "temperature": 0.0,
+  "serial_per_event_ms": 995.0,
+  "serial_p50_ms": 987.6,
+  "batch_per_event_ms": 40.3,
+  "batch_size": 300,
+  "wall_time_s": 12.08,
+  "events_per_s": 24.8,
+  "tokens_per_s": 3146.0,
+  "multiplier": 24.7,
+  "comparison": {
+    "AR-3B_dense": "42.8x",
+    "DG-26B": "<=1.7x"
+  },
+  "provenance": {
+    "model_name": "Qwen/Qwen3-30B-A3B",
+    "model_type": "ar30b",
+    "backend": "vllm",
+    "max_new_tokens": 256,
+    "parser_policy": "first_object_wins",
+    "scoring_fields": "n/a (throughput)",
+    "vllm_version": "0.25.1",
+    "torch_version": "2.11.0+cu130",
+    "transformers_version": "5.15.0",
+    "cuda_version": "13.0",
+    "gpu_model": "NVIDIA A100 80GB PCIe",
+    "python_version": "3.10.12",
+    "platform": "Linux-5.15.179-15.mofed2407ya-x86_64-with-glibc2.35",
+    "timestamp": "2026-08-16T17:38:23Z",
+    "repo_commit": "6e20f46"
+  }
 }
