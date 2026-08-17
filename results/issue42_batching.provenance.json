@@ -1,0 +1,13 @@
+{
+  "model_name": "Qwen/Qwen2.5-3B-Instruct",
+  "model_type": "ar3b",
+  "backend": "vllm",
+  "max_new_tokens": 256,
+  "parser_policy": "first_object_wins",
+  "scoring_fields": "9",
+  "vllm_version": "0.25.1",
+  "torch_version": "2.11.0+cu130",
+  "cuda_version": "13.0",
+  "gpu_model": "NVIDIA A100 80GB PCIe",
+  "note": "Dense AR-3B, not AR-30B MoE. Batching sweep with prefix cache on/off. Sidecar added #113."
+}

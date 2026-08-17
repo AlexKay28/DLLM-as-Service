@@ -26,12 +26,12 @@ OUT = REPO / "paper" / "figures"
 
 # --- Fitted laws (macros.tex is the authority; these must match it) ---------
 LAWS = {
-    "ar_a": 79.1,        # ms, AR-30B MoE serial intercept (Qwen3-30B-A3B) [macros \arBase]
-    "ar_b": 47.7,        # ms/token, AR-30B MoE serial decode slope [macros \arSlope]
+    "ar_a": 34.6,        # ms, AR-30B MoE serial intercept (Qwen3-30B-A3B) [macros \arBase]
+    "ar_b": 7.2,         # ms/token, AR-30B MoE serial decode slope [macros \arSlope]
     "dg_base": 378.8,    # ms, DG base at K=8 [macros \dgBase]
     "dg_step": 119.5,    # ms per extra canvas (median of 7) [macros \dgStep]
     "canvas": 256,       # tokens [macros \canvasLength]
-    "l_star": 6,         # token crossover, (dg_base - ar_a) / ar_b [macros \crossoverL]
+    "l_star": 48,        # token crossover, (dg_base - ar_a) / ar_b [macros \crossoverL]
     "lam_star": 2.64,    # ev/s rate crossover, 1000 / dg_base [macros \crossoverLambda]
     "nat_l_dg": 176,     # DG natural output length
     # Dense AR-3B baseline (Qwen2.5-3B), retained for figures whose measured
@@ -254,7 +254,7 @@ def fig1_cost_shapes():
     # AR-30B MoE values come from the fitted serial cost law (Eq. 2); the dense AR-3B
     # was not measured at forced lengths, and the AR-30B forced-length sweep
     # did not pin min_tokens, so the fitted law is the operative AR series.
-    # The serial AR-30B slope (47.7 ms/token) is ~48x steeper than the batch-
+    # The serial AR-30B slope (7.2 ms/token) is ~23x steeper than the batch-
     # throughput slope, so the extrapolated cost-law values dwarf DG; a log
     # y-axis keeps both series visible.
     key_Ls = [256, 512, 1024, 2048]
@@ -773,7 +773,7 @@ def fig7_decision_map():
 # =============================================================== figure 8 ===
 
 def fig8_defects():
-    """Pricing the baseline: eight corrections as a clean horizontal bar chart."""
+    """Pricing the baseline: nine corrections as a clean horizontal bar chart."""
     rows = [
         ("1. Decoding config",   0.779, 0.844, "AR"),
         ("2. Serving parity",    1841.6, 413.3, "AR"),
@@ -783,6 +783,7 @@ def fig8_defects():
         ("6. Parser baseline",   0.68, 0.85, "neutral"),
         ("7. Semantic gold",     0.786, 0.852, "DG"),
         ("8. Latency model",     0, 0, "AR"),  # special: Poisson->bursty
+        ("9. AR-30B gold-leak",  15.6, 2.5, "AR"),  # headline ratio corrected
     ]
     print("fig8 rows:", [(r[0], r[1], r[2]) for r in rows])
 
@@ -800,6 +801,11 @@ def fig8_defects():
             deltas.append(1.0)  # qualitative
             labels_before.append("Poisson")
             labels_after.append("bursty")
+        elif name.startswith("9"):
+            d = abs(float(after) - float(before)) / float(before) * 100
+            deltas.append(d)
+            labels_before.append(f"{before}×")
+            labels_after.append(f"{after}×")
         elif name.startswith("4"):
             deltas.append(100)
             labels_before.append("0%")
@@ -834,7 +840,7 @@ def fig8_defects():
     ax.invert_yaxis()
     ax.set_xlabel("magnitude of correction (%)", fontsize=8.5)
     ax.set_xlim(0, max(deltas) * 1.75)
-    S.title(ax, "Pricing the baseline: eight corrections")
+    S.title(ax, "Pricing the baseline: nine corrections")
     S.despine(ax)
     ax.grid(axis="y", visible=False)
 

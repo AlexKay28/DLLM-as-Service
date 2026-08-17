@@ -46,6 +46,20 @@ if str(REPO_ROOT) not in sys.path:
 from models.baselines.provenance import assert_provenance
 
 
+# Artifacts cited in macros.tex or make_figures.py that MUST have provenance.
+# Missing provenance in these is an ERROR, not a warning (#113 0.5g).
+CITED_ARTIFACT_NAMES = {
+    "issue42_batching.json",
+    "issue43_nine_field_f1.json",
+    "issue_energy_measurement.json",
+    "issue_evidence_ar1b_energy.json",
+    "issue111_qwen3_serial_sweep.json",
+    "issue111_qwen3_batch_sweep.json",
+    "issue111_ar30b_energy.json",
+    "issue111_qwen3_30b_a3b.json",
+}
+
+
 WARNINGS = []
 ERRORS = []
 
@@ -97,7 +111,16 @@ def check_provenance(path: Path, data: dict) -> None:
 
             # Only warn if this file has model-related fields
             if data.get("model") or data.get("model_type"):
-                warn(f"{path.name}: has model info but no provenance block")
+                # Cited artifacts (named in macros.tex or make_figures.py)
+                # must have provenance — promote to error (#113 0.5g).
+                if path.name in CITED_ARTIFACT_NAMES:
+                    error(
+                        f"{path.name}: cited in macros.tex or figures but "
+                        f"lacks provenance block (#113 0.5g). Re-measure "
+                        f"with capture_provenance or add a sidecar."
+                    )
+                else:
+                    warn(f"{path.name}: has model info but no provenance block")
 
 
 def check_model_consistency(path: Path, data: dict) -> None:
@@ -529,6 +552,8 @@ def main():
 
     if WARNINGS:
         print(f"\n  Passing with {len(WARNINGS)} warning(s).")
+        print(f"  (Warnings are uncited artifacts without provenance — not")
+        print(f"   load-bearing for any paper claim. Cited artifacts are errors.)")
         sys.exit(0)
     else:
         print(f"\n  All checks pass with zero warnings.")

@@ -43,8 +43,11 @@ length. The AR/DG ratio matches the log-extraction ratio --- the cost
 shape generalises.
 
 DG's lower pass@1 is expected: DiffusionGemma was trained as a
-log-extraction model, not a code model. What matters is not absolute
-quality but whether the \emph{shape} (line vs staircase) transfers.
+log-extraction model, not a code model. No code-trained block-diffusion
+model exists at this scale; DiffusionGemma-26B-A4B is the only
+open-weights block-diffusion model large enough for structured generation.
+What matters is not absolute quality but whether the \emph{shape}
+(line vs staircase) transfers.
 
 \subsection{Deadline-bounded pass@1: AR collapses, DG stays flat}
 
