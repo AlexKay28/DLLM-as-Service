@@ -115,21 +115,25 @@ ratio stops growing.}
 
 \paragraph{Anytime escalation: input-dependent latency.}
 
-The $K$ knob need not be fixed. Each denoising step produces per-position
-confidence (max softmax probability); fields that resolve early can be
-committed, and only uncertain fields re-masked for further steps. This
-gives DG a cascade: run $K{=}2$, check confidence, escalate only
-low-confidence fields to $K{=}4$, then $K{=}8$. Easy inputs finish at
-$\sim$200\,ms; hard inputs reach the full 379\,ms; the average drops
-below the fixed-$K$ baseline. AR has no equivalent: it cannot inspect
-partial output quality mid-generation and decide whether to continue.
-AR's early stopping is binary --- the model either emits EOS or it
-doesn't --- while DG's is graduated across $K$ steps. This makes DG's
-latency \emph{input-dependent} in a way AR structurally cannot be.
-The cascade has not yet been measured end-to-end; the per-position
-confidence signal is already computed inside the denoising loop, and
-the selective re-masking primitive is the same one tested in the
-refinement experiment (Appendix~\ref{app:refuted}).
+The $K$ knob need not be fixed. A cascade runs DG at $K{=}2$ first
+(200\,ms), checks whether the output is complete (all structural
+fields filled), and escalates only incomplete records to $K{=}8$
+(376\,ms). AR has no equivalent: it cannot inspect partial output
+quality mid-generation and decide whether to continue. AR's early
+stopping is binary --- the model either emits EOS or it doesn't ---
+while DG's is graduated across $K$ steps. This makes DG's latency
+\emph{input-dependent} in a way AR structurally cannot be.
+
+We measured the cascade on BGL ($n{=}200$, canvas$=256$): 29.5\% of
+records resolved at $K{=}2$; the remaining 70.5\% escalated to
+$K{=}8$. The cascade F1 was 0.848 (a drop of 0.005 vs fixed $K{=}8$),
+but the average latency was 465\,ms --- \emph{slower} than fixed
+$K{=}8$ (376\,ms), because the $K{=}2$ pass adds overhead that is
+only amortised if most inputs resolve early. On this task, 70\% of
+inputs need $K{=}8$, so the cascade does not save latency. The
+structural property (input-dependent latency is possible) is
+confirmed; the practical benefit is task-dependent and favours tasks
+where easy inputs dominate.
 
 \paragraph{Where diffusion does not win.}
 

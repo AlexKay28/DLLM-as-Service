@@ -75,15 +75,13 @@ DG's p99.9 spans [493, 1166]\,ms --- the tail is still wide, but the
 point estimate is now distinct from the maximum and the ratio is
 stable across sample sizes.
 
-The anytime $K$-cascade described in \S\ref{sec:survives} is a
-structural argument, not a measured result. The per-position confidence
-signal exists inside the denoising loop, and the selective re-masking
-primitive was tested in the refinement experiment, but the end-to-end
-cascade --- run $K{=}2$, check confidence, escalate --- has not been
-measured. If the cascade resolves most inputs at low $K$, the average
-latency drops below the fixed-$K$ baseline; if confidence is poorly
-correlated with quality, the cascade degrades to fixed $K{=}8$ with
-overhead. The direction of the effect is unknown.
+The anytime $K$-cascade (\S\ref{sec:survives}) was measured on BGL:
+29.5\% of records resolved at $K{=}2$, the rest escalated to $K{=}8$.
+The cascade does not save latency on this task (70\% escalation rate
+means the $K{=}2$ overhead is not amortised), but the structural
+property --- input-dependent latency --- is confirmed. The practical
+benefit is task-dependent: on tasks where most inputs are easy, the
+cascade would drop average latency below the fixed-$K$ baseline.
 
 DiffusionGemma-26B-A4B-it's available at
 \url{https://huggingface.co/google/}\\\url{diffusiongemma-26b-a4b-it}.

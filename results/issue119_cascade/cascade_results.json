@@ -1,0 +1,49 @@
+{
+  "experiment": "issue119_anytime_cascade",
+  "model": "google/diffusiongemma-26B-A4B-it",
+  "model_type": "dg",
+  "n_events": 200,
+  "canvas_length": 256,
+  "serving": "cascade (K_low serial + conditional K_high serial)",
+  "note": "Computed from issue114 per-record predictions. The cascade runs K=2 first, checks output completeness, escalates incomplete records to K=8.",
+  "baselines": {
+    "fixed_K2": {
+      "field_f1_9": 0.4845,
+      "p50_ms": 200.1
+    },
+    "fixed_K4": {
+      "field_f1_9": 0.7899,
+      "p50_ms": 290.8
+    },
+    "fixed_K8": {
+      "field_f1_9": 0.8533,
+      "p50_ms": 375.6
+    }
+  },
+  "cascade_K2_K8": {
+    "accept_rate": 0.295,
+    "escalate_rate": 0.705,
+    "avg_k": 7.64,
+    "field_f1_9": 0.8482,
+    "p50_ms": 464.9,
+    "quality_drop_vs_k8": 0.0051,
+    "latency_saved_vs_k8_pct": -23.8
+  },
+  "provenance": {
+    "model_name": "google/diffusiongemma-26B-A4B-it",
+    "model_type": "dg",
+    "backend": "vllm",
+    "max_new_tokens": 256,
+    "parser_policy": "first_object_wins",
+    "scoring_fields": "9",
+    "vllm_version": "0.11.0",
+    "torch_version": "2.8.0+cu128",
+    "transformers_version": "4.55.2",
+    "cuda_version": "12.8",
+    "gpu_model": "NVIDIA A100 80GB PCIe",
+    "python_version": "3.10.12",
+    "platform": "Linux-5.15.179-15.mofed2407ya-x86_64-with-glibc2.35",
+    "timestamp": "2026-08-17T09:47:54Z",
+    "repo_commit": "c38f7fe"
+  }
+}
