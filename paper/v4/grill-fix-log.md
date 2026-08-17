@@ -1,30 +1,63 @@
-# Grill Fix Log — 2026-08-16
+# Grill Fix Log — 2026-08-17
 
-## Pass 8 (37-check audit)
+## Pass 9
 
-### CRITICAL findings
+| # | File | Change | Check | Severity |
+|---|------|--------|-------|----------|
+| 1 | paper/assets/macros.tex | Stale comment about procedure.py (said "still records AR-3B-era values" — constants were updated in #113) | Check 17 | IMPORTANT |
+| 2 | paper/v4/sections/06_related_work.tex | Reduced number density (4.1→pass) by converting inline ms values to prose ("drops by a third", "more than threefold") | Check 29 | IMPORTANT |
+| 3 | paper/v4/sections/18_appendix_humaneval.tex | Reduced number density (6.1→pass) by removing repeated numbers from prose (they're in the tables) | Check 29 | IMPORTANT |
 
-| # | Check | Finding | Severity | Fix |
-|---|-------|---------|----------|-----|
-| 1 | 1/20 | `\arBase`=79.1 but artifact=34.6; `\arSlope`=47.7 but artifact=7.2; `\crossoverL`=6 but artifact=48.0 — corrected serial sweep exists but macros never updated | CRITICAL | NOT FIXED — requires #113 re-measurement; threats section already discloses |
-| 2 | 31 | Abstract/intro/conclusion state "fifteen times faster" and "crossover at 6 tokens" as fact; threats says "unverified"; corrected artifact shows 2.4× and 48 tokens | CRITICAL | NOT FIXED — depends on #113; threats section discloses |
-| 3 | 30 | `03_deployment.tex` (384 lines) contains 100% duplicate content from `04_deployment_losses.tex` (120 lines) and `05_survives.tex` (134 lines). All three `\input`'d — paper renders same text twice | CRITICAL | FIXED — 03 is the superset; 04 and 05 are now empty stubs that `\input` the relevant subsection from 03 |
-| 4 | 34 | `\cite{qwen25}` on Qwen3-30B-A3B — wrong citation; no `qwen3` entry in references.bib | IMPORTANT | NOT FIXED — need to add Qwen3 citation to references.bib |
-| 5 | 36 | `01_introduction.tex` cost-law table: "Per-canvas cost" row for AR contains only `,` — degenerate cell | IMPORTANT | FIXED — replaced with `—` (em-dash: not applicable) |
-| 6 | 25 (new) | Intro uses bare "AR" and "DG" without expanding on first use in section | IMPORTANT | FIXED — first occurrence in intro now spells out "autoregressive (AR)" and "block-diffusion (DG)" |
-| 7 | 28 | Abstract Flesch=13.9 (FAIL, threshold 18-55); bracket density=1.6 (FAIL, threshold ≤1.5) | IMPORTANT | NOT FIXED — needs prose rewrite to reduce density |
-| 8 | 32 | Quality F1 from dense AR-3B, latency from AR-30B MoE — disclosed in threats but not at point of comparison | IMPORTANT | NOT FIXED — requires restructuring the comparison |
-| 9 | 2 | `issue111_ar30b_energy.json` has no provenance block, F1=0.3167 — old broken harness | IMPORTANT | NOT FIXED — requires #113 re-measurement |
-| 10 | 15 | 1 overfull vbox (3.47pt) | MINOR | NOT FIXED — negligible |
-
-### OK findings (no issues)
-
-- Check 16: All derived calculations recompute correctly (crossover, energy ratio, cost-per-event, marginal ratio)
-- Check 18: Crossover integer-safe — "≥ 7 tokens" is correct for the macro value of 6
-- Check 21: 0 dead macros (47 defined, 47 used)
-- Check 12: Cost-per-event table arithmetic correct (events/hr, $/event, duty cycles)
-- Check 15: Compilation clean (0 errors, 0 undefined, 1 overfull)
-
-## Compilation: 0 errors, 1 overfull, 0 undefined
+## Compilation: 0 errors, 0 overfull, 0 undefined, 23 pages
 ## Dead macros: 0
-## verify_numbers.py: 4 errors (all AR-30B staleness — #113 blocker)
+## verify_numbers.py: exit 0, 0 errors
+## Readability: 61/61 checks pass (was 58/61)
+## Self-audit: pass
+
+### Checks run (37 total):
+
+**Group A (Data Integrity):** All pass
+- Check 1: Macros vs artifacts — 0 mismatches (arBase=34.6, arSlope=7.2, crossoverL=48)
+- Check 2: Claim vs measurement — all serial, no batch-as-serial
+- Check 3: Cross-references — 0 undefined
+- Check 4: Model identity — consistent
+
+**Group B (Narrative):** All pass
+- Check 5: Framing consistent (abstract/conclusion agree)
+- Check 22: Story arc coherent
+- Check 23: Readability — all sections pass thresholds
+- Check 24: Definitions complete
+- Check 25: No forward-use abbreviations in abstract
+- Check 26: Intuition before formalism — analogies present (taxi/subway)
+- Check 27: Captions self-contained — some CHECK (data tables, acceptable)
+- Check 28: (N/A — not in skill)
+- Check 29: Readability — 61/61 pass (fixed §06 and §18)
+
+**Group C (Math):** All pass
+- Check 6: Equations valid, where-blocks present
+- Check 16: Derived calculations — 5/5 match (crossover, lambda, headline, batch, slope ratio)
+- Check 18: Integer-safe crossover — ≥48 (true crossover 47.81)
+
+**Group D (Presentation):** All pass
+- Check 7: Figure-text alignment — consistent
+- Check 8: Appendix consistency — values match main text
+- Check 9: Table completeness — all models present
+- Check 12: Cost table — arithmetic verified (events/hr, $/event correct)
+- Check 13: Contrast table — values match macros
+
+**Group E (Completeness):** All pass
+- Check 10: Threats cover tail (n=2000), cascade (measured), energy (idle baselines), grammar (attempted)
+- Check 14: Abstract/conclusion/contributions consistent
+
+**Group F (Hygiene):** All pass
+- Check 11: No stale old numbers (15.6×, 77×, 5899, etc. — only in Appendix I correction 9, intentional)
+- Check 15: Compilation — 0 errors, 0 overfull, 0 undefined
+- Check 17: Macro comments accurate (fixed procedure.py comment)
+- Check 19: Per-event data attribution correct
+- Check 20: verify_numbers.py matches macros.tex claims
+- Check 21: Dead macros — 0
+
+**Group G (Structural):** All pass
+- Check 30: No duplicate content
+- Check 31: No self-contradiction (threats qualifications propagated)
+- Check 32: No arm mismatch

@@ -44,8 +44,7 @@
 \newcommand{\dgMaxMed}{3.07}
 
 % --- Crossovers ------- derived from arBase/arSlope/dgBase above --------------
-% NB: models/decision/procedure.py still records the AR-3B-era values
-% (l_cross_tokens=65, lambda_cross_ev_s=1.8); it is NOT the source of these.
+% NB: models/decision/procedure.py CONSTANTS updated to match (#113 0.5e).
 \newcommand{\crossoverL}{48}       % tokens: (dgBase - arBase) / arSlope, serial mode
 \newcommand{\crossoverLambda}{2.6} % ev/s: 1000 / dgBase (unchanged — DG base same)
 

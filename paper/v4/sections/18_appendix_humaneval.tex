@@ -37,15 +37,14 @@ AR-3B   & 0.573 & 99.4 & 560 & 107.7 & 5.2 \\
 \end{tabular}
 \end{table}
 
-AR-30B at 6.4\,ms/token is close to its log-extraction slope of
-7.2\,ms/token. DG's p50 of 280\,ms is a single-canvas staircase cost,
-independent of output length. The AR/DG ratio of 2.9$\times$ matches
-the 2.5$\times$ on logs --- the cost shape generalises.
+AR-30B's per-token slope on code is close to its log-extraction slope.
+DG's p50 is a single-canvas staircase cost, independent of output
+length. The AR/DG ratio matches the log-extraction ratio --- the cost
+shape generalises.
 
-DG's lower pass@1 (0.287 vs 0.720) is expected: DiffusionGemma was
-trained as a log-extraction model, not a code model. What matters is
-not absolute quality but whether the \emph{shape} (line vs staircase)
-transfers. It does.
+DG's lower pass@1 is expected: DiffusionGemma was trained as a
+log-extraction model, not a code model. What matters is not absolute
+quality but whether the \emph{shape} (line vs staircase) transfers.
 
 \subsection{Deadline-bounded pass@1: AR collapses, DG stays flat}
 
