@@ -1,0 +1,34 @@
+{
+  "experiment": "issue120_tail_latency_ar3b_n2000",
+  "model": "Qwen/Qwen2.5-3B-Instruct",
+  "model_type": "ar3b",
+  "n_events": 2000,
+  "serving": "serial (batch-1)",
+  "latency_ms": {
+    "p50": 1617.4,
+    "p99": 1623.6,
+    "p99_9": 1632.1,
+    "max": 1662.2
+  },
+  "max_median_ratio": 1.03,
+  "cv_pct": 0.1,
+  "field_f1_9": 0.8535,
+  "schema_valid_pct": 99.0,
+  "provenance": {
+    "model_name": "Qwen/Qwen2.5-3B-Instruct",
+    "model_type": "ar3b",
+    "backend": "vllm",
+    "max_new_tokens": 256,
+    "parser_policy": "first_object_wins",
+    "scoring_fields": "9",
+    "vllm_version": "0.25.1",
+    "torch_version": "2.11.0+cu130",
+    "transformers_version": "5.15.0",
+    "cuda_version": "13.0",
+    "gpu_model": "NVIDIA A100 80GB PCIe",
+    "python_version": "3.10.12",
+    "platform": "Linux-5.15.179-15.mofed2407ya-x86_64-with-glibc2.35",
+    "timestamp": "2026-08-17T09:30:31Z",
+    "repo_commit": "56668e1"
+  }
+}

@@ -36,11 +36,12 @@
 \newcommand{\canvasLength}{256}   % tokens per canvas
 
 % Anchors, five repeats each -------- results/anchors/anchor_remeasure.json --
-% Per-event dispersion within one run -- results/anchors/*_L256_r1_preds.jsonl
-\newcommand{\arEventCV}{0.2}     % % CV over 300 per-event latencies (AR-3B dense)
-\newcommand{\dgEventCV}{20.9}
+% Per-event dispersion: n=2000 (issue #120, was n=300 where p99.9==max)
+% results/anchors/dg_L256_r1_preds.jsonl, ar3b_L256_n2000_preds.jsonl
+\newcommand{\arEventCV}{0.1}     % % CV over 2000 per-event latencies (AR-3B dense)
+\newcommand{\dgEventCV}{16.9}
 \newcommand{\arMaxMed}{1.03}      % max / median per-event latency (AR-3B dense)
-\newcommand{\dgMaxMed}{3.21}
+\newcommand{\dgMaxMed}{3.07}
 
 % --- Crossovers ------- derived from arBase/arSlope/dgBase above --------------
 % NB: models/decision/procedure.py still records the AR-3B-era values

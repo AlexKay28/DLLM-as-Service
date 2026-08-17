@@ -5,169 +5,44 @@
     "torch_version": null,
     "gpu_model": null
   },
-  "n_events": 300,
-  "repeats": 5,
+  "n_events": 2000,
+  "repeats": 1,
   "k_steps": 8,
   "summaries": {
     "dg_L256": {
       "label": "dg_L256",
-      "n_repeats": 5,
+      "n_repeats": 1,
       "p50_ms": {
-        "median": 378.96,
-        "mean": 378.72,
-        "min": 377.07,
-        "max": 379.45,
-        "iqr": 0.46,
-        "cv_pct": 0.25
+        "median": 379.74,
+        "mean": 379.74,
+        "min": 379.74,
+        "max": 379.74,
+        "iqr": 0.0,
+        "cv_pct": 0.0
       },
       "p99_ms": {
-        "median": 489.5,
-        "mean": 489.32,
-        "iqr": 0.34,
-        "cv_pct": 0.15
+        "median": 490.79,
+        "mean": 490.79,
+        "iqr": 0.0,
+        "cv_pct": 0.0
       },
       "field_f1_9": {
-        "median": 0.8518,
-        "mean": 0.8518,
-        "min": 0.8518,
-        "max": 0.8518
+        "median": 0.8555,
+        "mean": 0.8555,
+        "min": 0.8555,
+        "max": 0.8555
       },
       "repeats": [
         {
           "repeat": 1,
-          "p50_ms": 377.07,
-          "p99_ms": 488.24,
-          "mean_ms": 374.01,
-          "field_f1_9": 0.8518,
-          "field_f1_12": 0.7858,
-          "schema_valid_pct": 99.0,
-          "consistency_pct": 98.33,
-          "n_predictions": 300
-        },
-        {
-          "repeat": 2,
-          "p50_ms": 379.45,
-          "p99_ms": 489.5,
-          "mean_ms": 376.09,
-          "field_f1_9": 0.8518,
-          "field_f1_12": 0.7858,
-          "schema_valid_pct": 99.0,
-          "consistency_pct": 98.33,
-          "n_predictions": 300
-        },
-        {
-          "repeat": 3,
-          "p50_ms": 378.83,
-          "p99_ms": 489.17,
-          "mean_ms": 375.54,
-          "field_f1_9": 0.8518,
-          "field_f1_12": 0.7858,
-          "schema_valid_pct": 99.0,
-          "consistency_pct": 98.33,
-          "n_predictions": 300
-        },
-        {
-          "repeat": 4,
-          "p50_ms": 378.96,
-          "p99_ms": 489.51,
-          "mean_ms": 375.45,
-          "field_f1_9": 0.8518,
-          "field_f1_12": 0.7858,
-          "schema_valid_pct": 99.0,
-          "consistency_pct": 98.33,
-          "n_predictions": 300
-        },
-        {
-          "repeat": 5,
-          "p50_ms": 379.29,
-          "p99_ms": 490.19,
-          "mean_ms": 375.48,
-          "field_f1_9": 0.8518,
-          "field_f1_12": 0.7858,
-          "schema_valid_pct": 99.0,
-          "consistency_pct": 98.33,
-          "n_predictions": 300
-        }
-      ]
-    },
-    "dg_L512": {
-      "label": "dg_L512",
-      "n_repeats": 5,
-      "p50_ms": {
-        "median": 500.72,
-        "mean": 501.06,
-        "min": 500.56,
-        "max": 501.94,
-        "iqr": 0.84,
-        "cv_pct": 0.12
-      },
-      "p99_ms": {
-        "median": 837.4,
-        "mean": 834.24,
-        "iqr": 10.31,
-        "cv_pct": 0.68
-      },
-      "field_f1_9": {
-        "median": 0.8546,
-        "mean": 0.8546,
-        "min": 0.8546,
-        "max": 0.8546
-      },
-      "repeats": [
-        {
-          "repeat": 1,
-          "p50_ms": 501.94,
-          "p99_ms": 828.09,
-          "mean_ms": 505.15,
-          "field_f1_9": 0.8546,
-          "field_f1_12": 0.7852,
-          "schema_valid_pct": 98.67,
-          "consistency_pct": 98.0,
-          "n_predictions": 300
-        },
-        {
-          "repeat": 2,
-          "p50_ms": 500.56,
-          "p99_ms": 837.4,
-          "mean_ms": 508.35,
-          "field_f1_9": 0.8546,
-          "field_f1_12": 0.7852,
-          "schema_valid_pct": 98.67,
-          "consistency_pct": 98.0,
-          "n_predictions": 300
-        },
-        {
-          "repeat": 3,
-          "p50_ms": 500.61,
-          "p99_ms": 838.4,
-          "mean_ms": 506.45,
-          "field_f1_9": 0.8546,
-          "field_f1_12": 0.7852,
-          "schema_valid_pct": 98.67,
-          "consistency_pct": 98.0,
-          "n_predictions": 300
-        },
-        {
-          "repeat": 4,
-          "p50_ms": 501.45,
-          "p99_ms": 839.29,
-          "mean_ms": 506.75,
-          "field_f1_9": 0.8546,
-          "field_f1_12": 0.7852,
-          "schema_valid_pct": 98.67,
-          "consistency_pct": 98.0,
-          "n_predictions": 300
-        },
-        {
-          "repeat": 5,
-          "p50_ms": 500.72,
-          "p99_ms": 828.0,
-          "mean_ms": 504.16,
-          "field_f1_9": 0.8546,
-          "field_f1_12": 0.7852,
-          "schema_valid_pct": 98.67,
-          "consistency_pct": 98.0,
-          "n_predictions": 300
+          "p50_ms": 379.74,
+          "p99_ms": 490.79,
+          "mean_ms": 377.22,
+          "field_f1_9": 0.8555,
+          "field_f1_12": 0.7836,
+          "schema_valid_pct": 98.7,
+          "consistency_pct": 98.85,
+          "n_predictions": 2000
         }
       ]
     }
@@ -187,26 +62,9 @@
       "gpu_model": "NVIDIA A100 80GB PCIe",
       "python_version": "3.10.12",
       "platform": "Linux-5.15.179-15.mofed2407ya-x86_64-with-glibc2.35",
-      "timestamp": "2026-08-15T13:57:44Z",
-      "repo_commit": "369cff8"
-    },
-    "dg_L512": {
-      "model_name": "google/diffusiongemma-26B-A4B-it",
-      "model_type": "dg",
-      "backend": "vllm",
-      "max_new_tokens": 512,
-      "parser_policy": "first_object_wins",
-      "scoring_fields": "9",
-      "vllm_version": "0.25.1",
-      "torch_version": "2.11.0+cu130",
-      "transformers_version": "5.15.0",
-      "cuda_version": "13.0",
-      "gpu_model": "NVIDIA A100 80GB PCIe",
-      "python_version": "3.10.12",
-      "platform": "Linux-5.15.179-15.mofed2407ya-x86_64-with-glibc2.35",
-      "timestamp": "2026-08-15T14:13:59Z",
-      "repo_commit": "369cff8"
+      "timestamp": "2026-08-16T22:02:36Z",
+      "repo_commit": "56668e1"
     }
   },
-  "timestamp": "2026-08-15T14:14:01Z"
+  "timestamp": "2026-08-16T22:02:38Z"
 }

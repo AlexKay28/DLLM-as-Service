@@ -65,16 +65,15 @@ The energy comparison uses three different idle baselines, and the DG
 energy was not re-measured at the AR-30B idle point, so the ratio is
 indicative rather than directly controlled.
 
-The per-event tail statistics (CV, max/median, p99.9) are measured
-at $n{=}200$--$300$. At $n{=}200$, the p99.9 percentile is the single
-worst sample, not a stable estimate --- the floor-index percentile
-function returns \texttt{sorted[int(200$\times$0.999)]}~=~the maximum.
-The max/median ratio of $3.21\times$ is therefore driven by one event
-out of 300, and the p99.9 of 1211\,ms is one outlier, not a converged
-tail estimate. The median and CV are stable (mean-based), but the tail
-claims that underpin the safety-critical use cases need larger sample
-sizes ($n \geq 2000$) to support p99.9, and $n \geq 20000$ for p99.99.
-We flag this as a measurement gap, not a resolved result.
+The per-event tail statistics (CV, max/median, p99.9) were re-measured
+at $n{=}2000$ (issue~\#120). At $n{=}2000$, p99.9 is no longer identical
+to max: DG's p99.9 is 557\,ms against a max of 1166\,ms. The
+max/median ratio is $3.07\times$ (was $3.21\times$ at $n{=}300$),
+and the CV is $16.9\%$ (was $20.9\%$). The AR-3B tail is tight as
+before (CV $0.1\%$, max/med $1.03\times$). A bootstrap 95\% CI for
+DG's p99.9 spans [493, 1166]\,ms --- the tail is still wide, but the
+point estimate is now distinct from the maximum and the ratio is
+stable across sample sizes.
 
 The anytime $K$-cascade described in \S\ref{sec:survives} is a
 structural argument, not a measured result. The per-position confidence
