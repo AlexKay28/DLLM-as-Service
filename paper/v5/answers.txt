@@ -1,6 +1,4 @@
-# Paper Evaluation Answer Sheet — v5
-# Format:  <ID>: <Yes|No|N/A>
-# Each answer is grounded in a specific section/evidence of the paper.
+# Paper Evaluation Answer Sheet — v5 (499 items, 20 aspects)
 
 # === readability ===
 R01: Yes
@@ -218,3 +216,326 @@ C20: Yes
 C21: Yes
 C22: Yes
 C23: Yes
+
+# === theory_rigor ===
+T01: Yes
+T02: Yes
+T03: N/A
+T04: N/A
+T05: N/A
+T06: N/A
+T07: N/A
+T08: Yes
+T09: Yes
+T10: Yes
+T11: Yes
+T12: N/A
+T13: Yes
+T14: Yes
+T15: Yes
+T16: Yes
+T17: Yes
+T18: Yes
+T19: N/A
+T20: Yes
+T21: Yes
+T22: Yes
+T23: Yes
+T24: N/A
+
+# === related_work_positioning ===
+RW01: Yes
+RW02: Yes
+RW03: Yes
+RW04: Yes
+RW05: Yes
+RW06: Yes
+RW07: Yes
+RW08: Yes
+RW09: Yes
+RW10: Yes
+RW11: Yes
+RW12: Yes
+RW13: Yes
+RW14: Yes
+RW15: Yes
+RW16: Yes
+RW17: Yes
+RW18: Yes
+RW19: Yes
+RW20: Yes
+RW21: Yes
+RW22: Yes
+RW23: Yes
+RW24: Yes
+
+# === data_quality_documentation ===
+D01: Yes
+D02: Yes
+D03: Yes
+D04: Yes
+D05: Yes
+D06: N/A
+D07: N/A
+D08: N/A
+D09: N/A
+D10: N/A
+D11: N/A
+D12: N/A
+D13: N/A
+D14: Yes
+D15: Yes
+D16: N/A
+D17: N/A
+D18: Yes
+D19: Yes
+D20: Yes
+D21: N/A
+D22: N/A
+D23: N/A
+D24: Yes
+D25: N/A
+
+# === visuals_design ===
+V01: Yes
+V02: Yes
+V03: Yes
+V04: Yes
+V05: Yes
+V06: Yes
+V07: Yes
+V08: Yes
+V09: Yes
+V10: Yes
+V11: No
+V12: Yes
+V13: Yes
+V14: Yes
+V15: Yes
+V16: Yes
+V17: Yes
+V18: Yes
+V19: Yes
+V20: Yes
+V21: Yes
+V22: Yes
+V23: Yes
+V24: Yes
+
+# === claims_calibration ===
+CC01: Yes
+CC02: Yes
+CC03: Yes
+CC04: Yes
+CC05: Yes
+CC06: Yes
+CC07: Yes
+CC08: Yes
+CC09: Yes
+CC10: No
+CC11: Yes
+CC12: N/A
+CC13: Yes
+CC14: Yes
+CC15: Yes
+CC16: Yes
+CC17: Yes
+CC18: Yes
+CC19: Yes
+CC20: Yes
+CC21: Yes
+CC22: No
+CC23: Yes
+CC24: Yes
+CC25: Yes
+CC26: Yes
+CC27: Yes
+
+# === resource_efficiency ===
+RE01: Yes
+RE02: Yes
+RE03: Yes
+RE04: Yes
+RE05: Yes
+RE06: Yes
+RE07: Yes
+RE08: Yes
+RE09: Yes
+RE10: Yes
+RE11: Yes
+RE12: Yes
+RE13: N/A
+RE14: Yes
+RE15: Yes
+RE16: Yes
+RE17: Yes
+RE18: Yes
+RE19: Yes
+RE20: Yes
+RE21: N/A
+RE22: N/A
+RE23: N/A
+RE24: Yes
+
+# === fairness_bias ===
+FB01: N/A
+FB02: N/A
+FB03: N/A
+FB04: N/A
+FB05: N/A
+FB06: Yes
+FB07: N/A
+FB08: N/A
+FB09: N/A
+FB10: N/A
+FB11: N/A
+FB12: N/A
+FB13: N/A
+FB14: N/A
+FB15: N/A
+FB16: N/A
+FB17: N/A
+FB18: N/A
+FB19: N/A
+FB20: Yes
+FB21: N/A
+FB22: N/A
+FB23: N/A
+FB24: N/A
+FB25: N/A
+
+# === transferability ===
+TR01: Yes
+TR02: Yes
+TR03: Yes
+TR04: Yes
+TR05: Yes
+TR06: Yes
+TR07: Yes
+TR08: Yes
+TR09: Yes
+TR10: Yes
+TR11: Yes
+TR12: Yes
+TR13: Yes
+TR14: Yes
+TR15: Yes
+TR16: Yes
+TR17: Yes
+TR18: Yes
+TR19: Yes
+TR20: Yes
+TR21: Yes
+TR22: Yes
+TR23: Yes
+TR24: Yes
+TR25: Yes
+
+# === neurips_compliance ===
+NP01: No
+NP02: N/A
+NP03: N/A
+NP04: N/A
+NP05: Yes
+NP06: Yes
+NP07: Yes
+NP08: Yes
+NP09: Yes
+NP10: Yes
+NP11: No
+NP12: Yes
+NP13: Yes
+NP14: N/A
+NP15: N/A
+NP16: Yes
+NP17: N/A
+NP18: N/A
+NP19: N/A
+NP20: N/A
+NP21: Yes
+NP22: Yes
+NP23: Yes
+NP24: Yes
+NP25: Yes
+
+# === iclr_compliance ===
+IC01: N/A
+IC02: Yes
+IC03: N/A
+IC04: N/A
+IC05: N/A
+IC06: Yes
+IC07: Yes
+IC08: Yes
+IC09: Yes
+IC10: Yes
+IC11: Yes
+IC12: Yes
+IC13: Yes
+IC14: Yes
+IC15: Yes
+IC16: Yes
+IC17: Yes
+IC18: Yes
+IC19: Yes
+IC20: Yes
+IC21: Yes
+IC22: Yes
+IC23: Yes
+IC24: Yes
+IC25: Yes
+
+# === icml_compliance ===
+IM01: N/A
+IM02: N/A
+IM03: N/A
+IM04: Yes
+IM05: Yes
+IM06: Yes
+IM07: Yes
+IM08: Yes
+IM09: Yes
+IM10: Yes
+IM11: Yes
+IM12: Yes
+IM13: Yes
+IM14: Yes
+IM15: Yes
+IM16: Yes
+IM17: Yes
+IM18: Yes
+IM19: Yes
+IM20: Yes
+IM21: Yes
+IM22: Yes
+IM23: Yes
+IM24: Yes
+IM25: Yes
+
+# === acl_compliance ===
+AL01: N/A
+AL02: Yes
+AL03: No
+AL04: Yes
+AL05: Yes
+AL06: Yes
+AL07: N/A
+AL08: Yes
+AL09: Yes
+AL10: Yes
+AL11: Yes
+AL12: Yes
+AL13: Yes
+AL14: Yes
+AL15: Yes
+AL16: Yes
+AL17: Yes
+AL18: Yes
+AL19: Yes
+AL20: Yes
+AL21: Yes
+AL22: Yes
+AL23: Yes
+AL24: Yes
+AL25: Yes
+

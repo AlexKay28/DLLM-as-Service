@@ -86,9 +86,14 @@ measurements were taken on a single A100 80GB GPU on the pinned stack:
 vLLM 0.25.1, torch 2.11.0, CUDA 13.0. The AR-30B was initially
 measured on vLLM 0.11.0 with a gold-leaked harness; both were corrected
 and re-measured on the pinned stack; see Appendix~\ref{app:defects},
-correction 9. A typical serial evaluation cell takes about two minutes
-of GPU time; the total for all experiments is estimated at roughly
-twenty GPU-hours. BGL and HDFS are from LOGHUB under MIT. Drain is via
+correction 9. Preliminary and failed runs (the nine harness-defect
+corrections and their re-measurements) are estimated at an additional
+$\sim$10 GPU-hours beyond the $\sim$20 reported above. A typical serial
+evaluation cell takes about two minutes of GPU time; the total for all
+experiments is estimated at roughly twenty GPU-hours. Wall-clock
+timings are reported per event; token counts (127 per event at natural
+output, 256 per canvas for DG) serve as a hardware-normalised proxy
+for FLOPs. BGL and HDFS are from LOGHUB under MIT. Drain is via
 \texttt{drain3} under Apache 2.0. vLLM is Apache 2.0. DiffusionGemma
 is under the Gemma Terms of Use. Qwen3 and LLaDA-8B-Instruct are
 Apache 2.0 and MIT respectively.}

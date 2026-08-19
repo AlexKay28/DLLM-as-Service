@@ -140,9 +140,180 @@
       "na": 3,
       "missing": 0,
       "failed": []
+    },
+    {
+      "name": "theory_rigor",
+      "title": "Aspect 9 — Theory Rigor",
+      "score": 100.0,
+      "band": "Strong",
+      "scored": 16,
+      "answered": 16,
+      "passes": 16,
+      "na": 8,
+      "missing": 0,
+      "failed": []
+    },
+    {
+      "name": "related_work_positioning",
+      "title": "Aspect 10 — Related Work & Positioning",
+      "score": 100.0,
+      "band": "Strong",
+      "scored": 24,
+      "answered": 24,
+      "passes": 24,
+      "na": 0,
+      "missing": 0,
+      "failed": []
+    },
+    {
+      "name": "data_quality_documentation",
+      "title": "Aspect 11 — Data Quality & Documentation",
+      "score": 100.0,
+      "band": "Strong",
+      "scored": 11,
+      "answered": 11,
+      "passes": 11,
+      "na": 14,
+      "missing": 0,
+      "failed": []
+    },
+    {
+      "name": "visuals_design",
+      "title": "Aspect 12 — Visuals & Design",
+      "score": 95.83333333333333,
+      "band": "Strong",
+      "scored": 24,
+      "answered": 24,
+      "passes": 23,
+      "na": 0,
+      "missing": 0,
+      "failed": [
+        {
+          "id": "V11",
+          "question": "Are error bars / distributions shown, not just point estimates?",
+          "pass_if": "Yes",
+          "answer": "no"
+        }
+      ]
+    },
+    {
+      "name": "claims_calibration",
+      "title": "Aspect 13 — Claims Calibration",
+      "score": 96.15384615384616,
+      "band": "Strong",
+      "scored": 26,
+      "answered": 26,
+      "passes": 25,
+      "na": 1,
+      "missing": 0,
+      "failed": [
+        {
+          "id": "CC22",
+          "question": "Are claims of improvement accompanied by significance evidence?",
+          "pass_if": "Yes",
+          "answer": "no"
+        }
+      ]
+    },
+    {
+      "name": "resource_efficiency",
+      "title": "Aspect 14 — Resource Efficiency",
+      "score": 100.0,
+      "band": "Strong",
+      "scored": 20,
+      "answered": 20,
+      "passes": 20,
+      "na": 4,
+      "missing": 0,
+      "failed": []
+    },
+    {
+      "name": "fairness_bias",
+      "title": "Aspect 15 — Fairness & Bias",
+      "score": 100.0,
+      "band": "Strong",
+      "scored": 2,
+      "answered": 2,
+      "passes": 2,
+      "na": 23,
+      "missing": 0,
+      "failed": []
+    },
+    {
+      "name": "transferability",
+      "title": "Aspect 16 — Transferability",
+      "score": 100.0,
+      "band": "Strong",
+      "scored": 25,
+      "answered": 25,
+      "passes": 25,
+      "na": 0,
+      "missing": 0,
+      "failed": []
+    },
+    {
+      "name": "neurips_compliance",
+      "title": "Aspect 17 — NeurIPS Compliance",
+      "score": 87.5,
+      "band": "Strong",
+      "scored": 16,
+      "answered": 16,
+      "passes": 14,
+      "na": 9,
+      "missing": 0,
+      "failed": [
+        {
+          "id": "NP01",
+          "question": "Is the NeurIPS Paper Checklist included (not removed)?",
+          "pass_if": "Yes",
+          "answer": "no"
+        },
+        {
+          "id": "NP11",
+          "question": "Item 7 — Statistical significance: are error bars / significance reported suitably?",
+          "pass_if": "Yes",
+          "answer": "no"
+        }
+      ]
+    },
+    {
+      "name": "iclr_compliance",
+      "title": "Aspect 18 — ICLR Compliance",
+      "score": 100.0,
+      "band": "Strong",
+      "scored": 21,
+      "answered": 21,
+      "passes": 21,
+      "na": 4,
+      "missing": 0,
+      "failed": []
+    },
+    {
+      "name": "icml_compliance",
+      "title": "Aspect 19 — ICML Compliance",
+      "score": 100.0,
+      "band": "Strong",
+      "scored": 22,
+      "answered": 22,
+      "passes": 22,
+      "na": 3,
+      "missing": 0,
+      "failed": []
+    },
+    {
+      "name": "acl_compliance",
+      "title": "Aspect 20 — ACL Compliance",
+      "score": 100.0,
+      "band": "Strong",
+      "scored": 23,
+      "answered": 23,
+      "passes": 23,
+      "na": 2,
+      "missing": 0,
+      "failed": []
     }
   ],
-  "overall": 96.11262077294685,
+  "overall": 97.41940728353771,
   "overall_band": "Strong",
   "worst_aspect": 86.95652173913044,
   "good_overall": true
