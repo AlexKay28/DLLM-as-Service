@@ -2,9 +2,9 @@
 \label{sec:survives}
 
 The MoE-matched comparison shows DG's advantage is concentrated at
-serial mode. DG wins at every practical output length. The five
-conditions that define the regime where block diffusion is the right
-choice are:
+serial mode. DG wins above the serial crossover ($L^{*}{=}48$). The
+five conditions that define the regime where block diffusion is the
+right choice are:
 \begin{enumerate}[nosep]
   \item Output length $\geq 48$ tokens (DG crossover in serial).
   \item Batch-1 by requirement: tenant isolation, interactivity, or
@@ -59,10 +59,13 @@ A FATAL log line arrives mid-stream. DG's bounded service time and
 complete-canvas guarantee make it suitable for priority preemption: a
 preempted request returns a valid record, not a truncated one. AR
 model, interrupted mid-generation, returns half a JSON object,
-syntactically invalid, unusable downstream. In a system that must
-decide whether to page an on-call engineer at 3\,a.m., the difference
-between a complete record and a truncated one is the difference
-between an actionable alert and a false negative.
+syntactically invalid, unusable downstream. This completeness
+advantage holds against unconstrained AR decoding; grammar-constrained
+AR would close the gap but was not successfully run on a current
+engine, as noted in \S\ref{sec:threats}. In a system that must decide whether to page
+an on-call engineer at 3\,a.m., the difference between a complete
+record and a truncated one is the difference between an actionable
+alert and a false negative.
 
 The $K$ knob is DG's emergency brake: when a deadline tightens, drop
 $K$ from 8 to 4 and the model still fills every field, just with

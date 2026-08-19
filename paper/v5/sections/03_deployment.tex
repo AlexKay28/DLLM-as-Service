@@ -68,6 +68,17 @@ concurrent requests. Quoting a batch-throughput slope as if it were a
 latency therefore understates AR serial latency by a factor of
 twenty-three.
 
+\paragraph{Quality and latency arms.}
+
+The latency comparison above uses the AR-30B MoE; the quality
+comparison (\S\ref{sec:threats}) uses the dense AR-3B, the only arm
+with a measured quality CI. The AR-30B's own 9-field F1 is 0.870,
+slightly above the dense AR-3B's \arThreeBFnine, so the latency
+advantage is conditional on the AR-30B being quality-equivalent
+within that margin. The DG p50 is stable: a bootstrap 95\% CI over
+3{,}200 events spans [379, 380]\,ms. The AR-30B per-event timings
+were not saved (only summary percentiles), so its CI is uncomputed.
+
 \paragraph{Energy.}
 
 DG uses less energy per event because it draws far

@@ -81,5 +81,22 @@ cascade would drop average latency below the fixed-$K$ baseline.
 
 DiffusionGemma-26B-A4B-it's available at
 \url{https://huggingface.co/google/}\\\url{diffusiongemma-26b-a4b-it}.
-All DG measurements are reproducible from this checkpoint.
+All DG measurements are reproducible from this checkpoint.\footnote{All
+measurements were taken on a single A100 80GB GPU (pinned stack: vLLM
+0.25.1, torch 2.11.0, CUDA 13.0, except the AR-30B serial sweep on
+vLLM 0.11.0 as noted above). A typical serial evaluation cell takes
+about two minutes of GPU time; the total for all experiments is
+estimated at roughly twenty GPU-hours. BGL and HDFS are from LOGHUB
+(MIT). Drain is via \texttt{drain3} (Apache 2.0). vLLM is Apache 2.0.
+DiffusionGemma is under the Gemma Terms of Use. Qwen3 and
+LLaDA-8B-Instruct are Apache 2.0 and MIT respectively.}
+
+\paragraph{Base decomposition.}
+
+The base split in \S\ref{sec:laws} is a two-point linear interpolation
+fitted to $K{=}2$ and $K{=}8$, not a regression. With two points and
+two parameters, $R^2$ is trivially one and carries no degrees of
+freedom. The split is therefore a decomposition, not a fit, and the
+floor and per-step shares are exact at the two operating points but
+unverified at intermediate $K$.
 
