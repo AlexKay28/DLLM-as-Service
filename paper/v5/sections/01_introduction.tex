@@ -15,8 +15,9 @@ the two decoding patterns.
 
 We ran both architectures on vLLM~\cite{vllm2023} on a single
 \gpuModel{} to remove the serving-path asymmetry that dominates naive
-comparisons, though not on identical engine versions, which we
-return to in \S\ref{sec:threats}. The task is structured log
+comparisons. Both arms were re-measured on the same pinned stack
+(vLLM 0.25.1); the AR-30B was initially run on an older engine, a
+defect caught and corrected (Appendix~\ref{app:defects}). The task is structured log
 extraction: each raw log line describes a hardware or software event,
 and the model must emit a JSON record with twelve fields spanning
 structural, semantic, anomaly, and action categories. Structural
