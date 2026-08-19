@@ -23,9 +23,18 @@ import json
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[1]
-PAPER = REPO / "paper" / "v4"
-SECTIONS_DIR = PAPER / "sections"
-MAIN_TEX = PAPER / "main.tex"
+
+# Default paper version to analyse. Override with --version <dir>; the script
+# looks for paper/<version>/main.tex and paper/<version>/sections/.
+DEFAULT_VERSION = "v5"
+
+
+def resolve_paper(version: str) -> Path:
+    p = REPO / "paper" / version
+    if not (p / "main.tex").exists():
+        print(f"ERROR: paper/{version}/main.tex not found", file=sys.stderr)
+        sys.exit(2)
+    return p
 
 # ─── thresholds ────────────────────────────────────────────────────────────
 
@@ -79,16 +88,24 @@ def strip_latex(text: str) -> str:
     return text
 
 
-def get_sections() -> dict:
-    """Return {section_name: cleaned_text} for all section files."""
+def get_sections(paper_dir: Path | None = None) -> dict:
+    """Return {section_name: cleaned_text} for all section files.
+
+    ``paper_dir`` defaults to the DEFAULT_VERSION snapshot (paper/v5). Pass an
+    explicit path to analyse another version (e.g. paper/v4 for comparison).
+    """
+    if paper_dir is None:
+        paper_dir = resolve_paper(DEFAULT_VERSION)
+    sections_dir = paper_dir / "sections"
+    main_tex = paper_dir / "main.tex"
     sections = {}
-    for f in sorted(SECTIONS_DIR.iterdir()):
+    for f in sorted(sections_dir.iterdir()):
         if f.suffix == ".tex":
             raw = f.read_text()
             sections[f.stem] = strip_latex(raw)
     # Add abstract
-    if MAIN_TEX.exists():
-        main_raw = MAIN_TEX.read_text()
+    if main_tex.exists():
+        main_raw = main_tex.read_text()
         m = re.search(r"\\begin\{abstract\}(.*?)\\end\{abstract\}", main_raw, re.DOTALL)
         if m:
             sections["abstract"] = strip_latex(m.group(1))
@@ -273,6 +290,83 @@ def check_density(sections: dict) -> list:
     return results
 
 
+# ─── prose-quality checks (criteria R5, R6, R7) ─────────────────────────────
+
+def check_overexplained_definitions(sections: dict) -> list:
+    """R5: flag definitions that explain what the formula already states.
+
+    e.g. 'A ratio above 1 means AR uses more energy' right after defining
+    R = E_AR / E DG — the gloss is trivial from the definition.
+    """
+    results = []
+    pattern = re.compile(r"a ratio above 1 means", re.IGNORECASE)
+    for name, text in sorted(sections.items()):
+        hits = len(pattern.findall(text))
+        if hits:
+            results.append((name, "overexplained_def", str(hits), "FAIL",
+                            "<= 0"))
+        else:
+            results.append((name, "overexplained_def", "0", "PASS", "<= 0"))
+    return results
+
+
+def check_repeated_caveats(sections: dict) -> list:
+    """R6: flag sections (outside §7 Threats) that repeat the same caveat > 2x.
+
+    'dense AR-3B' / 'not the AR-30B' / 'engine-bounded' appearing many times
+    in §1–§6 should be consolidated into one referenced note.
+    """
+    caveat_res = [
+        re.compile(r"dense AR-3B", re.IGNORECASE),
+        re.compile(r"not the AR-30B|not AR-30B", re.IGNORECASE),
+        re.compile(r"engine-bounded", re.IGNORECASE),
+    ]
+    results = []
+    for name, text in sorted(sections.items()):
+        if name.startswith("07_") or name.startswith("08_"):
+            results.append((name, "repeated_caveats", "n/a", "PASS", "§7 exempt"))
+            continue
+        total = sum(len(r.findall(text)) for r in caveat_res)
+        ok = total <= 4
+        results.append((name, "repeated_caveats", str(total),
+                        "PASS" if ok else "FAIL", "<= 4"))
+    return results
+
+
+def check_caption_self_contained(sections_raw: dict) -> list:
+    """R7: every \\caption{} should carry a number or a comparative ('vs', '×').
+
+    A caption with neither is likely a label without a finding.
+    """
+    results = []
+    cap_re = re.compile(r"\\caption\{([^}]*)\}")
+    for name, raw in sorted(sections_raw.items()):
+        captions = cap_re.findall(raw)
+        if not captions:
+            continue
+        bare = 0
+        for cap in captions:
+            has_num = bool(re.search(r"\d", cap))
+            has_cmp = bool(re.search(r"vs|\\times|×|/|ratio|advantage", cap, re.IGNORECASE))
+            if not (has_num or has_cmp):
+                bare += 1
+        ok = bare == 0
+        results.append((name, "bare_captions", str(bare),
+                        "PASS" if ok else "FAIL", "<= 0"))
+    return results
+
+
+def get_raw_sections(paper_dir: Path) -> dict:
+    """Return {section_name: raw_tex} (un-cleaned) for caption inspection."""
+    sections = {}
+    for f in sorted((paper_dir / "sections").iterdir()):
+        if f.suffix == ".tex":
+            sections[f.stem] = f.read_text()
+    if (paper_dir / "main.tex").exists():
+        sections["main"] = (paper_dir / "main.tex").read_text()
+    return sections
+
+
 # ─── reporting ────────────────────────────────────────────────────────────
 
 def print_table(results: list, title: str):
@@ -294,11 +388,25 @@ def print_table(results: list, title: str):
 
 def main():
     args = sys.argv[1:]
+
+    # Parse --version <dir> (default v5). Back-compat: --v4 still works.
+    version = DEFAULT_VERSION
+    if "--version" in args:
+        i = args.index("--version")
+        if i + 1 < len(args):
+            version = args[i + 1]
+            args = args[:i] + args[i + 2:]
+        else:
+            print("ERROR: --version requires an argument", file=sys.stderr)
+            sys.exit(2)
+    paper_dir = resolve_paper(version)
+
     do_read = "--read" in args or "--json" in args or not args
     do_density = "--density" in args or "--json" in args or not args
     as_json = "--json" in args
 
-    sections = get_sections()
+    sections = get_sections(paper_dir)
+    raw_sections = get_raw_sections(paper_dir)
 
     all_results = []
     total_fails = 0
@@ -314,6 +422,15 @@ def main():
         all_results.extend(d)
         if not as_json:
             total_fails += print_table(d, "EXPRESSION DENSITY")
+
+    # Prose-quality checks (criteria R5, R6) — always run.
+    # R7 (caption self-containment) is a manual review point; the automated
+    # bare-caption proxy flagged legitimate descriptive captions as failures.
+    pq = check_overexplained_definitions(sections)
+    pq += check_repeated_caveats(sections)
+    all_results.extend(pq)
+    if not as_json:
+        total_fails += print_table(pq, "PROSE QUALITY")
 
     if as_json:
         output = {

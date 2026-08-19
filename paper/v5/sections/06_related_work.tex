@@ -1,0 +1,30 @@
+\section{Related work}
+\label{sec:related}
+
+Diffusion language models claim large speedups. LLaDA~\cite{llada2025}
+and DiffusionGemma~\cite{diffusiongemma} both measure against
+author-built autoregressive baselines. We instead pin both arms to one
+serving stack and fit cost laws, so the comparison rests on a shape
+instead of on a single point.
+
+Constrained decoding is the standard answer to structured
+output. Outlines~\cite{outlines2024}, xgrammar~\cite{xgrammar2024} and
+llguidance~\cite{llguidance} all enforce a grammar during decoding. We
+don't measure it here, and say so in \S\ref{sec:threats}.
+
+Speculative decoding attacks the same per-token slope our AR cost law
+turns on. Medusa~\cite{medusa2024} and EAGLE~\cite{eagle2024} make each
+token cheaper, but the cost stays linear in output length --- they
+change the slope, not the shape. We measured n-gram prompt-lookup
+speculation on the dense AR-3B (vLLM 0.7.2, $n{=}300$):
+p50 drops by a third but p99.9 inflates more than threefold,
+because rejected speculations force a full re-decode. Even with
+speculation, the AR tail is $5\times$ worse than DG's worst-case p99.9.
+The staircase shape still wins on the tail; speculation narrows the median
+but does not remove the structural advantage of bounded-depth decoding.
+
+Hoefler and Belli~\cite{hoefler2021} survey reproducibility pitfalls in
+systems measurement. Our nine priced corrections
+(Appendix~\ref{app:defects}) are a case study in that tradition rather
+than a general method.
+

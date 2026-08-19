@@ -14,7 +14,7 @@ PAPER     := main
 REPO      := $(abspath ..)
 # Released snapshots live in paper/<VERSION>/main.pdf — bump VERSION to cut a
 # new one rather than overwriting the last.
-VERSION   := v3
+VERSION   := v5
 RELEASE   := $(VERSION)/main.pdf
 
 # Override if your interpreter is named differently: make PYTHON=python3.12
@@ -51,9 +51,7 @@ $(PAPER).pdf: $(TEXSRC) $(FIGS)
 	@bibtex $(PAPER)
 	@pdflatex -interaction=nonstopmode $(PAPER).tex
 	@pdflatex -interaction=nonstopmode $(PAPER).tex
-	  print('>> %d overfull box(es), %d undefined reference(s)' % ( \
-	    len(re.findall(r'Overfull .hbox', log)), \
-	    len(re.findall(r'Reference .* undefined', log))))"
+	@$(PYTHON) -c "import re; log=open('$(PAPER).log').read(); print('>> %d overfull box(es), %d undefined reference(s)' % (len(re.findall(r'Overfull .hbox', log)), len(re.findall(r'Reference .* undefined', log))))"
 
 # ----------------------------------------------------------------- verify --
 # Re-reads every artifact cited in NUMBERS.md and CHECKLIST.md. Needs 3.10+

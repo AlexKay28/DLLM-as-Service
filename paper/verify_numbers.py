@@ -505,6 +505,233 @@ def check_macro_values() -> bool:
     return ok
 
 
+# --- Text-criteria checks (read .tex sections; gate the v5 rewrite) ---------
+# These checks read the paper source directly and enforce the criteria in
+# paper/CRITERIA.md (categories A=accurate, I=interesting, R=readable). Each
+# check targets a specific defect from the unified edit list and goes FAIL
+# (red) on the v4/v5 baseline, then PASS (green) once the corresponding edit
+# is applied. They are version-aware: read paper/<PAPER_VERSION>/sections/.
+PAPER_VERSION = "v5"
+PAPER_DIR = REPO_ROOT / "paper" / PAPER_VERSION
+
+
+def _read_section(name: str) -> str:
+    p = PAPER_DIR / "sections" / f"{name}.tex"
+    return p.read_text() if p.exists() else ""
+
+
+def _read_main() -> str:
+    p = PAPER_DIR / "main.tex"
+    return p.read_text() if p.exists() else ""
+
+
+def check_no_backwards_fifteenfold() -> None:
+    """A1: §1 must not claim the pre-correction advantage survived.
+
+    The 15.6x was the *defective* harness number; corrections brought it to
+    2.5x. The word 'fifteenfold' has no place in the introduction.
+    """
+    print("Checking A1: no backwards 'fifteenfold survived' in §1...")
+    txt = _read_section("01_introduction")
+    if "fifteenfold" in txt:
+        error("A1: §1 still contains 'fifteenfold' — the 15x was the defective "
+              "number, not what survived corrections (criterion A1).")
+    else:
+        print("  A1 ok — 'fifteenfold' absent from §1.")
+
+
+def check_plot_twist_neutral() -> None:
+    """R9: §1 'plot twist' must be neutral prose or removed.
+
+    Editorializing like 'the arm we were not rooting for inherited every
+    default' reads as advocacy, not measurement.
+    """
+    print("Checking R9: §1 plot-twist neutrality...")
+    txt = _read_section("01_introduction")
+    bad = "the arm we were not rooting for"
+    if bad in txt:
+        error(f"R9: §1 still contains editorializing '{bad}' (criterion R9).")
+    else:
+        print("  R9 ok — no editorializing in §1.")
+
+
+def check_header_table_consistency() -> None:
+    """A2: a §3 paragraph header must not overclaim 'every' output length.
+
+    Table 3 (tab:niche) has a 0.7x row at L=32, so a header asserting DG wins
+    at *every* length contradicts its own table.
+    """
+    print("Checking A2: §3 header vs table consistency...")
+    txt = _read_section("03_deployment")
+    if "wins at every" in txt:
+        error("A2: §3 contains 'wins at every' header but Table 3 has a "
+              "sub-1.0x row (criterion A2). Soften to 'above L*'.")
+    else:
+        print("  A2 ok — no unqualified 'every' header in §3.")
+
+
+def check_tail_punchline_in_results() -> None:
+    """I3: the 3.21x tail-breaks-batch-1-SLA punchline must be in §3, not only §4.
+
+    The tail latency is the reason the batch-1 regime matters; burying it in
+    §4 Limits hides the punchline.
+    """
+    print("Checking I3: tail-latency punchline in §3...")
+    txt = _read_section("03_deployment")
+    # After edit, §3 should carry the SLA-breaks sentence.
+    if "batch-1 SLA" not in txt and "breaks a batch-1" not in txt:
+        error("I3: §3 lacks the 'breaks a batch-1 SLA' punchline — it is "
+              "buried in §4 (criterion I3). Promote to §3.")
+    else:
+        print("  I3 ok — tail punchline present in §3.")
+
+
+def check_input_length_not_buried() -> None:
+    """I5: the input-length caveat (DG prefill steeper, moves L*) must be in §2.
+
+    §2 presents L*=48 as fixed; the caveat that longer inputs push L* up
+    belongs there, not buried in §4.4.
+    """
+    print("Checking I5: input-length caveat in §2...")
+    txt = _read_section("02_cost_laws")
+    # The folded caveat names the prefill slope and that L* moves with input.
+    if "steeper" not in txt or "input" not in txt:
+        error("I5: §2 lacks the input-length caveat (prefill steeper, L* "
+              "moves) — still buried in §4 (criterion I5).")
+    else:
+        print("  I5 ok — input-length caveat present in §2.")
+
+
+def check_data_sample_present() -> None:
+    """I1: §1 Data paragraph must show a concrete BGL example.
+
+    A reader cannot picture 'structural vs semantic vs anomaly fields' without
+    seeing one log line in and one JSON record out. A *shown* example is
+    detected by JSON structure (a field:value colon inside a \\texttt or a
+    verbatim/lstlisting block) — scattered prose mentions of field names do
+    not count.
+    """
+    print("Checking I1: data sample in §1...")
+    txt = _read_section("01_introduction")
+    # A shown example carries structure: a verbatim/lstlisting env, or a
+    # \texttt{...} block containing a colon (field:value) or a JSON brace.
+    has_verbatim = bool(re.search(r"\\begin\{(verbatim|lstlisting|Verbatim)\*?\}",
+                                  txt))
+    has_json_in_texttt = bool(re.search(
+        r"\\texttt\{[^}]*[:\{][^}]*\}", txt))
+    if has_verbatim or has_json_in_texttt:
+        print("  I1 ok — shown data sample present in §1.")
+    else:
+        error("I1: §1 has no shown data sample (need a verbatim/lstlisting "
+              "block or a \\texttt{...:...} JSON example) — criterion I1.")
+
+
+def check_duty_column_defined() -> None:
+    """A5: Table 5 (tab:cost) must define the 'duty' column.
+
+    100% / 25% duty rows appear with no definition in caption or text. The
+    phrase 'duty cycle' in a caption is not a definition; require an actual
+    gloss (fraction of wall-clock time the GPU is busy).
+    """
+    print("Checking A5: duty column defined in §4...")
+    txt = _read_section("04_deployment_losses")
+    low = txt.lower()
+    has_def = ("duty" in low and any(g in low for g in (
+        "fraction of", "wall-clock", "wall clock", "utilization", "busy",
+    )))
+    if not has_def:
+        error("A5: §4 mentions 'duty' without defining it (fraction of "
+              "wall-clock time the GPU is busy) — criterion A5.")
+    else:
+        print("  A5 ok — duty defined in §4.")
+
+
+_ACRONYM_EXPANSIONS = {
+    "SLA": ("service-level agreement", "service level agreement"),
+    "CV": ("coefficient of variation",),
+    "SOC": ("security operations centre", "security operations center"),
+    "EOS": ("end-of-sequence", "end of sequence", "end-of-sequence token"),
+    "KV": ("key-value", "key value"),
+    # HDFS is a proper-noun filesystem name; left as manual review, not jargon.
+    "B2B": ("business-to-business", "business to business"),
+    "MoE": ("Mixture-of-Experts", "Mixture of Experts"),
+}
+
+
+def check_acronyms_expanded() -> None:
+    """R4: each acronym must have its expansion somewhere in the main body.
+
+    First-use ordering is too fragile to check by regex; presence in §1–§8 is
+    a sufficient proxy for 'defined somewhere the reader will encounter it'.
+    """
+    print("Checking R4: acronyms expanded in main body...")
+    body = "".join(_read_section(s) for s in (
+        "01_introduction", "02_cost_laws", "03_deployment",
+        "04_deployment_losses", "05_survives", "06_related_work",
+        "07_threats", "08_conclusion",
+    ))
+    missing = []
+    for acro, expansions in _ACRONYM_EXPANSIONS.items():
+        if acro not in body:
+            continue  # acronym not used — fine
+        if not any(exp.lower() in body.lower() for exp in expansions):
+            missing.append(f"{acro} (needs: {expansions[0]})")
+    if missing:
+        error("R4: acronyms used without expansion in main body: "
+              + "; ".join(missing) + " (criterion R4).")
+    else:
+        print("  R4 ok — all acronyms expanded.")
+
+
+def check_canonical_ratio() -> None:
+    """I4: §5 chain paragraph must not carry 3+ competing ratios for one claim.
+
+    v5 has 2.5x (words), 2.3x, and 1.9x in two paragraphs. After edit, one is
+    canonical and the others are footnoted/parenthetical.
+    """
+    print("Checking I4: canonical ratio in §5 chain paragraph...")
+    txt = _read_section("05_survives")
+    # Isolate the chain paragraph (between 'investigation chains' and 'HumanEval').
+    i = txt.find("investigation chains")
+    j = txt.find("HumanEval", i if i >= 0 else 0)
+    if i < 0 or j < 0:
+        # Section structure changed; check whole section for the triple.
+        window = txt
+    else:
+        window = txt[i:j]
+    distinct = set()
+    for m in re.finditer(r"(\d+\.\d+)\\times", window):
+        distinct.add(m.group(1))
+    if "two and a half" in window or "2.5" in window:
+        distinct.add("2.5")
+    if len(distinct) >= 3:
+        error(f"I4: §5 chain paragraph carries {len(distinct)} competing "
+              f"ratios ({sorted(distinct)}) for one claim — keep one canonical, "
+              f"footnote the rest (criterion I4).")
+    else:
+        print(f"  I4 ok — ≤2 ratios in chain paragraph ({sorted(distinct)}).")
+
+
+def check_text_criteria() -> None:
+    """Run all text-criteria checks (criteria A, I, R from CRITERIA.md)."""
+    print()
+    print("=== Text-criteria checks (paper source) ===")
+    print(f"    version: {PAPER_VERSION}  ({PAPER_DIR})")
+    print()
+    if not PAPER_DIR.exists():
+        error(f"paper/{PAPER_VERSION}/ not found — cannot run text checks.")
+        return
+    check_no_backwards_fifteenfold()
+    check_plot_twist_neutral()
+    check_header_table_consistency()
+    check_tail_punchline_in_results()
+    check_input_length_not_buried()
+    check_data_sample_present()
+    check_duty_column_defined()
+    check_acronyms_expanded()
+    check_canonical_ratio()
+
+
 def main():
     print("=== paper/verify_numbers.py ===")
     print()
@@ -532,6 +759,7 @@ def main():
 
     precision_ok = check_precision_policy()
     values_ok = check_macro_values()
+    check_text_criteria()
 
     print()
     print(f"=== Summary ===")

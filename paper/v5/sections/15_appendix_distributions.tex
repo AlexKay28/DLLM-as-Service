@@ -1,0 +1,12 @@
+\section{Latency distributions}
+\label{app:distributions}
+
+The per-event latency distributions are asymmetric. Across 300 events at
+$L{=}\canvasLength$:
+\begin{itemize}[nosep]
+\item AR-3B (dense baseline) per-event CV: \arEventCV\%; max/median: \arMaxMed$\times$.
+\item DG-26B-A4B per-event CV: \dgEventCV\%; max/median: \dgMaxMed$\times$.
+\end{itemize}
+AR's \arEventCV\% CV means its p50 is a reliable planning number;
+the DG arm's \dgEventCV\% means a p99 SLA lands in a very different
+place than p50 would suggest.
