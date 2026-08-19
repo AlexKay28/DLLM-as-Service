@@ -5,7 +5,11 @@ Diffusion language models claim large speedups. LLaDA~\cite{llada2025}
 and DiffusionGemma~\cite{diffusiongemma} both measure against
 author-built autoregressive baselines. We instead pin both arms to one
 serving stack and fit cost laws, so the comparison rests on a shape
-instead of on a single point.
+instead of on a single point. We are not aware of concurrent work that
+fits cost-law shapes across decoding paradigms on a matched serving
+stack; the closest is the serving-system literature
+\cite{vllm2023}, which optimises within one paradigm rather than
+comparing across them.
 
 Constrained decoding is the standard answer to structured
 output. Outlines~\cite{outlines2024}, xgrammar~\cite{xgrammar2024} and

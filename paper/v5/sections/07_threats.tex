@@ -102,3 +102,35 @@ freedom. The split is therefore a decomposition, not a fit, and the
 floor and per-step shares are exact at the two operating points but
 unverified at intermediate $K$.
 
+\paragraph{Source of the advantage.}
+
+The 2.5$\times$ serial advantage is not a single mechanism but the
+composition of two: parallelism within a canvas (tokens are free once
+the canvas is paid for) and bounded denoising depth ($K$ passes, not
+$L$ passes). The base decomposition (\S\ref{sec:laws}) attributes
+62\% of the base cost to per-step re-attention and 38\% to a
+$K$-independent floor; the K-sweep (Appendix~\ref{app:decomp}) shows
+quality saturates above $K{=}8$ while latency does not. The advantage
+grows with output length because AR pays per token while DG pays per
+canvas; it does not grow with input length, where DG's re-attention
+penalty rises (\S\ref{sec:laws}, input-length caveat).
+
+\paragraph{Reproducibility.}
+
+All code, result artifacts, and provenance blocks are in the project
+repository. Exact commands to reproduce each experiment are documented
+in \texttt{AGENTS.md} at the repo root; the pinned stack is
+vLLM 0.25.1 / torch 2.11.0 / CUDA 13.0 on an A100 80GB. Every cited
+result JSON carries a \texttt{provenance} block recording the model,
+backend, and stack versions; \texttt{paper/verify\_numbers.py} asserts
+that macros match their artifacts and that cited artifacts carry
+provenance. The grammar-constrained AR run (\S\ref{sec:threats}) is
+the one experiment not reproducible on the current pinned stack.
+
+\paragraph{Ethics.}
+
+This work conforms to the NeurIPS Code of Ethics. It is an efficiency
+analysis of existing public models on public data; no new model is
+released, no human subjects are involved, and there is no direct path
+to harm from the findings.
+

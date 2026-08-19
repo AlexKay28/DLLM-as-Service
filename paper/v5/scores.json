@@ -1,0 +1,149 @@
+{
+  "aspects": [
+    {
+      "name": "readability",
+      "title": "Aspect 1 — Readability (Clarity / Writing & Organization)",
+      "score": 100.0,
+      "band": "Strong",
+      "scored": 27,
+      "answered": 27,
+      "passes": 27,
+      "na": 1,
+      "missing": 0,
+      "failed": []
+    },
+    {
+      "name": "accuracy",
+      "title": "Aspect 2 — Accuracy (Technical Soundness)",
+      "score": 87.5,
+      "band": "Strong",
+      "scored": 24,
+      "answered": 24,
+      "passes": 21,
+      "na": 5,
+      "missing": 0,
+      "failed": [
+        {
+          "id": "A16",
+          "question": "Are error bars / std dev / confidence intervals reported for results supporting main claims?",
+          "pass_if": "Yes",
+          "answer": "no"
+        },
+        {
+          "id": "A18",
+          "question": "Are the factors of variability captured (train/test split, init, random draws)?",
+          "pass_if": "Yes",
+          "answer": "no"
+        },
+        {
+          "id": "A21",
+          "question": "Are statistical significance tests reported where comparative claims are made?",
+          "pass_if": "Yes",
+          "answer": "no"
+        }
+      ]
+    },
+    {
+      "name": "novelty",
+      "title": "Aspect 3 — Novelty (Originality)",
+      "score": 100.0,
+      "band": "Strong",
+      "scored": 22,
+      "answered": 22,
+      "passes": 22,
+      "na": 2,
+      "missing": 0,
+      "failed": []
+    },
+    {
+      "name": "significance",
+      "title": "Aspect 4 — Significance (Impact & Importance)",
+      "score": 94.44444444444444,
+      "band": "Strong",
+      "scored": 18,
+      "answered": 18,
+      "passes": 17,
+      "na": 4,
+      "missing": 0,
+      "failed": [
+        {
+          "id": "S17",
+          "question": "Are results robust enough to support the significance claims (multi-seed, multi-dataset)?",
+          "pass_if": "Yes",
+          "answer": "no"
+        }
+      ]
+    },
+    {
+      "name": "reproducibility",
+      "title": "Aspect 5 — Reproducibility",
+      "score": 100.0,
+      "band": "Strong",
+      "scored": 24,
+      "answered": 24,
+      "passes": 24,
+      "na": 3,
+      "missing": 0,
+      "failed": []
+    },
+    {
+      "name": "experimental_rigor",
+      "title": "Aspect 6 — Experimental Rigor",
+      "score": 86.95652173913044,
+      "band": "Strong",
+      "scored": 23,
+      "answered": 23,
+      "passes": 20,
+      "na": 2,
+      "missing": 0,
+      "failed": [
+        {
+          "id": "E08",
+          "question": "Are error bars / std dev / confidence intervals reported for experiments supporting main claims?",
+          "pass_if": "Yes",
+          "answer": "no"
+        },
+        {
+          "id": "E14",
+          "question": "Are significance tests reported where comparative claims are made?",
+          "pass_if": "Yes",
+          "answer": "no"
+        },
+        {
+          "id": "E15",
+          "question": "Are the factors of variability captured (split, init, random draws)?",
+          "pass_if": "Yes",
+          "answer": "no"
+        }
+      ]
+    },
+    {
+      "name": "ethics_societal",
+      "title": "Aspect 7 — Ethics & Societal Impact",
+      "score": 100.0,
+      "band": "Strong",
+      "scored": 4,
+      "answered": 4,
+      "passes": 4,
+      "na": 19,
+      "missing": 0,
+      "failed": []
+    },
+    {
+      "name": "completeness",
+      "title": "Aspect 8 — Completeness (Self-containedness)",
+      "score": 100.0,
+      "band": "Strong",
+      "scored": 20,
+      "answered": 20,
+      "passes": 20,
+      "na": 3,
+      "missing": 0,
+      "failed": []
+    }
+  ],
+  "overall": 96.11262077294685,
+  "overall_band": "Strong",
+  "worst_aspect": 86.95652173913044,
+  "good_overall": true
+}
