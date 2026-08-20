@@ -103,10 +103,12 @@ difference at matched $K{=}8$ and canvas size. The step is a model
 property, not a data property, which is why it barely moves. Two
 caveats bound this: HDFS is the 2{,}000-line LOGHUB
 sample~\cite{loghub} over a full corpus, evaluated at
-$n{=}100$--$200$ per cell against BGL's $n{=}200$; and the AR
-generalisation was measured on the dense AR-3B, not AR-30B. So the
-\emph{shape} transfers across corpora on both arms, but the AR
-constants don't transfer across model scales.
+$n{=}100$--$200$ per cell against BGL's $n{=}200$; the AR-30B was
+re-measured on HDFS (p50 1082\,ms, CI [1078, 1106]) but the AR
+generalisation slope was fitted on the dense AR-3B. So the
+\emph{shape} transfers across corpora on both arms, and the AR-30B
+point estimate confirms it, but the AR slope constant is from the
+smaller model.
 
 The shape also transfers across \emph{tasks}: on HumanEval code
 generation (Appendix~\ref{app:humaneval}), AR-30B decodes at

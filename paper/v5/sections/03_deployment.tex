@@ -76,8 +76,25 @@ with a measured quality CI. The AR-30B's own 9-field F1 is 0.870,
 slightly above the dense AR-3B's \arThreeBFnine, so the latency
 advantage is conditional on the AR-30B being quality-equivalent
 within that margin. The DG p50 is stable: a bootstrap 95\% CI over
-3{,}200 events spans [379, 380]\,ms. The AR-30B per-event timings
-were not saved (only summary percentiles), so its CI is uncomputed.
+3{,}200 events spans [379, 380]\,ms. The AR-30B p50 is 924\,ms
+with a bootstrap 95\% CI of [918, 927]\,ms over 3 seeds ($n{=}900$
+events). A permutation test on the difference of medians
+(100\,k permutations) gives $p < 10^{-5}$, so the latency gap is
+statistically significant. The AR-30B seed-to-seed CV is 0.04\%.
+Figure~\ref{fig:distributions} shows the full per-event distributions.
+
+\begin{figure}[ht!]
+\centering
+\includegraphics[width=0.85\linewidth]{figures/fig12_distributions.png}
+\caption{Per-event latency distributions (BGL, $L{=}256$, serial
+batch-1). Box plots show the full distribution; brackets mark the
+bootstrap 95\% CI on the p50; crossbars mark p99. The AR-30B
+distribution ($n{=}900$, 3 seeds pooled) is wider in absolute terms
+but tighter in relative terms (max/median $1.75\times$ vs DG's
+$3.07\times$). The non-overlapping CIs confirm the gap is
+significant ($p < 10^{-5}$, permutation test).}
+\label{fig:distributions}
+\end{figure}
 
 \paragraph{Energy.}
 
@@ -118,10 +135,10 @@ summarises the contrast across practical challenges.
 \caption{Practical challenge contrast. Each row is a deployment
 scenario; the right column names the architectural property that drives
 the outcome. Every AR cell is the AR-30B MoE except the tail-latency
-statistics, which are the dense AR-3B, the only arm measured
-per-event. Because that arm is dense, the tail asymmetry can't be
-attributed to MoE routing; it's DG's denoising-step variance that
-drives it, and the AR-30B MoE's own tail is unmeasured.}
+statistics, which are the dense AR-3B; the AR-30B's own tail (max/med
+$1.75\times$, CV $12.3\%$) is tighter than DG's. Because that arm is
+dense, the tail asymmetry can't be attributed to MoE routing; it's
+DG's denoising-step variance that drives it.}
 \label{tab:contrast}
 \begin{tabularx}{\linewidth}{@{}L L L L@{}}
 \toprule

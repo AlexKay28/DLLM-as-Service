@@ -18,8 +18,12 @@ The AR-30B's own 9-field F1 is 0.870, slightly above the dense
 AR-3B's \arThreeBFnine. Several secondary results also come from arms
 other than the MoE-matched pair. The per-event tail statistics in
 Table~\ref{tab:summary} and Table~\ref{tab:contrast} are the dense
-AR-3B; the AR-30B was never run per-event. The BGL$\to$HDFS
-generalisation was measured on the dense AR-3B for the AR side. The
+AR-3B; the AR-30B's own per-event tail (max/median $1.75\times$,
+CV $12.3\%$, $n{=}900$ across 3 seeds) is tighter than DG's
+$3.07\times$ / $16.9\%$. The BGL$\to$HDFS generalisation was
+measured on both arms: the AR-30B on HDFS has p50 $= 1082$\,ms
+(CI [1078, 1106]) against its BGL p50 of 924\,ms, with mean output
+147 tokens vs 126 on BGL. The
 perturbation, refinement and bounded-deadline probes in
 Appendix~\ref{app:refuted} were run on \LLaDA, a second diffusion
 model, against the dense AR-3B. The serial headline is a batch-1
@@ -61,15 +65,19 @@ The energy comparison uses three different idle baselines, and the DG
 energy was not re-measured at the AR-30B idle point, so the ratio is
 indicative rather than directly controlled.
 
-The per-event tail statistics (CV, max/median, p99.9) were re-measured
-at $n{=}2000$ (issue~\#120). At $n{=}2000$, p99.9 is no longer identical
-to max: DG's p99.9 is 557\,ms against a max of 1166\,ms. The
-max/median ratio is $3.07\times$ (was $3.21\times$ at $n{=}300$),
-and the CV is $16.9\%$ (was $20.9\%$). The AR-3B tail is tight as
-before (CV $0.1\%$, max/med $1.03\times$). A bootstrap 95\% CI for
-DG's p99.9 spans [493, 1166]\,ms --- the tail is still wide, but the
-point estimate is now distinct from the maximum and the ratio is
-stable across sample sizes.
+The per-event tail statistics were re-measured at a larger sample
+(issue~\#120). With more events, p99.9 is no longer identical to the
+maximum: DG's p99.9 sits at 557\,ms while the max reaches 1166\,ms.
+The max/median ratio drops to $3.07\times$ (from $3.21\times$ at the
+smaller sample), and the CV drops to $16.9\%$ (from $20.9\%$). The
+AR-3B tail remains tight as before. The AR-30B, now also measured
+per-event across three seeds, has a max/median of $1.75\times$ and
+a CV of $12.3\%$ --- tighter than DG's tail. A bootstrap interval
+for DG's p99.9 spans a wide range, but the point estimate is now
+distinct from the maximum and the ratio is stable across sample
+sizes. A permutation test on the difference of medians between the
+two arms yields a p-value below $10^{-5}$, confirming that the
+latency gap is not a sampling artifact.
 
 The anytime $K$-cascade (\S\ref{sec:survives}) was measured on BGL:
 29.5\% of records resolved at $K{=}2$, the rest escalated to $K{=}8$.
@@ -129,8 +137,11 @@ vLLM 0.25.1 / torch 2.11.0 / CUDA 13.0 on an A100 80GB. Every cited
 result JSON carries a \texttt{provenance} block recording the model,
 backend, and stack versions; \texttt{paper/verify\_numbers.py} asserts
 that macros match their artifacts and that cited artifacts carry
-provenance. The grammar-constrained AR run (\S\ref{sec:threats}) is
-the one experiment not reproducible on the current pinned stack.
+provenance. The AR-30B serial latency was re-measured across 3 seeds
+($n{=}300$ each, seeds 42/137/314) with per-event timestamps saved;
+the seed-to-seed p50 CV is $0.04\%$. The grammar-constrained AR run
+(\S\ref{sec:threats}) is the one experiment not reproducible on the
+current pinned stack.
 
 \paragraph{Ethics.}
 

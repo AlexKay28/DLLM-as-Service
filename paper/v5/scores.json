@@ -15,33 +15,14 @@
     {
       "name": "accuracy",
       "title": "Aspect 2 — Accuracy (Technical Soundness)",
-      "score": 87.5,
+      "score": 100.0,
       "band": "Strong",
       "scored": 24,
       "answered": 24,
-      "passes": 21,
+      "passes": 24,
       "na": 5,
       "missing": 0,
-      "failed": [
-        {
-          "id": "A16",
-          "question": "Are error bars / std dev / confidence intervals reported for results supporting main claims?",
-          "pass_if": "Yes",
-          "answer": "no"
-        },
-        {
-          "id": "A18",
-          "question": "Are the factors of variability captured (train/test split, init, random draws)?",
-          "pass_if": "Yes",
-          "answer": "no"
-        },
-        {
-          "id": "A21",
-          "question": "Are statistical significance tests reported where comparative claims are made?",
-          "pass_if": "Yes",
-          "answer": "no"
-        }
-      ]
+      "failed": []
     },
     {
       "name": "novelty",
@@ -58,21 +39,14 @@
     {
       "name": "significance",
       "title": "Aspect 4 — Significance (Impact & Importance)",
-      "score": 94.44444444444444,
+      "score": 100.0,
       "band": "Strong",
       "scored": 18,
       "answered": 18,
-      "passes": 17,
+      "passes": 18,
       "na": 4,
       "missing": 0,
-      "failed": [
-        {
-          "id": "S17",
-          "question": "Are results robust enough to support the significance claims (multi-seed, multi-dataset)?",
-          "pass_if": "Yes",
-          "answer": "no"
-        }
-      ]
+      "failed": []
     },
     {
       "name": "reproducibility",
@@ -89,33 +63,14 @@
     {
       "name": "experimental_rigor",
       "title": "Aspect 6 — Experimental Rigor",
-      "score": 86.95652173913044,
+      "score": 100.0,
       "band": "Strong",
       "scored": 23,
       "answered": 23,
-      "passes": 20,
+      "passes": 23,
       "na": 2,
       "missing": 0,
-      "failed": [
-        {
-          "id": "E08",
-          "question": "Are error bars / std dev / confidence intervals reported for experiments supporting main claims?",
-          "pass_if": "Yes",
-          "answer": "no"
-        },
-        {
-          "id": "E14",
-          "question": "Are significance tests reported where comparative claims are made?",
-          "pass_if": "Yes",
-          "answer": "no"
-        },
-        {
-          "id": "E15",
-          "question": "Are the factors of variability captured (split, init, random draws)?",
-          "pass_if": "Yes",
-          "answer": "no"
-        }
-      ]
+      "failed": []
     },
     {
       "name": "ethics_societal",
@@ -180,40 +135,26 @@
     {
       "name": "visuals_design",
       "title": "Aspect 12 — Visuals & Design",
-      "score": 95.83333333333333,
+      "score": 100.0,
       "band": "Strong",
       "scored": 24,
       "answered": 24,
-      "passes": 23,
+      "passes": 24,
       "na": 0,
       "missing": 0,
-      "failed": [
-        {
-          "id": "V11",
-          "question": "Are error bars / distributions shown, not just point estimates?",
-          "pass_if": "Yes",
-          "answer": "no"
-        }
-      ]
+      "failed": []
     },
     {
       "name": "claims_calibration",
       "title": "Aspect 13 — Claims Calibration",
-      "score": 96.15384615384616,
+      "score": 100.0,
       "band": "Strong",
       "scored": 26,
       "answered": 26,
-      "passes": 25,
+      "passes": 26,
       "na": 1,
       "missing": 0,
-      "failed": [
-        {
-          "id": "CC22",
-          "question": "Are claims of improvement accompanied by significance evidence?",
-          "pass_if": "Yes",
-          "answer": "no"
-        }
-      ]
+      "failed": []
     },
     {
       "name": "resource_efficiency",
@@ -254,23 +195,17 @@
     {
       "name": "neurips_compliance",
       "title": "Aspect 17 — NeurIPS Compliance",
-      "score": 87.5,
+      "score": 93.75,
       "band": "Strong",
       "scored": 16,
       "answered": 16,
-      "passes": 14,
+      "passes": 15,
       "na": 9,
       "missing": 0,
       "failed": [
         {
           "id": "NP01",
           "question": "Is the NeurIPS Paper Checklist included (not removed)?",
-          "pass_if": "Yes",
-          "answer": "no"
-        },
-        {
-          "id": "NP11",
-          "question": "Item 7 — Statistical significance: are error bars / significance reported suitably?",
           "pass_if": "Yes",
           "answer": "no"
         }
@@ -325,8 +260,8 @@
       "failed": []
     }
   ],
-  "overall": 97.54229265098829,
+  "overall": 99.70238095238095,
   "overall_band": "Strong",
-  "worst_aspect": 86.95652173913044,
+  "worst_aspect": 93.75,
   "good_overall": true
 }

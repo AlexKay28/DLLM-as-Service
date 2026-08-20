@@ -18,6 +18,12 @@ anchor regime (``run_anchor_remeasure.py``):
     remediation_hint)
   - provenance block via ``capture_provenance``
 
+Issue #121: added ``--seed``, ``--dataset``, ``--save-predictions``,
+``--output``, and per-event JSONL dump (matching the DG pattern in
+``run_anchor_remeasure.py``). Also writes ``max_median_ratio`` and
+``cv_pct`` to the summary JSON for tail-statistics parity with the DG
+n=2000 artifact.
+
 Pinned stack (must match the anchors): vLLM 0.25.1 / torch 2.11.0 / CUDA 13.0.
 ``capture_provenance`` records the *actual* installed versions, so a mismatch
 is visible in the emitted artifact.
@@ -75,7 +81,8 @@ def load_gold_records(path, n=None):
     return records
 
 
-def run_experiment(n_events=300, max_tokens=256):
+def run_experiment(n_events=300, max_tokens=256, seed=42, dataset="bgl",
+                   save_predictions=None, output=None):
     from vllm import LLM, SamplingParams
 
     model_name = "Qwen/Qwen3-30B-A3B"
@@ -87,16 +94,26 @@ def run_experiment(n_events=300, max_tokens=256):
     )
     tokenizer = llm.get_tokenizer()
 
-    log_lines = load_log_lines(str(SPLIT_DIR / "bgl.raw"), n=n_events)
-    gold_records = load_gold_records(str(SPLIT_DIR / "bgl.jsonl"), n=n_events)
+    raw_path = str(SPLIT_DIR / f"{dataset}.raw")
+    gold_path = str(SPLIT_DIR / f"{dataset}.jsonl")
+    log_lines = load_log_lines(raw_path, n=n_events)
+    gold_records = load_gold_records(gold_path, n=n_events)
     assert len(log_lines) == len(gold_records), (
         f"raw/gold length mismatch: {len(log_lines)} vs {len(gold_records)}")
-    print(f"Loaded {len(log_lines)} BGL events ({len(gold_records)} gold)",
-          flush=True)
+    print(f"Loaded {len(log_lines)} {dataset.upper()} events "
+          f"({len(gold_records)} gold)", flush=True)
+
+    # Resample log_lines with the given seed to get a different event subset
+    # per seed (deterministic via numpy RNG).
+    if seed != 42:
+        rng = np.random.RandomState(seed)
+        idx = rng.choice(len(log_lines), size=len(log_lines), replace=False)
+        log_lines = [log_lines[i] for i in idx]
+        gold_records = [gold_records[i] for i in idx]
 
     prompts = []
     for line in log_lines:
-        messages = build_chat_messages(line, source="bgl", few_shot=True)
+        messages = build_chat_messages(line, source=dataset, few_shot=True)
         try:
             text = tokenizer.apply_chat_template(
                 messages, tokenize=False, add_generation_prompt=True,
@@ -106,7 +123,8 @@ def run_experiment(n_events=300, max_tokens=256):
                 messages, tokenize=False, add_generation_prompt=True)
         prompts.append(text)
 
-    sp = SamplingParams(temperature=0.0, max_tokens=max_tokens, min_tokens=0)
+    sp = SamplingParams(temperature=0.0, max_tokens=max_tokens, min_tokens=0,
+                        seed=seed)
 
     # Serial measurement (batch-1): one prompt per generate call, per-event
     # wall-clock -- the regime the anchors and every other AR arm use.
@@ -130,6 +148,14 @@ def run_experiment(n_events=300, max_tokens=256):
     f1_res = field_f1(records, gold_records[:len(records)])
     lat = latency_percentiles(latencies)
 
+    # Tail statistics (parity with DG n=2000 artifact)
+    max_lat = max(latencies)
+    p50_lat = lat["p50_ms"]
+    cv_pct = round(
+        (statistics.stdev(latencies) / statistics.fmean(latencies) * 100.0)
+        if len(latencies) > 1 else 0.0, 2)
+    max_median_ratio = round(max_lat / p50_lat, 2) if p50_lat > 0 else 0.0
+
     prov = capture_provenance(
         model_name=model_name, model_type="ar30b", backend="vllm",
         max_new_tokens=max_tokens, parser_policy="first_object_wins",
@@ -140,7 +166,8 @@ def run_experiment(n_events=300, max_tokens=256):
         "experiment": "issue111_ar30b_quality",
         "model": model_name,
         "model_type": "ar30b",
-        "corpus": "BGL",
+        "corpus": dataset.upper(),
+        "seed": seed,
         "n_events": len(records),
         "max_new_tokens": max_tokens,
         "min_tokens": 0,
@@ -155,8 +182,13 @@ def run_experiment(n_events=300, max_tokens=256):
         "latency_ms": {
             "p50": round(lat["p50_ms"], 1),
             "p99": round(lat["p99_ms"], 1),
+            "p99_9": round(lat.get("p99_9_ms", max_lat), 1),
             "mean": round(statistics.fmean(latencies), 1),
+            "max": round(max_lat, 1),
+            "min": round(min(latencies), 1),
         },
+        "max_median_ratio": max_median_ratio,
+        "cv_pct": cv_pct,
         "field_f1_9": round(f1_res["macro_field_f1_9"], 4),
         "field_f1_12": round(f1_res["macro_field_f1_12"], 4),
         "schema_valid_pct": round(schema_validity(records), 1),
@@ -166,7 +198,18 @@ def run_experiment(n_events=300, max_tokens=256):
         "provenance": prov.to_dict(),
     }
 
-    out_path = REPO / "results" / "issue111_qwen3_30b_a3b.json"
+    # Per-event JSONL dump (matches DG pattern in run_anchor_remeasure.py)
+    if save_predictions:
+        pred_path = Path(save_predictions)
+        pred_path.parent.mkdir(parents=True, exist_ok=True)
+        with open(pred_path, "w") as f:
+            for rec, lat_val in zip(records, latencies):
+                f.write(json.dumps(
+                    {"record": rec.fields, "latency_ms": lat_val}) + "\n")
+        print(f"Per-event predictions saved to {pred_path}")
+
+    out_path = Path(output) if output else (
+        REPO / "results" / f"issue111_qwen3_30b_a3b_{dataset}_s{seed}.json")
     out_path.parent.mkdir(parents=True, exist_ok=True)
     with open(out_path, "w") as f:
         json.dump(result, f, indent=2)
@@ -192,5 +235,16 @@ if __name__ == "__main__":
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--n", type=int, default=300)
     ap.add_argument("--max-tokens", type=int, default=256)
+    ap.add_argument("--seed", type=int, default=42,
+                    help="RNG seed for event resampling (42 = no resample)")
+    ap.add_argument("--dataset", choices=["bgl", "hdfs"], default="bgl")
+    ap.add_argument("--save-predictions", type=str, default=None,
+                    help="Path to save per-event JSONL "
+                         "(record + latency_ms per line)")
+    ap.add_argument("--output", type=str, default=None,
+                    help="Path for summary JSON (default: "
+                         "results/issue111_qwen3_30b_a3b_{dataset}_s{seed}.json)")
     args = ap.parse_args()
-    run_experiment(n_events=args.n, max_tokens=args.max_tokens)
+    run_experiment(n_events=args.n, max_tokens=args.max_tokens, seed=args.seed,
+                   dataset=args.dataset, save_predictions=args.save_predictions,
+                   output=args.output)

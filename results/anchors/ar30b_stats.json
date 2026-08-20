@@ -1,0 +1,58 @@
+{
+  "experiment": "issue121_ar30b_stats",
+  "ar30b_bgl": {
+    "n_events": 900,
+    "n_seeds": 3,
+    "seeds": [
+      42,
+      137,
+      314
+    ],
+    "p50_ms": 924.4,
+    "p50_ci_95": [
+      918.2,
+      926.5
+    ],
+    "p99_ms": 1400.4,
+    "p99_9_ms": 1619.1,
+    "max_ms": 1619.2,
+    "max_median_ratio": 1.75,
+    "cv_pct": 12.25,
+    "seed_p50s": [
+      924.2,
+      924.3,
+      925.0
+    ],
+    "seed_p50_mean": 924.53,
+    "seed_p50_std": 0.41,
+    "seed_p50_cv_pct": 0.04
+  },
+  "dg_bgl": {
+    "n_events": 2000,
+    "p50_ms": 379.7,
+    "p50_ci_95": [
+      379.1,
+      380.4
+    ],
+    "p99_ms": 490.7,
+    "p99_9_ms": 557.0,
+    "max_ms": 1166.4,
+    "max_median_ratio": 3.07,
+    "cv_pct": 16.92
+  },
+  "permutation_test": {
+    "test": "difference of medians, two-sided",
+    "n_permutations": 100000,
+    "observed_diff_ms": 544.6,
+    "p_value": 0.0
+  },
+  "ar30b_hdfs": {
+    "n_events": 300,
+    "p50_ms": 1082.3,
+    "p50_ci_95": [
+      1077.9,
+      1106.0
+    ]
+  },
+  "timestamp": "2026-08-20T10:42:46Z"
+}

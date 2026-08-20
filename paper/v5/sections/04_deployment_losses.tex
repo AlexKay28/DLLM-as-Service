@@ -40,9 +40,12 @@ on/off and $L$-swept AR bars are the dense AR-3B, not the AR-30B MoE
 
 DG arm's per-event coefficient of variation is \dgEventCV\%
 with a max/median ratio of \dgMaxMed$\times$, against
-\arEventCV\% and \arMaxMed$\times$ for the dense AR-3B, the only arm
-measured per-event, since the AR-30B MoE was not re-run at that
-granularity; see Appendix~\ref{app:distributions}.
+\arEventCV\% and \arMaxMed$\times$ for the dense AR-3B. The AR-30B's
+own per-event tail, now measured across three seeds, is tighter than
+DG's: its max/median ratio is $1.75\times$ with a CV of $12.3\%$,
+against DG's $3.07\times$ and $16.9\%$. The tail asymmetry therefore
+cannot be attributed to MoE routing. See
+Appendix~\ref{app:distributions}.
 A $3.21\times$ tail is what breaks a batch-1 SLA, exactly the
 regime where DG's per-event advantage applies.
 
