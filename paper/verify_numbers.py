@@ -511,7 +511,7 @@ def check_macro_values() -> bool:
 # check targets a specific defect from the unified edit list and goes FAIL
 # (red) on the v4/v5 baseline, then PASS (green) once the corresponding edit
 # is applied. They are version-aware: read paper/<PAPER_VERSION>/sections/.
-PAPER_VERSION = "v5"
+PAPER_VERSION = "v6"
 PAPER_DIR = REPO_ROOT / "paper" / PAPER_VERSION
 
 
