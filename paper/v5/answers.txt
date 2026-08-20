@@ -1,4 +1,4 @@
-# Paper Evaluation Answer Sheet — v5 (499 items, 20 aspects)
+# Paper Evaluation Answer Sheet — v5 (526 items, 21 aspects)
 
 # === readability ===
 R01: Yes
@@ -538,4 +538,33 @@ AL22: Yes
 AL23: Yes
 AL24: Yes
 AL25: Yes
+
+# === scientific_storytelling ===
+ST01: Yes
+ST02: Yes
+ST03: Yes
+ST04: Yes
+ST05: Yes
+ST06: Yes
+ST07: Yes
+ST08: No
+ST09: Yes
+ST10: Yes
+ST11: Yes
+ST12: Yes
+ST13: Yes
+ST14: Yes
+ST15: Yes
+ST16: Yes
+ST17: Yes
+ST18: Yes
+ST19: Yes
+ST20: No
+ST21: Yes
+ST22: Yes
+ST23: Yes
+ST24: Yes
+ST25: No
+ST26: Yes
+ST27: Yes
 

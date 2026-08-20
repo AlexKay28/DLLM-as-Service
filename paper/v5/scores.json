@@ -311,9 +311,21 @@
       "na": 2,
       "missing": 0,
       "failed": []
+    },
+    {
+      "name": "scientific_storytelling",
+      "title": "Aspect 21 — Scientific Storytelling (Narrative Structure)",
+      "score": 100.0,
+      "band": "Strong",
+      "scored": 27,
+      "answered": 27,
+      "passes": 27,
+      "na": 0,
+      "missing": 0,
+      "failed": []
     }
   ],
-  "overall": 97.41940728353771,
+  "overall": 97.54229265098829,
   "overall_band": "Strong",
   "worst_aspect": 86.95652173913044,
   "good_overall": true
