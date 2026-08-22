@@ -1,0 +1,145 @@
+\documentclass[11pt,a4paper]{article}
+
+%, Page Geometry & Layout ,
+\usepackage[margin=1in]{geometry}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+
+%, Core Math & Symbols ,
+\usepackage{amsmath,amssymb,amsfonts,amsthm}
+
+%, Graphics, Tables & Formatting ,
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{microtype}
+\usepackage{setspace}
+\onehalfspacing
+
+%, Tables ,
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{tabularx}
+\renewcommand{\arraystretch}{1.15}
+\setlength{\tabcolsep}{6pt}
+\newcolumntype{R}{>{\raggedleft\arraybackslash}X}
+\newcolumntype{L}{>{\raggedright\arraybackslash}X}
+\newcommand{\tabfont}{\footnotesize}
+\newcommand{\thead}[1]{\footnotesize\textbf{#1}}
+
+%, Captions ,
+\usepackage{caption}
+\captionsetup{font=small, labelfont=bf}
+
+%, Lists ,
+\usepackage{enumitem}
+\setlist[itemize]{leftmargin=1.5em,itemsep=2pt,topsep=4pt,parsep=0pt}
+\setlist[enumerate]{leftmargin=1.8em,itemsep=2pt,topsep=4pt,parsep=0pt}
+
+%, Colors ,
+\usepackage[table,dvipsnames]{xcolor}
+\definecolor{arblue}{HTML}{2A78D6}
+\definecolor{dgorange}{HTML}{EB6834}
+\definecolor{llaqua}{HTML}{1BAF7A}
+\definecolor{linkc}{HTML}{1B3A5C}
+
+%, Hyperlinks & Metadata ,
+\usepackage[
+    colorlinks=true,
+    linkcolor=linkc,
+    citecolor=linkc,
+    urlcolor=linkc,
+    pdfauthor={Aleksandr Kaigorodov},
+    pdftitle={Diffusion LLMs as Fast Models for Specific Tasks},
+    pdfsubject={Block-structured decoding cost analysis},
+    pdfkeywords={diffusion LLM, block decoding, latency, structured output}
+]{hyperref}
+
+%, Model shorthands ,
+% NB: \ARthree renders AR-30B (the name is an AR-3B-era leftover).
+\newcommand{\ARthree}{\textsc{ar-30b}}
+\newcommand{\DG}{\textsc{dg}}
+\newcommand{\LLaDA}{\textsc{llada-8b}}
+
+%, Macros (numbers from results/) ,
+\input{../assets/macros.tex}
+
+\graphicspath{{../}{../figures/}}
+
+\title{\textbf{Diffusion LLMs as Fast Models for Specific Tasks:\\
+The Cost Shape of Block-Structured Decoding}}
+
+\author{
+  \textbf{Aleksandr Kaigorodov, Yandex}
+}
+
+\date{}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+Autoregressive decoding has a cost that grows linearly with
+output length. Block-diffusion decoding has a stepwise cost:
+flat within a fixed block, stepping only at block boundaries. We
+compare both paradigms on a controlled benchmark for structured log
+extraction. We use a matched pair of MoE models on a single vLLM
+stack. The two costs cross at a short output length. Beyond this
+crossover, block-diffusion is $2.5\times$ faster at the model's
+natural output length, where the autoregressive model emits
+end-of-sequence. The advantage narrows toward parity for longer
+outputs. The autoregressive model is preferred under high-throughput
+batching, where it achieves better utilization and lower tail latency.
+Block-diffusion is preferred where requests arrive serially:
+investigation chains, autonomous driving, algorithmic trading. Under
+a tightening deadline, block-diffusion degrades output quality
+rather than truncating. We state the conditions that define when
+block-diffusion decoding is the right choice.
+\end{abstract}
+
+\begin{figure}[ht!]
+\centering
+\includegraphics[width=\linewidth]{figures/fig1_cost_shapes.png}
+\caption{The two cost shapes, priced at four output lengths (log scale).
+Autoregressive cost grows linearly with no floor; block-diffusion cost
+is a bounded staircase, flat inside each 256-token canvas and stepping
+by $\sim$120\,ms at each boundary. The gap widens with output length.
+Block diffusion measured (BGL, $n{=}200$, $K{=}8$); autoregressive from
+the fitted serial cost law.}
+\label{fig:shapes}
+\end{figure}
+
+\input{sections/01_introduction}
+\input{sections/02_cost_laws}
+\input{sections/03_deployment}
+\input{sections/04_deployment_losses}
+\input{sections/05_survives}
+\input{sections/06_related_work}
+\input{sections/07_threats}
+\input{sections/08_conclusion}
+
+% ======================================================================
+%                          APPENDICES
+% ======================================================================
+
+\bibliographystyle{plain}
+\bibliography{../assets/references}
+
+\appendix
+
+\input{sections/09_appendix_defects}
+\input{sections/10_appendix_decomp}
+\input{sections/11_appendix_batching}
+\input{sections/12_appendix_refuted}
+\input{sections/13_appendix_input_canvas}
+\input{sections/14_appendix_quality}
+\input{sections/15_appendix_distributions}
+\input{sections/16_appendix_forced}
+\input{sections/17_appendix_batching_arch}
+\input{sections/18_appendix_humaneval}
+
+% NeurIPS Paper Checklist (placed after references/appendices, page-limit-exempt)
+\input{sections/19_neurips_checklist}
+
+\end{document}

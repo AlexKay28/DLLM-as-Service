@@ -1,0 +1,41 @@
+\section{Does the advantage survive natural long output?}
+\label{app:forced}
+
+Table~\ref{tab:niche} lets AR-30B stop at its natural EOS near 126
+tokens, so its long-output rows are a plateau instead of a
+measurement of long output; neither arm is forced there. The question
+this appendix answers is what happens when the \emph{task} makes the
+output long. A multi-record extraction task, emit a JSON array of
+$N$ structured records from $N$ consecutive log lines, produces
+output of roughly $N \times 140$ tokens naturally, without forcing.
+A record inside an array costs slightly more than the 126 tokens of a
+bare record, for the enclosing punctuation and indentation.
+Table~\ref{tab:forced} applies the fitted cost laws
+(Eqs.~\ref{eq:ar}--\ref{eq:dg}):
+
+\begin{table}[ht!]
+\centering
+\caption{What the cost laws predict when the task itself makes output
+long. Row 1 is measured; rows 2--4 apply Eqs.~\ref{eq:ar}--\ref{eq:dg}
+at the natural output length of an $N$-record extraction. The
+advantage grows here, the opposite of
+Table~\ref{tab:niche}. AR is no longer stopped by EOS at
+126 tokens, so its line keeps climbing while DG adds one bounded
+canvas at a time.}
+\label{tab:forced}
+\begin{tabular}{@{}lrrrr@{}}
+\toprule
+Task & $L_{\mathrm{out}}$ & AR-30B (ms) & DG (ms) & Ratio \\
+\midrule
+Single record (unforced) & 126 & 945 & 379 & DG $2.5\times$ \\
+Multi-record $N{=}2$ & 280 & 2051 & 498 & DG $4.1\times$ \\
+Multi-record $N{=}4$ & 560 & 4067 & 618 & DG $6.6\times$ \\
+Multi-record $N{=}8$ & 1120 & 8099 & 857 & DG $9.5\times$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+So the figure quoted in the abstract is the conservative
+reading, not the optimistic one: it describes AR at its natural output
+length. When the task genuinely demands a thousand tokens, the
+staircase pulls further ahead, not less.

@@ -1,0 +1,152 @@
+\section{Threats to validity}
+\label{sec:threats}
+
+We ran all measurements on one GPU; the fitted constants are
+A100-specific but the shapes should transfer. We calibrated the
+crossover at a reference prompt of $\sim$\refPrompt\,tokens, and it
+shifts with input length.
+
+The AR--DG quality difference is equivalent at a $\pm 0.015$ margin
+($\Delta = \qualityGap$, 95\% CI $[-0.012, +0.011]$, $n = 300$).
+This is looser than the $\pm 0.010$ we pre-registered. At that
+tighter margin the 95\% CI doesn't fit; equivalence holds only on
+the 90\% CI.
+
+The quality and latency arms are not the same model: quality uses the
+dense AR-3B baseline, while latency uses the AR-30B MoE cost law.
+The AR-30B's own 9-field F1 is 0.870, slightly above the dense
+AR-3B's \arThreeBFnine. Several secondary results also come from arms
+other than the MoE-matched pair. The per-event tail statistics in
+Table~\ref{tab:summary} and Table~\ref{tab:contrast} are the dense
+AR-3B; the AR-30B's own per-event tail (max/median $1.75\times$,
+CV $12.3\%$, $n{=}900$ across 3 seeds) is tighter than DG's
+$3.07\times$ / $16.9\%$. We measured the BGL$\to$HDFS generalisation
+on both arms: the AR-30B on HDFS has p50 $= 1082$\,ms
+(CI [1078, 1106]) against its BGL p50 of 924\,ms, with mean output
+147 tokens vs 126 on BGL. We ran the
+perturbation, refinement and bounded-deadline probes in
+Appendix~\ref{app:refuted} on \LLaDA, a second block-diffusion
+model, against the dense AR-3B. The serial headline is a batch-1
+result: the same AR-30B batches $25\times$, so a deployment that can
+batch inverts the economics entirely (\S\ref{sec:limits}).
+
+We have not tested the surviving niche on a task whose natural output
+length is $\geq 512$ tokens. We fit the AR-30B cost law from a
+five-point serial sweep with $R^2 = 0.9996$, but the model stops at
+$\sim$126 tokens (EOS), so the $L{=}32$ point and the cluster at
+natural output carry the slope. The advantage in serial is the
+realized comparison; forcing AR to generate longer output would
+increase its latency per the cost law, making DG's advantage larger.
+Appendix~\ref{app:forced} works that projection through a multi-record
+task whose natural output is long.
+
+We have not tested the niche against grammar-constrained AR decoding,
+which would eliminate over-generation, guarantee 100\% schema
+validity, and remove DG's completeness advantage. An attempt to run
+grammar-constrained decoding on the dense AR-1.5B (vLLM 0.10.2, using
+the outlines~\cite{outlines2024} backend) produced 1.0\% schema-valid
+output. The grammar enforced JSON structure, but the model padded
+string fields it could not answer, preventing the JSON from closing.
+That is one model on one older engine, so it bounds nothing; we have
+not tested the comparison against a properly tuned grammar-constrained
+AR.
+
+The batching ceiling reproduces across two runtimes and two model
+families, DG on vLLM and \LLaDA\ on dInfer, but both measurements
+are engine-bounded; see
+Appendix~\ref{app:batching}. Appendix~\ref{app:batching_architectural}
+gives a structural argument for why the ceiling is likely
+architectural.
+
+We infer the cost-shape generalisation from one block-diffusion
+model measured against one AR family. The shape claim is structural,
+but we have not tested it on a second block-diffusion family.
+
+The energy comparison uses three different idle baselines, and we
+did not re-measure the DG energy at the AR-30B idle point, so the
+ratio is indicative rather than directly controlled.
+
+We re-measured the per-event tail statistics at a larger sample
+(issue~\#120). With more events, p99.9 is no longer identical to the
+maximum: DG's p99.9 sits at 557\,ms while the max reaches 1166\,ms.
+The max/median ratio drops to $3.07\times$ (from $3.21\times$ at the
+smaller sample), and the CV drops to $16.9\%$ (from $20.9\%$). The
+AR-3B tail remains tight as before. We also measured the AR-30B
+per-event across three seeds; it has a max/median of $1.75\times$ and
+a CV of $12.3\%$ --- tighter than DG's tail. A bootstrap interval
+for DG's p99.9 spans a wide range, but the point estimate is now
+distinct from the maximum and the ratio is stable across sample
+sizes. A permutation test on the difference of medians between the
+two arms yields a p-value below $10^{-5}$, confirming that the
+latency gap is not a sampling artifact.
+
+We measured the anytime $K$-cascade (\S\ref{sec:survives}) on BGL:
+29.5\% of records resolved at $K{=}2$, the rest escalated to $K{=}8$.
+The cascade does not save latency on this task (70\% escalation rate
+means the $K{=}2$ overhead is not amortised), but the structural
+property --- input-dependent latency --- holds. The practical
+benefit is task-dependent: on tasks where most inputs are easy, the
+cascade would drop average latency below the fixed-$K$ baseline.
+
+DiffusionGemma-26B-A4B-it's available at
+\url{https://huggingface.co/google/}\\\url{diffusiongemma-26b-a4b-it}.
+All DG measurements are reproducible from this checkpoint.\footnote{All
+measurements were taken on a single A100 80GB GPU on the pinned stack:
+vLLM 0.25.1, torch 2.11.0, CUDA 13.0. The AR-30B was initially
+measured on vLLM 0.11.0 with a gold-leaked harness; both were corrected
+and re-measured on the pinned stack; see Appendix~\ref{app:defects},
+correction 9. Preliminary and failed runs (the nine harness-defect
+corrections and their re-measurements) are estimated at an additional
+$\sim$10 GPU-hours beyond the $\sim$20 reported above. A typical serial
+evaluation cell takes about two minutes of GPU time; the total for all
+experiments is estimated at roughly twenty GPU-hours. Wall-clock
+timings are reported per event; token counts (127 per event at natural
+output, 256 per canvas for DG) serve as a hardware-normalised proxy
+for FLOPs. BGL and HDFS are from LOGHUB under MIT. Drain is via
+\texttt{drain3} under Apache 2.0. vLLM is Apache 2.0. DiffusionGemma
+is under the Gemma Terms of Use. Qwen3 and LLaDA-8B-Instruct are
+Apache 2.0 and MIT respectively.}
+
+\paragraph{Base decomposition.}
+
+The base split in \S\ref{sec:laws} is a two-point linear interpolation
+fitted to $K{=}2$ and $K{=}8$, not a regression. With two points and
+two parameters, $R^2$ is trivially one and carries no degrees of
+freedom. The split is therefore a decomposition, not a fit, and the
+floor and per-step shares are exact at the two operating points but
+unverified at intermediate $K$.
+
+\paragraph{Source of the advantage.}
+
+The 2.5$\times$ serial advantage is not a single mechanism but the
+composition of two: parallelism within a canvas (tokens are free once
+the canvas is paid for) and bounded denoising depth ($K$ passes, not
+$L$ passes). The base decomposition (\S\ref{sec:laws}) attributes
+62\% of the base cost to per-step re-attention and 38\% to a
+$K$-independent floor; the K-sweep (Appendix~\ref{app:decomp}) shows
+quality saturates above $K{=}8$ while latency does not. The advantage
+grows with output length because AR pays per token while DG pays per
+canvas; it does not grow with input length, where DG's re-attention
+penalty rises (\S\ref{sec:laws}, input-length caveat).
+
+\paragraph{Reproducibility.}
+
+All code, result artifacts, and provenance blocks are in the project
+repository. \texttt{AGENTS.md} at the repo root documents exact
+commands to reproduce each experiment; the pinned stack is
+vLLM 0.25.1 / torch 2.11.0 / CUDA 13.0 on an A100 80GB. Every cited
+result JSON carries a \texttt{provenance} block recording the model,
+backend, and stack versions; \texttt{paper/verify\_numbers.py} asserts
+that macros match their artifacts and that cited artifacts carry
+provenance. We re-measured the AR-30B serial latency across 3 seeds
+($n{=}300$ each, seeds 42/137/314) with per-event timestamps saved;
+the seed-to-seed p50 CV is $0.04\%$. The grammar-constrained AR run
+(\S\ref{sec:threats}) is the one experiment not reproducible on the
+current pinned stack.
+
+\paragraph{Ethics.}
+
+This work conforms to the NeurIPS Code of Ethics. It is an efficiency
+analysis of existing public models on public data; we release no new
+model, involve no human subjects, and the findings create no direct
+path to harm.

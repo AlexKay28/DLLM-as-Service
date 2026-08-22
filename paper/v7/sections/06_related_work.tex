@@ -1,0 +1,36 @@
+\section{Related work}
+\label{sec:related}
+
+Diffusion language models report large inference speedups. LLaDA~\cite{llada2025}
+and DiffusionGemma~\cite{diffusiongemma} both measure against
+author-built autoregressive baselines. We instead pin both paradigms to one
+serving stack and fit cost laws, so the comparison rests on a shape
+rather than a single point. To our knowledge, no concurrent work fits
+cost-law shapes across decoding paradigms on a matched serving stack;
+the closest is the serving-system literature~\cite{vllm2023}, which
+optimises within one paradigm rather than comparing across them.
+
+Constrained decoding is the standard approach to structured output.
+Outlines~\cite{outlines2024}, xgrammar~\cite{xgrammar2024} and
+llguidance~\cite{llguidance} all enforce a grammar during decoding. We
+do not measure it here and flag this in \S\ref{sec:threats}; our
+contribution concerns decoding-paradigm cost shape, not grammar
+enforcement.
+
+Speculative decoding targets the same per-token slope that drives our
+AR cost law. Medusa~\cite{medusa2024} and EAGLE~\cite{eagle2024} make
+each token cheaper, but the cost stays linear in output length --- they
+change the slope, not the shape. We measured n-gram prompt-lookup
+speculation on the dense AR-3B (vLLM 0.7.2, $n{=}300$):
+p50 drops by a third but p99.9 inflates more than threefold,
+because rejected speculations force a full re-decode. Even with
+speculation, the AR tail is $5\times$ worse than DG's worst-case p99.9.
+Speculation narrows the median but cannot remove the structural
+advantage of bounded-depth decoding; our cost-law framework exposes this
+gap, which a single-point comparison would miss.
+
+Hoefler and Belli~\cite{hoefler2021} survey reproducibility pitfalls in
+systems measurement. Our nine priced corrections
+(Appendix~\ref{app:defects}) are a case study in that tradition rather
+than a general method; they document where a real serving study
+diverges from a clean benchmark.

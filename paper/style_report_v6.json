@@ -1,0 +1,1026 @@
+{
+  "version": "v6",
+  "timestamp": "2026-08-22T17:00:55.278091",
+  "corpus_baseline": {
+    "n_words": 141541,
+    "n_sentences": 5117,
+    "sentence_median": 21,
+    "sentence_p90": 45,
+    "sentence_gt40_pct": 13.0,
+    "metaphor_count": 6,
+    "number_density": 9.6
+  },
+  "sections": [
+    {
+      "name": "01_introduction",
+      "n_words": 885,
+      "n_sentences": 43,
+      "metrics": {
+        "sentence_median": 19,
+        "sentence_p90": 33,
+        "sentence_gt40_pct": 2.3,
+        "metaphor_count": 2,
+        "metaphors": [
+          {
+            "phrase": "metered",
+            "context": "This is the decoding equivalent of a metered taxi: the fare\nclimbs with every token"
+          },
+          {
+            "phrase": "subway",
+            "context": "The cost is a subway: flat fare per station, no matter how many\ntokens board"
+          }
+        ],
+        "terminology": {
+          "block_diffusion": {
+            "count": 3,
+            "names": [
+              "DG",
+              "block-diffusion",
+              "diffusion model"
+            ]
+          },
+          "autoregressive": {
+            "count": 2,
+            "names": [
+              "AR model/arm",
+              "AR/autoregressive"
+            ]
+          }
+        },
+        "forward_ref_per_1k": 3.4,
+        "number_density": 2.8,
+        "comma_splice_pct": 2.3,
+        "jsd_2gram": 0.986,
+        "jsd_3gram": 0.999,
+        "jsd_avg": 0.993,
+        "vocab_overlap": 0.768,
+        "passive_pct": 23.3,
+        "abstract_numbers": null,
+        "burrows_cosine_delta": 0.7546,
+        "tfidf_cosine_sim": 0.6175,
+        "function_word_sim": 0.8897,
+        "sentence_length_sim": 0.5456
+      },
+      "long_sentences": [
+        {
+          "sentence": "The three excluded, event\\_type, affected\\_entity and remediation\\_hint, are the semantic fields whose gold labels are parser placeholders instead of ground truth, so scoring them measures agreement with Drain, not extraction quality; this was one of the nine corrections priced in Appendix~.",
+          "words": 41
+        }
+      ],
+      "failures": [
+        "metaphor_count (2 > 1)",
+        "terminology_block_diffusion (3 > 2)"
+      ],
+      "pass": false
+    },
+    {
+      "name": "02_cost_laws",
+      "n_words": 703,
+      "n_sentences": 33,
+      "metrics": {
+        "sentence_median": 18,
+        "sentence_p90": 39,
+        "sentence_gt40_pct": 9.1,
+        "metaphor_count": 3,
+        "metaphors": [
+          {
+            "phrase": "taxi",
+            "context": "The taxi fare\nclimbs with every token; the subway charges per station"
+          },
+          {
+            "phrase": "metered",
+            "context": "AR is a metered taxi: the fare climbs with every token"
+          },
+          {
+            "phrase": "subway",
+            "context": "DG is a\nsubway: flat fare per station, no matter how many tokens board"
+          }
+        ],
+        "terminology": {
+          "block_diffusion": {
+            "count": 1,
+            "names": [
+              "DG"
+            ]
+          },
+          "autoregressive": {
+            "count": 1,
+            "names": [
+              "AR/autoregressive"
+            ]
+          }
+        },
+        "forward_ref_per_1k": 5.7,
+        "number_density": 1.7,
+        "comma_splice_pct": 15.2,
+        "jsd_2gram": 0.992,
+        "jsd_3gram": 1.0,
+        "jsd_avg": 0.996,
+        "vocab_overlap": 0.805,
+        "passive_pct": 15.2,
+        "abstract_numbers": null,
+        "burrows_cosine_delta": 0.6477,
+        "tfidf_cosine_sim": 0.598,
+        "function_word_sim": 0.7906,
+        "sentence_length_sim": 0.5609
+      },
+      "long_sentences": [
+        {
+          "sentence": "The crossover X shifts with input length: DG's prompt is re-attended X times, making its input slope X2.6X steeper than the dense AR-3B's (0.123 against 0.047\\,ms per prompt token), so longer prompts raise the base and push X upward ( Appendix~).",
+          "words": 41
+        },
+        {
+          "sentence": "Figure~ (page~) plots the two shapes against each other; Figure~ probes the staircase at its boundaries to show the steps are regular enough to be one constant. [FIGURE] [ht!] is a single constant (X, BGL, X). [/FIGURE] Fitting X to measurements at X and X splits the base into a X-independent floor ",
+          "words": 63
+        },
+        {
+          "sentence": "Two caveats bound this: HDFS is the 2,000-line LOGHUB sample~ over a full corpus, evaluated at X--X per cell against BGL's X; the AR-30B was re-measured on HDFS (p50 1082\\,ms, CI [1078, 1106]) but the AR generalisation slope was fitted on the dense AR-3B.",
+          "words": 44
+        }
+      ],
+      "failures": [
+        "metaphor_count (3 > 1)",
+        "comma_splice_pct (15.2% > 10.0%)"
+      ],
+      "pass": false
+    },
+    {
+      "name": "03_deployment",
+      "n_words": 717,
+      "n_sentences": 29,
+      "metrics": {
+        "sentence_median": 24,
+        "sentence_p90": 38,
+        "sentence_gt40_pct": 6.9,
+        "metaphor_count": 2,
+        "metaphors": [
+          {
+            "phrase": "before you can blink",
+            "context": "Or, in human terms: DG finishes before you can blink; AR-30B\nfinishes before you finish reading this sentence"
+          },
+          {
+            "phrase": "knob",
+            "context": "The X knob is the difference: drop X from\n8 to 4 and the model still fills every field, just with slightly\nless precision, instead of cutting the JSON in half mid-key"
+          }
+        ],
+        "terminology": {
+          "block_diffusion": {
+            "count": 2,
+            "names": [
+              "DG",
+              "diffusion model"
+            ]
+          },
+          "autoregressive": {
+            "count": 2,
+            "names": [
+              "AR model/arm",
+              "AR/autoregressive"
+            ]
+          }
+        },
+        "forward_ref_per_1k": 0.0,
+        "number_density": 4.2,
+        "comma_splice_pct": 0.0,
+        "jsd_2gram": 0.996,
+        "jsd_3gram": 1.0,
+        "jsd_avg": 0.998,
+        "vocab_overlap": 0.801,
+        "passive_pct": 13.8,
+        "abstract_numbers": null,
+        "burrows_cosine_delta": 0.7022,
+        "tfidf_cosine_sim": 0.4547,
+        "function_word_sim": 0.7961,
+        "sentence_length_sim": 0.4731
+      },
+      "long_sentences": [
+        {
+          "sentence": "Extending the same accounting past the table, the ratio keeps falling (X at X, X at X, where AR's plateau undercuts DG's accumulated canvas cost), so DG's serial advantage holds at typical output lengths but not universally. [TABLE] [h] evaluated at the canvas count each budget implies, anchored on ",
+          "words": 76
+        },
+        {
+          "sentence": "The two columns therefore compare AR at its natural output against DG at a full canvas budget, a conservative reading for DG, which emits four times more tokens at the last row. [/TABLE] The serial cost law gives crossover X tokens, DG is faster at any output length above X (integer-safe: X).",
+          "words": 52
+        }
+      ],
+      "failures": [
+        "metaphor_count (2 > 1)",
+        "number_density (4.2 > 4.0)"
+      ],
+      "pass": false
+    },
+    {
+      "name": "04_deployment_losses",
+      "n_words": 447,
+      "n_sentences": 21,
+      "metrics": {
+        "sentence_median": 17,
+        "sentence_p90": 38,
+        "sentence_gt40_pct": 4.8,
+        "metaphor_count": 0,
+        "metaphors": [],
+        "terminology": {
+          "block_diffusion": {
+            "count": 1,
+            "names": [
+              "DG"
+            ]
+          },
+          "autoregressive": {
+            "count": 1,
+            "names": [
+              "AR/autoregressive"
+            ]
+          }
+        },
+        "forward_ref_per_1k": 6.7,
+        "number_density": 3.6,
+        "comma_splice_pct": 0.0,
+        "jsd_2gram": 0.997,
+        "jsd_3gram": 1.0,
+        "jsd_avg": 0.998,
+        "vocab_overlap": 0.788,
+        "passive_pct": 19.0,
+        "abstract_numbers": null,
+        "burrows_cosine_delta": 0.7426,
+        "tfidf_cosine_sim": 0.4545,
+        "function_word_sim": 0.8082,
+        "sentence_length_sim": 0.4062
+      },
+      "long_sentences": [
+        {
+          "sentence": "For a business-to-business (B2B) log-processing service handling ten thousand events per day, that is five dollars a day on DG versus twelve on AR-30B, a 4.62/hr (AWS p4de.24xlarge, August 2026). [/TABLE] Against the small dense arm instead of the MoE, that two-and-a-half-fold advantage nearly vanis",
+          "words": 63
+        }
+      ],
+      "failures": [],
+      "pass": true
+    },
+    {
+      "name": "05_survives",
+      "n_words": 940,
+      "n_sentences": 46,
+      "metrics": {
+        "sentence_median": 19,
+        "sentence_p90": 37,
+        "sentence_gt40_pct": 4.3,
+        "metaphor_count": 5,
+        "metaphors": [
+          {
+            "phrase": "catching",
+            "context": "The gap widens in absolute terms\nas hops accumulate, at eight hops, the difference between three\nseconds and eight seconds is the difference between catching an\nintruder in the act and finding the tra"
+          },
+          {
+            "phrase": "knob",
+            "context": "The X knob is DG's emergency brake: when a deadline tightens, drop\nX from 8 to 4 and the model still fills every field, just with\nslightly less precision, instead of cutting the JSON in half\nmid-key"
+          },
+          {
+            "phrase": "knob",
+            "context": "The\nX knob is a per-request quality slider: drop X to meet a tightened\ndeadline without truncating output"
+          },
+          {
+            "phrase": "taxi",
+            "context": "The taxi fare compounds; the subway fare doesn't"
+          },
+          {
+            "phrase": "knob",
+            "context": "[/FIGURE] \n\nThe X knob need not be fixed"
+          }
+        ],
+        "terminology": {
+          "block_diffusion": {
+            "count": 3,
+            "names": [
+              "DG",
+              "block-diffusion",
+              "diffusion model"
+            ]
+          },
+          "autoregressive": {
+            "count": 2,
+            "names": [
+              "AR model/arm",
+              "AR/autoregressive"
+            ]
+          }
+        },
+        "forward_ref_per_1k": 5.3,
+        "number_density": 2.8,
+        "comma_splice_pct": 4.3,
+        "jsd_2gram": 0.993,
+        "jsd_3gram": 1.0,
+        "jsd_avg": 0.996,
+        "vocab_overlap": 0.769,
+        "passive_pct": 21.7,
+        "abstract_numbers": null,
+        "burrows_cosine_delta": 0.6764,
+        "tfidf_cosine_sim": 0.5236,
+        "function_word_sim": 0.8513,
+        "sentence_length_sim": 0.636
+      },
+      "long_sentences": [
+        {
+          "sentence": "The five conditions that define the regime where block diffusion is the right choice are: [nosep] - Output length X tokens (DG crossover in serial). - Batch-1 by requirement: tenant isolation, interactivity, or serial chain structure. - Completeness is validated against a schema. - The quality floor",
+          "words": 60
+        },
+        {
+          "sentence": "Across schema widths from 12 to 100 fields, DG's latency advantage held between X and X (Figure~; measured against the dense AR-3B baseline, not AR-30B). [FIGURE] [ht!] 140\\,ms too and the ratio stops growing. [/FIGURE] The X knob need not be fixed.",
+          "words": 42
+        }
+      ],
+      "failures": [
+        "metaphor_count (5 > 1)",
+        "terminology_block_diffusion (3 > 2)"
+      ],
+      "pass": false
+    },
+    {
+      "name": "06_related_work",
+      "n_words": 233,
+      "n_sentences": 14,
+      "metrics": {
+        "sentence_median": 13,
+        "sentence_p90": 30,
+        "sentence_gt40_pct": 0.0,
+        "metaphor_count": 0,
+        "metaphors": [],
+        "terminology": {
+          "block_diffusion": {
+            "count": 1,
+            "names": [
+              "DG"
+            ]
+          },
+          "autoregressive": {
+            "count": 1,
+            "names": [
+              "AR/autoregressive"
+            ]
+          }
+        },
+        "forward_ref_per_1k": 4.3,
+        "number_density": 1.3,
+        "comma_splice_pct": 0.0,
+        "jsd_2gram": 0.993,
+        "jsd_3gram": 0.999,
+        "jsd_avg": 0.996,
+        "vocab_overlap": 0.795,
+        "passive_pct": 7.1,
+        "abstract_numbers": null,
+        "burrows_cosine_delta": 0.6442,
+        "tfidf_cosine_sim": 0.4843,
+        "function_word_sim": 0.8513,
+        "sentence_length_sim": 0.255
+      },
+      "long_sentences": [],
+      "failures": [],
+      "pass": true
+    },
+    {
+      "name": "07_threats",
+      "n_words": 1139,
+      "n_sentences": 56,
+      "metrics": {
+        "sentence_median": 21,
+        "sentence_p90": 32,
+        "sentence_gt40_pct": 0.0,
+        "metaphor_count": 0,
+        "metaphors": [],
+        "terminology": {
+          "block_diffusion": {
+            "count": 3,
+            "names": [
+              "DG",
+              "block-diffusion",
+              "diffusion model"
+            ]
+          },
+          "autoregressive": {
+            "count": 1,
+            "names": [
+              "AR/autoregressive"
+            ]
+          }
+        },
+        "forward_ref_per_1k": 4.4,
+        "number_density": 3.5,
+        "comma_splice_pct": 3.6,
+        "jsd_2gram": 0.992,
+        "jsd_3gram": 1.0,
+        "jsd_avg": 0.996,
+        "vocab_overlap": 0.811,
+        "passive_pct": 33.9,
+        "abstract_numbers": null,
+        "burrows_cosine_delta": 0.6577,
+        "tfidf_cosine_sim": 0.6142,
+        "function_word_sim": 0.834,
+        "sentence_length_sim": 0.6883
+      },
+      "long_sentences": [],
+      "failures": [
+        "terminology_block_diffusion (3 > 2)",
+        "passive_pct (33.9% > 25.0%)"
+      ],
+      "pass": false
+    },
+    {
+      "name": "08_conclusion",
+      "n_words": 270,
+      "n_sentences": 15,
+      "metrics": {
+        "sentence_median": 17,
+        "sentence_p90": 38,
+        "sentence_gt40_pct": 0.0,
+        "metaphor_count": 2,
+        "metaphors": [
+          {
+            "phrase": "taxi",
+            "context": "The taxi fare climbs with every token; the subway charges per station"
+          },
+          {
+            "phrase": "knob",
+            "context": "The X knob is DG's emergency brake: when the deadline\ntightens, DG degrades gracefully, lower quality, complete canvas"
+          }
+        ],
+        "terminology": {
+          "block_diffusion": {
+            "count": 2,
+            "names": [
+              "DG",
+              "block-diffusion"
+            ]
+          },
+          "autoregressive": {
+            "count": 2,
+            "names": [
+              "AR model/arm",
+              "AR/autoregressive"
+            ]
+          }
+        },
+        "forward_ref_per_1k": 0.0,
+        "number_density": 2.6,
+        "comma_splice_pct": 0.0,
+        "jsd_2gram": 0.992,
+        "jsd_3gram": 0.999,
+        "jsd_avg": 0.995,
+        "vocab_overlap": 0.798,
+        "passive_pct": 20.0,
+        "abstract_numbers": null,
+        "burrows_cosine_delta": 0.7823,
+        "tfidf_cosine_sim": 0.5029,
+        "function_word_sim": 0.8046,
+        "sentence_length_sim": 0.2617
+      },
+      "long_sentences": [],
+      "failures": [
+        "metaphor_count (2 > 1)"
+      ],
+      "pass": false
+    },
+    {
+      "name": "09_appendix_defects",
+      "n_words": 695,
+      "n_sentences": 45,
+      "metrics": {
+        "sentence_median": 12,
+        "sentence_p90": 27,
+        "sentence_gt40_pct": 4.4,
+        "metaphor_count": 0,
+        "metaphors": [],
+        "terminology": {
+          "block_diffusion": {
+            "count": 2,
+            "names": [
+              "DG",
+              "diffusion model"
+            ]
+          },
+          "autoregressive": {
+            "count": 2,
+            "names": [
+              "AR model/arm",
+              "AR/autoregressive"
+            ]
+          }
+        },
+        "forward_ref_per_1k": 0.0,
+        "number_density": 3.7,
+        "comma_splice_pct": 0.0,
+        "jsd_2gram": 0.999,
+        "jsd_3gram": 1.0,
+        "jsd_avg": 1.0,
+        "vocab_overlap": 0.728,
+        "passive_pct": 17.8,
+        "abstract_numbers": null,
+        "burrows_cosine_delta": 0.7398,
+        "tfidf_cosine_sim": 0.5076,
+        "function_word_sim": 0.8149,
+        "sentence_length_sim": 0.5077
+      },
+      "long_sentences": [
+        {
+          "sentence": "Combined with enforce\\_eager (CUDA graphs off), vLLM 0.11.0 (vs the pinned 0.25.1), a batched-throughput result labelled as serial, and a Record(**kwargs) constructor that silently emptied every prediction (yielding F1\\,X\\,1.0 from empty-vs-empty scoring), the AR-30B appeared to decode at 48\\,ms/tok",
+          "words": 48
+        },
+        {
+          "sentence": "The clustering on one arm is not a coincidence: a comparison harness written by someone hoping the new architecture wins fails asymmetrically, because the arm the experimenter is not rooting for inherits the checkpoint defaults, the naive serving path, and the mature production infrastructure.",
+          "words": 44
+        }
+      ],
+      "failures": [],
+      "pass": true
+    },
+    {
+      "name": "10_appendix_decomp",
+      "n_words": 111,
+      "n_sentences": 5,
+      "metrics": {
+        "sentence_median": 27,
+        "sentence_p90": 37,
+        "sentence_gt40_pct": 0.0,
+        "metaphor_count": 0,
+        "metaphors": [],
+        "terminology": {
+          "block_diffusion": {
+            "count": 0,
+            "names": []
+          },
+          "autoregressive": {
+            "count": 0,
+            "names": []
+          }
+        },
+        "forward_ref_per_1k": 0.0,
+        "number_density": 3.6,
+        "comma_splice_pct": 0.0,
+        "jsd_2gram": 0.999,
+        "jsd_3gram": 1.0,
+        "jsd_avg": 1.0,
+        "vocab_overlap": 0.756,
+        "passive_pct": 40.0,
+        "abstract_numbers": null,
+        "burrows_cosine_delta": 0.765,
+        "tfidf_cosine_sim": 0.3898,
+        "function_word_sim": 0.8065,
+        "sentence_length_sim": 0.1046
+      },
+      "long_sentences": [],
+      "failures": [],
+      "pass": true
+    },
+    {
+      "name": "11_appendix_batching",
+      "n_words": 116,
+      "n_sentences": 5,
+      "metrics": {
+        "sentence_median": 23,
+        "sentence_p90": 39,
+        "sentence_gt40_pct": 0.0,
+        "metaphor_count": 0,
+        "metaphors": [],
+        "terminology": {
+          "block_diffusion": {
+            "count": 1,
+            "names": [
+              "DG"
+            ]
+          },
+          "autoregressive": {
+            "count": 1,
+            "names": [
+              "AR/autoregressive"
+            ]
+          }
+        },
+        "forward_ref_per_1k": 8.6,
+        "number_density": 0.9,
+        "comma_splice_pct": 0.0,
+        "jsd_2gram": 1.0,
+        "jsd_3gram": 1.0,
+        "jsd_avg": 1.0,
+        "vocab_overlap": 0.755,
+        "passive_pct": 20.0,
+        "abstract_numbers": null,
+        "burrows_cosine_delta": 0.7337,
+        "tfidf_cosine_sim": 0.4473,
+        "function_word_sim": 0.721,
+        "sentence_length_sim": 0.0836
+      },
+      "long_sentences": [],
+      "failures": [],
+      "pass": true
+    },
+    {
+      "name": "12_appendix_refuted",
+      "n_words": 117,
+      "n_sentences": 7,
+      "metrics": {
+        "sentence_median": 14,
+        "sentence_p90": 33,
+        "sentence_gt40_pct": 0.0,
+        "metaphor_count": 0,
+        "metaphors": [],
+        "terminology": {
+          "block_diffusion": {
+            "count": 1,
+            "names": [
+              "diffusion model"
+            ]
+          },
+          "autoregressive": {
+            "count": 1,
+            "names": [
+              "AR/autoregressive"
+            ]
+          }
+        },
+        "forward_ref_per_1k": 8.5,
+        "number_density": 0.0,
+        "comma_splice_pct": 0.0,
+        "jsd_2gram": 0.999,
+        "jsd_3gram": 1.0,
+        "jsd_avg": 0.999,
+        "vocab_overlap": 0.788,
+        "passive_pct": 42.9,
+        "abstract_numbers": null,
+        "burrows_cosine_delta": 0.7398,
+        "tfidf_cosine_sim": 0.4515,
+        "function_word_sim": 0.7755,
+        "sentence_length_sim": 0.1044
+      },
+      "long_sentences": [],
+      "failures": [],
+      "pass": true
+    },
+    {
+      "name": "13_appendix_input_canvas",
+      "n_words": 248,
+      "n_sentences": 12,
+      "metrics": {
+        "sentence_median": 22,
+        "sentence_p90": 37,
+        "sentence_gt40_pct": 0.0,
+        "metaphor_count": 1,
+        "metaphors": [
+          {
+            "phrase": "knob",
+            "context": "A full X grid (canvas X, X, X per cell) confirms the single-knob finding\nholds across all X values, not just X"
+          }
+        ],
+        "terminology": {
+          "block_diffusion": {
+            "count": 1,
+            "names": [
+              "DG"
+            ]
+          },
+          "autoregressive": {
+            "count": 1,
+            "names": [
+              "AR/autoregressive"
+            ]
+          }
+        },
+        "forward_ref_per_1k": 0.0,
+        "number_density": 2.4,
+        "comma_splice_pct": 0.0,
+        "jsd_2gram": 0.997,
+        "jsd_3gram": 1.0,
+        "jsd_avg": 0.999,
+        "vocab_overlap": 0.8,
+        "passive_pct": 16.7,
+        "abstract_numbers": null,
+        "burrows_cosine_delta": 0.7248,
+        "tfidf_cosine_sim": 0.4592,
+        "function_word_sim": 0.7527,
+        "sentence_length_sim": 0.2439
+      },
+      "long_sentences": [],
+      "failures": [],
+      "pass": true
+    },
+    {
+      "name": "14_appendix_quality",
+      "n_words": 49,
+      "n_sentences": 3,
+      "metrics": {
+        "sentence_median": 17,
+        "sentence_p90": 19,
+        "sentence_gt40_pct": 0.0,
+        "metaphor_count": 0,
+        "metaphors": [],
+        "terminology": {
+          "block_diffusion": {
+            "count": 2,
+            "names": [
+              "DG",
+              "diffusion model"
+            ]
+          },
+          "autoregressive": {
+            "count": 2,
+            "names": [
+              "AR model/arm",
+              "AR/autoregressive"
+            ]
+          }
+        },
+        "forward_ref_per_1k": 0.0,
+        "number_density": 0.0,
+        "comma_splice_pct": 0.0,
+        "jsd_2gram": 0.998,
+        "jsd_3gram": 1.0,
+        "jsd_avg": 0.999,
+        "vocab_overlap": 0.84,
+        "passive_pct": 0.0,
+        "abstract_numbers": null,
+        "burrows_cosine_delta": 0.7189,
+        "tfidf_cosine_sim": 0.2507,
+        "function_word_sim": 0.5632,
+        "sentence_length_sim": 0.1069
+      },
+      "long_sentences": [],
+      "failures": [],
+      "pass": true
+    },
+    {
+      "name": "15_appendix_distributions",
+      "n_words": 57,
+      "n_sentences": 3,
+      "metrics": {
+        "sentence_median": 22,
+        "sentence_p90": 29,
+        "sentence_gt40_pct": 0.0,
+        "metaphor_count": 0,
+        "metaphors": [],
+        "terminology": {
+          "block_diffusion": {
+            "count": 1,
+            "names": [
+              "DG"
+            ]
+          },
+          "autoregressive": {
+            "count": 1,
+            "names": [
+              "AR/autoregressive"
+            ]
+          }
+        },
+        "forward_ref_per_1k": 0.0,
+        "number_density": 1.8,
+        "comma_splice_pct": 0.0,
+        "jsd_2gram": 1.0,
+        "jsd_3gram": 1.0,
+        "jsd_avg": 1.0,
+        "vocab_overlap": 0.731,
+        "passive_pct": 0.0,
+        "abstract_numbers": null,
+        "burrows_cosine_delta": 0.7413,
+        "tfidf_cosine_sim": 0.1712,
+        "function_word_sim": 0.5222,
+        "sentence_length_sim": 0.0715
+      },
+      "long_sentences": [],
+      "failures": [],
+      "pass": true
+    },
+    {
+      "name": "16_appendix_forced",
+      "n_words": 184,
+      "n_sentences": 7,
+      "metrics": {
+        "sentence_median": 22,
+        "sentence_p90": 57,
+        "sentence_gt40_pct": 14.3,
+        "metaphor_count": 0,
+        "metaphors": [],
+        "terminology": {
+          "block_diffusion": {
+            "count": 1,
+            "names": [
+              "DG"
+            ]
+          },
+          "autoregressive": {
+            "count": 1,
+            "names": [
+              "AR/autoregressive"
+            ]
+          }
+        },
+        "forward_ref_per_1k": 0.0,
+        "number_density": 1.6,
+        "comma_splice_pct": 14.3,
+        "jsd_2gram": 0.999,
+        "jsd_3gram": 1.0,
+        "jsd_avg": 0.999,
+        "vocab_overlap": 0.768,
+        "passive_pct": 28.6,
+        "abstract_numbers": null,
+        "burrows_cosine_delta": 0.6486,
+        "tfidf_cosine_sim": 0.4426,
+        "function_word_sim": 0.7339,
+        "sentence_length_sim": 0.1558
+      },
+      "long_sentences": [
+        {
+          "sentence": "The advantage grows here, the opposite of Table~, because AR is no longer stopped by EOS at 126 tokens, so its line keeps climbing while DG adds one bounded canvas at a time. [/TABLE] So the figure quoted in the abstract is the conservative reading, not the optimistic one: it describes AR at its nat",
+          "words": 57
+        }
+      ],
+      "failures": [
+        "comma_splice_pct (14.3% > 10.0%)"
+      ],
+      "pass": false
+    },
+    {
+      "name": "17_appendix_batching_arch",
+      "n_words": 160,
+      "n_sentences": 6,
+      "metrics": {
+        "sentence_median": 26,
+        "sentence_p90": 44,
+        "sentence_gt40_pct": 16.7,
+        "metaphor_count": 0,
+        "metaphors": [],
+        "terminology": {
+          "block_diffusion": {
+            "count": 2,
+            "names": [
+              "DG",
+              "block-diffusion"
+            ]
+          },
+          "autoregressive": {
+            "count": 1,
+            "names": [
+              "AR/autoregressive"
+            ]
+          }
+        },
+        "forward_ref_per_1k": 0.0,
+        "number_density": 0.0,
+        "comma_splice_pct": 0.0,
+        "jsd_2gram": 0.988,
+        "jsd_3gram": 1.0,
+        "jsd_avg": 0.994,
+        "vocab_overlap": 0.821,
+        "passive_pct": 33.3,
+        "abstract_numbers": null,
+        "burrows_cosine_delta": 0.6802,
+        "tfidf_cosine_sim": 0.5091,
+        "function_word_sim": 0.7582,
+        "sentence_length_sim": 0.1591
+      },
+      "long_sentences": [
+        {
+          "sentence": "Requests at different X steps can't share a KV cache because the attention mask differs per step. - Within-request KV persistence across denoising steps fails because the denoising tokens' KV changes at every step (the mask changes), so per-step computation can't reuse previous activations.",
+          "words": 44
+        }
+      ],
+      "failures": [],
+      "pass": true
+    },
+    {
+      "name": "18_appendix_humaneval",
+      "n_words": 364,
+      "n_sentences": 18,
+      "metrics": {
+        "sentence_median": 18,
+        "sentence_p90": 37,
+        "sentence_gt40_pct": 0.0,
+        "metaphor_count": 0,
+        "metaphors": [],
+        "terminology": {
+          "block_diffusion": {
+            "count": 2,
+            "names": [
+              "DG",
+              "block-diffusion"
+            ]
+          },
+          "autoregressive": {
+            "count": 1,
+            "names": [
+              "AR/autoregressive"
+            ]
+          }
+        },
+        "forward_ref_per_1k": 0.0,
+        "number_density": 3.8,
+        "comma_splice_pct": 5.6,
+        "jsd_2gram": 0.994,
+        "jsd_3gram": 1.0,
+        "jsd_avg": 0.997,
+        "vocab_overlap": 0.809,
+        "passive_pct": 27.8,
+        "abstract_numbers": null,
+        "burrows_cosine_delta": 0.561,
+        "tfidf_cosine_sim": 0.4024,
+        "function_word_sim": 0.7393,
+        "sentence_length_sim": 0.3785
+      },
+      "long_sentences": [],
+      "failures": [],
+      "pass": true
+    },
+    {
+      "name": "19_neurips_checklist",
+      "n_words": 493,
+      "n_sentences": 33,
+      "metrics": {
+        "sentence_median": 13,
+        "sentence_p90": 26,
+        "sentence_gt40_pct": 3.0,
+        "metaphor_count": 0,
+        "metaphors": [],
+        "terminology": {
+          "block_diffusion": {
+            "count": 2,
+            "names": [
+              "DG",
+              "block-diffusion"
+            ]
+          },
+          "autoregressive": {
+            "count": 1,
+            "names": [
+              "AR/autoregressive"
+            ]
+          }
+        },
+        "forward_ref_per_1k": 0.0,
+        "number_density": 2.4,
+        "comma_splice_pct": 0.0,
+        "jsd_2gram": 0.995,
+        "jsd_3gram": 1.0,
+        "jsd_avg": 0.998,
+        "vocab_overlap": 0.787,
+        "passive_pct": 36.4,
+        "abstract_numbers": null,
+        "burrows_cosine_delta": 0.7644,
+        "tfidf_cosine_sim": 0.4671,
+        "function_word_sim": 0.8617,
+        "sentence_length_sim": 0.4585
+      },
+      "long_sentences": [
+        {
+          "sentence": "The negative impact is that cheaper inference could accelerate LLM deployment in high-stakes settings where errors are costly; the paper's explicit scope-limiting (five conditions) and its disclosure of where diffusion fails () are the mitigations within the paper's scope. - Safeguards.",
+          "words": 41
+        }
+      ],
+      "failures": [],
+      "pass": true
+    },
+    {
+      "name": "abstract",
+      "n_words": 131,
+      "n_sentences": 8,
+      "metrics": {
+        "sentence_median": 14,
+        "sentence_p90": 33,
+        "sentence_gt40_pct": 0.0,
+        "metaphor_count": 0,
+        "metaphors": [],
+        "terminology": {
+          "block_diffusion": {
+            "count": 1,
+            "names": [
+              "block-diffusion"
+            ]
+          },
+          "autoregressive": {
+            "count": 2,
+            "names": [
+              "AR model/arm",
+              "AR/autoregressive"
+            ]
+          }
+        },
+        "forward_ref_per_1k": 0.0,
+        "number_density": 0.0,
+        "comma_splice_pct": 0.0,
+        "jsd_2gram": 0.993,
+        "jsd_3gram": 1.0,
+        "jsd_avg": 0.997,
+        "vocab_overlap": 0.853,
+        "passive_pct": 0.0,
+        "abstract_numbers": 0,
+        "burrows_cosine_delta": 0.7146,
+        "tfidf_cosine_sim": 0.4325,
+        "function_word_sim": 0.6888,
+        "sentence_length_sim": 0.198
+      },
+      "long_sentences": [],
+      "failures": [],
+      "pass": true
+    }
+  ],
+  "summary": {
+    "total_sections": 20,
+    "passing": 13,
+    "failing": 7
+  }
+}

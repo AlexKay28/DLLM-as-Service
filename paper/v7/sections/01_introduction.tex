@@ -1,0 +1,167 @@
+\section{Introduction}
+\label{sec:intro}
+
+Autoregressive language models generate text one token at a time;
+each token requires a forward pass over the growing key-value (KV)
+cache. This is the decoding equivalent of a metered taxi: the fare
+climbs with every token. Block-diffusion models generate an entire
+block of tokens in
+parallel through iterative denoising, then step to the next block.
+The cost is a bounded staircase: flat within a fixed-size block,
+stepping at each boundary. We call this second class \emph{block-diffusion} because
+the block structure, not the diffusion process, is what
+determines its cost shape. Figure~\ref{fig:schematic} illustrates
+the two decoding patterns.
+
+We ran both architectures on vLLM~\cite{vllm2023} on a single
+\gpuModel{} to remove the serving-path asymmetry that dominates naive
+comparisons. Both models were re-measured on the same pinned stack
+(vLLM 0.25.1); the AR-30B was initially run on an older engine, a
+defect caught and corrected (Appendix~\ref{app:defects}). The task is structured log
+extraction: each raw log line describes a hardware or software event,
+and the model must emit a JSON record with twelve fields spanning
+structural, semantic, anomaly, and action categories. Structural
+fields require span-copying from the input, semantic fields require
+inference, and anomaly fields require binary classification.
+
+\paragraph{Data.}
+
+The corpus is BGL from LOGHUB~\cite{loghub}, 4{,}747{,}963 lines of
+console log from the BlueGene/L supercomputer at Lawrence Livermore
+National Laboratory, whose first column tags each line as an alert or
+non-alert. We sample 600{,}000 lines uniformly (reservoir sampling,
+seed 42) and split them temporally: the most recent 200{,}000 form the
+test split and the remaining 400{,}000 the train split. The test split
+carries 41{,}005 alert-tagged lines, an anomaly rate of $20.5\%$, so
+the two anomaly fields are not degenerate. Gold records are produced
+by parsing each line with Drain~\cite{drain} and carrying the native
+alert tags through as \texttt{is\_anomaly} and \texttt{anomaly\_score}.
+
+\paragraph{An example.}
+The raw line
+\begin{quote}\small\ttfamily
+- 1118772771 R21-M0-NF-C:J11-U11 RAS KERNEL FATAL floating point instr.
+\end{quote}
+yields the gold record \texttt{\{"severity":"FATAL","is\_anomaly":true,\ldots\}}.
+The first six fields are span-copied from the input (structural);
+\texttt{is\_anomaly} and \texttt{anomaly\_score} carry the native alert
+tag (anomaly); the three excluded semantic fields are parser
+placeholders, not ground truth.
+
+Quality is macro-averaged token-level F1 over 9 of the 12 fields. The
+three excluded, \texttt{event\_type}, \texttt{affected\_entity} and
+\texttt{remediation\_hint}, are the semantic fields whose gold
+labels are parser placeholders instead of ground truth. Scoring them
+measures agreement with Drain, not extraction quality. This was one of
+the nine corrections priced in Appendix~\ref{app:defects}.
+A record is \emph{schema-valid} if it parses as JSON and carries all
+twelve keys; schema completeness is the fraction of keys present, which
+separates a truncated record from a complete one. Latencies are
+reported as percentiles over per-event wall time. p50 is the median;
+p99 and p99.9 are the tail. Every evaluation cell draws $n = 300$ events
+from the test split unless stated otherwise. For the generalisation check in \S\ref{sec:laws} we
+additionally use the LOGHUB HDFS sample (2{,}000 lines, evaluation
+only).
+
+Both are Mixture-of-Experts models:
+\begin{itemize}[nosep]
+\item \DG\ (DiffusionGemma-26B-A4B~\cite{diffusiongemma}, 4.0\,B active
+  of 26\,B total, 52\,GB), the block-diffusion (DG) model. Top-8 of 128
+  experts.
+\item \ARthree\ (Qwen3-30B-A3B~\cite{qwen25}, 3.0\,B active of 30\,B
+  total, 60\,GB), the autoregressive (AR) model. Matched to DG on
+  architecture class and active parameters.
+\end{itemize}
+The cost shapes we derive are properties of the \emph{decoding
+paradigm}, not of model scale. A larger AR model would have a steeper
+slope but the same linear shape; a larger block-diffusion model would have a
+higher floor but the same staircase. Decoding parameters are matched
+across models: greedy sampling (\texttt{temperature}${=}0$,
+\texttt{top\_p}${=}1.0$, \texttt{repetition\_penalty}${=}1.0$) on
+both; DG runs at $K{=}8$ denoising steps with canvas $C{=}256$. The
+full parameter set is recorded in each result artifact's
+\texttt{provenance} block.
+
+\paragraph{Measurement corrections.}
+
+Eight measurement defects were found by re-reading our own committed
+artifacts: a checkpoint default that suppressed span-copying, a parser
+that took the most-drifted JSON object, a metric that counted falsy
+values as missing keys. Five of the eight biased against AR.
+The reported advantage survives all nine corrections --- the eight
+defects plus a switch to an architecture-matched AR baseline. The
+corrections are priced in Appendix~\ref{app:defects}; they are the
+methodological basis of every number that follows.
+
+Our contributions are as follows:
+\begin{itemize}[leftmargin=1.5em]
+\item \textbf{How do the two architectures differ in latency cost?}
+We derive two cost laws from measurement: AR latency is a line in output
+length with no floor; block-diffusion latency is a staircase, flat inside
+a fixed-size block and stepping at each boundary. The shapes cross at
+$L^{*} = \crossoverL$ output tokens (\S\ref{sec:laws}).
+
+\item \textbf{Where is block-diffusion faster?}
+Above $L^{*}$, DG is faster, two and a half times at natural output,
+narrowing to just over parity at a thousand tokens. In cost terms, that is the difference
+between \$0.0012 and \$0.0005 per event on an A100, a gap that
+compounds to hundreds of dollars at million-event scale
+(\S\ref{sec:wins}).
+
+\item \textbf{What limits DG's advantage operationally?}
+AR batches far better and has a tighter tail. However, in the
+batch-1 regime (serial chains, autonomous driving, trading), batching is
+unavailable and the staircase shape dominates
+(\S\ref{sec:limits}).
+
+\item \textbf{When is block-diffusion the right choice?}
+When output is long, batch-1 is required, and schema completeness
+matters. We state five conditions and ground them in concrete
+workloads (\S\ref{sec:survives}).
+\end{itemize}
+
+Table~\ref{tab:summary} states the whole comparison in one place: the
+two models are matched on architecture class and footprint, and every
+line after it either explains one of these rows or bounds it.
+
+\begin{table}[h]
+\centering
+\caption{The paper in one table. DG's latency
+advantage is real; deployment factors limit it operationally.
+Max/median is the largest per-event latency over its median, across
+300 events at $L{=}\canvasLength$; the AR entry for that row is the
+dense AR-3B baseline, measured per-event for quality, while
+every other AR entry is the AR-30B MoE.}
+\label{tab:summary}
+\begin{tabularx}{\linewidth}{@{}L r r@{}}
+\toprule
+& \thead{\ARthree\,(MoE)} & \thead{\DG-26B-A4B\,(MoE)} \\
+\midrule
+\tabfont Active parameters                            & 3.0\,B & 4.0\,B \\
+\tabfont Total parameters                             & 30\,B & 26\,B \\
+\tabfont Weights (bf16)                                & 60\,GB & 52\,GB \\
+\tabfont Marginal cost (ms/token, serial) & \arSlope & 0.47 (amortised over a canvas) \\
+\tabfont Batch-1 $\to$ peak throughput multiplier     & 25$\times$ & $\leq$1.7$\times$ \\
+\tabfont Tail latency (max/median)                    & 1.03$\times$ & 3.21$\times$ \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\begin{table}[h]
+\centering
+\caption{The two decoding paradigms as cost laws. AR pays per token;
+DG pays per canvas. Within a canvas, DG tokens are free.}
+\label{fig:schematic}
+\renewcommand{\arraystretch}{1.4}
+\begin{tabularx}{\linewidth}{@{}L L L@{}}
+\toprule
+& \thead{Autoregressive} & \thead{Block-diffusion} \\
+\midrule
+\tabfont Decoding & $t_1 \to t_2 \to \cdots \to t_L$ & $\{t_1, \ldots, t_C\}_K \to \{t_{C+1}, \ldots\}_K$ \\
+\tabfont Cost law & $T = a + b \cdot L$ & $T = a + b \cdot \lceil L/C \rceil$ \\
+\tabfont Per-token cost & $b$ (one forward pass) & $0$ (denoised in parallel) \\
+\tabfont Per-canvas cost & --- & $b$ ($K$ denoising passes) \\
+\tabfont Shape & linear & staircase \\
+\bottomrule
+\end{tabularx}
+\end{table}
