@@ -1,0 +1,147 @@
+\documentclass[11pt,a4paper]{article}
+
+%, Page Geometry & Layout ,
+\usepackage[margin=1in]{geometry}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+
+%, Core Math & Symbols ,
+\usepackage{amsmath,amssymb,amsfonts,amsthm}
+
+%, Graphics, Tables & Formatting ,
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{microtype}
+\setlength{\emergencystretch}{2em}
+\usepackage{setspace}
+\setstretch{1.12}
+
+%, Tables ,
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{tabularx}
+\renewcommand{\arraystretch}{1.15}
+\setlength{\tabcolsep}{6pt}
+\newcolumntype{R}{>{\raggedleft\arraybackslash}X}
+\newcolumntype{L}{>{\raggedright\arraybackslash}X}
+\newcommand{\tabfont}{\footnotesize}
+\newcommand{\thead}[1]{\footnotesize\textbf{#1}}
+
+%, Captions ,
+\usepackage{caption}
+\captionsetup{font=small, labelfont=bf}
+
+%, Lists ,
+\usepackage{enumitem}
+\setlist[itemize]{leftmargin=1.5em,itemsep=2pt,topsep=4pt,parsep=0pt}
+\setlist[enumerate]{leftmargin=1.8em,itemsep=2pt,topsep=4pt,parsep=0pt}
+
+%, Colors ,
+\usepackage[table,dvipsnames]{xcolor}
+\definecolor{arblue}{HTML}{2A78D6}
+\definecolor{dgorange}{HTML}{EB6834}
+\definecolor{llaqua}{HTML}{1BAF7A}
+\definecolor{linkc}{HTML}{1B3A5C}
+
+%, Hyperlinks & Metadata ,
+\usepackage[
+    colorlinks=true,
+    linkcolor=linkc,
+    citecolor=linkc,
+    urlcolor=linkc,
+    pdfauthor={Aleksandr Kaigorodov},
+    pdftitle={When Block-Diffusion Language Models Are Faster},
+    pdfsubject={Block-structured decoding cost analysis},
+    pdfkeywords={diffusion LLM, block decoding, latency, structured output}
+]{hyperref}
+
+%, Model shorthands ,
+% NB: \ARthree renders AR-30B (the name is an AR-3B-era leftover).
+\newcommand{\ARthree}{\textsc{ar-30b}}
+\newcommand{\DG}{\textsc{dg}}
+\newcommand{\LLaDA}{\textsc{llada-8b}}
+
+%, Macros (numbers from results/) ,
+\input{assets/macros.tex}
+
+\graphicspath{{./}{figures/}}
+
+\title{\textbf{When Block-Diffusion Language Models Are Faster:\\
+Latency, Throughput, and Quality in Structured Log Extraction}}
+
+\author{
+  \textbf{Aleksandr Kaigorodov, Yandex}
+}
+
+\date{}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+Block-diffusion language models generate several token positions in parallel,
+but the resulting speedup depends on the serving configuration and workload.
+We compare DiffusionGemma (26B-A4B) with Qwen3 (30B-A3B) on structured log
+extraction using the same pinned vLLM stack and a single NVIDIA A100 80GB.
+At batch size one, the observed autoregressive cost is approximately linear
+in generated length, whereas diffusion cost increases in steps as additional
+canvases are decoded. In repeated BGL measurements, median latency is
+924\,ms for the autoregressive model and 380\,ms for diffusion, a
+$2.4\times$ reduction. This is a latency comparison, not a demonstrated
+quality-matched speedup: quality equivalence was tested against a smaller
+AR baseline. The AR-30B throughput multiplier is approximately $25\times$,
+compared with up to $1.7\times$ in the tested diffusion configurations.
+We distinguish generated length from output budget, measured latency from
+cost-model projections, and completed canvases from valid records. Input
+length, decoding effort, output validity, and concurrency bound the useful
+regime. The results support evaluating block diffusion for serial structured
+extraction; they do not establish an architectural batching ceiling or a
+universal advantage under deadlines.
+\end{abstract}
+
+\begin{figure}[ht!]
+\centering
+\includegraphics[width=\linewidth]{figures/fig1_v8.pdf}
+\caption{Two distinct comparisons. Left: fitted cost versus generated output
+length at a fixed reference prompt. The dashed AR continuation is an
+extrapolation beyond the measured natural output length; DG points are
+canvas-sweep measurements. Right: observed batch-1 median latency for the
+main pair, with bootstrap 95\% intervals (AR: 900 events; DG: 2,000).
+The left panel does not measure task-level speedup for long natural outputs.}
+\label{fig:shapes}
+\end{figure}
+
+\input{sections/01_introduction}
+\input{sections/02_cost_laws}
+\input{sections/03_deployment}
+\input{sections/04_deployment_losses}
+\input{sections/05_survives}
+\input{sections/06_related_work}
+\input{sections/07_threats}
+\input{sections/08_conclusion}
+
+% ======================================================================
+%                          APPENDICES
+% ======================================================================
+
+\bibliographystyle{plain}
+\bibliography{assets/references}
+
+\appendix
+
+\input{sections/09_appendix_defects}
+\input{sections/10_appendix_decomp}
+\input{sections/11_appendix_batching}
+\input{sections/12_appendix_refuted}
+\input{sections/13_appendix_input_canvas}
+\input{sections/14_appendix_quality}
+\input{sections/15_appendix_distributions}
+\input{sections/16_appendix_forced}
+\input{sections/17_appendix_batching_arch}
+\input{sections/18_appendix_humaneval}
+
+% Venue-specific submission disclosures are kept separately; see REVIEW.md.
+
+\end{document}

@@ -1,0 +1,96 @@
+\section{Limitations and reproducibility}
+\label{sec:threats}
+
+\paragraph{Scope and model matching.}
+The primary comparison uses one DG checkpoint and one AR checkpoint on
+one A100 80GB. Similar MoE scale does not control training, tokenizer,
+quality, or implementation. The fitted constants are specific to the
+measured stack, prompts, and decoding settings. Dense AR-3B and
+LLaDA results support narrower secondary observations; they must not be
+silently substituted for the primary pair. HDFS and HumanEval extend
+the coverage but do not establish generalization across deployment tasks.
+
+\paragraph{Quality and reference construction.}
+The reported quality-equivalence interval is for DG versus dense AR-3B:
+the 95\% interval for the paired difference is $[-0.012,+0.011]$
+at $n{=}300$. It fits within a $\pm0.015$ margin, but not the
+originally targeted $\pm0.010$ margin; the latter holds only for the
+reported 90\% interval. Widening the margin after observing results
+must not be described as confirmation of the original criterion.
+No corresponding equivalence test establishes quality matching for
+AR-30B. Reference labels are parser-derived, and the anomaly rule also
+uses severity. The metric therefore measures a restricted extraction
+objective, not independently assessed semantic or anomaly-detection quality.
+
+\paragraph{Output range and uncertainty.}
+The AR cost fit has five budget cells but only three distinct actual
+output lengths, concentrated near 32 and 126 tokens. Its high fit score
+cannot validate extrapolation to thousand-token natural output.
+DG's longer canvas sweep also holds the reference task and prompt fixed.
+A task with naturally longer output may require more input and produce
+a different quality--latency tradeoff. The cost intersection also combines
+AR cell means with DG median summaries.
+
+The main latency bootstrap resamples events, not independent machines or
+complete experimental runs. Only AR has the three-seed timing comparison;
+we do not claim multi-seed replication of both arms. Shared prompts,
+cache warm-up, or time-correlated timings can violate independent-event
+assumptions. The permutation comparison is unpaired and does not eliminate
+run-level confounding. Extreme quantiles remain uncertain: p99.9 uses very
+few observations even with 900 AR and 2,000 DG events. A sample maximum
+is not a service-time bound.
+
+\paragraph{Serving mechanisms and comparators.}
+Both diffusion batching measurements have engine limitations. The
+model's documented context cache contradicts a blanket claim that diffusion
+cannot reuse KV state. Neither the batching control nor the two-point
+$K$ interpolation isolates a universal architectural bottleneck.
+A hardware profile and an optimized cache-enabled control are needed for
+such attribution (Appendix~\ref{app:batching_architectural}).
+
+A tuned grammar-constrained AR comparison has not been completed on the
+pinned stack. An older outlines-backed AR-1.5B experiment on vLLM 0.10.2
+returned only 1.0\% valid records and cannot bound what a current tuned
+configuration can achieve. Grammar constraints can improve validity, but
+do not guarantee completion under arbitrary time or token limits.
+Modern speculative decoding is also outside the primary comparison.
+
+\paragraph{Secondary results.}
+The energy measurements have different idle baselines and sampling rates,
+so their ratio is descriptive. Replica co-residency and realized rental
+savings were not measured. Wide-schema consistency uses only three fixed
+rules. Chain-tail estimates use 100 chains per depth. HumanEval's
+single-pass and correction-chain artifacts have substantially different
+first-round scores; those must be reconciled before treating them as
+replication of the same task protocol. The deadline experiment maps time
+to token budgets rather than enforcing a wall-clock cutoff
+(Appendix~\ref{app:humaneval}).
+
+\paragraph{Reproducibility.}
+Code and committed results are available at
+\href{https://github.com/AlexKay28/DLLM-as-Service}{the DLLM-as-Service repository}.
+The primary stack is vLLM 0.25.1, torch 2.11.0, and CUDA 13.0 on an
+A100 80GB. Experiment entry points are in
+\texttt{models/experiments/}; model, parser, and stack settings should be
+read from each artifact's provenance, since historical campaigns differ.
+\texttt{analysis/ar30b\_stats.py} identifies the per-event files used
+for the primary statistical comparison. The repository verifier checks
+selected macro-to-artifact mappings and provenance; it does not certify
+every prose number, experimental assumption, or source citation.
+The manuscript snapshot includes a separate numeric audit and build instructions.
+
+Compute use is estimated at approximately 20 GPU-hours for reported
+experiments and 10 additional hours for preliminary and failed runs.
+These are author estimates, not a reconstructed usage ledger. Token counts are
+reported as workload descriptors, not a hardware-normalized FLOP measure.
+The models, datasets, and libraries retain their respective upstream
+licenses; the relevant source locations are cited. Revision-specific
+license records should accompany a release of the experiment environment.
+
+\paragraph{Broader impact and assisted editing.}
+More efficient inference could reduce resources needed for structured
+extraction, but validity and accuracy remain necessary for any downstream
+action. These measurements do not validate safety-critical deployment.
+The study uses public models and datasets and involves no human subjects.
+An LLM-based assistant supported editorial review, claim checking,
+and document preparation.

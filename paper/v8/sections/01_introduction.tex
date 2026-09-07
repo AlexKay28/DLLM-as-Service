@@ -1,0 +1,124 @@
+\section{Introduction}
+\label{sec:intro}
+
+Parallel token generation can shorten a language model's response time,
+but it does not by itself establish a serving advantage. A useful comparison
+must account for output length, stopping policy, concurrent requests, and
+output quality. Autoregressive (AR) decoding generates tokens sequentially;
+block-diffusion decoding refines a canvas of token positions in parallel
+before moving to the next canvas. These execution patterns suggest different
+latency curves. Their practical consequences require measurement.
+
+We study structured log extraction on a single \gpuModel{} using
+vLLM~\cite{vllm2023}. Our primary pair comprises
+DiffusionGemma-26B-A4B (\DG)~\cite{diffusiongemma} and
+Qwen3-30B-A3B (\ARthree)~\cite{qwen3}. Both are mixture-of-experts
+(MoE) models with broadly comparable parameter and weight footprints.
+This controls architecture class and approximate scale, but does not match
+training data, model quality, tokenizer, or decoder implementation.
+The main measurements use the pinned vLLM 0.25.1 stack. Earlier dense
+Qwen2.5 and LLaDA experiments are identified separately throughout.
+
+\paragraph{Task and data.}
+Each raw log line is mapped to a JSON record with twelve fields. Seven
+structural fields describe the timestamp, host, component, severity,
+message template, error code, and numeric value; two fields encode an
+anomaly label and score; three provide semantic or action information.
+The primary corpus is BGL from LOGHUB~\cite{loghub}, containing
+4{,}747{,}963 BlueGene/L log lines. The preparation procedure samples
+600{,}000 lines by reservoir sampling (seed 42) and splits the sample
+temporally into 400{,}000 training and 200{,}000 test records.
+Evaluation cells use subsets of this test split, usually $n{=}300$ unless
+otherwise stated. HDFS provides a secondary log-corpus check using the
+2{,}000-line LOGHUB sample.
+
+Reference records are constructed by the repository's parsing pipeline,
+which supports Drain~\cite{drain} and a regex fallback. They are not
+independently annotated semantic ground truth. In particular, the code
+sets \texttt{is\_anomaly} when the native alert tag is non-normal
+\emph{or} severity is ERROR, FATAL, or CRITICAL, and sets
+\texttt{anomaly\_score} to the corresponding binary value. Thus these
+fields measure agreement with a label-construction rule, not solely
+prediction of native alert tags. A FATAL line tagged \texttt{-}, for
+example, still receives an anomaly label under this rule.
+
+\paragraph{Metrics and decoding.}
+Quality is macro-averaged token-overlap F1 across seven structural and two
+anomaly fields. We exclude \texttt{event\_type},
+\texttt{affected\_entity}, and \texttt{remediation\_hint}, whose
+references are parser-derived rather than independently validated.
+Excluding them reduces one source of contamination; it does not make the
+remaining labels independent of the preparation pipeline.
+The scorer treats two empty field values as a match, so Field-F1 should be
+read alongside validity. \emph{Schema validity} is the harness check for
+required fields and supported type/enum constraints on the parsed record;
+\emph{completeness} measures field presence. Neither establishes semantic
+correctness. We use first-object-wins parsing for repeated JSON outputs.
+
+Both models use greedy decoding (temperature 0, top-p 1, repetition
+penalty 1). Unless varied explicitly, DG uses $K{=}8$ denoising steps
+and canvas size $C{=}256$. Model-specific settings and environment versions
+are recorded in the result artifacts. Nominal model sizes are 26B total/4B
+active parameters for DG and 30B total/3B active for AR, with approximate
+bf16 weight footprints of 52 and 60\,GB; these are rounded model labels,
+not measurements of total runtime memory.
+
+We distinguish three quantities: generated output length $L$, the configured
+maximum output budget $B$, and the number of decoded canvases
+$N_C$. Raising $B$ does not increase $L$ when a model has already emitted
+end-of-sequence (EOS). We also distinguish serial mean service cost,
+per-event latency percentiles, and inverse throughput under batching.
+These quantities answer different deployment questions.
+
+\paragraph{Contributions.}
+\begin{itemize}
+\item We fit an approximately linear AR cost model and a staircase DG cost
+model, specifying the input-length, stopping-policy, and output-range
+conditions under which they are useful (\S\ref{sec:laws}).
+\item We measure a $2.4\times$ median-latency difference for the primary
+pair at batch size one, and report the quality and statistical limitations
+of that comparison (\S\ref{sec:wins}).
+\item We quantify how batching, latency tails, prompt length, and decoding
+effort change the deployment tradeoff (\S\ref{sec:limits}--\ref{sec:survives}).
+\item We document nine groups of corrections to our own measurements and
+interpretations, including defects that inflated the apparent diffusion
+advantage (Appendix~\ref{app:defects}).
+\end{itemize}
+
+\begin{table}[ht]
+\centering
+\caption{Primary comparison. Latency statistics are from the repeated
+BGL batch-1 runs (AR: 900 events; DG: 2,000). Throughput multipliers
+come from separate batching experiments. DG has greater \emph{relative}
+variability but lower \emph{absolute} p99 latency.}
+\label{tab:summary}
+\begin{tabularx}{\linewidth}{@{}L r r@{}}
+\toprule
+& \thead{AR-30B} & \thead{DG} \\
+\midrule
+\tabfont Nominal total / active parameters & 30B / 3B & 26B / 4B \\
+\tabfont Approximate bf16 weights & 60\,GB & 52\,GB \\
+\tabfont Median latency (ms) & \arMedian & \dgMedian \\
+\tabfont p99 latency (ms) & \arPninetyNine & \dgPninetyNine \\
+\tabfont Per-event CV (\%) & \arThirtyCV & \dgThirtyCV \\
+\tabfont Observed batch-1 to peak multiplier & \arBatchMult$\times$ & up to 1.7$\times$ \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\begin{table}[ht]
+\centering
+\caption{Simplified serial execution models at fixed prompt and decoding
+settings. ``Flat'' refers to observed latency within a paid-for canvas,
+not zero computation per token.}
+\label{fig:schematic}
+\begin{tabularx}{\linewidth}{@{}L L L@{}}
+\toprule
+& \thead{Autoregressive} & \thead{Block diffusion} \\
+\midrule
+Decoding & Sequential token steps & Parallel positions, sequential canvases \\
+Cost approximation & $a_A+b_A L$ & $a_D+s_D(N_C-1)$ \\
+Main variable & Actual generated length $L$ & Decoded canvas count $N_C$ \\
+\bottomrule
+\end{tabularx}
+\end{table}
