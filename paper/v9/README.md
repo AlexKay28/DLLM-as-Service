@@ -1,8 +1,8 @@
 # Paper v9 — primary-pair latency and quality
 
-Start with [main.pdf](main.pdf). The main text, including the opening figure and conclusion, occupies **seven pages**. References and supporting appendices follow in the same PDF.
+Start with [main.pdf](main.pdf). The main text, including the opening figure and conclusion, occupies **eight pages**. References and supporting appendices follow in the same PDF.
 
-The main comparison is Qwen3-30B-A3B versus DiffusionGemma-26B-A4B. V9 now includes a direct reanalysis of 300 shared log events and generation-budget coverage from the saved timing runs. Smaller-model chain and schema experiments are clearly separated in the appendices. V8 and the original result artifacts remain unchanged.
+The main comparison is Qwen3-30B-A3B versus DiffusionGemma-26B-A4B. V9 includes a direct reanalysis of 300 shared log events and generation-budget coverage from the saved timing runs. Section 5 defines the operational objective as correct resolution within a deadline, then explains accumulation of generation-time savings across dependent actions. A clearly labeled smaller-model timing illustration supports that explanation; its protocol and the other secondary experiments remain in the appendices. V8 and the original result artifacts remain unchanged.
 
 [REVIEW.md](REVIEW.md) explains the evidence and editorial decisions; [VALIDATION.md](VALIDATION.md) records checks.
 

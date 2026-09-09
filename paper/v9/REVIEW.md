@@ -2,9 +2,11 @@
 
 ## Main story
 
-The seven-page main text focuses on one similarly sized pair: Qwen3-30B-A3B and DiffusionGemma-26B-A4B. Its sequence is motivation and takeaways → output-length intuition → direct quality and generation-budget results → batching and cost → suitable workloads → limits and conclusion.
+The eight-page main text focuses on one similarly sized pair: Qwen3-30B-A3B and DiffusionGemma-26B-A4B. Its sequence is motivation and takeaways → output-length intuition → direct quality and generation-budget results → batching and cost → response deadlines and dependent actions → limits and conclusion.
 
-Figure 1 remains directly below the abstract. Numerical comparisons use tables. The body separates a long response from a sequence of dependent calls, and explains how generation latency consumes part of an end-to-end deadline. The smaller AR-3B chain and wide-schema studies, detailed serving controls, energy estimates, and protocol detail remain in appendices; they are not evidence of AR-30B investigation performance.
+Figure 1 remains directly below the abstract. Numerical comparisons use tables. Section 5 defines success as the fraction of problems resolved correctly before a deadline, including action, validation, and retry time. This is an operational objective, not a newly measured result. It explains how generation-time savings add across actions whose next step depends on the preceding result; longer outputs may increase the generation share, but this is not a demonstrated universal correlation.
+
+Figure 3 restores the cumulative timing illustration, explicitly naming the smaller AR-3B baseline in the plot, caption, and surrounding prose. Absolute median savings grow to 8.40 seconds over 20 calls while the ratio stays near 2×. The harness precomputes prompts and executes calls serially; it does not perform adaptive decisions or tools. This supports a timing mechanism, not AR-30B investigation performance or deadline success. The near-maximum p99.9 curve is omitted. Other smaller-model studies, serving controls, energy estimates, and protocol details remain in the appendices.
 
 ## Direct quality comparison
 

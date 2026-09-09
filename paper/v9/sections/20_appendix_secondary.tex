@@ -1,7 +1,7 @@
 \section{Additional accounting and secondary-model experiments}
 \label{app:secondary}
 
-The primary comparison in the main text uses AR-30B and DiffusionGemma.
+The primary comparison uses AR-30B and DiffusionGemma.
 The AR-3B results below are auxiliary experiments with a smaller dense
 Qwen2.5 model; they do not establish either quality equivalence or
 chain-level speedups for AR-30B. LLaDA is another diffusion baseline and
@@ -154,25 +154,20 @@ every AR configuration misses the target: scheduler, model, and decoding
 choices require measurement at the intended load.
 
 \subsection{Secondary-model chains and wider schemas}
-\paragraph{Serial investigation chains.}
+\paragraph{Serial-call timing proxy for investigations.}
 An investigation can require dependent steps: inspect an alert, retrieve
 context, and choose a follow-up query. This makes serial model latency
 relevant within a chain. The BGL chain harness compares DG with dense
 AR-3B, at approximately 419 and 808\,ms per hop, respectively.
-It does not directly measure an AR-30B chain or the retrieval and tool
-latencies of a deployed investigation system.
-
-\begin{figure}[ht!]
-\centering
-\includegraphics[width=\linewidth]{figures/fig10_usecase_chains.pdf}
-\caption{AR/DG chain-latency ratios on BGL (DG versus dense AR-3B;
-$n{=}100$ chains per depth, $K{=}8$). A ratio above one favors DG.
-The median ratio stays near $2\times$; point labels give absolute cumulative
-medians in seconds (AR / DG). The dashed p99.9 ratio is exploratory:
-with 100 chains it reflects near-maximum observations, not a reliable
-production tail target.}
-\label{fig:chains}
-\end{figure}
+Figure~\ref{fig:chains} shows the cumulative timing comparison.
+The harness uses 100
+sequences per depth and $K=8$. All prompts are prepared before execution;
+each call completes before the next starts, but its answer does not
+determine the next prompt. Thus the experiment isolates serial timing,
+not adaptive investigation behavior. It does not directly measure an
+AR-30B chain or the retrieval and tool latencies of a deployed system.
+The saved p99.9 ratios are near-maximum observations with only 100
+sequences per depth and are unsuitable as reliable production tail targets.
 
 The latency gap accumulates when several dependent calls are required,
 but neither the quality of a complete investigation nor independence of

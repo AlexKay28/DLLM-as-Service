@@ -1,4 +1,4 @@
-\section{Where faster serial responses can help}
+\section{From response deadlines to dependent actions}
 \label{sec:survives}
 
 \paragraph{Online extraction under a deadline.}
@@ -13,32 +13,64 @@ received too late cannot support that timely action.
 one stage; the remaining stages also consume the deadline.}
 \end{center}
 
-The completion fractions in \S\ref{sec:wins} quantify generation.
-They make DG a useful candidate when this stage has a tight budget and
-its quality is sufficient. A complete canvas still needs validation;
-an on-time error does not become useful just because it arrived quickly.
-End-to-end decisions require measurements of the remaining stages.
+For $N$ evaluated problems and a deadline $\tau$, the operational success
+rate is
+\begin{equation}
+S(\tau)=\frac{1}{N}\sum_{i=1}^{N}
+\mathbf{1}\{\text{problem }i\text{ resolved correctly and }T_i\leq\tau\},
+\label{eq:deadline_success}
+\end{equation}
+where $T_i$ is elapsed time from arrival to the accepted resolution,
+including checks and retries, and $\mathbf{1}$ equals one when both
+conditions hold. Unresolved problems remain in the denominator.
+The correctness criterion must be fixed for the task before comparison.
+The completion fractions in \S\ref{sec:wins} measure one ingredient of
+this objective; schema validity and average field-F1 do not establish
+the fraction of correctly resolved problems. Measuring $S(\tau)$ requires
+an outcome check and timing the full response path.
 
-\paragraph{Dependent investigations and longer responses.}
-In an investigation, the next query may depend on an earlier answer.
-Such dependencies make per-call latency accumulate, even while other
-investigations run concurrently. Lower latency can shorten the time to
-the next useful observation. The saved chain experiment supports this
-motivation using the smaller AR-3B baseline; it is reported separately
-in Appendix~\ref{app:secondary}, not as an AR-30B chain benchmark.
+\paragraph{Why savings accumulate across dependent actions.}
+Consider an investigation that identifies a suspect component, proposes
+a check, executes it, and uses the result to decide what to inspect next.
+The next useful generation depends on the preceding observation, so these
+steps cannot be batched together in advance. Other investigations can run
+concurrently, but this dependency still delays resolution of this problem.
 
-A long response and a chain of responses are different workloads.
-The first can spread DG's initial canvas cost over more required tokens;
-the second repeats input processing and generation across dependent calls.
-Both motivate evaluating diffusion, but neither guarantees a benefit at
-arbitrary lengths. Long-form reasoning and repeated code generation also
-require suitable quality. The exploratory code results in
-Appendix~\ref{app:humaneval} show a substantial quality gap, so they do not
-establish successful long investigations for the primary pair.
+For a fixed sequence of $D$ actions, elapsed time is
+$T=\sum_{j=1}^{D}(g_j+a_j)$, where $g_j$ is generation time and $a_j$
+is the intervening action and validation time. If the same actions succeed
+with the same costs, reducing generation time saves
+$\sum_j(g_j^{\mathrm{AR}}-g_j^{\mathrm{DG}})$ seconds. Absolute savings
+can therefore grow with depth even when the generation-time ratio stays
+constant. Longer required responses can increase the generation share of
+this path, subject to block boundaries and output quality; slow tools or
+additional retries can instead absorb the advantage.
+
+\begin{figure}[ht!]
+\centering
+\includegraphics[width=.95\linewidth]{figures/fig10_usecase_chains.pdf}
+\caption{Supporting timing illustration: DG versus the smaller dense
+Qwen2.5-3B baseline, not the primary AR-30B pair. Each depth has 100
+sequences of serial log-extraction calls. The shaded gap shows increasing
+absolute savings; labels show the nearly constant median ratio.
+Prompts were prepared in advance: this measures cumulative generation
+time, not dependent decisions, tool execution, or investigation success.}
+\label{fig:chains}
+\end{figure}
+
+Figure~\ref{fig:chains} illustrates this timing mechanism with a separate
+serial experiment. At 20 calls, cumulative medians are 16.74 seconds for
+AR-3B and 8.34 seconds for DG. The smaller baseline is included only to
+illustrate accumulation; the primary quality and deadline comparison
+remains AR-30B versus DG. Appendix~\ref{app:secondary} records the scope
+of this experiment. A dependent-workflow evaluation must also test whether
+both models reach a correct resolution within the deadline. The exploratory
+code results in Appendix~\ref{app:humaneval} show a substantial quality
+gap, so they do not establish that outcome for code-based investigations.
 
 \paragraph{Choosing the configuration.}
-Measure required output length and quality, then check on-time record
-validity under the intended arrival rate. Canvas size and refinement effort
+Measure required output length and quality, then compare correctly resolved
+problems within the deadline under the intended arrival rate. Canvas size and refinement effort
 change the balance, but truncating an output budget is not the same as
 reducing refinement passes. Supporting sweeps document these effects;
 the main comparison retains the reference configuration.

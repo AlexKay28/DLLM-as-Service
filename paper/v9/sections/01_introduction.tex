@@ -5,7 +5,9 @@ An online log processor may need to identify an event and choose a follow-up
 check before a response deadline. A correct answer arriving after that
 deadline can still help later analysis, but cannot support the intended
 timely decision. This makes response latency a different objective from
-processing as many requests per second as possible.
+processing as many requests per second as possible. The operational goal
+is to maximize the fraction of problems resolved correctly before their
+deadline, while retaining the required quality standard.
 
 Autoregressive (AR) decoding generates tokens, the model's units of text,
 one after another. Block diffusion instead refines a fixed-size block of
@@ -21,8 +23,9 @@ AR has approximately 30 billion total and 3 billion active parameters,
 while DG has 26 billion total and 4 billion active parameters.
 They are comparable in scale, not identical in training or capability.
 Experiments with dense Qwen2.5-3B (AR-3B) and the separate LLaDA-8B
-diffusion model are supporting evidence, collected
-separately in Appendix~\ref{app:secondary}.
+diffusion model provide supporting evidence. Section~\ref{sec:survives}
+uses one explicitly labeled AR-3B timing illustration; details of these
+secondary experiments remain in Appendix~\ref{app:secondary}.
 
 \noindent\begin{minipage}{\linewidth}
 \paragraph{Three takeaways.}
@@ -62,6 +65,6 @@ are documented in Appendix~\ref{app:protocol}.
 
 \paragraph{Roadmap.}
 We explain the cost models, compare the primary pair's quality and
-generation-time budgets, then discuss batching and workloads where serial
-latency matters. The appendices retain protocol details, smaller-model
+generation-time budgets, then discuss batching and how latency savings
+can accumulate across dependent actions. The appendices retain protocol details, smaller-model
 studies, and exploratory results without mixing them into the main comparison.

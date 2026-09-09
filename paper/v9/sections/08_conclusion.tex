@@ -8,7 +8,11 @@ quality comparison shows close extraction scores with a small DG deficit,
 so the choice depends on whether that quality meets the task's needs.
 
 This makes diffusion a candidate for time-constrained extraction and
-dependent workflows where each response delays the next step. Longer
+dependent workflows where each response delays the next action. In such
+workflows, generation-time savings can accumulate along the sequence of
+actions. The operational test is the fraction of problems resolved correctly
+before the deadline, including validation and retries; our serial timings
+motivate that evaluation. Longer
 required outputs may also favor its block-wise cost pattern, subject to
 canvas boundaries and quality. AR's stronger batching gains favor serving
 many independent requests economically. The useful comparison is acceptable
