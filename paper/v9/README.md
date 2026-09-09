@@ -1,6 +1,6 @@
 # Paper v9 — primary-pair latency and quality
 
-Start with [main.pdf](main.pdf). The main text, including the opening figure and conclusion, occupies **eight pages**. References and supporting appendices follow in the same PDF.
+Start with [main.pdf](main.pdf). The PDF has **12 pages: eight main-text pages, one reference page, and three appendix pages**. The original font size and margins are retained.
 
 The main comparison is Qwen3-30B-A3B versus DiffusionGemma-26B-A4B. V9 includes a direct reanalysis of 300 shared log events and generation-budget coverage from the saved timing runs. Section 5 defines the operational objective as correct resolution within a deadline, then explains accumulation of generation-time savings across dependent actions. A clearly labeled smaller-model timing illustration supports that explanation; its protocol and the other secondary experiments remain in the appendices. V8 and the original result artifacts remain unchanged.
 
@@ -32,6 +32,6 @@ The tracked `data/bgl_reference_300.jsonl` contains the first 300 parser-derived
 
 Install Matplotlib and run `make -C paper/v9 figures` to regenerate figures, then rebuild. The first-page figure is retained. The cumulative latency figure now labels the fractions completed by 1,000 ms and omits median-uncertainty shading. Older figure filenames are retained for stable artifact paths; numbered figures follow their new placement.
 
-The quality analysis finds a small DG deficit, not demonstrated equality. Generation-budget coverage excludes queueing and downstream work. Conflicting DG runtime metadata is documented in Appendix K; the paper does not assert exact stack parity. Longer-output and code-generation claims remain scoped to their evidence.
+The quality analysis finds a small DG deficit, not demonstrated equality. Generation-budget coverage excludes queueing and downstream work. Appendix A preserves the protocol, paired analysis, and conflicting DG runtime metadata. Appendix B summarizes supporting measurements and ablations. Appendix C retains the code-quality limitation and four concrete follow-up questions. Removed historical detail remains accessible in Git history and the original result artifacts. All manuscript references point to retained sections.
 
 `SUBMISSION_DISCLOSURES.tex` is an author-facing draft excluded from the PDF.

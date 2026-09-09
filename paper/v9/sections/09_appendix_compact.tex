@@ -1,0 +1,179 @@
+\section{Protocol and essential audit notes}
+\label{app:protocol}
+
+\paragraph{Data and scoring.}
+The preparation pipeline samples 600,000 BlueGene/L log lines by reservoir
+sampling (seed 42) and splits them temporally into 400,000 training and
+200,000 test records. Evaluation uses subsets of that test split. References
+come from the repository's parser, which supports Drain~\cite{drain} and
+a regular-expression fallback; they are not independent semantic labels.
+The anomaly rule marks a record positive if its native alert tag is
+non-normal or its severity is ERROR, FATAL, or CRITICAL. The anomaly score
+is the corresponding binary value.
+
+Nine-field F1 gives equal weight to seven structural and two anomaly fields.
+The three excluded fields are event type, affected entity, and remediation
+hint, whose semantic references are not independently validated. Two empty
+field values count as a match. Schema validity checks supported field,
+type, and allowed-value constraints. Repeated JSON outputs use the first
+object. Neither metric proves a correct downstream resolution.
+
+\paragraph{Primary-pair reanalysis.}
+The paired comparison uses AR-30B seed-42 predictions and the first 300
+DG repeat-1 predictions, aligned to the same prepared test prefix. The
+other AR timing seeds reorder this same pool; they do not supply new
+quality examples. The frozen references and \texttt{audit\_primary\_pair.py}
+reproduce the tables from saved predictions without new inference or
+quality-based filtering. The report records source hashes and per-field scores.
+A paired percentile bootstrap resamples event-level F1 differences 10,000
+times with seed 42. DG minus AR has mean $-0.0181$ and a 95\% interval
+$[-0.0289,-0.0086]$. This shows a small DG deficit; no equivalence margin
+was selected after observing it. Shared templates and parser references
+limit generalization beyond these events.
+
+\paragraph{Timing and serving.}
+Both primary models use greedy decoding with repetition penalty 1; DG uses
+$K=8$ and a 256-position canvas. Timings pool 900 AR observations across
+three runs and 2,000 DG observations on an A100 80\,GB GPU. Median
+generation times and their event-bootstrap 95\% intervals are
+\arMedian\,ms [\arCiLo, \arCiHi] for AR and
+\dgMedian\,ms [\dgCiLo, \dgCiHi] for DG. These intervals are conditional
+on the saved runs, not independent hardware replications. Budget counts
+include every recorded event, count equality with the budget as on time,
+and optionally require schema validity; they exclude queueing, tools,
+and semantic outcome checks.
+
+AR metadata records vLLM 0.25.1, torch 2.11.0, and CUDA 13.0. DG's anchor
+summary records that stack, but its 2,000-event summary reports the same
+timings with vLLM 0.11.0, torch 2.8.0, and CUDA 12.8. The artifacts do
+not resolve this conflict, so exact software parity is not established.
+
+\paragraph{Corrections that affect interpretation.}
+The current comparison uses raw-log inputs and corrected AR measurements;
+earlier gold-record inputs and batched-cost-as-latency claims were invalid.
+Earlier smaller-model results also required corrections to decoding settings,
+JSON parsing, and field-presence checks. A parser baseline sharing reference
+construction was withdrawn. These historical values are not evidence for
+the primary pair. The repository retains the detailed audit trail and raw
+artifacts; numeric verification does not certify the experimental protocol.
+
+\clearpage
+\section{Supporting measurements and ablations}
+\label{app:secondary}
+
+\paragraph{Canvas size and refinement effort.}
+A joint DG sweep varies canvas sizes $\{64,128,256,512\}$ and refinement
+passes $K\in\{2,4,8,16,32\}$, with 200 events per cell. The two
+$K=8$ settings below illustrate the tuning opportunity. These are
+within-sweep point estimates, separate from the primary-pair reanalysis.
+
+\begin{center}
+\begin{tabular}{@{}lrr@{}}
+\toprule
+DG setting & Median latency (ms) & Nine-field F1 \\
+\midrule
+Canvas 128, $K=8$ & 368 & 0.864 \\
+Canvas 256, $K=8$ & 376 & 0.853 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Canvas 128 improves both point estimates in this sample, but does not
+establish a global optimum. The paper retains canvas 256 for continuity
+with its reference runs. Selecting a replacement needs held-out quality,
+validity, and deadline coverage. Reducing $K$ and truncating the output
+budget are different interventions: the former reduces refinement effort;
+the latter can prevent completion of required fields. Neither establishes
+safe interruption of an unfinished canvas.
+
+\paragraph{Output budget versus actual length.}
+The AR serial sweep stops near 126 generated tokens once the budget is
+sufficient. Budgets 256, 512, and 1024 therefore all yield a mean service
+time near 945\,ms. Charging DG for those full canvas budgets instead predicts
+379, 498, and 737\,ms. This comparison changes permitted work, not required
+answer length. Extrapolating the cost laws to naturally longer responses
+requires tasks that actually produce those responses and remain correct.
+
+\paragraph{Serving controls and resource interpretation.}
+The AR-30B sweep reaches a \arBatchMult$\times$ throughput multiplier
+from batch one to its best tested batch. A separate dense AR-3B control
+retains a \cacheOffMult$\times$ multiplier with prefix caching disabled,
+compared with \cacheOnMult$\times$ with caching, so shared prefixes alone
+do not explain that smaller model's gain. LLaDA-8B, a separate diffusion
+baseline, improves throughput by about $1.2\times$ in its tested engine.
+These are engine-specific controls, not a universal diffusion batching limit.
+Throughput, per-request latency, and average resource time per request must
+be kept distinct. Lower serial latency does not by itself reduce the cost
+of an always-on GPU; utilization and provisioned capacity also matter.
+
+\paragraph{Scope of the serial-call illustration.}
+Figure~\ref{fig:chains} uses DG and dense Qwen2.5-3B, with 100 sequences
+at each depth and one call in flight at a time. Prompts are prepared in
+advance; answers do not select subsequent prompts. The cumulative median
+gap reaches 8.40 seconds at 20 calls while the ratio stays near $2\times$.
+This isolates serial generation time, without tool execution, adaptive
+decisions, or a measured resolution rate. It cannot establish AR-30B
+investigation speedups. With only 100 sequences per depth, the saved p99.9
+values are near-maximum observations and are not reliable production targets.
+
+\clearpage
+\section{Generalization limits and useful next experiments}
+\label{app:questions}
+
+\paragraph{Code generation provides a quality counterexample.}
+HumanEval~\cite{humaneval} contains 164 Python function-completion problems.
+The exploratory single-pass comparison below is serial. Pass@1 is the
+fraction of first completions passing the harness tests; syntax validity
+is acceptance by Python's parser.
+
+\begin{center}
+\begin{tabular}{@{}lrrr@{}}
+\toprule
+Model & Pass@1 & Syntax valid (\%) & Median latency (ms) \\
+\midrule
+AR-30B & 0.720 & 93.9 & 800 \\
+DG, $K=8$ & 0.287 & 31.1 & 280 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+DG generates faster here, but its much lower quality prevents a
+quality-matched code-generation claim. Finishing a canvas does not
+guarantee a syntactically valid or correct program. These results do not
+identify whether training, decoding, or another implementation difference
+causes the gap.
+
+Other saved code experiments do not close this gap. A nominal deadline
+was converted into an AR token budget without enforcing elapsed time;
+that is not a measurement of correct completion before a deadline.
+A generate--test--repair experiment records DG first-round success of
+0.854, conflicting with the single-pass 0.287. Its generated code was
+not retained for full audit, and its chain timings exclude test execution.
+Those summaries are excluded from the paper's conclusions pending
+protocol reconciliation.
+
+\paragraph{Open questions tied to the paper's objective.}
+\begin{enumerate}
+\item \textbf{Which model resolves more problems correctly before the deadline?}
+Fix the correctness criterion and deadlines before evaluation, then measure
+$S(\tau)$ from Eq.~\ref{eq:deadline_success} on shared held-out problems.
+Include queueing, validation, actions, retries, and unresolved cases.
+Average extraction F1 or structural validity cannot replace this outcome.
+\item \textbf{Does faster generation shorten a real dependent investigation?}
+Let each observed tool result determine the next action and retain the
+complete trace. Compare successful resolution times for the primary pair,
+including differences in action count and retries. Vary the share of time
+spent generating versus executing tools to test when savings survive.
+\item \textbf{Can the speed advantage retain the required quality?}
+Choose a task-relevant quality tolerance before testing; evaluate canvas
+size and refinement effort on held-out data. Include naturally longer
+outputs, whose quality and cost cannot be inferred by raising a token cap.
+\item \textbf{Does the advantage survive realistic serving?}
+Measure both models under the same verified runtime and arrival process,
+including bursty traffic and concurrent independent investigations.
+Compare tuned AR configurations, including speculative and constrained
+decoding, using correct on-time outcomes and the resources needed to deliver them.
+\end{enumerate}
+
+These questions separate the observed generation advantage from the
+remaining application-level evidence needed for deployment.
