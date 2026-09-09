@@ -1,39 +1,41 @@
-# Editorial review: v8 → v9
+# V9 editorial and evidence review
 
-V9 responds to reading feedback while preserving the existing measurements and scientific boundaries. No model inference, experiment changes, or new deployment evidence are introduced. V8 is unchanged.
+## Main story
 
-## Changes
+The seven-page main text focuses on one similarly sized pair: Qwen3-30B-A3B and DiffusionGemma-26B-A4B. Its sequence is motivation and takeaways → output-length intuition → direct quality and generation-budget results → batching and cost → suitable workloads → limits and conclusion.
 
-- Shortened the abstract to a standalone account of motivation, comparison, result, and deployment implications.
-- Added three bold takeaways before the experimental details: measured serial latency, potential deadline value, and the quality/concurrency tradeoff.
-- Added a roadmap following the actual section sequence and grouped the existing protocol details in an experimental-setup subsection.
-- Defined the main acronyms, model sizes, decoding terms, and metrics at first use. The leading cost figure appears immediately below the abstract, with abbreviations explained in its caption.
-- Added a structured-log deadline example distinguishing completion, validity, quality, and timeliness, including queueing and downstream work.
-- Explained why batching throughput and deadline compliance answer different questions; aligned the conclusion with the opening takeaways.
+Figure 1 remains directly below the abstract. Numerical comparisons use tables. The body separates a long response from a sequence of dependent calls, and explains how generation latency consumes part of an end-to-end deadline. The smaller AR-3B chain and wide-schema studies, detailed serving controls, energy estimates, and protocol detail remain in appendices; they are not evidence of AR-30B investigation performance.
 
-## Storyline checklist
+## Direct quality comparison
 
-- [x] The abstract explains the task and expands BlueGene/L before BGL.
-- [x] The introduction explains why a late record can fail a timely decision.
-- [x] Three highlighted takeaways appear before detailed protocol discussion.
-- [x] The roadmap matches setup → cost models → measurements → deployment constraints → workload implications.
-- [x] The primary AR-30B and secondary dense AR-3B comparisons remain explicit.
-- [x] The 2.4× result is a measured median-latency comparison, not a quality-matched speedup claim.
-- [x] Long-output projections remain conditional; output budgets are not substituted for generated lengths.
-- [x] The deadline example is illustrative, not a measured end-to-end success rate.
-- [x] Complete output still requires task-appropriate validity and quality.
-- [x] Throughput, individual response time, and utilization-dependent cost remain distinct.
-- [x] The conclusion returns to the same three takeaways.
+The saved AR seed-42 predictions and the first 300 DG repeat-1 predictions can be compared against the same prepared reference prefix, following the respective runners' input order. V9 freezes those parser-derived references and reuses the repository's scorer.
 
-## Follow-up reading feedback
+- Nine-field F1: AR-30B **0.8698**, DG **0.8518**.
+- Schema validity: AR-30B **99.33%**, DG **99.00%**.
+- Mean paired difference, DG minus AR: **−0.0181**; paired percentile-bootstrap 95% interval **[−0.0289, −0.0086]**.
 
-- Restored Figure 1 as the first-page visual summary and kept the introduction and takeaways together on the following page.
-- Removed the end-to-end measurement disclaimer from the abstract; the main text still explains what the saved generation timings cover. No extrapolation is presented as measured deadline success.
-- Replaced Figure 5's two panels with one ratio plot: median and exploratory p99.9 ratios remain distinct, and median points carry absolute cumulative AR/DG times. Values come from `results/chain_analysis.json`; the builder checks that reconstructed median ratios agree with its saved ratios.
-- Added two unnumbered conceptual diagrams for decoding schedules and the full deadline path. These explain the workflow without implying new measurements, and preserve the numbered figures' identities.
-- Expressed equations 1–3 with named coefficients and units before substituting measured constants in the crossover calculation.
-- Simplified the cost-model explanation, deadline discussion, and conclusion while preserving the scientific scope.
+These close averages support a small DG deficit, not a proof of equal quality. No equivalence margin is selected after seeing the result. Pairing follows the saved-output runners; shared templates, reference construction, and a single event prefix constrain generalization.
 
-## Evidence retained after revision
+The 300-event paired quality table includes its own latency medians. It is explicitly separate from the 900-AR/2,000-DG timing comparison used in the abstract and cumulative plot.
 
-The limitations identified in [v8's evidence review](../v8/REVIEW.md) remain: quality matching for AR-30B, natural long-output validation, HumanEval protocol reconciliation, optimized serving controls, and controlled deadline/energy/cost evaluations. V9 improves how these results are explained; it does not resolve those experimental questions.
+## Generation budgets and the plot
+
+The old blue vertical band marked uncertainty in the AR median; it did not represent another set of responses. The updated plot preserves the empirical cumulative curves, uses percentages, removes the bands, and marks the 1,000 ms threshold.
+
+At 1,000 ms, 1,999/2,000 DG generations (99.95%) and 694/900 AR generations (77.11%) have completed. At 500 ms, the fractions are 99.8% and 0%. A separate table also applies schema validity, preventing completion from being mistaken for usable or correct output. Semantic correctness and downstream time are not measured by these counts.
+
+## Provenance correction
+
+The DG anchor summary records vLLM 0.25.1, whereas the DG n=2,000 tail-summary file records 0.11.0 for the same timing summary. This revision preserves both artifacts, documents the conflict, and removes the assertion of exact stack parity. The latency result describes the saved runs; it does not isolate an architecture-only effect.
+
+## Reading and evidence checklist
+
+- [x] Main text reaches the conclusion within eight pages, retaining 11-point type and original margins.
+- [x] First-page figure, bold takeaways, and the decoding/deadline schematics remain.
+- [x] Primary model identities are explicit; smaller baselines are supporting evidence only.
+- [x] Direct paired quality, schema validity, and timing appear together with sample sizes.
+- [x] Generation-budget completion is distinct from correctness and end-to-end deadlines.
+- [x] Cost coefficients have names, meanings, and units before numerical substitution.
+- [x] Longer-output intuition is not presented as a measured universal advantage.
+- [x] Quality and timing reanalysis is reproducible from frozen references and saved outputs.
+- [x] V8 and original results remain unchanged.

@@ -1,103 +1,61 @@
-\section{Serial latency, quality, and energy}
+\section{Primary-pair quality and latency}
 \label{sec:wins}
 
-\paragraph{Direct latency comparison.}
-In the repeated BGL runs at batch size one, AR-30B has median latency
-\arMedian\,ms (95\% bootstrap CI [\arCiLo, \arCiHi]; 900 events
-pooled across seeds 42, 137, and 314). DG has median \dgMedian\,ms
-(CI [\dgCiLo, \dgCiHi]; 2,000 events). The ratio of these medians
-is approximately $2.4\times$. Bootstrap intervals use 10,000 event-level
-resamples. The AR seed-median CV is \seedCV\%, describing repeatability
-across these three runs rather than uncertainty across hardware or workloads.
-
-A two-sided permutation test of the absolute median difference observed
-no equally or more extreme result in 100,000 shuffles. The finite-sample
-Monte Carlo estimate $(0+1)/(100000+1)$ is approximately $10^{-5}$;
-we do not interpret the stored zero exceedance fraction as a zero
-probability. This unpaired test treats event timings as exchangeable and
-does not control run-level differences or temporal dependence. The
-observed latency gap is large, but its interval is conditional on these
-measurement assumptions.
-
-\begin{figure}[ht!]
-\centering
-\includegraphics[width=0.88\linewidth]{figures/fig12_v8.pdf}
-\caption{Empirical cumulative distributions of saved BGL event latencies:
-AR-30B, 900 events across three seeds; DG, 2,000 events. Shaded bands
-mark bootstrap 95\% intervals for each median. DG has lower median and
-p99 latency, despite a larger coefficient of variation and max/median
-ratio. These are service times, excluding arrival-queue delay.}
-\label{fig:distributions}
-\end{figure}
-
-\paragraph{Quality is a separate constraint.}
-The serial-sweep AR-30B 9-field F1 is 0.870. The earlier paired quality
-analysis compared DG with dense AR-3B (\arThreeBFnine), not AR-30B.
-It therefore cannot establish quality equivalence for the primary latency
-pair. Faster service may be useful when DG meets the application's quality
-threshold, but the current evidence does not establish a $2.4\times$
-speedup at matched quality. This distinction also applies to the
-throughput and cost comparisons.
-
-\paragraph{Output budget is not generated length.}
-Table~\ref{tab:niche} retains the original serial-sweep means so that
-the fitted cost model can be traced to its source. These are different
-runs and a different summary statistic from the repeated medians above.
-AR emits approximately 126 tokens when its budget is sufficient and
-then stops. Increasing the budget from 256 to 1024 does not lengthen
-its output. By contrast, charging DG for all canvases permitted by the
-budget increases its predicted cost. The resulting ratio is a
-\emph{budget-accounting comparison}, not an observed long-output task
-speedup.
+\subsection{Quality on the same log events}
+The relevant quality comparison is between AR-30B and DG themselves.
+We re-score their saved outputs on the same 300 BGL events with the same
+nine-field metric and parser-derived references. Table~\ref{tab:primaryquality}
+places this comparison beside its generation times.
 
 \begin{table}[ht]
 \centering
-\caption{AR serial-sweep mean service time ($n{=}300$ per cell) versus
-DG full-canvas cost from Eq.~\ref{eq:dg}. DG values are predictions
-from measured canvas costs, not paired event means. The AR rows at
-budgets 32 and 128 are output-limited; a 48-token cost crossover does
-not imply valid extraction at that budget.}
-\label{tab:niche}
-\begin{tabular}{@{}rrrrr@{}}
-\toprule
-Budget $B$ & AR mean (ms) & AR mean tokens & DG model (ms) & AR/DG \\
-\midrule
-32 & 265 & 32 & 379 & $0.7\times$ \\
-128 & 907 & 121 & 379 & $2.4\times$ \\
-256 & 945 & 126 & 379 & $2.5\times$ \\
-512 & 945 & 126 & 498 & $1.9\times$ \\
-1024 & 945 & 126 & 737 & $1.3\times$ \\
-\bottomrule
-\end{tabular}
+\caption{Primary pair on 300 shared events. F1 measures extraction agreement;
+schema validity checks record structure. These are paired-sample timings,
+separate from the larger repeated latency sample.}
+\label{tab:primaryquality}
+\input{data/primary_quality_rows.tex}
 \end{table}
 
-Extending this accounting to a 2048-token DG budget reverses the
-ratio to approximately $0.8\times$: AR has already stopped while DG
-is charged for eight canvases. Conversely, a task that actually requires
-long AR output could widen DG's advantage. That case requires a new
-natural-output evaluation; Appendix~\ref{app:forced} labels the
-available calculation as a projection.
+DG's extraction score is close to AR's, and a paired bootstrap analysis
+supports a small average DG deficit. The saved outputs therefore show a
+faster response with a modest loss on this metric, rather than equal
+quality. Whether that tradeoff is acceptable depends on the task;
+Appendix~\ref{app:protocol} reports the difference, uncertainty interval,
+and scoring limits without choosing an equivalence margin after the fact.
 
-\paragraph{Throughput is not response latency.}
-The AR-30B batch experiment completes 300 requests in 12.08\,s,
-corresponding to 40.3\,ms per event when total elapsed time is divided
-by batch size. Individual requests do not therefore return in 40.3\,ms.
-That inverse-throughput measure must not be substituted for serial
-response time. It underlies the approximately $25\times$ batching
-multiplier in \S\ref{sec:limits}.
+\subsection{Reading a generation-time budget}
+For the larger repeated timing sample, median latency is
+\dgMedian\,ms for DG and \arMedian\,ms for AR-30B. The median describes
+the middle request; a deadline asks a different question: what fraction
+has finished by a specified time?
 
-\paragraph{Energy.}
-The saved AR-30B serial power run reports \arEnergy\,J per event
-above idle, compared with \dgEnergy\,J for DG in a separate run.
-The descriptive ratio is approximately $40\times$. The AR run records
-223.0\,W mean board power, 49.73\,W idle, and 288.249\,s for 300
-events; the DG run records 63.4\,W, 52.6\,W idle, and 38.57\,s for
-100 events. Thus the direction is consistent with both lower DG net
-power and shorter service time in these runs.
+Figure~\ref{fig:distributions} answers that question directly. Pick a time
+on the horizontal axis, move up to a model's curve, and read the percentage
+of completed generations. At 1,000\,ms, nearly all DG responses have
+finished, while about three quarters of AR responses have. A steep section
+means many requests finish in a narrow time range.
 
-These measurements use different idle baselines, sample counts, and
-power-sampling rates, with only 39 power samples in the DG run.
-They do not isolate an architectural cause, and the idle-subtracted
-ratio is sensitive to the small DG difference between active and idle
-power. We treat it as preliminary board-energy evidence, not an
-end-to-end energy-efficiency ratio or a controlled deployment-cost result.
+\begin{figure}[ht!]
+\centering
+\includegraphics[width=.95\linewidth]{figures/fig12_v8.pdf}
+\caption{Percentage of saved generations completed within each time budget
+(AR-30B: 900 events across three runs; DG: 2,000 events).
+Dots and guides show the 1,000\,ms example. These are generation times,
+not end-to-end response times or correctness rates.}
+\label{fig:distributions}
+\end{figure}
+
+\begin{table}[ht]
+\centering
+\caption{Generation-budget coverage (\%). Valid also requires the harness
+schema check. All recorded events remain in the denominator; semantic
+correctness and downstream processing are not assessed here.}
+\label{tab:budgets}
+\input{data/generation_budget_rows.tex}
+\end{table}
+
+At a 500\,ms generation budget, DG supplies structurally valid records
+for most events and this AR configuration supplies none. This is a
+concrete reason to evaluate DG for a time-constrained service, provided its
+extraction quality meets the application's needs. It is not a claim that
+every possible AR configuration misses the same target.

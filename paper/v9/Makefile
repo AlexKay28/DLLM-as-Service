@@ -2,7 +2,7 @@
 PYTHON ?= python3
 PDFLATEX ?= pdflatex
 BIBTEX ?= bibtex
-TEXSRC := main.tex assets/macros.tex assets/references.bib $(wildcard sections/*.tex)
+TEXSRC := main.tex assets/macros.tex assets/references.bib $(wildcard sections/*.tex) $(wildcard data/*.tex)
 FIGS := $(wildcard figures/*.pdf)
 
 .PHONY: all verify figures
@@ -16,6 +16,7 @@ main.pdf: $(TEXSRC) $(FIGS)
 
 verify:
 	$(PYTHON) verify_snapshot.py
+	$(PYTHON) audit_primary_pair.py --check
 
 # Requires matplotlib and numpy. Render from the committed results in this repo.
 figures:

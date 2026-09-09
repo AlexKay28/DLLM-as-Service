@@ -84,7 +84,7 @@ Latency, Throughput, and Quality in Structured Log Extraction}}
 Online log processing needs usable records before a response deadline;
 a correct answer arriving too late may miss its purpose. We compare
 DiffusionGemma with the autoregressive Qwen3 model on structured extraction
-from BlueGene/L (BGL) system logs, using the same serving software and one
+from BlueGene/L (BGL) system logs, using saved serial runs on an
 NVIDIA A100 graphics processing unit. Diffusion refines multiple token
 positions in parallel, whereas standard autoregressive decoding emits tokens
 sequentially. With one request at a time, median generation latency is
@@ -92,8 +92,9 @@ sequentially. With one request at a time, median generation latency is
 models explain how output length and block boundaries affect this comparison;
 long natural outputs remain an extrapolation. The latency gap motivates
 diffusion for deadline-bound extraction when its output meets the task's
-quality and validity requirements. Quality equivalence was tested against
-a smaller autoregressive baseline. Autoregressive throughput benefits more from batching
+quality and validity requirements. On 300 shared events, token-overlap extraction
+scores are 0.870 for Qwen3 and 0.852 for diffusion; this is a latency--quality
+tradeoff. Autoregressive throughput benefits more from batching
 in the tested configurations. The practical choice therefore depends on
 response time, acceptable quality, concurrency, and resource utilization.
 \end{abstract}
@@ -123,6 +124,7 @@ logs (AR: 900 events; DG: 2,000). Longer-output task speedups are projections.}
 %                          APPENDICES
 % ======================================================================
 
+\clearpage
 \bibliographystyle{plain}
 \bibliography{assets/references}
 
@@ -138,6 +140,8 @@ logs (AR: 900 events; DG: 2,000). Longer-output task speedups are projections.}
 \input{sections/16_appendix_forced}
 \input{sections/17_appendix_batching_arch}
 \input{sections/18_appendix_humaneval}
+\input{sections/19_appendix_protocol}
+\input{sections/20_appendix_secondary}
 
 % Venue-specific submission disclosures are kept separately; see REVIEW.md.
 

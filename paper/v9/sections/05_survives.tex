@@ -1,132 +1,44 @@
-\section{Workloads and decoding-effort tradeoffs}
+\section{Where faster serial responses can help}
 \label{sec:survives}
 
-\paragraph{A record must arrive while it can still be used.}
-Consider an online log processor that extracts an event's severity and
-affected component so that a downstream rule can decide whether to request
-further inspection. Suppose that decision has a fixed deadline after the
-event arrives. A correct record received after the deadline fails this
-timeliness requirement, although it may remain useful for later analysis.
-This example illustrates how to use the latency comparison.
-
-The available time must cover queueing, generation, record validation,
-and the downstream decision. Our reported generation latencies cover only
-one part of this path. The measured gap---approximately 380 versus 924\,ms
-at the median---suggests more room for the remaining work with DG in this
-serial setting. The deployment question is how often the whole path finishes on time.
-Our saved timings describe generation; queueing and downstream processing
-must also be measured to answer that question.
-
-There are four separate requirements: generation must finish, the record
-must satisfy its schema, its contents must meet the task's quality
-requirement, and the decision must arrive on time. A complete record of
-acceptable quality can therefore be preferable to an unfinished or late
-answer, even when the application tolerates some extraction errors.
-Completion alone does not make an erroneous record acceptable. A deployment
-evaluation would count records satisfying these requirements together;
-separate timing and quality summaries do not measure that joint success rate.
+\paragraph{Online extraction under a deadline.}
+A log processor may need an event's severity and affected component before
+deciding whether to request another check. Its response budget covers
+queueing, generation, validation, and the decision. A correct record
+received too late cannot support that timely action.
 
 \begin{center}
-\includegraphics[width=\linewidth]{figures/deadline_path.pdf}
-\captionof*{figure}{Reading a response deadline. All four stages share the
-time budget. A usable, on-time decision requires both acceptable output and
-completion before the deadline. This schematic is not a timing measurement.}
+\includegraphics[width=.94\linewidth]{figures/deadline_path.pdf}
+\captionof*{figure}{The full response path (schematic). Generation occupies
+one stage; the remaining stages also consume the deadline.}
 \end{center}
 
-\paragraph{Choosing an operating point.}
-The measurements motivate a practical evaluation procedure rather than a
-universal model-selection rule:
-\begin{enumerate}
-\item Measure natural output length and both models' stopping behavior;
-check that the required record fits the chosen canvas budget.
-\item Determine whether requests can overlap, including across independent
-chains, and benchmark that concurrency on the intended serving stack.
-\item Require both candidates to meet task-specific quality and schema
-validity thresholds; a completed canvas is not a validated record.
-\item Compare absolute latency percentiles, retries, and queueing delay
-against the actual deadline or service-level agreement.
-\item Include runtime memory, utilization, and energy at the chosen
-canvas size and decoding effort.
-\end{enumerate}
+The completion fractions in \S\ref{sec:wins} quantify generation.
+They make DG a useful candidate when this stage has a tight budget and
+its quality is sufficient. A complete canvas still needs validation;
+an on-time error does not become useful just because it arrived quickly.
+End-to-end decisions require measurements of the remaining stages.
 
-\paragraph{Serial investigation chains.}
-An investigation can require dependent steps: inspect an alert, retrieve
-context, and choose a follow-up query. This makes serial model latency
-relevant within a chain. The BGL chain harness compares DG with dense
-AR-3B, at approximately 419 and 808\,ms per hop, respectively.
-It does not directly measure an AR-30B chain or the retrieval and tool
-latencies of a deployed investigation system.
+\paragraph{Dependent investigations and longer responses.}
+In an investigation, the next query may depend on an earlier answer.
+Such dependencies make per-call latency accumulate, even while other
+investigations run concurrently. Lower latency can shorten the time to
+the next useful observation. The saved chain experiment supports this
+motivation using the smaller AR-3B baseline; it is reported separately
+in Appendix~\ref{app:secondary}, not as an AR-30B chain benchmark.
 
-\begin{figure}[ht!]
-\centering
-\includegraphics[width=\linewidth]{figures/fig10_usecase_chains.pdf}
-\caption{AR/DG chain-latency ratios on BGL (DG versus dense AR-3B;
-$n{=}100$ chains per depth, $K{=}8$). A ratio above one favors DG.
-The median ratio stays near $2\times$; point labels give absolute cumulative
-medians in seconds (AR / DG). The dashed p99.9 ratio is exploratory:
-with 100 chains it reflects near-maximum observations, not a reliable
-production tail target.}
-\label{fig:chains}
-\end{figure}
+A long response and a chain of responses are different workloads.
+The first can spread DG's initial canvas cost over more required tokens;
+the second repeats input processing and generation across dependent calls.
+Both motivate evaluating diffusion, but neither guarantees a benefit at
+arbitrary lengths. Long-form reasoning and repeated code generation also
+require suitable quality. The exploratory code results in
+Appendix~\ref{app:humaneval} show a substantial quality gap, so they do not
+establish successful long investigations for the primary pair.
 
-The latency gap accumulates when several dependent calls are required,
-but neither the quality of a complete investigation nor independence of
-hop latencies follows from this curve. The HumanEval correction-chain
-artifact reports total-chain and first-round medians; those are not
-per-round latency growth rates (Appendix~\ref{app:humaneval}).
-
-\paragraph{Reducing effort before a deadline.}
-DG exposes a denoising-effort control, $K$. In the BGL sweep, reducing
-$K$ from 8 to 4 lowers quality from \kEightFone{} to \kFourFone{}
-while yielding p99 \kFourPninetynine\,ms. This operating point
-falls below a 400\,ms service-time budget in that sample. It does not
-guarantee valid JSON, completion under arbitrary interruption, or a
-400\,ms end-to-end deadline. Selecting a lower $K$ before generation
-is different from safely preempting an unfinished canvas.
-
-Under an output-length cap of 128 tokens, DG's schema validity falls to
-\dgValidTwentyEight\%, compared with \arValidTwentyEight\% for
-dense AR-3B. Thus lowering denoising effort and shortening the output
-budget have different effects (Appendix~\ref{app:quality}). AR also
-admits adaptive budgets, early stopping, retries, and routing policies;
-we do not claim that adaptive computation is unique to diffusion.
-Grammar-constrained AR remains an important unmeasured comparator.
-
-\paragraph{Wide schemas.}
-Across schemas with 12--100 fields, DG's measured latency advantage
-against dense AR-3B ranges from approximately $1.8\times$ to
-$3.0\times$. Both prompt and output lengths change, and the models
-emit different token counts. This is a useful workload comparison,
-but does not isolate a benefit from joint inter-field reasoning.
-The consistency evaluator checks three fixed rules over four fields at
-every width, so it cannot establish scaling with the number of
-pairwise constraints.
-
-\begin{figure}[ht!]
-\centering
-\includegraphics[width=0.85\linewidth]{figures/fig11_usecase_schema.pdf}
-\caption{Latency versus schema width (BGL, $n{=}200$; dense AR-3B
-baseline). DG's advantage rises from about $1.8\times$ to
-$2.9$--$3.0\times$. Input length, output length, and canvas count
-change together, preventing a causal attribution to schema width alone.}
-\label{fig:schema}
-\end{figure}
-
-\paragraph{Adaptive effort: a measured negative result.}
-A two-stage cascade first runs DG at $K{=}2$, checks structural-field
-completeness, and reruns unresolved inputs at $K{=}8$. In the BGL
-experiment ($n{=}200$), 29.5\% of records finish at the first stage
-and 70.5\% escalate. F1 is 0.848 versus 0.853 for fixed $K{=}8$;
-mean latency increases to 465\,ms from 376\,ms. The extra low-effort
-pass costs more than it saves. Completeness is also only a proxy for
-correctness. A lower escalation rate could improve this tradeoff, but
-that benefit is not observed here.
-
-\paragraph{Scope of application claims.}
-The evidence concerns log extraction and exploratory code-generation
-harnesses. We have not evaluated driving, trading, or deployed security
-response, and do not infer suitability for those applications from
-batch size or latency shape. Even in logs, the deployment choice depends
-on quality, output validity, arrival rate, and the available AR baseline.
-Appendix~\ref{app:refuted} reports the hypotheses that were contradicted
-or left unsupported by the experiments.
+\paragraph{Choosing the configuration.}
+Measure required output length and quality, then check on-time record
+validity under the intended arrival rate. Canvas size and refinement effort
+change the balance, but truncating an output budget is not the same as
+reducing refinement passes. Supporting sweeps document these effects;
+the main comparison retains the reference configuration.

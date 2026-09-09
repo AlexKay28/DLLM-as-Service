@@ -1,0 +1,120 @@
+{
+  "scope": "Post-hoc analysis of saved outputs; generation time only, no new inference.",
+  "pairing": "First 300 test records; AR seed 42 and DG repeat 1 retain input order in their runners.",
+  "reference": "Parser-derived nine-field evaluation; semantic action fields excluded.",
+  "sources_sha256": {
+    "paper/v9/data/bgl_reference_300.jsonl": "97010c917069ad0ede8394fedde7790fdb8187e55f66d286d8a529a05f8cd0b4",
+    "results/anchors/ar30b_L256_s42_preds.jsonl": "8c26ad8372322bea61f2e8aa56b41bf10a5496594d2c68573aa2c010aea6e3dc",
+    "results/anchors/ar30b_L256_s137_preds.jsonl": "5e3d0c8b93eb39de532d0c043ea39c71984309cf0a38a4b30625cfff55ec8049",
+    "results/anchors/ar30b_L256_s314_preds.jsonl": "9c9e36d61ff26357e95da630bc8f6f70bdafbdd9ae1bb5f06a473f72d4ca971f",
+    "results/anchors/dg_L256_r1_preds.jsonl": "a0b0c0c35c52f90105dee3a0ab6b85a05c34678ef3fbd016e1083a416df63925",
+    "metrics/quality_metrics.py": "50a29d65a8f753bf0d3b494fc93bf267338ec2f90dd1ae95c804bf5080c53591",
+    "metrics/schema.py": "84c6ab51630bc749b6176c0f794250f29466354c8a12c41d672a2fbdcf5c05b8"
+  },
+  "quality": {
+    "ar30b": {
+      "n": 300,
+      "field_f1_9": 0.8698216013580619,
+      "schema_valid_pct": 99.33333333333333,
+      "median_latency_ms": 924.2473025806248,
+      "per_field_f1": {
+        "timestamp_norm": 1.0,
+        "host": 0.97,
+        "component": 1.0,
+        "severity": 0.99,
+        "message_template": 0.6583944122225568,
+        "error_code": 0.9533333333333334,
+        "metric_value": 0.2733333333333333,
+        "is_anomaly": 0.9933333333333333,
+        "anomaly_score": 0.99
+      }
+    },
+    "dg": {
+      "n": 300,
+      "field_f1_9": 0.8517503981088017,
+      "schema_valid_pct": 99.0,
+      "median_latency_ms": 373.6808355897665,
+      "per_field_f1": {
+        "timestamp_norm": 0.8,
+        "host": 0.98,
+        "component": 0.9866666666666667,
+        "severity": 0.9833333333333333,
+        "message_template": 0.6424202496458821,
+        "error_code": 0.9533333333333334,
+        "metric_value": 0.36,
+        "is_anomaly": 0.98,
+        "anomaly_score": 0.98
+      }
+    }
+  },
+  "paired_difference_dg_minus_ar": {
+    "mean": -0.018071203249260127,
+    "bootstrap_ci95": [
+      -0.02888226033490044,
+      -0.008619663291567705
+    ],
+    "resamples": 10000,
+    "seed": 42,
+    "interpretation": "Event-paired percentile bootstrap, conditional on this sample; no equivalence margin selected."
+  },
+  "generation_budgets": {
+    "ar30b": {
+      "n": 900,
+      "thresholds_ms": {
+        "400": {
+          "completed": 0,
+          "completed_pct": 0.0,
+          "valid_completed": 0,
+          "valid_completed_pct": 0.0
+        },
+        "500": {
+          "completed": 0,
+          "completed_pct": 0.0,
+          "valid_completed": 0,
+          "valid_completed_pct": 0.0
+        },
+        "750": {
+          "completed": 0,
+          "completed_pct": 0.0,
+          "valid_completed": 0,
+          "valid_completed_pct": 0.0
+        },
+        "1000": {
+          "completed": 694,
+          "completed_pct": 77.11111111111111,
+          "valid_completed": 688,
+          "valid_completed_pct": 76.44444444444444
+        }
+      }
+    },
+    "dg": {
+      "n": 2000,
+      "thresholds_ms": {
+        "400": {
+          "completed": 1324,
+          "completed_pct": 66.2,
+          "valid_completed": 1312,
+          "valid_completed_pct": 65.60000000000001
+        },
+        "500": {
+          "completed": 1996,
+          "completed_pct": 99.8,
+          "valid_completed": 1970,
+          "valid_completed_pct": 98.5
+        },
+        "750": {
+          "completed": 1999,
+          "completed_pct": 99.95,
+          "valid_completed": 1973,
+          "valid_completed_pct": 98.65
+        },
+        "1000": {
+          "completed": 1999,
+          "completed_pct": 99.95,
+          "valid_completed": 1973,
+          "valid_completed_pct": 98.65
+        }
+      }
+    }
+  }
+}

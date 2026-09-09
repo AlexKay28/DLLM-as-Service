@@ -8,23 +8,25 @@ self-certification; they are not a completed venue-specific checklist.
 
 \begin{itemize}
 \item \textbf{Claims and limitations.} The main claim concerns measured
-serial latency on BGL. Quality matching for AR-30B, natural long-output
+serial latency and generation-budget coverage on BGL. Paired scoring shows
+a small DG quality deficit against AR-30B. Natural long-output
 transfer, optimized constrained/speculative AR, and architectural mechanism
 attribution remain unresolved (\S\ref{sec:threats}).
 \item \textbf{Theory.} The cost models are empirical approximations.
 Their crossover calculation is algebraic and conditional on their fitted
 summaries; no architectural lower or upper bound is proved.
 \item \textbf{Statistics.} Event-level bootstrap intervals and the
-finite-permutation procedure are reported for the primary medians.
+finite-permutation procedure are reported for the primary medians. A new
+post-hoc paired bootstrap reanalyzes 300 saved outputs without new inference.
 Only AR has three timing seeds; event dependence and run effects are not
 fully controlled. Extreme-tail statistics are exploratory.
 \item \textbf{Code and data.} Experiment code, result files, and
-provenance are in the repository. The v8 numeric audit covers named claims;
+provenance are in the repository. The v9 audits cover named claims;
 passing it does not validate all experimental protocols. Upstream models
 and datasets are cited, and their revision-specific licenses should be
 recorded with the released environment.
 \item \textbf{Resources.} The principal experiments use one A100 80GB;
-reported GPU-hour totals are estimates, not audited accounting.
+the present reanalysis uses saved outputs and no new GPU inference.
 \item \textbf{Assets and human subjects.} The study releases experiment
 code and result artifacts rather than a new trained model. It uses public
 data and involves no human-subjects research.

@@ -1,25 +1,15 @@
 \section{Conclusion}
 \label{sec:conclusion}
 
-For the measured BGL extraction workload, DiffusionGemma provides lower
-batch-1 latency than Qwen3-30B-A3B on the same pinned serving stack:
-approximately 380 versus 924\,ms at the median. AR throughput benefits
-much more from batching in the tested configurations. The resulting
-tradeoff depends on the workload's concurrency and quality requirements.
+DiffusionGemma offers a useful latency--quality tradeoff for the measured
+serial log-extraction task. It returns substantially sooner than AR-30B,
+and far more of its generations fit a tight service-time budget. The direct
+quality comparison shows close extraction scores with a small DG deficit,
+so the choice depends on whether that quality meets the task's needs.
 
-The cost models explain the different execution patterns: AR adds cost
-as it generates tokens, while DG adds cost when it starts another canvas.
-Their predictions depend on prompt length and stopping behavior. Extending
-them to naturally long outputs requires further measurement. Likewise,
-batching throughput describes how much work a service completes, not how
-quickly each answer returns.
-
-For online log processing, the practical question is whether an acceptable
-record arrives while it can still support the intended decision. Lower
-generation latency can leave more time for validation and downstream work;
-the observed gap makes diffusion a candidate worth evaluating under such
-deadlines. The complete path and its quality requirements must be checked
-on the intended workload. Among configurations that meet those requirements,
-concurrency and utilization determine the cost tradeoff. Quality-matched AR-30B,
-tuned constrained or speculative AR, and naturally long-output tasks
-are the next comparisons needed to establish how broadly this advantage holds.
+This makes diffusion a candidate for time-constrained extraction and
+dependent workflows where each response delays the next step. Longer
+required outputs may also favor its block-wise cost pattern, subject to
+canvas boundaries and quality. AR's stronger batching gains favor serving
+many independent requests economically. The useful comparison is acceptable
+quality and on-time output at the intended concurrency, not a universal winner.

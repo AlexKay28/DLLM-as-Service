@@ -1,36 +1,16 @@
 \section{Related work}
 \label{sec:related}
 
-LLaDA~\cite{llada2025} studies language modeling through masked
-diffusion. DiffusionGemma~\cite{diffusiongemma} combines block-wise
-diffusion with an encoder that caches context. Our contribution is an
-empirical comparison of serving behavior for particular public models,
-with explicit output-budget, latency-statistic, and quality constraints.
-We do not claim that linear and staircase execution patterns are new,
-or that these measurements isolate architecture from implementation.
-PagedAttention and vLLM~\cite{vllm2023} provide the serving foundation;
-using the same engine version removes one source of comparison bias,
-but does not make its model-specific execution paths identical.
+LLaDA~\cite{llada2025} and DiffusionGemma~\cite{diffusiongemma} study
+diffusion language generation; vLLM~\cite{vllm2023} provides the serving
+foundation. Our contribution is the measured quality--latency tradeoff
+and generation-budget coverage for a specific similarly sized pair.
 
-Grammar-constrained generation, including Outlines~\cite{outlines2024},
-XGrammar~\cite{xgrammar2024}, and llguidance~\cite{llguidance},
-addresses structured-output validity through token constraints.
-This is complementary to choosing a decoding schedule. A completed
-sampling run and an output that satisfies a grammar are different
-properties; our unconstrained comparison cannot settle their joint
-latency--quality tradeoff.
-
-Speculative methods such as Medusa~\cite{medusa2024} and
-EAGLE~\cite{eagle2024} verify multiple proposed tokens per iteration.
-Their effective cost depends on acceptance, verification, and workload;
-they need not obey the fitted slope of our standard AR baseline.
-Our older n-gram prompt-lookup experiment on dense AR-3B is not a
-comparison against those methods or a bound on optimized AR inference.
-A tuned speculative AR-30B baseline is a useful next comparison.
-
-Hoefler and Belli~\cite{hoefler2015} discuss experimental design and
-reporting in systems benchmarking. The corrections in
-Appendix~\ref{app:defects} provide a case study of how decoding
-defaults, parsers, labels, and timing conventions affect a model-serving
-comparison. They motivate explicit provenance and artifact checks,
-without supporting an allegation about other authors' intentions.
+Constrained generation tools such as Outlines~\cite{outlines2024},
+XGrammar~\cite{xgrammar2024}, and llguidance~\cite{llguidance} address
+output validity. Speculative methods such as Medusa~\cite{medusa2024}
+and EAGLE~\cite{eagle2024} can verify several proposed tokens in one step.
+These methods may change AR's latency--quality tradeoff. We follow the
+benchmarking emphasis on explicit protocols and fair interpretation
+discussed by Hoefler and Belli~\cite{hoefler2015}; corrections to our own
+harness remain in Appendix~\ref{app:defects}.

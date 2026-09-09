@@ -1,12 +1,12 @@
 # V9 validation
 
-Validated on 9 September 2026.
+Validated on 9 September 2026 after the primary-pair revision.
 
-- **Build:** `make -C paper/v9` completed using pdfLaTeX and BibTeX. The PDF has 22 pages. The final LaTeX log contains no warnings, undefined references, or overfull/underfull boxes.
-- **Snapshot audit:** `python3 paper/v9/verify_snapshot.py` passed 133 selected numeric and document-integrity checks, using v9's own numeric bindings.
-- **Repository audit:** `python3 paper/verify_numbers.py` completed with zero errors and zero precision violations. It reported 109 existing provenance warnings. Its prose checks target v7, so the separate v9 audit and editorial review are necessary.
-- **Python syntax:** the original snapshot scripts and the new reader-figure builder passed `py_compile`.
-- **Visual review:** inspected contact sheets of all revised pages and Figure 5 at larger resolution. Figure 1 appears directly below the abstract on page 1; the takeaways remain together on page 2. The new schematics and ratio annotations are legible, with no observed clipping. The abstract contains 150 whitespace-delimited words.
-- **Figure data:** the new builder reproduced the median chain ratios from saved absolute timing summaries and checked agreement with the saved ratios. Tail ratios are plotted separately, without attaching median time labels to them. The two schematics are explicitly conceptual.
-- **Preservation:** all 41 tracked v8 files were compared byte-for-byte with their committed versions and are unchanged. V9's numeric macros and bindings are identical to v8's; result artifacts are unchanged.
-- **Scope:** no inference, new statistical experiments, or deployment measurements were performed. Quality matching, natural long-output validation, and end-to-end deadline success remain open evidence questions.
+- **Build:** pdfLaTeX/BibTeX compilation completed. The main text ends on page 7; the full PDF has 22 pages including references and appendices. The final LaTeX log has no warnings, unresolved references, or overfull/underfull boxes.
+- **Snapshot audit:** 136 selected numeric and document-integrity checks passed.
+- **Paired audit:** `audit_primary_pair.py --check` reproduced the 300-event quality table, paired bootstrap, source hashes, and generation-budget counts. It reproduces the archived AR seed-42 F1 to its recorded precision. All events remain in the budget denominators.
+- **Repository audit:** zero errors and zero precision violations; 109 existing provenance warnings. Its prose checks target v7, so they do not validate v9's narrative or resolve the documented DG version conflict.
+- **Python syntax:** the new audit and modified figure builder passed `py_compile`.
+- **Visual review:** inspected contact sheets of all 22 pages. The main comparison, supporting experiments, and references occupy distinct parts of the PDF. The first-page summary, quality table, budget table, and annotated cumulative plot are legible without observed clipping.
+- **Preservation:** v8 and original result artifacts are unchanged. Original numeric macros and bindings remain intact; new analysis products are confined to `paper/v9/data`.
+- **Scope:** this revision adds CPU reanalysis of saved predictions and a paired bootstrap, not new inference or deployment experiments. It documents a small quality deficit and conflicting DG runtime metadata. Natural long-output generalization and end-to-end semantic success remain unvalidated.

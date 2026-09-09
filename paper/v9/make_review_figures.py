@@ -44,13 +44,19 @@ def main():
     ar=np.concatenate([latencies(f'anchors/ar30b_L256_s{s}_preds.jsonl') for s in [42,137,314]])
     dg=latencies('anchors/dg_L256_r1_preds.jsonl')
     fig,ax=plt.subplots(figsize=(8,3.7),layout='constrained')
-    for data,label,color,key in [(ar,'AR-30B (n = 900)',arcolor,'ar30b_bgl'),(dg,'DG (n = 2,000)',dgcolor,'dg_bgl')]:
+    deadline=1000
+    for data,label,color,key in [(ar,'AR-30B (900 recorded events)',arcolor,'ar30b_bgl'),(dg,'DG (2,000 recorded events)',dgcolor,'dg_bgl')]:
         vals=np.sort(data)
-        ax.step(vals,np.arange(1,len(vals)+1)/len(vals),where='post',color=color,label=label)
-        d=stats[key]; ax.axvspan(*d['p50_ci_95'],color=color,alpha=.25)
-        ax.scatter([d['p99_ms']],[.99],color=color,s=25,zorder=4)
-    ax.axhline(.5,color='gray',lw=.6,ls=':');ax.axhline(.99,color='gray',lw=.6,ls=':')
-    ax.set(xlabel='Per-event latency (ms)',ylabel='Fraction of events completed',ylim=(0,1.03),xlim=(100,1700))
+        ax.step(vals,np.arange(1,len(vals)+1)/len(vals)*100,where='post',color=color,label=label,lw=1.8)
+        completed=float(np.mean(vals<=deadline)*100)
+        ax.hlines(completed,100,deadline,color=color,ls=':',lw=.8,alpha=.7)
+        ax.scatter([deadline],[completed],color=color,s=35,zorder=4)
+        ax.annotate(f'{completed:.2f}% by 1,000 ms',(deadline,completed),
+                    xytext=(1120,88 if key=='dg_bgl' else 64),
+                    arrowprops={'arrowstyle':'->','color':color},color=color,fontsize=10)
+    ax.axvline(deadline,color='gray',lw=.8,ls='--')
+    ax.set(xlabel='Generation-time budget (ms)',ylabel='Generations completed (%)',
+           ylim=(0,104),xlim=(100,1700),yticks=[0,25,50,75,100])
     ax.legend(loc='lower right');ax.grid(alpha=.15)
     fig.savefig(HERE/'figures/fig12_v8.pdf');plt.close(fig)
     print('Built fig1_v8.pdf and fig12_v8.pdf from committed artifacts.')
