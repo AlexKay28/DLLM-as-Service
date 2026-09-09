@@ -117,8 +117,8 @@ investigation speedups. With only 100 sequences per depth, the saved p99.9
 values are near-maximum observations and are not reliable production targets.
 
 \clearpage
-\section{Generalization limits and useful next experiments}
-\label{app:questions}
+\section{Code-generation limits}
+\label{app:code_limits}
 
 \paragraph{Code generation provides a quality counterexample.}
 HumanEval~\cite{humaneval} contains 164 Python function-completion problems.
@@ -151,29 +151,3 @@ A generate--test--repair experiment records DG first-round success of
 not retained for full audit, and its chain timings exclude test execution.
 Those summaries are excluded from the paper's conclusions pending
 protocol reconciliation.
-
-\paragraph{Open questions tied to the paper's objective.}
-\begin{enumerate}
-\item \textbf{Which model resolves more problems correctly before the deadline?}
-Fix the correctness criterion and deadlines before evaluation, then measure
-$S(\tau)$ from Eq.~\ref{eq:deadline_success} on shared held-out problems.
-Include queueing, validation, actions, retries, and unresolved cases.
-Average extraction F1 or structural validity cannot replace this outcome.
-\item \textbf{Does faster generation shorten a real dependent investigation?}
-Let each observed tool result determine the next action and retain the
-complete trace. Compare successful resolution times for the primary pair,
-including differences in action count and retries. Vary the share of time
-spent generating versus executing tools to test when savings survive.
-\item \textbf{Can the speed advantage retain the required quality?}
-Choose a task-relevant quality tolerance before testing; evaluate canvas
-size and refinement effort on held-out data. Include naturally longer
-outputs, whose quality and cost cannot be inferred by raising a token cap.
-\item \textbf{Does the advantage survive realistic serving?}
-Measure both models under the same verified runtime and arrival process,
-including bursty traffic and concurrent independent investigations.
-Compare tuned AR configurations, including speculative and constrained
-decoding, using correct on-time outcomes and the resources needed to deliver them.
-\end{enumerate}
-
-These questions separate the observed generation advantage from the
-remaining application-level evidence needed for deployment.

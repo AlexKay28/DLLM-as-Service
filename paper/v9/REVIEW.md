@@ -8,7 +8,7 @@ Figure 1 remains directly below the abstract. Numerical comparisons use tables. 
 
 Figure 3 restores the cumulative timing illustration, explicitly naming the smaller AR-3B baseline in the plot, caption, and surrounding prose. Absolute median savings grow to 8.40 seconds over 20 calls while the ratio stays near 2×. The harness precomputes prompts and executes calls serially; it does not perform adaptive decisions or tools. This supports a timing mechanism, not AR-30B investigation performance or deadline success. The near-maximum p99.9 curve is omitted.
 
-The appendix is condensed to three pages: A covers protocol and essential audit notes; B retains canvas ablations, budget accounting, serving controls, and chain scope; C retains the code-quality counterexample and four open questions. Repeated history, weak projection tables, and redundant supporting figures are removed from the compiled paper. Original artifacts and Git history preserve the details. References to removed sections are replaced with references to the relevant retained material. The introduction has a full line of added space before the takeaways.
+The appendix is condensed to three pages: A covers protocol and essential audit notes; B retains canvas ablations, budget accounting, serving controls, and chain scope; C retains the code-quality counterexample and protocol caveats. Repeated history, weak projection tables, and redundant supporting figures are removed from the compiled paper. Original artifacts and Git history preserve the details. References to removed sections are replaced with references to the relevant retained material. The introduction has a full line of added space before the takeaways.
 
 ## Direct quality comparison
 
