@@ -17,10 +17,15 @@ $K{=}8$, and $C{=}\canvasLength$. They are empirical approximations,
 not asymptotic laws valid for every runtime or input length:
 \begin{align}
 \label{eq:ar}
-\widehat T_A(L) &= \arBase + \arSlope L && \text{ms},\\
+\widehat T_A(L) &= a_A+b_A L,\\
 \label{eq:dg}
-\widehat T_D(N_C) &= \dgBase + \dgStep(N_C-1) && \text{ms},\qquad N_C\geq1.
+\widehat T_D(N_C) &= a_D+s_D(N_C-1),\qquad N_C\geq1.
 \end{align}
+Here $\widehat T$ is estimated service time in milliseconds, $L$ is the
+generated token count, and $N_C$ is the number of decoded canvases.
+The fitted AR intercept is $a_A=\arBase$\,ms and its incremental cost is
+$b_A=\arSlope$\,ms/token. DG's first-canvas cost is $a_D=\dgBase$\,ms;
+each additional canvas costs approximately $s_D=\dgStep$\,ms.
 For a full-budget canvas sweep, $N_C=\lceil B/C\rceil$. Substituting
 $\lceil L/C\rceil$ is appropriate only when $L$ determines the number
 of canvases actually decoded. EOS handling can make the budget and
@@ -31,32 +36,24 @@ from the serial sweep. Its five cells contain only three distinct
 lengths, because three larger budgets stop at the same natural EOS.
 The fit therefore supports the short-output range, roughly 32--126 tokens;
 its longer continuation is an extrapolation. The DG base and canvas
-increments summarize median-latency measurements. These different summary
-statistics make their fitted intersection descriptive; the direct
-median-to-median comparison appears in \S\ref{sec:wins}.
+increments use median latencies. Because the AR fit uses means and the DG
+model uses medians, their intersection is an approximate cost comparison.
+The direct median-to-median comparison appears in \S\ref{sec:wins}.
 Neither fitted intercept isolates a physical operation such as prefill,
 the initial processing of the input prompt, without a separate timing breakdown.
 
-\begin{figure}[ht!]
-\centering
-\includegraphics[width=\linewidth]{figures/fig1_v8.pdf}
-\caption{Two distinct comparisons for DiffusionGemma (DG) and autoregressive
-Qwen3 (AR-30B). Left: fitted cost versus generated output length at a fixed
-reference prompt. The dashed AR continuation is an extrapolation beyond
-the measured natural output length; DG points are canvas-sweep measurements.
-Right: observed batch-1 median latency, with bootstrap 95\% confidence
-intervals (AR: 900 events; DG: 2,000). The left panel does not measure
-task-level speedup for long natural outputs.}
-\label{fig:shapes}
-\end{figure}
 
 \subsection{Crossover and canvas boundaries}
 Within the first canvas, equating the two fitted costs gives
 \begin{equation}
 \label{eq:lcross}
-L^* = \frac{\dgBase-\arBase}{\arSlope}\approx\crossoverL
+L^* = \frac{a_D-a_A}{b_A}
+    = \frac{\dgBase-\arBase}{\arSlope}\approx\crossoverL
 \quad\text{tokens}.
 \end{equation}
+The crossover length $L^*$ is where the fitted AR service cost equals the
+first-canvas DG cost. The numerator is the difference in starting costs
+in milliseconds; dividing by AR's milliseconds per token gives tokens.
 This is a cost crossover, not the minimum length at which a valid record
 can be produced. It is conditional on the reference prompt and the two
 fitted summaries. Beyond one canvas, the comparison must include the cost

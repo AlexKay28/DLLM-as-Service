@@ -154,19 +154,10 @@ variability but lower \emph{absolute} p99 latency.}
 \end{tabularx}
 \end{table}
 
-\begin{table}[ht]
-\centering
-\caption{Simplified serial execution models at fixed prompt and decoding
-settings. ``Flat'' refers to observed latency within a paid-for canvas,
-not zero computation per token.}
-\label{fig:schematic}
-\begin{tabularx}{\linewidth}{@{}L L L@{}}
-\toprule
-& \thead{Autoregressive} & \thead{Block diffusion} \\
-\midrule
-Decoding & Sequential token steps & Parallel positions, sequential canvases \\
-Cost approximation & $a_A+b_A L$ & $a_D+s_D(N_C-1)$ \\
-Main variable & Actual generated length $L$ & Decoded canvas count $N_C$ \\
-\bottomrule
-\end{tabularx}
-\end{table}
+\begin{center}
+\includegraphics[width=\linewidth]{figures/decoding_schematic.pdf}
+\captionof*{figure}{Two decoding schedules (schematic, not to scale).
+Autoregressive decoding adds tokens one at a time. Block diffusion refines
+a canvas of positions over $K$ passes before starting the next canvas.
+Parallel positions do not remove the sequential work between canvases.}
+\end{center}

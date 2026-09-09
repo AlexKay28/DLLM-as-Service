@@ -53,15 +53,9 @@ def main():
     ax[1].set(xscale='log',xlabel='Batch size',ylabel='Throughput (events/s)',title='B  Dense AR-3B cache control');ax[1].legend(fontsize=8)
     save(fig,'fig6_batching')
 
-    fig,ax=panels();data=read('chain_analysis.json');linear=data['P_E1_linearity'];tail=data['P_E2_tail_concentration']
-    for name,color,label in [('ar',AR,'AR-3B (dense)'),('dg',DG,'DG')]:ax[0].plot(linear[name]['depths'],linear[name]['cumul_p50_per_depth'],'o-' if name=='ar' else 's--',color=color,label=label)
-    ax[0].set(xlabel='Chain depth',ylabel='Cumulative median / depth (ms)',title='A  Normalized chain latency');ax[0].legend()
-    ax[1].plot(tail['depths'],tail['p999_ratio_per_depth'],'s-',color=DG);ax[1].set(xlabel='Chain depth',ylabel='AR/DG cumulative p99.9 ratio',title='B  Exploratory tail ratio',ylim=(.8,2.3))
-    save(fig,'fig10_usecase_chains')
-
     fig,ax=plt.subplots(figsize=(7.8,3.4),layout='constrained');data=read('wide_schema_analysis.json')['P_C1_latency']
     for name,color,label in [('ar',AR,'AR-3B (dense)'),('dg',DG,'DG')]:ax.plot([d['n_fields'] for d in data[name]],[d['p50_ms'] for d in data[name]],'o-' if name=='ar' else 's--',color=color,label=label)
     ax.set(xlabel='Schema width (fields)',ylabel='Median latency (ms)',title='Schema-width workload comparison',xticks=[12,25,50,100]);ax.legend();save(fig,'fig11_usecase_schema')
-    print('Built seven secondary figures with corrected labels.')
+    print('Built six secondary figures with corrected labels.')
 
 if __name__=='__main__':main()

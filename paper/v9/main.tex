@@ -93,11 +93,22 @@ models explain how output length and block boundaries affect this comparison;
 long natural outputs remain an extrapolation. The latency gap motivates
 diffusion for deadline-bound extraction when its output meets the task's
 quality and validity requirements. Quality equivalence was tested against
-a smaller autoregressive baseline, however, and end-to-end deadline success
-was not measured. Autoregressive throughput benefits more from batching
+a smaller autoregressive baseline. Autoregressive throughput benefits more from batching
 in the tested configurations. The practical choice therefore depends on
 response time, acceptable quality, concurrency, and resource utilization.
 \end{abstract}
+
+\begin{center}
+\captionsetup{hypcap=false}
+\includegraphics[width=\linewidth]{figures/fig1_v8.pdf}
+\captionof{figure}{Speed and its scope. Left: autoregressive (AR) cost versus
+output length and DiffusionGemma (DG) cost versus decoded block budget.
+The dashed AR curve extrapolates beyond measured natural output lengths.
+Right: measured serial medians with 95\% confidence intervals on BlueGene/L
+logs (AR: 900 events; DG: 2,000). Longer-output task speedups are projections.}
+\label{fig:shapes}
+\end{center}
+\clearpage
 
 \input{sections/01_introduction}
 \input{sections/02_cost_laws}

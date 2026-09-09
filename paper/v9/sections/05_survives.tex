@@ -7,16 +7,15 @@ affected component so that a downstream rule can decide whether to request
 further inspection. Suppose that decision has a fixed deadline after the
 event arrives. A correct record received after the deadline fails this
 timeliness requirement, although it may remain useful for later analysis.
-This example motivates the comparison; it is not a deployed system tested
-by our harness.
+This example illustrates how to use the latency comparison.
 
 The available time must cover queueing, generation, record validation,
 and the downstream decision. Our reported generation latencies cover only
 one part of this path. The measured gap---approximately 380 versus 924\,ms
 at the median---suggests more room for the remaining work with DG in this
-serial setting. Medians alone cannot establish the fraction of events
-that finish on time, and generation-time percentiles cannot certify an
-end-to-end deadline.
+serial setting. The deployment question is how often the whole path finishes on time.
+Our saved timings describe generation; queueing and downstream processing
+must also be measured to answer that question.
 
 There are four separate requirements: generation must finish, the record
 must satisfy its schema, its contents must meet the task's quality
@@ -26,6 +25,13 @@ answer, even when the application tolerates some extraction errors.
 Completion alone does not make an erroneous record acceptable. A deployment
 evaluation would count records satisfying these requirements together;
 separate timing and quality summaries do not measure that joint success rate.
+
+\begin{center}
+\includegraphics[width=\linewidth]{figures/deadline_path.pdf}
+\captionof*{figure}{Reading a response deadline. All four stages share the
+time budget. A usable, on-time decision requires both acceptable output and
+completion before the deadline. This schematic is not a timing measurement.}
+\end{center}
 
 \paragraph{Choosing an operating point.}
 The measurements motivate a practical evaluation procedure rather than a
@@ -54,11 +60,12 @@ latencies of a deployed investigation system.
 \begin{figure}[ht!]
 \centering
 \includegraphics[width=\linewidth]{figures/fig10_usecase_chains.pdf}
-\caption{BGL chain-harness latency (DG versus dense AR-3B; $n{=}100$
-chains per depth, $K{=}8$). Cumulative median cost divided by depth is approximately constant
-in this experiment. The cumulative tail ratio varies with depth.
-With only 100 chains, the plotted p99.9 is effectively an extreme-order
-statistic and should not be used to certify a production tail target.}
+\caption{AR/DG chain-latency ratios on BGL (DG versus dense AR-3B;
+$n{=}100$ chains per depth, $K{=}8$). A ratio above one favors DG.
+The median ratio stays near $2\times$; point labels give absolute cumulative
+medians in seconds (AR / DG). The dashed p99.9 ratio is exploratory:
+with 100 chains it reflects near-maximum observations, not a reliable
+production tail target.}
 \label{fig:chains}
 \end{figure}
 

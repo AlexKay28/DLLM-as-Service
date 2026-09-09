@@ -21,3 +21,4 @@ verify:
 figures:
 	$(PYTHON) make_review_figures.py
 	$(PYTHON) make_secondary_figures.py
+	$(PYTHON) make_reader_figures.py

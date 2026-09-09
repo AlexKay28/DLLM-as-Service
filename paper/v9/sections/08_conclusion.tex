@@ -7,12 +7,13 @@ approximately 380 versus 924\,ms at the median. AR throughput benefits
 much more from batching in the tested configurations. The resulting
 tradeoff depends on the workload's concurrency and quality requirements.
 
-A linear AR cost approximation and a DG canvas staircase help explain
-these observations when their input and stopping conditions are explicit.
-They do not establish a universal long-output speedup, a diffusion
-batching ceiling, or guaranteed valid output under interruption.
-Generated length must be separated from output budget, service latency
-from inverse throughput, and statistical uncertainty from model quality.
+The cost models explain the different execution patterns: AR adds cost
+as it generates tokens, while DG adds cost when it starts another canvas.
+Their predictions depend on prompt length and stopping behavior. Extending
+them to naturally long outputs requires further measurement. Likewise,
+batching throughput describes how much work a service completes, not how
+quickly each answer returns.
+
 For online log processing, the practical question is whether an acceptable
 record arrives while it can still support the intended decision. Lower
 generation latency can leave more time for validation and downstream work;
@@ -21,4 +22,4 @@ deadlines. The complete path and its quality requirements must be checked
 on the intended workload. Among configurations that meet those requirements,
 concurrency and utilization determine the cost tradeoff. Quality-matched AR-30B,
 tuned constrained or speculative AR, and naturally long-output tasks
-remain the most consequential comparisons to complete.
+are the next comparisons needed to establish how broadly this advantage holds.
