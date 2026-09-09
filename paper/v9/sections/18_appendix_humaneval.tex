@@ -1,0 +1,111 @@
+\section{Cost-shape generalisation: code generation on HumanEval}
+\label{app:humaneval}
+
+The following exploratory measurements use HumanEval~\cite{humaneval}
+(164 Python function-completion problems). They extend the workload
+coverage but expose substantial quality and protocol limitations. Pass@1
+is the fraction of first completions passing the harness tests; code
+validity is the fraction accepted by Python syntax parsing. Neither is
+guaranteed by completing a token canvas.
+
+\subsection{Single-pass latency and quality}
+
+Both arms were run serial (batch-1) on the pinned stack
+(\S\ref{sec:threats}), $n{=}164$ problems.
+
+\begin{table}[ht]
+\centering
+\caption{Single-pass HumanEval results (serial, $n{=}164$). DG is
+faster but has much lower pass@1 and syntax validity. The ms/token column
+is median latency divided by mean generated tokens, not a fitted decode
+slope. This table does not measure a cost curve across output lengths.}
+\label{tab:humaneval}
+\begin{tabular}{@{}lrrrrr@{}}
+\toprule
+Arm & pass@1 & code valid\% & p50 (ms) & mean tokens & ms/token \\
+\midrule
+DG K=8  & 0.287 & 31.1 & 280 & 99.5  & --- (staircase) \\
+AR-30B  & 0.720 & 93.9 & 800 & 124.1 & 6.4 \\
+AR-3B   & 0.573 & 99.4 & 560 & 107.7 & 5.2 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+DG's median latency is about $2.9\times$ lower than AR-30B's, but
+pass@1 is 0.287 versus 0.720 and syntax validity is 31.1\% versus
+93.9\%. The result therefore does not establish a quality-matched
+advantage for code. In particular, the validity gap directly rules out
+a general complete-canvas validity guarantee. The benchmark cannot
+attribute the gap to model training data or architecture without further
+controls. DiffusionGemma is a general multimodal model, not a checkpoint
+trained specifically for this log-extraction study~\cite{diffusiongemma}.
+
+\subsection{Token-budget proxy for deadlines}
+
+The harness maps a nominal deadline $D$ to an AR token budget
+$\lfloor D/\text{slope}\rfloor$. DG is evaluated with a fixed canvas
+configuration. No wall-clock cancellation is enforced; observed median
+latencies can exceed $D$. These are token-budget experiments, not
+on-time task-success rates.
+
+\begin{table}[ht]
+\centering
+\caption{Quality under nominal deadline-derived token budgets
+($n{=}164$). Both models exceed 200\,ms at the median in the first
+row, so DG's higher pass@1 there does not mean it meets that deadline.
+A deployment comparison would count correct outputs returned before $D$
+using per-event completion times.}
+\label{tab:deadline}
+\begin{tabular}{@{}rrrrrr@{}}
+\toprule
+$D$ (ms) & AR pass@1 & AR valid\% & AR p50 (ms) & DG pass@1 & DG p50 (ms) \\
+\midrule
+200  & 0.085 & 22.6 & 230 & 0.287 & 279 \\
+400  & 0.189 & 33.5 & 434 & 0.287 & 280 \\
+600  & 0.274 & 45.7 & 637 & 0.287 & 280 \\
+800  & 0.311 & 54.3 & 801 & 0.287 & 280 \\
+$\infty$ & 0.720 & 93.9 & 800 & 0.287 & 280 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Reducing AR's token budget lowers pass@1 and syntax validity in
+this harness. DG's fixed-$K$ results remain similar because the nominal
+deadline does not change its decoding work. This experiment does not test
+a lower-$K$ policy or establish graceful degradation under interruption.
+
+\subsection{Correction chains: protocol caveat}
+
+A separate generate--test--repair harness allows up to five rounds
+per problem. Its recorded first-round pass fraction differs markedly
+from the single-pass experiment (DG: 0.854 versus 0.287). This is a
+protocol discrepancy requiring reconciliation, not evidence that the
+same model suddenly improves before receiving feedback. The chain
+artifacts retain outcome summaries but not the generated code needed to
+fully audit those outcomes. Recorded chain latency sums model-generation
+time and excludes test execution and other orchestration overhead.
+
+\begin{table}[ht]
+\centering
+\caption{Recorded correction-chain summaries ($n{=}164$, up to five
+rounds), pending reconciliation with the single-pass protocol. ``Cumulative''
+is success by the final allowed round. First-round and total-chain
+medians summarize different quantities; their ratio is not per-hop
+latency growth. Chain totals include model-generation time only.}
+\label{tab:chain}
+\begin{tabular}{@{}lrrrr@{}}
+\toprule
+Arm & R1 success & cumulative & R1 p50 (ms) & total p50 (ms) \\
+\midrule
+DG K=8  & 0.854 & 0.957 & 287 & 305 \\
+AR-30B  & 0.762 & 0.896 & 511 & 620 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+A total-chain median near the first-round median can occur when most
+problems finish in one round, even if retries are expensive. These values
+therefore do not show that DG per-hop cost remains constant or that AR
+per-hop cost grows by 21\%. Nor do they validate end-to-end chain speedup
+at matched quality. We retain the table for transparency but exclude it
+from the principal evidence until the protocol discrepancy is resolved.

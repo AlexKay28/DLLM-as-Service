@@ -1,0 +1,160 @@
+[
+  {
+    "macro": "arMedian",
+    "artifact": "results/anchors/ar30b_stats.json",
+    "path": [
+      "ar30b_bgl",
+      "p50_ms"
+    ],
+    "decimals": 1
+  },
+  {
+    "macro": "arCiLo",
+    "artifact": "results/anchors/ar30b_stats.json",
+    "path": [
+      "ar30b_bgl",
+      "p50_ci_95",
+      0
+    ],
+    "decimals": 1
+  },
+  {
+    "macro": "arCiHi",
+    "artifact": "results/anchors/ar30b_stats.json",
+    "path": [
+      "ar30b_bgl",
+      "p50_ci_95",
+      1
+    ],
+    "decimals": 1
+  },
+  {
+    "macro": "arPninetyNine",
+    "artifact": "results/anchors/ar30b_stats.json",
+    "path": [
+      "ar30b_bgl",
+      "p99_ms"
+    ],
+    "decimals": 1
+  },
+  {
+    "macro": "arThirtyCV",
+    "artifact": "results/anchors/ar30b_stats.json",
+    "path": [
+      "ar30b_bgl",
+      "cv_pct"
+    ],
+    "decimals": 2
+  },
+  {
+    "macro": "dgMedian",
+    "artifact": "results/anchors/ar30b_stats.json",
+    "path": [
+      "dg_bgl",
+      "p50_ms"
+    ],
+    "decimals": 1
+  },
+  {
+    "macro": "dgCiLo",
+    "artifact": "results/anchors/ar30b_stats.json",
+    "path": [
+      "dg_bgl",
+      "p50_ci_95",
+      0
+    ],
+    "decimals": 1
+  },
+  {
+    "macro": "dgCiHi",
+    "artifact": "results/anchors/ar30b_stats.json",
+    "path": [
+      "dg_bgl",
+      "p50_ci_95",
+      1
+    ],
+    "decimals": 1
+  },
+  {
+    "macro": "dgPninetyNine",
+    "artifact": "results/anchors/ar30b_stats.json",
+    "path": [
+      "dg_bgl",
+      "p99_ms"
+    ],
+    "decimals": 1
+  },
+  {
+    "macro": "dgThirtyCV",
+    "artifact": "results/anchors/ar30b_stats.json",
+    "path": [
+      "dg_bgl",
+      "cv_pct"
+    ],
+    "decimals": 2
+  },
+  {
+    "macro": "hdfsMedian",
+    "artifact": "results/anchors/ar30b_stats.json",
+    "path": [
+      "ar30b_hdfs",
+      "p50_ms"
+    ],
+    "decimals": 1
+  },
+  {
+    "macro": "hdfsCiLo",
+    "artifact": "results/anchors/ar30b_stats.json",
+    "path": [
+      "ar30b_hdfs",
+      "p50_ci_95",
+      0
+    ],
+    "decimals": 1
+  },
+  {
+    "macro": "hdfsCiHi",
+    "artifact": "results/anchors/ar30b_stats.json",
+    "path": [
+      "ar30b_hdfs",
+      "p50_ci_95",
+      1
+    ],
+    "decimals": 1
+  },
+  {
+    "macro": "seedCV",
+    "artifact": "results/anchors/ar30b_stats.json",
+    "path": [
+      "ar30b_bgl",
+      "seed_p50_cv_pct"
+    ],
+    "decimals": 2
+  },
+  {
+    "macro": "arEnergy",
+    "artifact": "results/issue111_ar30b_energy.json",
+    "path": [
+      "energy_per_event_j"
+    ],
+    "decimals": 1
+  },
+  {
+    "macro": "dgEnergy",
+    "artifact": "results/issue_energy_measurement.json",
+    "path": [
+      "measurements",
+      1,
+      "idle_subtracted_energy_per_event_j"
+    ],
+    "decimals": 1
+  },
+  {
+    "macro": "arBatchMult",
+    "artifact": "results/issue111_qwen3_batch_sweep.json",
+    "path": [
+      "multiplier"
+    ],
+    "decimals": 1
+  }
+]

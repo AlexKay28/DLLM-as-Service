@@ -1,0 +1,24 @@
+\section{Cache reuse and possible batching mechanisms}
+\label{app:batching_architectural}
+
+Two different forms of cache reuse matter: sharing unchanged context
+across requests, and preserving activations within a request as generation
+progresses. In AR decoding, causal attention allows the already-generated
+prefix's KV state to persist while new tokens are appended. During
+bidirectional denoising, changing canvas tokens can invalidate activations
+within that canvas. This can increase the work per refinement step.
+
+It does not follow that diffusion must discard all cached context.
+DiffusionGemma's documented encoder--decoder design caches the prompt and
+completed canvases, while the active canvas uses bidirectional attention
+and accesses encoded context~\cite{diffusiongemma}. A changing canvas
+also does not require a changing attention mask at every step.
+
+The observations are therefore compatible with several explanations for
+modest batching gains: larger per-request kernels, different weight and
+activation reuse, scheduling restrictions, and implementation-specific
+cache behavior. The existing controls do not distinguish their shares.
+We do not predict a maximum batching multiplier or claim compute
+saturation at batch size one. Establishing such a mechanism would require
+hardware profiling and matched cache/scheduling ablations on a working
+optimized diffusion path.

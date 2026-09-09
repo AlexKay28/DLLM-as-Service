@@ -1,0 +1,27 @@
+\section{Latency distributions and tail interpretation}
+\label{app:distributions}
+
+The repeated primary-pair statistics are:
+\begin{center}
+\begin{tabular}{@{}lrr@{}}
+\toprule
+Statistic & AR-30B & DG \\
+\midrule
+Events & 900 & 2,000 \\
+Median (ms) & \arMedian & \dgMedian \\
+p99 (ms) & \arPninetyNine & \dgPninetyNine \\
+p99.9 (ms) & 1619.1 & 557.0 \\
+Maximum (ms) & 1619.2 & 1166.4 \\
+CV (\%) & \arThirtyCV & \dgThirtyCV \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+DG has greater relative variability, but lower absolute latency at all
+listed quantiles. Inferring a failed SLA from its max/median ratio alone
+would reverse the relevant comparison. With only 900 AR events, p99.9
+is nearly the sample maximum; even DG's 2,000-event estimate represents
+only a few tail observations. These measurements neither bound unseen
+outliers nor include waiting under an arrival process. The event-level
+bootstrap and permutation procedure are described in \S\ref{sec:wins};
+the saved summary is \texttt{results/anchors/ar30b\_stats.json}.

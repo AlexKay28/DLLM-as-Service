@@ -1,0 +1,38 @@
+\section*{Submission disclosures}
+\label{app:neurips_checklist}
+
+This version is an article-format manuscript. The venue's current template,
+page limits, anonymity policy, and checklist must be applied before
+submission. The following disclosures replace the earlier blanket
+self-certification; they are not a completed venue-specific checklist.
+
+\begin{itemize}
+\item \textbf{Claims and limitations.} The main claim concerns measured
+serial latency on BGL. Quality matching for AR-30B, natural long-output
+transfer, optimized constrained/speculative AR, and architectural mechanism
+attribution remain unresolved (\S\ref{sec:threats}).
+\item \textbf{Theory.} The cost models are empirical approximations.
+Their crossover calculation is algebraic and conditional on their fitted
+summaries; no architectural lower or upper bound is proved.
+\item \textbf{Statistics.} Event-level bootstrap intervals and the
+finite-permutation procedure are reported for the primary medians.
+Only AR has three timing seeds; event dependence and run effects are not
+fully controlled. Extreme-tail statistics are exploratory.
+\item \textbf{Code and data.} Experiment code, result files, and
+provenance are in the repository. The v8 numeric audit covers named claims;
+passing it does not validate all experimental protocols. Upstream models
+and datasets are cited, and their revision-specific licenses should be
+recorded with the released environment.
+\item \textbf{Resources.} The principal experiments use one A100 80GB;
+reported GPU-hour totals are estimates, not audited accounting.
+\item \textbf{Assets and human subjects.} The study releases experiment
+code and result artifacts rather than a new trained model. It uses public
+data and involves no human-subjects research.
+\item \textbf{Broader impact.} Lower serving latency may reduce resource
+requirements, but does not establish correctness or suitability for
+high-stakes deployment.
+\item \textbf{LLM assistance.} An LLM-based assistant helped review and
+edit the manuscript, check claims against sources, and prepare v8 and v9. The
+previous statement that no LLM was used for writing or editing is not
+applicable to this version. Authors should verify the final submission.
+\end{itemize}

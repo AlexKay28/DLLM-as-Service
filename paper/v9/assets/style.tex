@@ -1,0 +1,186 @@
+% =============================================================================
+%  style.tex — classic arXiv preprint design system.
+%
+%  Computer Modern serif throughout, single-column, numeric citations,
+%  coloured hyperlinks for citations/urls. Minimal chrome. No sans-serif,
+%  no coloured section headings, no tinted boxes.
+% =============================================================================
+
+% ---------------------------------------------------------------- geometry --
+\usepackage[
+  letterpaper,
+  top=1.0in, bottom=1.0in, left=1.25in, right=1.25in,
+  footskip=0.5in
+]{geometry}
+
+% ------------------------------------------------------------------- fonts --
+% Computer Modern is the default; we just need T1 encoding and microtype.
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{microtype}
+
+\linespread{1.1}
+
+% ------------------------------------------------------------------ colours --
+\usepackage[table,dvipsnames]{xcolor}
+
+% Keep figure-series colours for \artag/\dgtag consistency with figures.
+\definecolor{arblue}{HTML}{2A78D6}
+\definecolor{dgorange}{HTML}{EB6834}
+\definecolor{llaqua}{HTML}{1BAF7A}
+
+\definecolor{ink}{HTML}{0B0B0B}
+\definecolor{ink2}{HTML}{52514E}
+\definecolor{muted}{HTML}{898781}
+\definecolor{rule}{HTML}{C3C2B7}
+\definecolor{hairline}{HTML}{E8E7E1}
+
+\definecolor{washblue}{HTML}{EAF1FB}
+\definecolor{washorange}{HTML}{FDEEE7}
+\definecolor{washneutral}{HTML}{F4F3F0}
+
+\definecolor{deepink}{HTML}{1B3A5C}
+\definecolor{linkc}{HTML}{1B3A5C}    % citation/link colour
+
+% ------------------------------------------------------------------ tables --
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{tabularx}
+\renewcommand{\arraystretch}{1.15}
+\setlength{\tabcolsep}{6pt}
+\newcolumntype{R}{>{\raggedleft\arraybackslash}X}
+\newcolumntype{L}{>{\raggedright\arraybackslash}X}
+
+% Table body at footnotesize; no sans-serif.
+\newcommand{\tabfont}{\footnotesize}
+\newcommand{\thead}[1]{\footnotesize\textbf{#1}}
+
+% --------------------------------------------------------------- headings ---
+\usepackage{titlesec}
+
+\titleformat{\section}
+  {\normalfont\large\bfseries}
+  {\thesection}{0.5em}{}
+\titlespacing*{\section}{0pt}{1.3\baselineskip}{0.5\baselineskip}
+
+\titleformat{\subsection}
+  {\normalfont\normalsize\bfseries}
+  {\thesubsection}{0.5em}{}
+\titlespacing*{\subsection}{0pt}{1.0\baselineskip}{0.3\baselineskip}
+
+\titleformat{\subsubsection}
+  {\normalfont\small\bfseries}
+  {\thesubsubsection}{0.5em}{}
+\titlespacing*{\subsubsection}{0pt}{0.8\baselineskip}{0.2\baselineskip}
+
+\titleformat{\paragraph}[runin]
+  {\normalfont\normalsize\bfseries}
+  {}{0em}{}[.]
+\titlespacing*{\paragraph}{0pt}{0.6\baselineskip}{0.5em}
+
+% --------------------------------------------------------------- captions ---
+\usepackage[font=small,labelfont=bf,
+            labelsep=period,
+            skip=5pt,justification=justified]{caption}
+\usepackage{subcaption}
+
+% ------------------------------------------------------------------- boxes --
+% Simplified: no coloured tcolorbox panels. Key boxes use a plain framed box.
+\usepackage[most]{tcolorbox}
+
+\newtcolorbox{keybox}[1][]{
+  enhanced, breakable,
+  colback=white, colframe=black!40,
+  boxrule=0.5pt, arc=1pt,
+  left=8pt, right=8pt, top=5pt, bottom=5pt,
+  before skip=8pt, after skip=8pt,
+  fontupper=\small,
+  #1
+}
+
+\newtcolorbox{takeaway}[1][]{
+  enhanced, breakable,
+  colback=black!3, colframe=black!40,
+  boxrule=0.5pt, arc=1pt,
+  left=8pt, right=8pt, top=5pt, bottom=5pt,
+  before skip=8pt, after skip=8pt,
+  fontupper=\small,
+  #1
+}
+
+\newtcolorbox{caution}[1][]{
+  enhanced, breakable,
+  colback=black!3, colframe=black!40,
+  boxrule=0.5pt, arc=1pt,
+  left=8pt, right=8pt, top=5pt, bottom=5pt,
+  before skip=8pt, after skip=8pt,
+  fontupper=\small,
+  #1
+}
+
+\newcommand{\boxhead}[1]{%
+  \textbf{\footnotesize\MakeUppercase{#1}}\par
+  \vspace{2pt}}
+
+% ------------------------------------------------------------------- lists --
+\usepackage{enumitem}
+\setlist[itemize]{leftmargin=1.5em,itemsep=2pt,topsep=4pt,parsep=0pt}
+\setlist[enumerate]{leftmargin=1.8em,itemsep=2pt,topsep=4pt,parsep=0pt}
+
+% -------------------------------------------------------------------- misc --
+\usepackage{amsmath}
+\let\Bbbk\relax
+\usepackage{amssymb}
+\usepackage{siunitx}
+\sisetup{group-separator={,},group-minimum-digits=4,detect-all}
+\usepackage{graphicx}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{float}
+
+% hyperref must be loaded last (arXiv requirement).
+\usepackage[colorlinks=true,
+            linkcolor=linkc, citecolor=linkc, urlcolor=linkc,
+            bookmarks=true,
+            pdfborder={0 0 0}]{hyperref}
+
+% Model shorthands.
+\newcommand{\ARthree}{\textsc{ar-3b}}
+\newcommand{\ARoneb}{\textsc{ar-1.5b}}
+\newcommand{\DG}{\textsc{dg}}
+\newcommand{\LLaDA}{\textsc{llada-8b}}
+
+% Plain inline model tags (no colour in classic style).
+\newcommand{\artag}{\textsc{ar}}
+\newcommand{\dgtag}{\textsc{dg}}
+
+% A quiet inline source pointer.
+\newcommand{\artifact}[1]{\textcolor{black!50}{\ttfamily\scriptsize #1}}
+
+% ---------------------------------------------------------------- title page --
+\usepackage{titling}
+\usepackage{fancyhdr}
+
+\pagestyle{fancy}
+\fancyhf{}
+\renewcommand{\headrulewidth}{0pt}
+\fancyfoot[C]{\thepage}
+
+% Classic arXiv title: centered, bold, serif. No coloured rules.
+\newcommand{\papertitle}[5]{%
+  \thispagestyle{empty}
+  \begingroup
+  \centering
+  {\LARGE\bfseries #1\par}
+  \vspace{6pt}
+  {\large\itshape #2\par}
+  \vspace{10pt}
+  {\normalsize #3\par}
+  \vspace{2pt}
+  {\small #4\par}
+  \vspace{3pt}
+  {\footnotesize #5\par}
+  \endgroup
+  \vspace{14pt}
+}

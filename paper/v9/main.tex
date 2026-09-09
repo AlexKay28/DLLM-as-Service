@@ -1,0 +1,133 @@
+\documentclass[11pt,a4paper]{article}
+
+%, Page Geometry & Layout ,
+\usepackage[margin=1in]{geometry}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+
+%, Core Math & Symbols ,
+\usepackage{amsmath,amssymb,amsfonts,amsthm}
+
+%, Graphics, Tables & Formatting ,
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{microtype}
+\setlength{\emergencystretch}{2em}
+\usepackage{setspace}
+\setstretch{1.12}
+
+%, Tables ,
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{tabularx}
+\renewcommand{\arraystretch}{1.15}
+\setlength{\tabcolsep}{6pt}
+\newcolumntype{R}{>{\raggedleft\arraybackslash}X}
+\newcolumntype{L}{>{\raggedright\arraybackslash}X}
+\newcommand{\tabfont}{\footnotesize}
+\newcommand{\thead}[1]{\footnotesize\textbf{#1}}
+
+%, Captions ,
+\usepackage{caption}
+\captionsetup{font=small, labelfont=bf}
+
+%, Lists ,
+\usepackage{enumitem}
+\setlist[itemize]{leftmargin=1.5em,itemsep=2pt,topsep=4pt,parsep=0pt}
+\setlist[enumerate]{leftmargin=1.8em,itemsep=2pt,topsep=4pt,parsep=0pt}
+
+%, Colors ,
+\usepackage[table,dvipsnames]{xcolor}
+\definecolor{arblue}{HTML}{2A78D6}
+\definecolor{dgorange}{HTML}{EB6834}
+\definecolor{llaqua}{HTML}{1BAF7A}
+\definecolor{linkc}{HTML}{1B3A5C}
+
+%, Hyperlinks & Metadata ,
+\usepackage[
+    colorlinks=true,
+    linkcolor=linkc,
+    citecolor=linkc,
+    urlcolor=linkc,
+    pdfauthor={Aleksandr Kaigorodov},
+    pdftitle={When Block-Diffusion Language Models Are Faster},
+    pdfsubject={Block-structured decoding cost analysis},
+    pdfkeywords={diffusion LLM, block decoding, latency, structured output}
+]{hyperref}
+
+%, Model shorthands ,
+% NB: \ARthree renders AR-30B (the name is an AR-3B-era leftover).
+\newcommand{\ARthree}{\textsc{ar-30b}}
+\newcommand{\DG}{\textsc{dg}}
+\newcommand{\LLaDA}{\textsc{llada-8b}}
+
+%, Macros (numbers from results/) ,
+\input{assets/macros.tex}
+
+\graphicspath{{./}{figures/}}
+
+\title{\textbf{When Block-Diffusion Language Models Are Faster:\\
+Latency, Throughput, and Quality in Structured Log Extraction}}
+
+\author{
+  \textbf{Aleksandr Kaigorodov, Yandex}
+}
+
+\date{}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+Online log processing needs usable records before a response deadline;
+a correct answer arriving too late may miss its purpose. We compare
+DiffusionGemma with the autoregressive Qwen3 model on structured extraction
+from BlueGene/L (BGL) system logs, using the same serving software and one
+NVIDIA A100 graphics processing unit. Diffusion refines multiple token
+positions in parallel, whereas standard autoregressive decoding emits tokens
+sequentially. With one request at a time, median generation latency is
+380 versus 924\,ms, a $2.4\times$ advantage for diffusion. Empirical cost
+models explain how output length and block boundaries affect this comparison;
+long natural outputs remain an extrapolation. The latency gap motivates
+diffusion for deadline-bound extraction when its output meets the task's
+quality and validity requirements. Quality equivalence was tested against
+a smaller autoregressive baseline, however, and end-to-end deadline success
+was not measured. Autoregressive throughput benefits more from batching
+in the tested configurations. The practical choice therefore depends on
+response time, acceptable quality, concurrency, and resource utilization.
+\end{abstract}
+
+\input{sections/01_introduction}
+\input{sections/02_cost_laws}
+\input{sections/03_deployment}
+\input{sections/04_deployment_losses}
+\input{sections/05_survives}
+\input{sections/06_related_work}
+\input{sections/07_threats}
+\input{sections/08_conclusion}
+
+% ======================================================================
+%                          APPENDICES
+% ======================================================================
+
+\bibliographystyle{plain}
+\bibliography{assets/references}
+
+\appendix
+
+\input{sections/09_appendix_defects}
+\input{sections/10_appendix_decomp}
+\input{sections/11_appendix_batching}
+\input{sections/12_appendix_refuted}
+\input{sections/13_appendix_input_canvas}
+\input{sections/14_appendix_quality}
+\input{sections/15_appendix_distributions}
+\input{sections/16_appendix_forced}
+\input{sections/17_appendix_batching_arch}
+\input{sections/18_appendix_humaneval}
+
+% Venue-specific submission disclosures are kept separately; see REVIEW.md.
+
+\end{document}

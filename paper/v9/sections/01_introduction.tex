@@ -1,0 +1,172 @@
+\section{Introduction}
+\label{sec:intro}
+
+An online log processor may need to identify an event's severity and affected
+component before a downstream response deadline. A correct record delivered
+after that deadline cannot support the intended timely decision, even if it
+remains useful for later analysis. This makes the time to a usable answer a
+different objective from the number of requests processed per second.
+
+Parallel token generation can shorten a language model's response time,
+but it does not by itself establish a serving advantage. A useful comparison
+must account for output length, stopping policy, concurrent requests, and
+output quality. Autoregressive (AR) decoding generates tokens, the model's units of text,
+sequentially;
+block-diffusion decoding refines a \emph{canvas}, a fixed-size block of
+token positions, in parallel
+before moving to the next canvas. These execution patterns suggest different
+latency curves. Their practical consequences require measurement.
+
+We study structured log extraction on a single NVIDIA A100 graphics
+processing unit (GPU), with 80\,GB memory, using the vLLM model-serving
+software~\cite{vllm2023}. Our primary pair comprises
+DiffusionGemma-26B-A4B (\DG)~\cite{diffusiongemma} and
+Qwen3-30B-A3B (\ARthree)~\cite{qwen3}. In these names, 26B-A4B means
+approximately 26 billion total and 4 billion active parameters; 30B-A3B
+means 30 billion total and 3 billion active parameters.
+
+\noindent\begin{minipage}{\linewidth}
+\paragraph{Three takeaways.}
+\begin{enumerate}
+\item \textbf{Diffusion has lower measured serial latency.}
+On BlueGene/L (BGL) system logs, DiffusionGemma returns in approximately
+380\,ms versus 924\,ms for AR-30B at the median, with one request at a time.
+The cost models explain why output length can matter, while retaining the
+limits of extrapolation to naturally long outputs.
+\item \textbf{Faster responses can matter under a deadline.}
+The latency gap motivates evaluating diffusion when a usable record must
+arrive within a fixed time budget. This benefit requires acceptable quality
+and validity; our measurements do not establish end-to-end deadline success
+or quality equivalence for the primary model pair.
+\item \textbf{The serving choice depends on quality and concurrency.}
+AR gains more throughput from batching on the tested stacks. Decoding
+effort, output requirements, and resource utilization determine whether
+lower serial latency translates into a useful or economical service.
+\end{enumerate}
+\end{minipage}
+
+\paragraph{Roadmap and contributions.}
+After specifying the experiment below, we fit the two decoding cost models
+and explain their output-length dependence (\S\ref{sec:laws}). We then
+report measured latency alongside quality and energy (\S\ref{sec:wins}),
+examine batching and deployment cost (\S\ref{sec:limits}), and apply these
+distinctions to deadlines and log-processing workloads
+(\S\ref{sec:survives}). Related work and limitations follow. The appendices
+retain detailed transfer checks and nine groups of corrections to our own
+measurements and interpretations (Appendix~\ref{app:defects}).
+
+\subsection{Experimental setup and reading the measurements}
+\label{sec:setup}
+
+\paragraph{Models and serving.}
+Both primary models use a mixture-of-experts (MoE) design, activating a
+subset of their expert parameters for each token. Their broadly comparable
+parameter and weight footprints control architecture class and approximate
+scale, but do not match training data, model quality, tokenizer, or decoder
+implementation. The main measurements use the pinned vLLM 0.25.1 stack.
+Earlier Qwen2.5 experiments use smaller dense autoregressive models,
+which do not select expert subsets, including Qwen2.5-3B (dense AR-3B)
+and Qwen2.5-1.5B (dense AR-1.5B). LLaDA-8B is a separate diffusion
+baseline. These secondary comparisons are identified throughout.
+
+\paragraph{Task and data.}
+Each raw log line is mapped to a JavaScript Object Notation (JSON) record,
+a structured set of named fields and values, with twelve fields. Seven
+structural fields describe the timestamp, host, component, severity,
+message template, error code, and numeric value; two fields encode an
+anomaly label and score; three provide semantic or action information.
+The primary corpus is BGL from the Loghub collection~\cite{loghub}, containing
+4{,}747{,}963 BlueGene/L log lines. The preparation procedure samples
+600{,}000 lines by reservoir sampling (seed 42) and splits the sample
+temporally into 400{,}000 training and 200{,}000 test records.
+Evaluation cells use subsets of this test split, usually $n{=}300$ unless
+otherwise stated. Hadoop Distributed File System (HDFS) logs provide a
+secondary log-corpus check using the
+2{,}000-line Loghub sample.
+
+Reference records are constructed by the repository's parsing pipeline,
+which supports the Drain log-template parser~\cite{drain} and a
+regular-expression fallback. They are not
+independently annotated semantic ground truth. In particular, the code
+sets \texttt{is\_anomaly} when the native alert tag is non-normal
+\emph{or} severity is ERROR, FATAL, or CRITICAL, and sets
+\texttt{anomaly\_score} to the corresponding binary value. Thus these
+fields measure agreement with a label-construction rule, not solely
+prediction of native alert tags. A FATAL line tagged \texttt{-}, for
+example, still receives an anomaly label under this rule.
+
+\paragraph{Metrics and decoding.}
+Quality is macro-averaged token-overlap F1 across seven structural and two
+anomaly fields. We exclude \texttt{event\_type},
+\texttt{affected\_entity}, and \texttt{remediation\_hint}, whose
+references are parser-derived rather than independently validated.
+Excluding them reduces one source of contamination; it does not make the
+remaining labels independent of the preparation pipeline.
+F1 is the harmonic mean of precision and recall; here these measure token
+overlap between predicted and reference field values. Macro-averaging gives
+the scored fields equal weight. The scorer treats two empty field values
+as a match, so Field-F1 should be
+read alongside validity. \emph{Schema validity} is the harness check for
+required fields and supported type and allowed-value constraints on the parsed record;
+\emph{completeness} measures field presence. Neither establishes semantic
+correctness. We use first-object-wins parsing for repeated JSON outputs.
+
+Both models use greedy decoding, selecting the highest-scoring token
+without random sampling (temperature 0, top-p 1, repetition penalty 1).
+Unless varied explicitly, DG uses $K{=}8$ denoising steps, the successive
+refinement passes within a canvas, and canvas size $C{=}256$ token positions.
+Model-specific settings and environment versions
+are recorded in the result artifacts. Nominal model sizes are 26B total/4B
+active parameters for DG and 30B total/3B active for AR, with approximate
+bfloat16 (bf16, a 16-bit floating-point format) weight footprints of 52 and
+60\,GB; these are rounded model labels,
+not measurements of total runtime memory.
+
+We distinguish three quantities: generated output length $L$, the configured
+maximum output budget $B$, and the number of decoded canvases
+$N_C$. Raising $B$ does not increase $L$ when a model has already emitted
+end-of-sequence (EOS). We also distinguish serial mean service cost,
+per-event latency percentiles, and inverse throughput under batching.
+These quantities answer different deployment questions. The $p50$ is the
+median; $p99$ is the latency at or below which 99\% of observations fall.
+A confidence interval (CI) describes statistical uncertainty in an estimate.
+The coefficient of variation (CV) is standard deviation divided by mean,
+reported as a percentage here.
+
+\begin{table}[ht]
+\centering
+\caption{Primary comparison. Latency statistics are from the repeated
+BGL batch-1 runs (AR: 900 events; DG: 2,000). Throughput multipliers
+come from separate batching experiments. DG has greater \emph{relative}
+variability but lower \emph{absolute} p99 latency.}
+\label{tab:summary}
+\begin{tabularx}{\linewidth}{@{}L r r@{}}
+\toprule
+& \thead{AR-30B} & \thead{DG} \\
+\midrule
+\tabfont Nominal total / active parameters & 30B / 3B & 26B / 4B \\
+\tabfont Approximate bf16 weights & 60\,GB & 52\,GB \\
+\tabfont Median latency (ms) & \arMedian & \dgMedian \\
+\tabfont p99 latency (ms) & \arPninetyNine & \dgPninetyNine \\
+\tabfont Per-event CV (\%) & \arThirtyCV & \dgThirtyCV \\
+\tabfont Observed batch-1 to peak multiplier & \arBatchMult$\times$ & up to 1.7$\times$ \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\begin{table}[ht]
+\centering
+\caption{Simplified serial execution models at fixed prompt and decoding
+settings. ``Flat'' refers to observed latency within a paid-for canvas,
+not zero computation per token.}
+\label{fig:schematic}
+\begin{tabularx}{\linewidth}{@{}L L L@{}}
+\toprule
+& \thead{Autoregressive} & \thead{Block diffusion} \\
+\midrule
+Decoding & Sequential token steps & Parallel positions, sequential canvases \\
+Cost approximation & $a_A+b_A L$ & $a_D+s_D(N_C-1)$ \\
+Main variable & Actual generated length $L$ & Decoded canvas count $N_C$ \\
+\bottomrule
+\end{tabularx}
+\end{table}

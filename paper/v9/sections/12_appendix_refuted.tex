@@ -1,0 +1,33 @@
+\section{Negative and unsupported hypotheses}
+\label{app:refuted}
+
+The following hypotheses were contradicted by measurements, explained by
+harness corrections, or not tested by the chosen metric. These are different
+evidential outcomes. In particular, failure to measure a proposed scaling
+law is not an empirical refutation of that law.
+
+\begin{table}[ht]
+\centering
+\caption{Limits of proposed diffusion advantages on BGL. Perturbation,
+refinement, and the historical deadline probe use LLaDA versus dense
+AR-3B; infilling uses DG versus dense AR-3B; schema-width and output-budget
+probes use DG with dense AR-3B controls. These are not AR-30B results.}
+\label{tab:refuted}
+\begin{tabularx}{\linewidth}{@{}>{\raggedright\arraybackslash}p{4.2cm}L@{}}
+\toprule
+\thead{Hypothesis} & \thead{Evidence and interpretation} \\
+\midrule
+\tabfont Greater perturbation robustness & \tabfont LLaDA degrades more than AR in all ten tested categories. This does not isolate bidirectional attention as the cause. \\
+\tabfont Better infilling & \tabfont AR scores 0.993--0.999 across tested suffix sizes; DG falls from about 0.960 to 0.753 at eight held-out suffix tokens. This task permits AR to regenerate the record from its prompt. \\
+\tabfont Refinement closes the quality gap & \tabfont LLaDA gains 0.023 F1 over three rounds but still trails one AR pass. The improvement does not establish a quality win. \\
+\tabfont Guaranteed deadline completeness & \tabfont The historical AR completeness deficit disappeared after correcting treatment of falsy values (Appendix~\ref{app:defects}, item 4). \\
+\tabfont Joint denoising absorbs quadratic constraint cost & \tabfont Not tested: the consistency metric checks three fixed rules at every schema width. \\
+\tabfont Quality invariant to output budget & \tabfont DG quality is poor at small budgets, then rises and plateaus. A plateau over sufficient budgets is not global invariance. \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+These outcomes constrain the application claims. They do not establish
+that diffusion is intrinsically less robust, incapable of infilling, or
+unable to benefit from refinement. The measured model, task framing,
+references, and decoding configuration remain part of each comparison.

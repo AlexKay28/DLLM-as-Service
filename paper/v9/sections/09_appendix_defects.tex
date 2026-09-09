@@ -1,0 +1,59 @@
+\section{Corrections to the comparison}
+\label{app:defects}
+
+The study underwent nine groups of corrections. Several contain more than
+one implementation defect, so this count is an audit organization rather
+than a count of independent failures. Inspection of committed artifacts
+identified the problems; some corrections required new measurements.
+The effects below concern our own harness and should not be generalized
+to other authors' experiments or intentions.
+
+\begin{enumerate}
+\item \textbf{Decoding configuration.} A checkpoint repetition penalty
+suppressed span-copying. Setting it to 1.0 moved dense AR-1.5B's
+12-field F1 from \defectOneFBefore{} to \defectOneFAfter{}
+($n{=}2000$). The default had understated AR quality.
+\item \textbf{Serving path.} Moving dense AR-1.5B from a HuggingFace
+\texttt{generate} loop to vLLM changed p50 from
+\defectTwoBefore{} to \defectTwoAfter\,ms ($n{=}2000$).
+The earlier diffusion comparison therefore depended strongly on the AR
+implementation. This historical comparison is not the current MoE pair.
+\item \textbf{Parser policy.} At output budget 512, \rambleRate\%
+of AR outputs contained multiple JSON objects. Taking the first object
+rather than the last changed dense AR-3B's 12-field F1 from
+\defectThreeBefore{} to \defectThreeAfter{}.
+\item \textbf{Completeness.} A metric counted present but falsy values
+such as \texttt{False}, \texttt{0.0}, and empty strings as missing.
+Correcting field-presence handling changed the reported AR completeness
+from \defectFourBefore\% to \defectFourAfter\% in the historical
+bounded-deadline experiment, removing the claimed completeness advantage.
+\item \textbf{Model provenance.} A command-line interface default wrote an AR identifier
+into three LLaDA artifacts. Correction sidecars document the model used.
+The error affected auditability rather than the stored timings.
+\item \textbf{Classical baseline.} A result labeled ``Drain'' used a
+regex fallback shared with reference construction. Self-agreement on
+parser-derived fields was not an independent extraction benchmark;
+we withdrew that comparison.
+\item \textbf{Semantic references.} Three fields had parser-derived or
+constant references. On the historical DG/dense-AR-3B pair, excluding
+them changed the reported gap from \twelveGap{} on twelve fields to
+approximately \qualityGap{} on nine. This does not remove all
+reference-construction limitations (\S\ref{sec:threats}).
+\item \textbf{Queueing interpretation.} A Poisson-arrival saturation
+observation was overinterpreted as validation of an M/D/1 latency model.
+The claim did not transfer to the bursty arrival experiment. We retain
+the observed load behavior without a general queue-delay guarantee.
+\item \textbf{AR-30B input and timing.} A historical harness supplied
+gold records instead of raw logs, combined an older engine with eager
+execution, mislabeled batched cost as serial latency, and mishandled
+prediction construction. Its perfect quality and 48\,ms/token estimate
+were invalid. Corrected measurements on the pinned stack gave
+approximately 7.2\,ms/token and 9-field F1 0.870. The headline comparison
+must use those corrected artifacts or the later repeated latency runs.
+\end{enumerate}
+
+The practical checks are explicit decoding settings, inspection of raw
+inputs and outputs, separate timing and throughput definitions, and
+verification of model identifiers and reference construction. A numeric
+verifier can detect some transcription errors; it cannot establish that
+a valid-looking metric measures the intended task.

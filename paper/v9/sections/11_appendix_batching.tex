@@ -1,0 +1,19 @@
+\section{Batching measurements and cache controls}
+\label{app:batching}
+
+The primary AR-30B batch run processes 300 events in 12.08\,s and
+reports a throughput multiplier of \arBatchMult$\times$ relative
+to its serial control. DG on vLLM reaches up to
+\dgBatchVllmHi$\times$ in the tested length and batch settings;
+LLaDA-8B on dInfer reaches approximately $1.2\times$.
+The vLLM mixed-phase limitation and cache-less dInfer configuration
+prevent either diffusion result from establishing an architectural ceiling.
+
+The prefix-cache toggle is a separate dense AR-3B experiment. Turning
+cross-request prefix caching off changes its multiplier from
+\cacheOnMult$\times$ to \cacheOffMult$\times$.
+This shows that shared-prefix reuse is not the sole source of AR's
+batching gain. It does not isolate the remainder as within-request KV
+persistence: kernel efficiency, weight reuse, scheduling, and batch shape
+also differ. Appendix~\ref{app:batching_architectural} describes the
+architectural distinction without assigning an unmeasured causal share.
